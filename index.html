@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mike & Yvy: A Love Story (RPG Edition)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2d2d2d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #game-container {
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 8px solid #4a3b2a;
+            border-radius: 4px;
+            position: relative;
+            background: #000;
+        }
+        #scrolling-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background-color: #000;
+            border-bottom: 2px solid #333;
+            overflow: hidden;
+            z-index: 100;
+            display: none; /* Hidden by default */
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            display: inline-block;
+            animation: scroll-left 20s linear infinite;
+            color: #0f0; /* Terminal Green */
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 30px;
+            padding-left: 100%;
+        }
+        @keyframes scroll-left {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+        #ui-layer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .dialogue-box {
+            background: #e1c699;
+            border: 4px solid #8b4513;
+            border-radius: 5px;
+            padding: 15px;
+            width: 100%;
+            min-height: 80px;
+            display: none; /* Changed to flex in JS */
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+            pointer-events: auto;
+        }
+        
+        .portrait-frame {
+            width: 100px;
+            height: 100px;
+            border: 4px solid #8b4513;
+            background-color: #d2b48c; /* Fallback color */
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: none; /* Hidden by default */
+            overflow: hidden;
+        }
+
+        .portrait-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 20%; 
+            image-rendering: pixelated;
+        }
+
+        .dialogue-text {
+            color: #3e2723;
+            font-size: 18px;
+            font-weight: bold;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            flex-grow: 1;
+            margin-top: 5px;
+        }
+
+        .interaction-hint {
+            color: white;
+            text-shadow: 2px 2px 0 #000;
+            font-size: 20px;
+            margin-bottom: 10px;
+            animation: bounce 1s infinite;
+            display: none;
+        }
+        
+        /* Wardrobe Modal */
+        #wardrobe-modal, #restaurant-menu-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff8e1;
+            border: 4px solid #5d4037;
+            padding: 20px;
+            text-align: center;
+            display: none;
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #wardrobe-modal h2, #restaurant-menu-modal h2 { margin-top: 0; color: #3e2723; }
+        .outfit-btn {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 10px auto;
+            background: #8d6e63;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .outfit-btn:hover { background: #6d4c41; }
+        #btn-confirm { background: #2e7d32; }
+        #btn-confirm:hover { background: #1b5e20; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="scrolling-banner">
+            <div class="marquee">
+                FLIGHT 214 TO SAN DIEGO: ON TIME --- GATE 12B: BOARDING --- WELCOME TO DCA AIRPORT --- MIKE, DON'T FORGET YOUR BOARDING PASS --- TRAVEL ADVISORY: PACK LIGHT ---
+            </div>
+        </div>
+        
+        <!-- Wardrobe UI -->
+        <div id="wardrobe-modal">
+            <h2>Select Work Outfit</h2>
+            <button class="outfit-btn" id="btn-suit">Business Suit</button>
+            <button class="outfit-btn" id="btn-casual">Smart Casual</button>
+            <button class="outfit-btn" id="btn-confirm">Confirm Look</button>
+        </div>
+
+        <!-- Restaurant Menu UI -->
+        <div id="restaurant-menu-modal">
+            <h2>Order Dinner</h2>
+            <button class="outfit-btn" id="btn-order-tacos">Tacos</button>
+            <button class="outfit-btn" id="btn-order-pizza">Pizza</button>
+            <button class="outfit-btn" id="btn-order-spaghetti">Spaghetti</button>
+        </div>
+
+        <div id="ui-layer">
+            <div id="interaction-hint" class="interaction-hint">PRESS SPACE</div>
+            <div id="dialogue-box" class="dialogue-box">
+                <div id="portrait-frame" class="portrait-frame">
+                    <img id="portrait-img" src="https://i.ibb.co/5XNnfJFc/IMG-8277.jpg" alt="Portrait" onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#3498db';">
+                </div>
+                <div id="dialogue-text" class="dialogue-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Constants & State ---
+        const GAME_WIDTH = 800;
+        const GAME_HEIGHT = 600;
+        const TILE_SIZE = 32;
+
+        const COLORS = {
+            mike: 0x3498db,
+            yvy_club: 0xe91e63,
+            marine: 0x2d5a27,
+            tsa: 0x3f51b5,
+            floor: 0x8d6e63,
+            starbucks: 0x00704a,
+            beer: 0xffca28,
+            cocktail: 0xe040fb,
+            pizza_sauce: 0xc62828,
+            pizza_crust: 0xfbc02d,
+            furniture: 0x5d4037,
+            lamp_shade: 0xffeb3b,
+            vr_headset: 0x212121
+        };
+
+        const gameState = {
+            hasTicket: false,
+            hasSuitcase: false,
+            securityCleared: false,
+            hasCoffee: false,
+            drinksConsumed: 0,
+            clubProgress: 0,
+            farewellDone: false,
+            callFinished: false,
+            dressedForWork: false,
+            hasVR: false,
+            demosGiven: 0
+        };
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            if (type === 'text') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'select') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.linearRampToValueAtTime(880, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'clink') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'club_beat') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(0.01, now + 0.4);
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'vr_boop') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.linearRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'msg_sent') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.linearRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'fire') {
+                const noise = audioCtx.createBufferSource();
+                const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.1, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < buffer.length; i++) data[i] = Math.random() * 2 - 1;
+                noise.buffer = buffer;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 1000;
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                noise.start(now);
+            }
+        }
+
+        // --- Music Themes ---
+        let currentMusicNodes = [];
+
+        function stopMusic() {
+            currentMusicNodes.forEach(node => {
+                if(node.stop) node.stop();
+                if(node.osc) try { node.osc.stop(); } catch(e){}
+                if(node.gain) try { node.gain.disconnect(); } catch(e){}
+            });
+            currentMusicNodes = [];
+        }
+
+        function fadeOutMusic(duration) {
+            const now = audioCtx.currentTime;
+            currentMusicNodes.forEach(node => {
+                if (node.gain && node.gain.gain) {
+                    node.gain.gain.cancelScheduledValues(now);
+                    node.gain.gain.setValueAtTime(node.gain.gain.value, now);
+                    node.gain.gain.linearRampToValueAtTime(0, now + duration);
+                }
+                setTimeout(() => {
+                    if(node.stop) node.stop();
+                    if(node.osc) try { node.osc.stop(); } catch(e){}
+                    if(node.gain) try { node.gain.disconnect(); } catch(e){}
+                }, duration * 1000);
+            });
+            setTimeout(() => { currentMusicNodes = []; }, duration * 1000);
+        }
+
+        function playAirportTheme() {
+            stopMusic();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const melody = [
+                {f: 523.25, d: 0.2}, {f: 659.25, d: 0.2}, {f: 783.99, d: 0.2}, {f: 523.25, d: 0.4},
+                {f: 659.25, d: 0.2}, {f: 783.99, d: 0.2}, {f: 1046.50, d: 0.4}
+            ];
+
+            function playNote(idx) {
+                if(idx >= melody.length) idx = 0;
+                const note = melody[idx];
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = note.f;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + note.d * 0.9);
+                gain.gain.setValueAtTime(0.02, now); // Very quiet
+                gain.gain.linearRampToValueAtTime(0, now + note.d * 0.9);
+                
+                if(Math.random() > 0.8) {
+                    const noise = audioCtx.createOscillator();
+                    const nGain = audioCtx.createGain();
+                    noise.type = 'sawtooth';
+                    noise.frequency.value = 50 + Math.random() * 100;
+                    noise.connect(nGain);
+                    nGain.connect(audioCtx.destination);
+                    nGain.gain.setValueAtTime(0.005, now);
+                    nGain.gain.linearRampToValueAtTime(0, now + 0.5);
+                    noise.start(now);
+                    noise.stop(now + 0.5);
+                }
+
+                const nextTime = note.d * 1000;
+                const timer = setTimeout(() => playNote(idx + 1), nextTime + 200); // Slight pause
+                currentMusicNodes.push({stop: () => clearTimeout(timer)});
+            }
+            playNote(0);
+        }
+
+        function playRomanticTheme() {
+            stopMusic();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const freqs = [261.63, 329.63, 392.00, 493.88]; 
+            freqs.forEach((f) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = f;
+                osc.detune.value = (Math.random() - 0.5) * 10;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.03, now + 5);
+                currentMusicNodes.push({osc, gain});
+            });
+        }
+        
+        function playBlueTheme() {
+            stopMusic();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // "Blue" - Yung Kai melody approximation
+            // Key: Eb Major/C minor feel usually, but simplified here to C major scale for implementation ease
+            // "You're the sun..." (E D C...)
+            const melody = [
+                {f: 329.63, d: 0.6}, {f: 293.66, d: 0.3}, {f: 261.63, d: 1.2}, // E D C
+                {f: 392.00, d: 0.6}, {f: 329.63, d: 0.3}, {f: 293.66, d: 1.2}, // G E D
+                {f: 261.63, d: 0.6}, {f: 293.66, d: 0.3}, {f: 329.63, d: 0.6}, {f: 261.63, d: 0.6}, // C D E C
+                {f: 196.00, d: 1.8}, // G (low)
+                
+                {f: 329.63, d: 0.6}, {f: 293.66, d: 0.3}, {f: 261.63, d: 1.2}, // E D C
+                {f: 392.00, d: 0.6}, {f: 329.63, d: 0.3}, {f: 293.66, d: 1.2}, // G E D
+            ];
+
+            // Bass/Chords
+            const now = audioCtx.currentTime;
+            const padFreqs = [130.81, 196.00, 261.63]; // C G C
+            padFreqs.forEach(f => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = f;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.05, now + 2);
+                currentMusicNodes.push({osc, gain});
+            });
+
+            function playNote(idx) {
+                if(idx >= melody.length) idx = 0;
+                const note = melody[idx];
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle'; // Softer, dreamy sound
+                osc.frequency.value = note.f;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + note.d * 0.95);
+                
+                // Envelope
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.08, now + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + note.d * 0.95);
+                
+                const nextTime = note.d * 1000;
+                const timer = setTimeout(() => playNote(idx + 1), nextTime);
+                currentMusicNodes.push({stop: () => clearTimeout(timer)});
+            }
+            playNote(0);
+        }
+
+        function playConferenceTheme() {
+            stopMusic();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const melody = [
+                {f: 659.25, d: 0.4}, {f: 493.88, d: 0.2}, {f: 523.25, d: 0.2}, {f: 587.33, d: 0.4}, // E B C D
+                {f: 523.25, d: 0.2}, {f: 493.88, d: 0.2}, {f: 440.00, d: 0.4}, {f: 440.00, d: 0.2}, // C B A A
+                {f: 523.25, d: 0.2}, {f: 659.25, d: 0.4}, {f: 587.33, d: 0.2}, {f: 523.25, d: 0.2}, // C E D C
+                {f: 493.88, d: 0.4}, {f: 493.88, d: 0.2}, {f: 523.25, d: 0.2}, {f: 587.33, d: 0.4}, // B B C D
+                {f: 659.25, d: 0.4}, {f: 523.25, d: 0.4}, {f: 440.00, d: 0.4}, {f: 440.00, d: 0.4}  // E C A A
+            ];
+            function playNote(idx) {
+                if(idx >= melody.length) idx = 0;
+                const note = melody[idx];
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = note.f;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + note.d * 0.9);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.linearRampToValueAtTime(0, now + note.d * 0.9);
+                const nextTime = note.d * 1000;
+                const timer = setTimeout(() => playNote(idx + 1), nextTime);
+                currentMusicNodes.push({stop: () => clearTimeout(timer)});
+            }
+            playNote(0);
+        }
+
+        function playDreamworksTheme() {
+            stopMusic();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const melody = [
+                {f: 392.00, d: 0.4}, {f: 523.25, d: 0.4}, {f: 659.25, d: 0.4}, {f: 783.99, d: 0.8},
+                {f: 659.25, d: 0.4}, {f: 783.99, d: 0.4}, {f: 1046.5, d: 0.8},
+                {f: 783.99, d: 0.4}, {f: 659.25, d: 0.4}, {f: 523.25, d: 0.8}
+            ];
+            function playNote(idx) {
+                if (idx >= melody.length) return; 
+                const note = melody[idx];
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle'; 
+                osc.frequency.value = note.f;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + note.d * 0.95);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + note.d * 0.95);
+                const timer = setTimeout(() => playNote(idx + 1), note.d * 1000);
+                currentMusicNodes.push({stop: () => clearTimeout(timer)});
+            }
+            playNote(0);
+        }
+
+        function playBattleTheme() {
+            stopMusic();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const melody = [
+                {f: 110.00, d: 0.15}, {f: 130.81, d: 0.15}, {f: 146.83, d: 0.15}, {f: 130.81, d: 0.15},
+                {f: 110.00, d: 0.15}, {f: 130.81, d: 0.15}, {f: 164.81, d: 0.15}, {f: 155.56, d: 0.15},
+            ];
+            function playNote(idx) {
+                if(idx >= melody.length) idx = 0;
+                const note = melody[idx];
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth'; 
+                osc.frequency.value = note.f;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + note.d * 0.8);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.linearRampToValueAtTime(0, now + note.d * 0.8);
+                const timer = setTimeout(() => playNote(idx + 1), note.d * 1000);
+                currentMusicNodes.push({stop: () => clearTimeout(timer)});
+            }
+            playNote(0);
+        }
+
+        function playLeFestinTheme() {
+            stopMusic();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const melody = [
+                {f: 392.00, d: 0.6}, {f: 440.00, d: 0.3}, {f: 392.00, d: 0.3}, // G A G
+                {f: 329.63, d: 0.6}, {f: 392.00, d: 0.3}, {f: 329.63, d: 0.3}, // E G E
+                {f: 261.63, d: 0.9}, // C...
+                {f: 293.66, d: 0.3}, {f: 329.63, d: 0.3}, {f: 349.23, d: 0.3}, // D E F
+                
+                {f: 392.00, d: 0.6}, {f: 440.00, d: 0.3}, {f: 392.00, d: 0.3}, // G A G
+                {f: 329.63, d: 0.6}, {f: 392.00, d: 0.3}, {f: 329.63, d: 0.3}, // E G E
+                {f: 293.66, d: 0.9}, // D...
+                
+                {f: 523.25, d: 0.6}, {f: 493.88, d: 0.3}, {f: 440.00, d: 0.3}, // C B A
+                {f: 392.00, d: 0.6}, {f: 349.23, d: 0.3}, {f: 329.63, d: 0.3}, // G F E
+                {f: 293.66, d: 0.6}, {f: 329.63, d: 0.3}, {f: 349.23, d: 0.3}, // D E F
+                {f: 392.00, d: 0.9}  // G...
+            ];
+
+            function playNote(idx) {
+                if(idx >= melody.length) idx = 0;
+                const note = melody[idx];
+                const now = audioCtx.currentTime;
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine'; 
+                osc.frequency.value = note.f;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + note.d * 0.95);
+                
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.1, now + 0.1);
+                gain.gain.linearRampToValueAtTime(0, now + note.d * 0.95);
+
+                if (idx % 3 === 0) { // On the "ONE" of the waltz
+                    const chordOsc = audioCtx.createOscillator();
+                    const chordGain = audioCtx.createGain();
+                    chordOsc.type = 'triangle';
+                    chordOsc.frequency.value = note.f / 2; 
+                    chordOsc.connect(chordGain);
+                    chordGain.connect(audioCtx.destination);
+                    chordOsc.start(now);
+                    chordOsc.stop(now + 0.3);
+                    chordGain.gain.setValueAtTime(0.05, now);
+                    chordGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    currentMusicNodes.push({osc: chordOsc, gain: chordGain});
+                }
+
+                const nextTime = note.d * 1000;
+                const timer = setTimeout(() => playNote(idx + 1), nextTime);
+                currentMusicNodes.push({stop: () => clearTimeout(timer), osc, gain});
+            }
+            playNote(0);
+        }
+
+        // --- Texture Generation ---
+        function generateTextures(scene) {
+            const g = scene.make.graphics();
+
+            // --- HIGH RES PIXEL ART CHARACTERS (Stardew Style) ---
+            const drawPixel = (x, y, color) => {
+                g.fillStyle(color, 1);
+                g.fillRect(x, y, 1, 1); 
+            };
+            const fillRect = (x, y, w, h, color) => {
+                g.fillStyle(color, 1);
+                g.fillRect(x, y, w, h);
+            };
+
+            // --- DETAILED MIKE (Standard) ---
+            g.clear();
+            fillRect(10, 4, 12, 10, 0xffdbac); // Head base
+            fillRect(12, 14, 8, 4, 0xffdbac); // Neck
+            fillRect(8, 14, 4, 8, 0x3498db); // L Sleeve (Blue)
+            fillRect(8, 22, 4, 2, 0xffdbac); // L Hand (Skin)
+            fillRect(20, 14, 4, 8, 0x3498db); // R Sleeve (Blue)
+            fillRect(20, 22, 4, 2, 0xffdbac); // R Hand (Skin)
+            fillRect(9, 2, 14, 4, 0x4a3b2a); // Top
+            fillRect(9, 2, 3, 10, 0x4a3b2a); // L side
+            fillRect(20, 2, 3, 10, 0x4a3b2a); // R side
+            drawPixel(12, 3, 0x6d4c41); // Highlight
+            fillRect(11, 8, 2, 2, 0x000000); // L Eye
+            fillRect(19, 8, 2, 2, 0x000000); // R Eye
+            fillRect(10, 16, 12, 10, 0x3498db);
+            fillRect(14, 16, 4, 4, 0x2980b9); // Collar/Detail
+            fillRect(11, 24, 10, 6, 0x34495e);
+            fillRect(11, 30, 4, 2, 0x34495e); // L Leg
+            fillRect(17, 30, 4, 2, 0x34495e); // R Leg
+            fillRect(10, 31, 5, 1, 0x111111);
+            fillRect(17, 31, 5, 1, 0x111111);
+            g.generateTexture('mike', 32, 32);
+
+            // --- DETAILED MIKE (Suit) ---
+            g.clear();
+            fillRect(10, 4, 12, 10, 0xffdbac); // Skin
+            fillRect(9, 2, 14, 4, 0x4a3b2a); // Hair Top
+            fillRect(9, 2, 3, 10, 0x4a3b2a); // Hair Sides
+            fillRect(20, 2, 3, 10, 0x4a3b2a); 
+            fillRect(11, 8, 2, 2, 0x000000); // Eyes
+            fillRect(19, 8, 2, 2, 0x000000);
+            fillRect(9, 14, 14, 14, 0x2c3e50);
+            fillRect(8, 14, 3, 10, 0x2c3e50); // Arms
+            fillRect(21, 14, 3, 10, 0x2c3e50);
+            fillRect(14, 14, 4, 10, 0xffffff);
+            fillRect(15, 14, 2, 8, 0xe74c3c); 
+            fillRect(11, 26, 4, 6, 0x2c3e50);
+            fillRect(17, 26, 4, 6, 0x2c3e50);
+            fillRect(10, 31, 5, 1, 0x000000);
+            fillRect(17, 31, 5, 1, 0x000000);
+            g.generateTexture('mike_suit', 32, 32);
+
+            // --- DETAILED MIKE (Casual) ---
+            g.clear();
+            fillRect(10, 4, 12, 10, 0xffdbac); 
+            fillRect(9, 2, 14, 4, 0x4a3b2a); 
+            fillRect(9, 2, 3, 10, 0x4a3b2a);
+            fillRect(20, 2, 3, 10, 0x4a3b2a);
+            fillRect(11, 8, 2, 2, 0x000000); 
+            fillRect(19, 8, 2, 2, 0x000000);
+            fillRect(9, 14, 14, 12, 0x95a5a6);
+            fillRect(8, 14, 3, 10, 0x95a5a6); // Arms
+            fillRect(21, 14, 3, 10, 0x95a5a6);
+            fillRect(11, 24, 4, 8, 0x1a237e);
+            fillRect(17, 24, 4, 8, 0x1a237e);
+            fillRect(10, 31, 5, 1, 0xffffff);
+            fillRect(17, 31, 5, 1, 0xffffff);
+            g.generateTexture('mike_casual', 32, 32);
+
+            // --- DETAILED YVY (Stardew Style) ---
+            g.clear();
+            fillRect(11, 5, 10, 9, 0xffdbac); // Face
+            fillRect(12, 14, 8, 3, 0xffdbac); // Neck/Chest
+            fillRect(9, 15, 3, 10, 0xffdbac); // Arms (Bare)
+            fillRect(20, 15, 3, 10, 0xffdbac);
+            fillRect(9, 3, 14, 5, 0x5d4037); // Top
+            fillRect(8, 5, 3, 18, 0x5d4037); // L Side Long
+            fillRect(21, 5, 3, 18, 0x5d4037); // R Side Long
+            fillRect(12, 9, 2, 2, 0x000000); // L Eye
+            fillRect(18, 9, 2, 2, 0x000000); // R Eye
+            fillRect(11, 11, 2, 1, 0xff9999); // Blush
+            fillRect(19, 11, 2, 1, 0xff9999);
+            fillRect(11, 16, 10, 10, 0xe91e63); // Bodice
+            fillRect(10, 24, 12, 6, 0xe91e63); // Skirt flare
+            fillRect(11, 28, 3, 4, 0x212121);
+            fillRect(18, 28, 3, 4, 0x212121);
+            g.generateTexture('yvy', 32, 32);
+
+            // --- DETAILED AIDEN (Child) ---
+            g.clear();
+            fillRect(11, 10, 10, 8, 0xffdbac); // Head
+            fillRect(10, 8, 12, 4, 0x2c3e50); // Hair (Short dark)
+            fillRect(10, 10, 2, 4, 0x2c3e50); // Sideburns
+            fillRect(20, 10, 2, 4, 0x2c3e50);
+            fillRect(12, 13, 2, 2, 0x000000); // Eyes
+            fillRect(18, 13, 2, 2, 0x000000);
+            fillRect(11, 18, 10, 8, 0xffa500); 
+            fillRect(9, 18, 3, 6, 0xffa500); // Arms
+            fillRect(20, 18, 3, 6, 0xffa500);
+            fillRect(11, 26, 3, 6, 0x1a237e);
+            fillRect(18, 26, 3, 6, 0x1a237e);
+            fillRect(11, 31, 3, 1, 0x111111);
+            fillRect(18, 31, 3, 1, 0x111111);
+            g.generateTexture('aiden', 32, 32);
+
+            // --- DETAILED AIDEN (Older) ---
+            g.clear();
+            fillRect(11, 8, 10, 8, 0xffdbac); // Head
+            fillRect(10, 6, 12, 4, 0x2c3e50); // Hair
+            fillRect(10, 8, 2, 5, 0x2c3e50);
+            fillRect(20, 8, 2, 5, 0x2c3e50);
+            fillRect(12, 11, 2, 2, 0x000000);
+            fillRect(18, 11, 2, 2, 0x000000);
+            fillRect(10, 16, 12, 10, 0x2980b9);
+            fillRect(9, 16, 3, 9, 0x2980b9);
+            fillRect(20, 16, 3, 9, 0x2980b9);
+            fillRect(11, 26, 4, 6, 0x34495e);
+            fillRect(17, 26, 4, 6, 0x34495e);
+            g.generateTexture('aiden_older', 32, 32);
+
+            // --- DETAILED SCENERY TEXTURES ---
+            g.clear();
+            g.fillStyle(0x66bb6a, 1); g.fillRect(0,0,32,32);
+            for(let i=0; i<8; i++) {
+                let x = Math.floor(Math.random()*30);
+                let y = Math.floor(Math.random()*30);
+                g.fillStyle(0x388e3c, 1); g.fillRect(x,y,2,4);
+                g.fillStyle(0x81c784, 1); g.fillRect(x+1,y+1,1,2);
+            }
+            g.generateTexture('grass_detailed', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x8d6e63, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0x6d4c41, 1); 
+            g.fillRect(0,0,32,1); g.fillRect(0,31,32,1);
+            for(let i=0; i<32; i+=4) { 
+                if(Math.random()>0.5) g.fillRect(i, Math.random()*32, 2, 1);
+            }
+            g.fillStyle(0x4e342e, 1); 
+            g.fillRect(2, 2, 2, 2); g.fillRect(2, 28, 2, 2);
+            g.generateTexture('floor_wood_detailed', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x66bb6a, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0xffffff, 1);
+            g.fillRect(6, 4, 6, 28); 
+            g.fillRect(20, 4, 6, 28);
+            g.beginPath(); g.moveTo(6,4); g.lineTo(9,0); g.lineTo(12,4); g.fill();
+            g.beginPath(); g.moveTo(20,4); g.lineTo(23,0); g.lineTo(26,4); g.fill();
+            g.fillStyle(0xeeeeee, 1);
+            g.fillRect(0, 10, 32, 4);
+            g.fillRect(0, 22, 32, 4);
+            g.generateTexture('fence_detailed', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x5d4037, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0x3e2723, 1);
+            g.fillRect(5,5,4,4); g.fillRect(20,15,4,4);
+            g.generateTexture('dirt_patch', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x2e7d32, 1);
+            g.fillCircle(16, 16, 14);
+            g.fillStyle(0x1b5e20, 1);
+            g.fillCircle(10, 12, 6); g.fillCircle(22, 12, 6); g.fillCircle(16, 22, 6);
+            g.generateTexture('bush_detailed', 32, 32);
+
+            g.clear();
+            g.fillStyle(0xffeb3b, 1); 
+            g.fillCircle(16, 16, 4);
+            g.fillStyle(0xff5722, 1); 
+            g.fillCircle(16, 8, 4); g.fillCircle(24, 16, 4); g.fillCircle(16, 24, 4); g.fillCircle(8, 16, 4);
+            g.generateTexture('flower_red', 32, 32);
+            
+            g.clear();
+            g.fillStyle(0x8e0000, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0x600000, 1); g.fillCircle(16, 16, 8);
+            g.generateTexture('theater_carpet', 32, 32);
+
+            g.clear();
+            g.fillStyle(0xb71c1c, 1); 
+            g.fillRect(4, 8, 24, 20); 
+            g.fillStyle(0x7f0000, 1); 
+            g.fillRect(4, 28, 24, 4); 
+            g.fillStyle(0x3e2723, 1); 
+            g.fillRect(0, 16, 4, 16);
+            g.fillRect(28, 16, 4, 16);
+            g.generateTexture('theater_seat', 32, 32);
+
+            g.clear();
+            g.fillStyle(0xb71c1c, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0x880e4f, 1); g.fillRect(0,0,10,32); g.fillRect(22,0,10,32);
+            g.generateTexture('theater_curtain', 32, 32);
+
+            g.clear(); g.fillStyle(COLORS.marine, 1); g.fillRect(8, 8, 16, 24); g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); g.fillStyle(0x1e3a1a, 1); g.fillRect(8, 2, 16, 4); g.generateTexture('marine', 32, 32);
+            
+            g.clear(); 
+            g.fillStyle(0xffffff, 1); g.fillRect(8, 8, 16, 24); // Shirt
+            g.fillStyle(0x333333, 1); g.fillRect(8, 12, 16, 16); // Apron
+            g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); // Head
+            g.fillStyle(0x555555, 1); g.fillRect(10, 2, 12, 4); // Hat
+            g.generateTexture('bartender', 32, 32);
+
+            g.clear(); g.fillStyle(COLORS.tsa, 1); g.fillRect(8, 8, 16, 24); g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); g.fillStyle(0x000000, 1); g.fillRect(10, 2, 12, 4); g.generateTexture('tsa', 32, 32);
+            g.clear(); g.fillStyle(0x9c27b0, 1); g.fillRect(8, 8, 16, 24); g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); g.generateTexture('civilian', 32, 32);
+            g.clear(); g.fillStyle(0x000000, 1); g.fillRect(8, 8, 16, 24); g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); g.generateTexture('host', 32, 32);
+            g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(8, 8, 16, 24); g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); g.fillStyle(0x333333, 1); g.fillRect(8,20,16,12); g.generateTexture('server', 32, 32);
+            
+            g.clear(); g.fillStyle(0x8e44ad, 1); g.fillRect(8, 8, 16, 24); g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); g.fillStyle(0xff0000, 0.4); g.fillRect(10, 6, 12, 4);
+            g.generateTexture('drunk', 32, 32);
+
+            g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(8, 8, 16, 24); g.fillStyle(0xffdbac, 1); g.fillRect(10, 4, 12, 10); g.fillStyle(0xdddddd, 1); g.fillRect(8, 2, 16, 28); g.generateTexture('doctor', 32, 32);
+            
+            g.clear(); g.fillStyle(COLORS.floor, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x795548, 0.5); g.fillRect(0,30,32,2); g.generateTexture('floor_wood', 32, 32);
+            g.clear(); g.fillStyle(0xbdc3c7, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0xecf0f1, 0.3); g.fillRect(2,2,28,28); g.generateTexture('floor_tile', 32, 32);
+            g.clear(); g.fillStyle(0x424242, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x616161, 1); g.fillRect(2,2,28,28); g.generateTexture('pavement', 32, 32);
+            g.clear(); g.fillStyle(0x2e7d32, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x1b5e20, 0.5); g.fillRect(0,30,32,2); g.generateTexture('grass', 32, 32);
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(4, 8, 24, 16); g.generateTexture('suitcase', 32, 32);
+            g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(8, 10, 16, 12); g.fillStyle(0x000000, 1); g.fillRect(10, 12, 12, 2); g.generateTexture('ticket', 32, 32);
+            g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(10, 10, 12, 18); g.fillStyle(COLORS.starbucks, 1); g.fillRect(10, 15, 12, 4); g.generateTexture('coffee', 32, 32);
+            g.clear(); g.fillStyle(COLORS.beer, 1); g.fillRect(10, 10, 12, 16); g.fillStyle(0xffffff, 1); g.fillRect(10, 10, 12, 4); g.generateTexture('beer', 32, 32);
+            g.clear(); g.fillStyle(COLORS.cocktail, 1); g.beginPath(); g.moveTo(10,10); g.lineTo(22,10); g.lineTo(16,20); g.closePath(); g.fill(); g.fillStyle(0xffffff, 1); g.fillRect(15,20,2,10); g.generateTexture('cocktail', 32, 32);
+            g.clear(); g.fillStyle(COLORS.pizza_crust, 1); g.beginPath(); g.moveTo(16,32); g.lineTo(0,10); g.lineTo(32,10); g.closePath(); g.fill(); g.fillStyle(COLORS.pizza_sauce, 1); g.beginPath(); g.moveTo(16,28); g.lineTo(4,12); g.lineTo(28,12); g.closePath(); g.fill(); g.generateTexture('pizza_slice', 32, 32);
+            g.clear(); g.fillStyle(COLORS.pizza_sauce, 1); g.fillCircle(16,16,16); g.fillStyle(COLORS.pizza_crust, 1); g.fillCircle(16,16,12); g.generateTexture('pizza_logo', 32, 32);
+            g.clear(); g.fillStyle(COLORS.furniture, 1); g.fillRect(0,0,64,32); g.fillStyle(0x3e2723, 1); g.fillRect(5,5,54,10); g.generateTexture('dresser', 64, 32);
+            g.clear(); g.fillStyle(0x8d6e63, 1); g.fillRect(0,0,64,32); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,10,32); g.fillRect(54,0,10,32); g.fillRect(0,0,64,10); g.generateTexture('couch', 64, 32);
+            g.clear(); g.fillStyle(0x1b5e20, 1); g.fillRect(0,0,64,32); g.fillStyle(0x0a3d0a, 1); g.fillRect(0,0,10,32); g.fillRect(54,0,10,32); g.fillRect(0,0,64,10); g.generateTexture('couch_green', 64, 32); 
+            g.clear(); g.fillStyle(0x111111, 1); g.fillRect(0,0,64,40); g.fillStyle(0x444444, 1); g.fillRect(2,2,60,36); g.generateTexture('tv', 64, 40); 
+            g.clear(); g.fillStyle(0x555555, 1); g.fillRect(14, 0, 4, 32); g.fillStyle(0xffff00, 0.8); g.fillCircle(16, 4, 6); g.generateTexture('streetlight', 32, 32);
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(12, 16, 8, 16); g.fillStyle(COLORS.lamp_shade, 1); g.beginPath(); g.moveTo(6, 16); g.lineTo(26, 16); g.lineTo(22, 6); g.lineTo(10, 6); g.closePath(); g.fill(); g.generateTexture('lamp', 32, 32);
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0, 0, 32, 48); g.fillStyle(0xffd700, 1); g.fillCircle(24, 24, 3); g.generateTexture('door', 32, 48);
+            g.clear(); g.fillStyle(COLORS.vr_headset, 1); g.fillRect(4, 10, 24, 12); g.fillStyle(0x000000, 1); g.fillRect(0, 14, 32, 4); g.fillStyle(0x00e5ff, 1); g.fillCircle(8, 16, 2); g.fillCircle(24, 16, 2); g.generateTexture('vr_headset', 32, 32);
+            g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(0, 0, 96, 48); g.fillStyle(0xeeeeee, 1); g.fillRect(4, 4, 88, 40); g.generateTexture('conf_table', 96, 48);
+            g.clear(); g.fillStyle(0x000000, 1); g.fillRect(0, 10, 64, 20); g.fillStyle(0x333333, 1); g.fillRect(10, 0, 40, 12); g.fillStyle(0x00e5ff, 1); g.fillRect(48, 12, 4, 6); g.fillStyle(0x999999, 1); g.fillCircle(12, 30, 8); g.fillCircle(52, 30, 8); g.generateTexture('uber_car', 64, 40);
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0, 0, 32, 16); g.generateTexture('casket', 32, 16);
+            g.clear(); g.fillStyle(0xeeeeee, 1); g.fillRect(0, 0, 64, 32); g.fillStyle(0xbbdefb, 1); g.fillRect(5, 5, 54, 22); g.generateTexture('hospital_bed', 64, 32);
+            g.clear(); g.fillStyle(0x8d6e63, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x000000, 0.2); g.fillRect(2, 2, 28, 28); g.generateTexture('box', 32, 32);
+            g.clear(); g.fillStyle(0xff0000, 1); g.fillCircle(4,4,4); g.generateTexture('firework_red', 8, 8);
+            g.clear(); g.fillStyle(0x00ff00, 1); g.fillCircle(4,4,4); g.generateTexture('firework_green', 8, 8);
+            g.clear(); g.fillStyle(0x0000ff, 1); g.fillCircle(4,4,4); g.generateTexture('firework_blue', 8, 8);
+            
+            g.clear();
+            g.fillStyle(0xf1c40f, 1); // Shell
+            g.beginPath(); g.moveTo(4, 24); g.lineTo(28, 24); g.lineTo(24, 12); g.lineTo(8, 12); g.closePath(); g.fill();
+            g.fillStyle(0x5d4037, 1); g.fillRect(8, 14, 16, 4); // Meat
+            g.fillStyle(0x2ecc71, 1); g.fillRect(10, 12, 12, 4); // Lettuce
+            g.fillStyle(0xe74c3c, 1); g.fillRect(12, 12, 4, 2); g.fillRect(18, 12, 4, 2); // Tomatoes
+            g.generateTexture('tacos', 32, 32);
+
+            g.clear();
+            g.fillStyle(0xecf0f1, 1); g.fillEllipse(16, 20, 24, 12); // Plate
+            g.fillStyle(0xf39c12, 1); g.fillEllipse(16, 18, 18, 8); // Pasta
+            g.fillStyle(0xe74c3c, 1); g.fillEllipse(16, 15, 12, 6); // Sauce
+            g.fillStyle(0x5d4037, 1); g.fillCircle(16, 12, 4); // Meatball
+            g.generateTexture('spaghetti', 32, 32);
+            
+            g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(8,16,16,16); g.fillStyle(0xe74c3c, 1); g.fillRect(10,16,4,16); g.fillRect(18,16,4,16); g.fillStyle(0xf1c40f, 1); g.fillCircle(16,14,10); g.generateTexture('popcorn', 32, 32);
+            
+            g.clear(); 
+            g.fillStyle(0x8b4513, 1); g.fillEllipse(16, 16, 24, 18); // Main body
+            g.fillStyle(0xa0522d, 1); g.fillCircle(10, 20, 6); g.fillCircle(22, 20, 6); // Legs
+            g.fillStyle(0xffffff, 1); g.fillCircle(6, 22, 3); g.fillCircle(26, 22, 3); // Bone tips
+            g.generateTexture('turkey', 32, 32);
+            
+            g.clear(); g.fillStyle(0xeeeeee, 1); g.fillEllipse(16, 16, 20, 14); g.fillStyle(0xffd700, 1); g.fillRect(14, 12, 6, 6); g.generateTexture('mashed_potatoes', 32, 32);
+            g.clear(); g.fillStyle(0x8b0000, 1); g.fillEllipse(16, 16, 16, 12); g.generateTexture('cranberry', 32, 32);
+            g.clear(); g.fillStyle(0xcd853f, 1); g.fillEllipse(16, 16, 20, 14); g.fillStyle(0x8b4513, 1); g.fillEllipse(16, 16, 16, 10); g.generateTexture('pie', 32, 32);
+
+            g.clear(); 
+            g.fillStyle(0x111111, 1); g.fillRect(6, 10, 20, 12); // Body
+            g.fillCircle(10, 8, 5); // Head
+            g.fillStyle(0x00ff00, 1); g.fillCircle(8, 8, 2); g.fillCircle(12, 8, 2); // Eyes
+            g.fillStyle(0x111111, 1); g.beginPath(); g.moveTo(2, 6); g.lineTo(6, 4); g.lineTo(6, 10); g.fill(); // Wing L
+            g.beginPath(); g.moveTo(26, 6); g.lineTo(30, 4); g.lineTo(26, 10); g.fill(); // Wing R
+            g.fillStyle(0x111111, 1); g.fillRect(24, 14, 8, 4); 
+            g.fillStyle(0xff0000, 1); g.beginPath(); g.moveTo(32, 14); g.lineTo(36, 12); g.lineTo(34, 16); g.fill(); // Red Fin
+            g.generateTexture('toothless', 40, 32);
+
+            g.clear();
+            g.fillStyle(0xffffff, 1); g.fillRect(6, 10, 20, 12);
+            g.fillCircle(10, 8, 5);
+            g.fillStyle(0x88ccff, 1); g.fillCircle(8, 8, 2); g.fillCircle(12, 8, 2); // Blue Eyes
+            g.fillStyle(0xffffff, 1);
+            g.beginPath(); g.moveTo(2, 6); g.lineTo(6, 4); g.lineTo(6, 10); g.fill(); 
+            g.beginPath(); g.moveTo(26, 6); g.lineTo(30, 4); g.lineTo(26, 10); g.fill();
+            g.fillRect(24, 14, 8, 4); // Tail
+            g.generateTexture('light_fury', 40, 32);
+
+            g.clear();
+            g.fillStyle(0x333333, 1); g.fillCircle(8, 8, 6); // Head
+            g.fillStyle(0xffffff, 1); g.fillCircle(6, 6, 2); // Spot
+            g.fillStyle(0x00ff00, 1); g.fillCircle(7, 7, 1); g.fillCircle(9, 7, 1); // Eyes
+            g.fillStyle(0x333333, 1); g.fillRect(6, 12, 8, 6); // Body
+            g.generateTexture('night_light', 16, 20);
+
+            g.clear(); 
+            g.fillStyle(0xffffff, 1); g.fillRect(4, 6, 40, 24); // Huge Body
+            g.fillCircle(12, 12, 10); // Massive Head
+            g.fillStyle(0xcccccc, 1); g.beginPath(); g.moveTo(12, 12); g.lineTo(2, 16); g.lineTo(6, 20); g.fill(); // Tusk L
+            g.beginPath(); g.moveTo(12, 12); g.lineTo(22, 16); g.lineTo(18, 20); g.fill(); // Tusk R
+            g.fillStyle(0xeeeeee, 1); // Spikes
+            g.beginPath(); g.moveTo(8, 2); g.lineTo(12, 6); g.lineTo(16, 2); g.fill();
+            g.beginPath(); g.moveTo(16, 2); g.lineTo(20, 6); g.lineTo(24, 2); g.fill();
+            g.fillStyle(0x88ccff, 1); g.fillCircle(10, 10, 2); g.fillCircle(14, 10, 2); // Blue Eyes
+            g.generateTexture('bewilderbeast', 48, 32);
+
+            g.clear(); g.fillStyle(0x00ffff, 0.8); g.fillCircle(4,4,4); g.generateTexture('blue_fire', 8, 8);
+            g.clear(); g.fillStyle(0x008000, 1); g.fillCircle(4,4,4); g.generateTexture('jalapeno', 8, 8);
+            g.clear(); g.fillStyle(0xccffff, 0.9); g.fillCircle(6,6,6); g.generateTexture('ice_breath', 12, 12);
+
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(6, 6, 20, 20); g.fillStyle(0x3e2723, 1); g.fillRect(6, 6, 20, 6); g.generateTexture('chair', 32, 32);
+            g.clear(); g.fillStyle(0xfff8e1, 1); g.fillRect(10, 8, 12, 16); g.fillStyle(0x000000, 1); g.fillRect(12, 10, 8, 2); g.generateTexture('menu', 32, 32);
+            g.clear(); g.fillStyle(0x2e7d32, 1); g.fillCircle(16, 16, 12); g.fillStyle(0x1b5e20, 1); g.fillCircle(12, 12, 4); g.fillCircle(20, 14, 4); g.generateTexture('plant', 32, 32);
+            g.clear(); g.fillStyle(0x4e342e, 1); g.fillRect(4, 4, 24, 24); g.fillStyle(0x8d6e63, 1); g.fillRect(4, 4, 24, 8); g.generateTexture('host_stand', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x4a148c, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0x6a1b9a, 1); 
+            g.fillCircle(16, 16, 6); 
+            g.beginPath(); g.moveTo(16, 8); g.lineTo(12, 16); g.lineTo(16, 24); g.lineTo(20, 16); g.fill();
+            g.generateTexture('fancy_wallpaper', 32, 32);
+
+            g.clear(); 
+            g.fillStyle(0x880e4f, 1); g.fillRect(0,0,64,64); // Dark Red
+            g.lineStyle(2, 0xffd700, 1); g.strokeRect(4,4,56,56); // Gold border
+            g.lineStyle(1, 0xffd700, 1);
+            g.beginPath(); g.moveTo(4,4); g.lineTo(16,16); g.stroke();
+            g.beginPath(); g.moveTo(60,4); g.lineTo(48,16); g.stroke();
+            g.beginPath(); g.moveTo(4,60); g.lineTo(16,48); g.stroke();
+            g.beginPath(); g.moveTo(60,60); g.lineTo(48,48); g.stroke();
+            g.strokeRect(16,16,32,32); 
+            g.fillStyle(0xad1457, 1); g.fillCircle(32,32,10); 
+            g.generateTexture('fancy_rug', 64, 64);
+
+            g.clear(); 
+            g.fillStyle(0xffffff, 1); g.fillRect(0,0,80,64); 
+            g.fillStyle(0x3e2723, 1); g.fillRect(0,0,80,16); 
+            g.fillStyle(0xd4af37, 1); g.fillRect(0,0,80,2); 
+            g.fillStyle(0x5d4037, 1); g.fillRect(2, 2, 76, 12);
+            g.fillStyle(0x3e2723, 1); g.fillCircle(10,8,2); g.fillCircle(30,8,2); g.fillCircle(50,8,2); g.fillCircle(70,8,2);
+            g.fillStyle(0x1a237e, 1); g.fillRect(5,25,70,39); 
+            g.fillStyle(0x283593, 1); g.fillRect(5,25,70,5); 
+            g.generateTexture('fancy_bed', 80, 64);
+
+            g.clear();
+            g.fillStyle(0xd4af37, 1); 
+            g.fillRect(15, 0, 2, 10);
+            g.fillStyle(0xd4af37, 1); 
+            g.fillCircle(16, 14, 6);
+            g.lineStyle(2, 0xd4af37, 1);
+            g.beginPath(); g.moveTo(16, 14); g.lineTo(4, 10); g.stroke();
+            g.beginPath(); g.moveTo(16, 14); g.lineTo(28, 10); g.stroke();
+            g.beginPath(); g.moveTo(16, 14); g.lineTo(8, 20); g.stroke();
+            g.beginPath(); g.moveTo(16, 14); g.lineTo(24, 20); g.stroke();
+            g.fillStyle(0xffffe0, 1); 
+            g.fillCircle(4, 8, 2); g.fillCircle(28, 8, 2); 
+            g.fillCircle(8, 22, 2); g.fillCircle(24, 22, 2);
+            g.fillCircle(16, 26, 3); 
+            g.generateTexture('chandelier', 32, 32);
+
+            g.clear();
+            g.fillStyle(0xd4af37, 1); g.fillRect(12, 16, 8, 16); // Gold Base
+            g.fillStyle(0xffecb3, 1); // Cream Shade
+            g.beginPath(); g.moveTo(6, 16); g.lineTo(26, 16); g.lineTo(22, 4); g.lineTo(10, 4); g.closePath(); g.fill();
+            g.generateTexture('fancy_lamp', 32, 32);
+            
+            g.clear();
+            g.fillStyle(0xe0f7fa, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0xb2ebf2, 1); g.fillRect(0,30,32,2); 
+            g.generateTexture('hospital_wall', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x90a4ae, 1); g.fillRect(12, 0, 8, 32); 
+            g.fillStyle(0xeceff1, 1); g.fillRect(8, 4, 16, 12); 
+            g.generateTexture('iv_stand', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x455a64, 1); g.fillRect(0, 0, 32, 24); 
+            g.fillStyle(0x000000, 1); g.fillRect(2, 2, 28, 20); 
+            g.fillStyle(0x00e676, 1); g.fillRect(4, 12, 24, 2); 
+            g.generateTexture('heart_monitor', 32, 32);
+
+            g.clear();
+            g.fillStyle(0xffffff, 1); g.fillRect(0,0,64,64);
+            g.fillStyle(0x81d4fa, 0.5); g.fillRect(4,4,56,56);
+            g.fillStyle(0xffffff, 1); g.fillRect(30,0,4,64); g.fillRect(0,30,64,4);
+            g.generateTexture('hospital_window', 64, 64);
+
+            g.clear(); g.fillStyle(0x95a5a6, 1); g.fillRect(0,0,32,32); g.fillStyle(0x7f8c8d, 1); g.beginPath(); g.moveTo(4,4); g.lineTo(16,16); g.lineTo(4,28); g.strokePath(); g.generateTexture('walkway', 32, 32);
+            g.clear(); g.fillStyle(0xe74c3c, 1); g.fillRect(0,0,64,48); g.fillStyle(0xc0392b, 1); g.fillRect(0,0,64,12); g.fillStyle(0xffcc00, 1); g.fillRect(16, 16, 32, 16); g.generateTexture('store_food', 64, 48);
+            g.clear(); g.fillStyle(0x3498db, 1); g.fillRect(0,0,64,48); g.fillStyle(0x2980b9, 1); g.fillRect(0,0,64,12); g.fillStyle(0xffffff, 1); g.fillRect(10,20,44,20); g.generateTexture('store_news', 64, 48);
+            
+            g.clear(); g.fillStyle(0xbdc3c7, 1); g.fillRect(0, 0, 32, 48); g.fillStyle(0x3498db, 1); g.fillRect(2, 2, 28, 20); g.fillStyle(0x2ecc71, 1); g.fillCircle(16, 12, 6); g.fillStyle(0x333333, 1); g.fillRect(4, 26, 24, 4); g.fillRect(4, 34, 16, 4); g.generateTexture('poster', 32, 48);
+            g.clear(); g.fillStyle(0x7f8c8d, 1); g.fillRect(0, 0, 100, 100); g.fillStyle(0x87ceeb, 0.4); g.fillRect(5, 5, 90, 90); g.generateTexture('large_window', 100, 100);
+            g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(10, 14, 20, 4); g.fillRect(16, 10, 4, 12); g.fillRect(10, 12, 2, 8); g.generateTexture('mini_plane', 32, 32);
+            
+            g.clear(); g.fillStyle(0xffcdd2, 1); g.fillRect(0,0,64,48); g.fillStyle(0xec407a, 1); g.fillRect(0,0,64,12); g.fillStyle(0xffffff, 1); g.fillRect(16,20,32,28); g.generateTexture('donut_shop', 64, 48);
+            
+            g.clear(); g.fillStyle(0xfbc02d, 1); g.fillCircle(16,16,12); g.fillStyle(0xec407a, 1); g.fillCircle(16,16,10); g.fillStyle(0x2d2d2d, 1); g.fillCircle(16,16,4); g.generateTexture('donut_strawberry', 32, 32);
+            g.clear(); g.fillStyle(0xfbc02d, 1); g.fillCircle(16,16,12); g.fillStyle(0x5d4037, 1); g.fillCircle(16,16,10); g.fillStyle(0x2d2d2d, 1); g.fillCircle(16,16,4); g.generateTexture('donut_chocolate', 32, 32);
+            
+            g.clear(); 
+            g.fillStyle(0xcccccc, 1); g.fillRect(0,0,96,64); 
+            g.fillStyle(0xffffff, 1);
+            g.beginPath(); g.moveTo(48, 32); g.lineTo(10, 10); g.lineTo(10, 40); g.fill(); 
+            g.beginPath(); g.moveTo(48, 32); g.lineTo(86, 10); g.lineTo(86, 40); g.fill(); 
+            g.fillStyle(0xff69b4, 1); g.fillCircle(48, 32, 18); 
+            g.fillStyle(0xcccccc, 1); g.fillCircle(48, 32, 6); 
+            const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+            for(let i=0; i<8; i++) {
+                g.fillStyle(colors[i%colors.length], 1);
+                let a = Math.random() * Math.PI * 2;
+                let r = 10 + Math.random() * 6;
+                g.fillRect(48 + Math.cos(a)*r, 32 + Math.sin(a)*r, 2, 2);
+            }
+            g.generateTexture('graffiti_wall', 96, 64);
+            
+            g.clear(); g.fillStyle(0x9575cd, 1); g.fillRect(0,0,64,48); g.fillStyle(0x5e35b1, 1); g.fillRect(0,0,64,12); g.generateTexture('shop_crystal', 64, 48);
+            g.clear(); g.fillStyle(0x4db6ac, 1); g.fillRect(0,0,64,48); g.fillStyle(0x00897b, 1); g.fillRect(0,0,64,12); g.generateTexture('shop_clothing', 64, 48);
+            g.clear(); g.fillStyle(0xffcc80, 1); g.fillRect(0,0,64,48); g.fillStyle(0xe65100, 1); g.fillRect(0,0,64,12); g.generateTexture('shop_book', 64, 48); 
+
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,64,24); g.fillStyle(0x3e2723, 1); g.fillRect(0,20,64,4); g.fillRect(0,0,4,24); g.fillRect(60,0,4,24); g.generateTexture('park_bench', 64, 24);
+
+            g.clear();
+            g.fillStyle(0x8d6e63, 1); 
+            g.fillRect(4, 12, 20, 10); 
+            g.fillRect(20, 8, 8, 8); 
+            g.fillRect(4, 22, 4, 6); g.fillRect(20, 22, 4, 6); 
+            g.fillRect(2, 14, 4, 2); 
+            g.generateTexture('generic_dog', 32, 32);
+
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,32,32); g.fillStyle(0x3e2723, 1); g.fillRect(0,0,32,4); g.generateTexture('bar_counter', 32, 32);
+            g.clear(); g.fillStyle(0x8d6e63, 1); g.fillCircle(16, 10, 10); 
+            g.fillStyle(0x3e2723, 1); g.fillRect(14, 20, 4, 12); 
+            g.fillRect(8, 28, 16, 4); 
+            g.generateTexture('bar_stool', 32, 32);
+            g.clear(); g.fillStyle(0x3e2723, 1); g.fillRect(0, 10, 32, 4); 
+            const bCols = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+            for(let i=0; i<4; i++) {
+                g.fillStyle(bCols[i], 1); g.fillRect(2 + i*8, 0, 4, 10);
+            }
+            g.generateTexture('bar_shelf', 32, 32);
+            g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,32,32);
+            g.fillStyle(0x795548, 1); 
+            g.fillRect(0,0,14,14); g.fillRect(16,0,16,14);
+            g.fillRect(0,16,6,14); g.fillRect(8,16,14,14); g.fillRect(24,16,8,14);
+            g.generateTexture('bar_wall', 32, 32);
+        }
+
+        // --- Classes ---
+        class Player extends Phaser.Physics.Arcade.Sprite {
+            constructor(scene, x, y) {
+                super(scene, x, y, 'mike');
+                scene.add.existing(this);
+                scene.physics.add.existing(this);
+                this.setCollideWorldBounds(true);
+                this.body.setSize(16, 16);
+                this.body.setOffset(8, 16);
+                this.speed = 150;
+                this.isLocked = false;
+            }
+            update(cursors) {
+                this.setVelocity(0);
+                if (window.isDialogueOpen || this.isLocked) return;
+                let moved = false;
+                if (cursors.left.isDown) { this.setVelocityX(-this.speed); this.setFlipX(true); moved = true; }
+                else if (cursors.right.isDown) { this.setVelocityX(this.speed); this.setFlipX(false); moved = true; }
+                if (cursors.up.isDown) { this.setVelocityY(-this.speed); moved = true; }
+                else if (cursors.down.isDown) { this.setVelocityY(this.speed); moved = true; }
+                if (moved) this.y += Math.sin(this.scene.time.now / 100) * 0.5;
+            }
+        }
+
+        let typeWriterEvent = null;
+        function showDialogue(text, callback) {
+            if (window.isDialogueOpen) return;
+            window.isDialogueOpen = true;
+            
+            const box = document.getElementById('dialogue-box');
+            const textBox = document.getElementById('dialogue-text');
+            const portraitFrame = document.getElementById('portrait-frame');
+            const portraitImg = document.getElementById('portrait-img');
+            
+            document.getElementById('interaction-hint').style.display = 'none';
+            box.style.display = 'flex'; 
+            
+            if (text.startsWith("Mike:") || text.startsWith("Mike picks") || text.startsWith("Mike cautiously") || text.startsWith("Mike sent:") || text.startsWith("Mike explains")) {
+                portraitFrame.style.display = 'block';
+                portraitImg.src = 'https://i.ibb.co/5XNnfJFc/IMG-8277.jpg';
+            } else if (text.startsWith("Yvy:") || text.startsWith("Yvy waves:") || text.startsWith("Yvy wakes up:") || text.startsWith("Yvy replied:")) {
+                portraitFrame.style.display = 'block';
+                portraitImg.src = 'https://i.ibb.co/d0vKgfBs/IMG-8276.jpg';
+            } else if (text.startsWith("Aiden:")) {
+                portraitFrame.style.display = 'block';
+                portraitImg.src = 'https://i.ibb.co/Ps8Dt9hQ/IMG-8339.jpg';
+            } else {
+                portraitFrame.style.display = 'none';
+            }
+
+            textBox.textContent = '';
+            let i = 0;
+            if (typeWriterEvent) clearInterval(typeWriterEvent);
+            typeWriterEvent = setInterval(() => {
+                textBox.textContent += text.charAt(i);
+                if (text.charAt(i) !== ' ') playSound('text');
+                i++;
+                if (i >= text.length) {
+                    clearInterval(typeWriterEvent);
+                    const listener = (e) => {
+                        if (e.code === 'Space') {
+                            document.removeEventListener('keydown', listener);
+                            box.style.display = 'none';
+                            window.isDialogueOpen = false;
+                            playSound('select');
+                            if (callback) callback();
+                        }
+                    };
+                    document.addEventListener('keydown', listener);
+                }
+            }, 25);
+        }
+
+        class TitleScene extends Phaser.Scene {
+            constructor() { super('TitleScene'); }
+            preload() { generateTextures(this); }
+            create() {
+                this.cameras.main.setBackgroundColor('#000033'); // Deep Blue
+                document.getElementById('scrolling-banner').style.display = 'none'; // Ensure banner hidden
+
+                // --- ADDED: BLUE THEME FOR TITLE ---
+                playBlueTheme();
+
+                this.add.text(400, 150, "Mike & Yvy's", { fontSize: '40px', color: '#87ceeb', fontStyle: 'bold', fontFamily: 'Courier New' }).setOrigin(0.5);
+                this.add.text(400, 210, "Love Adventure", { fontSize: '60px', color: '#fff', fontStyle: 'bold', fontFamily: 'Courier New' }).setOrigin(0.5);
+                this.add.text(400, 270, "By: Yvy (with the help of Aiden)", { fontSize: '20px', color: '#aaaaaa', fontFamily: 'Courier New' }).setOrigin(0.5);
+
+                const mike = this.add.sprite(400, 400, 'mike').setScale(3);
+                // Simple phone rect
+                const phone = this.add.rectangle(415, 410, 8, 14, 0xeeeeee);
+                
+                // Animation: Calling Uber
+                this.tweens.add({ targets: [mike, phone], y: '+=5', duration: 500, yoyo: true, repeat: -1 });
+                
+                this.add.text(400, 340, "Calling Uber...", { fontSize: '16px', color: '#fff', backgroundColor: '#333', padding: {x:5, y:2} }).setOrigin(0.5);
+
+                this.add.text(400, 500, "CLICK TO START", { fontSize: '24px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.8);
+
+                this.input.on('pointerdown', () => this.startGame());
+                this.input.keyboard.on('keydown-SPACE', () => this.startGame());
+            }
+
+            startGame() {
+                // --- ADDED: STOP MUSIC ON START ---
+                stopMusic();
+                playSound('select');
+                this.scene.start('AirportScene');
+            }
+        }
+
+        class AirportScene extends Phaser.Scene {
+            constructor() { super('AirportScene'); }
+            preload() { generateTextures(this); }
+            create() {
+                playAirportTheme();
+                document.getElementById('scrolling-banner').style.display = 'block';
+                this.physics.world.setBounds(0, 0, 2400, 600);
+                this.cameras.main.setBounds(0, 0, 2400, 600);
+                for (let x=0; x<2400/32; x++) for (let y=0; y<600/32; y++) { this.add.image(x*32+16, y*32+16, 'floor_tile'); }
+                const walls = this.physics.add.staticGroup();
+                for(let y=0; y<GAME_HEIGHT; y+=32) { if(y < 250 || y > 350) walls.create(600, y+16, null).setSize(32,32).setVisible(false); }
+                this.securityBarrier = this.physics.add.staticSprite(600, 300, null).setSize(32, 100).setVisible(false);
+                this.gateVisual = this.add.rectangle(600, 300, 32, 100, 0xffff00, 0.3);
+                this.tsa = this.physics.add.sprite(600, 260, 'tsa'); this.tsa.setImmovable(true);
+                this.tsaZone = this.add.rectangle(580, 300, 50, 100, 0xffff00, 0); this.physics.add.existing(this.tsaZone, true);
+                this.add.text(50, 50, "DEPARTURES", { fontSize: '24px', color: '#000', backgroundColor: '#fff' });
+                this.add.rectangle(200, 150, 60, 40, 0x34495e); this.add.text(175, 120, "TICKETS", { fontSize: '12px', color: '#fff' });
+                this.ticket = this.physics.add.sprite(200, 200, 'ticket');
+                this.add.rectangle(400, 150, 100, 40, 0x95a5a6); this.add.text(360, 120, "BAG CHECK-IN", { fontSize: '12px', color: '#fff' });
+                this.suitcase = this.physics.add.sprite(400, 200, 'suitcase');
+                this.walkways = this.add.group();
+                for (let x = 800; x < 2000; x += 32) { let w = this.add.sprite(x, 300, 'walkway'); this.physics.add.existing(w, true); this.walkways.add(w); }
+                [{x: 900, label: "GATE 10"}, {x: 1300, label: "GATE 11"}, {x: 1700, label: "GATE 12A"}, {x: 2200, label: "GATE 12B\n(TARGET)"}].forEach(g => {
+                    this.add.rectangle(g.x, 60, 60, 80, 0x555555); this.add.text(g.x-30, 80, g.label, { fontSize: '12px', color: '#fff', align: 'center' });
+                });
+                this.add.rectangle(1500, 50, 300, 100, 0x87ceeb); this.add.text(1500, 110, "OBSERVATION DECK", { fontSize: '12px', color: '#fff', backgroundColor: '#333' }).setOrigin(0.5);
+                const planeMaskGraphics = this.make.graphics(); planeMaskGraphics.fillStyle(0xffffff); planeMaskGraphics.fillRect(1350, 0, 300, 100); const planeMask = planeMaskGraphics.createGeometryMask();
+                this.time.addEvent({ delay: 2500, loop: true, callback: () => {
+                        if (!this.scene.isActive('AirportScene')) return;
+                        let startY = 10 + Math.random() * 80; let p = this.add.sprite(1350, startY, 'mini_plane'); p.setTint(0xdddddd); p.setMask(planeMask);
+                        if (Math.random() > 0.5) { p.x = 1650; p.setFlipX(true); this.tweens.add({ targets: p, x: 1350, y: startY + 30, duration: 4000, onComplete: () => p.destroy() }); } else { p.x = 1350; this.tweens.add({ targets: p, x: 1650, y: startY - 20, duration: 3500, onComplete: () => p.destroy() }); }
+                }});
+                this.add.image(1400, 50, 'large_window'); this.add.image(1500, 50, 'large_window'); this.add.image(1600, 50, 'large_window');
+                this.viewingZone = this.add.rectangle(1500, 100, 300, 50, 0xffff00, 0); this.physics.add.existing(this.viewingZone, true);
+                this.add.image(300, 40, 'poster'); this.add.image(700, 40, 'poster'); this.add.image(1100, 40, 'poster'); this.add.image(2000, 40, 'poster');
+                this.decor = this.physics.add.staticGroup();
+                [100, 550, 800, 1200, 1800, 2100].forEach(x => this.decor.create(x, 100, 'plant'));
+                [550, 900, 1800].forEach(x => this.decor.create(x, 500, 'plant'));
+                this.add.image(1000, 500, 'store_news'); this.add.text(970, 450, "NEWS", {fontSize: '14px', color: '#000'});
+                this.add.image(1300, 500, 'store_food'); this.add.text(1260, 450, "BURGER QUEEN", {fontSize: '14px', color: '#000'});
+                this.add.rectangle(1600, 500, 60, 60, 0x3498db); this.add.text(1570, 450, "RESTROOMS", {fontSize: '14px', color: '#000'});
+                this.newsZone = this.add.rectangle(1000, 500, 100, 60, 0xffff00, 0); this.physics.add.existing(this.newsZone, true);
+                this.burgerZone = this.add.rectangle(1300, 500, 100, 60, 0xffff00, 0); this.physics.add.existing(this.burgerZone, true);
+                this.restroomZone = this.add.rectangle(1600, 500, 60, 60, 0xffff00, 0); this.physics.add.existing(this.restroomZone, true);
+                this.starbucksZone = this.add.rectangle(1900, 500, 100, 60, 0x00704a).setAlpha(0.8); this.physics.add.existing(this.starbucksZone, true);
+                this.add.text(1860, 450, "STARBUCKS", { fontSize: '14px', color: '#fff', backgroundColor: '#00704a' });
+                this.add.sprite(1950, 520, 'marine').setTint(0x000000);
+                this.gateZone = this.add.rectangle(2200, 150, 50, 100, 0x00ff00, 0.3); this.physics.add.existing(this.gateZone, true);
+                for(let i=0; i<10; i++) { let npc = this.add.sprite(700 + Math.random()*1500, 200 + Math.random()*200, 'civilian'); npc.setTint(Math.random() * 0xffffff); }
+                this.player = new Player(this, 100, 300);
+                this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+                this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor);
+                this.heldSuitcase = this.add.sprite(0, 0, 'suitcase').setScale(0.5).setVisible(false);
+                this.heldTicket = this.add.sprite(0, 0, 'ticket').setScale(0.5).setVisible(false);
+                this.heldCoffee = this.add.sprite(0, 0, 'coffee').setScale(0.5).setVisible(false);
+                this.cursors = this.input.keyboard.createCursorKeys();
+                this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+                this.add.text(20, 550, "Task: Ticket -> Suitcase -> Security -> Starbucks -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
+                this.physics.add.overlap(this.player, this.suitcase, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !gameState.hasSuitcase) { gameState.hasSuitcase = true; this.suitcase.destroy(); this.heldSuitcase.setVisible(true); playSound('select'); showDialogue("Mike grabbed his suitcase."); } });
+                this.physics.add.overlap(this.player, this.ticket, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !gameState.hasTicket) { gameState.hasTicket = true; this.ticket.destroy(); this.heldTicket.setVisible(true); playSound('select'); showDialogue("Mike found the Boarding Pass."); } });
+                this.physics.add.overlap(this.player, this.tsaZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if (gameState.hasSuitcase && gameState.hasTicket) { if (!gameState.securityCleared) { gameState.securityCleared = true; showDialogue("TSA: 'You're clear. Have a safe flight.'"); this.securityBarrier.destroy(); this.gateVisual.fillColor = 0x00ff00; } } else { showDialogue("TSA: 'Ticket and luggage required.'"); } } });
+                this.physics.add.overlap(this.player, this.starbucksZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if (gameState.securityCleared) { if (!gameState.hasCoffee) { gameState.hasCoffee = true; this.heldCoffee.setVisible(true); playSound('select'); showDialogue("Mike bought a coffee. Essential fuel."); } } else { showDialogue("Security won't let you through yet."); } } });
+                this.physics.add.overlap(this.player, this.gateZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if (gameState.securityCleared && gameState.hasCoffee) { showDialogue("Boarding Flight...", () => { stopMusic(); document.getElementById('scrolling-banner').style.display = 'none'; this.scene.start('FlightScene'); }); } else if (!gameState.hasCoffee) showDialogue("Mike needs a coffee before boarding."); else showDialogue("Security Check Required."); } });
+                this.physics.add.overlap(this.player, this.newsZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike browsed the tech magazines."); });
+                this.physics.add.overlap(this.player, this.burgerZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Smells greasy... Mike isn't hungry right now."); });
+                this.physics.add.overlap(this.player, this.restroomZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike checked his hair in the mirror. Still looks good."); });
+                this.physics.add.overlap(this.player, this.viewingZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike spent a moment watching the planes take off and land."); });
+                this.physics.add.overlap(this.player, this.walkways, () => { this.player.x += 2; });
+            }
+            update() { 
+                this.player.update(this.cursors); 
+                if (gameState.hasSuitcase) { this.heldSuitcase.x = this.player.x - 12; this.heldSuitcase.y = this.player.y + 5; this.heldSuitcase.setVisible(true); } 
+                if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
+                if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
+                const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone]); 
+                document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
+            }
+        }
+
+        class FlightScene extends Phaser.Scene { 
+            constructor() { super('FlightScene'); } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#87ceeb'); 
+                const plane = this.add.container(850, 300, [this.add.rectangle(0,0,15,60,0xcccccc), this.add.rectangle(0,0,60,20,0xffffff)]); 
+                plane.setScale(-1, 1); 
+                // --- CHANGED: NC to DC ---
+                this.add.text(400, 200, "SD  <-----------------  DC", { fontSize: '32px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5); 
+                this.tweens.add({ targets: plane, x: -50, duration: 4000, ease: 'Quad.easeInOut', onComplete: () => this.scene.start('BarScene') }); 
+            } 
+        }
+
+        class BarScene extends Phaser.Scene { 
+            constructor() { super('BarScene'); } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#2c3e50'); 
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<6; y++) this.add.image(x*32+16, y*32+16, 'bar_wall');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=6; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0x888888); 
+                
+                for(let x=200; x<600; x+=64) {
+                    this.add.image(x+16, 60, 'bar_shelf');
+                    this.add.image(x+16, 100, 'bar_shelf');
+                }
+
+                const barGroup = this.physics.add.staticGroup(); 
+                for(let x=200; x<=600; x+=32) {
+                    barGroup.create(x, 200, 'bar_counter');
+                }
+                for(let x=232; x<=568; x+=64) {
+                    this.add.image(x, 240, 'bar_stool');
+                }
+                this.add.sprite(400, 160, 'bartender');
+                this.marine = this.physics.add.sprite(360, 230, 'marine'); 
+                this.player = new Player(this, 280, 300); 
+                this.physics.add.collider(this.player, barGroup); 
+                this.pBeer = this.add.sprite(360, 300, 'beer').setScale(0.8).setVisible(false); 
+                this.mBeer = this.add.sprite(410, 190, 'beer').setScale(0.8); 
+                this.marineZone = this.add.rectangle(360, 250, 60, 60, 0xffffff, 0); 
+                this.physics.add.existing(this.marineZone, true); 
+                this.cursors = this.input.keyboard.createCursorKeys(); 
+                this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
+                this.add.text(20, 20, "Space: Drink with Marine", { fontSize: '16px', color: '#fff' }); 
+                this.squad = this.add.group(); 
+                this.physics.add.overlap(this.player, this.marineZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.handleDrinking(); }); 
+            } 
+            handleDrinking() { 
+                if(gameState.drinksConsumed >= 8) return; 
+                this.pBeer.setVisible(true); 
+                this.pBeer.x = this.player.x + 10; 
+                this.pBeer.y = this.player.y; 
+                this.cameras.main.shake(300, 0.015); 
+                this.tweens.add({ targets: this.cameras.main, rotation: (Math.random() - 0.5) * 0.1, duration: 300, yoyo: true, repeat: -1 }); 
+                playSound('clink'); 
+                gameState.drinksConsumed++; 
+                // --- CHANGED: NC to DC ---
+                if (gameState.drinksConsumed === 1) { showDialogue("Mike: 'Hi, I'm Mike from DC. Nice to meet you.'"); } 
+                else if (gameState.drinksConsumed === 2) { showDialogue("Mike: 'I'm the CTO of Notion Theory, here for business.'"); } 
+                else if (gameState.drinksConsumed === 3) { showDialogue("Marine: 'Oh, nice to meet you! I'm a Marine! Waiting for my buddies.'", () => { showDialogue("Marine: 'You own a company? That's FIRE 🔥. Let me buy you a drink.'"); }); } 
+                else if (gameState.drinksConsumed === 4) { showDialogue("Mike: 'Thanks! Let me get the next round!'", () => { playSound('clink'); showDialogue("They cheer and clink glasses."); }); } 
+                else if (gameState.drinksConsumed === 5) { 
+                    const m2 = this.physics.add.sprite(200, 600, 'marine'); 
+                    const m3 = this.physics.add.sprite(600, 600, 'marine'); 
+                    const b2 = this.add.sprite(210, 600, 'beer').setScale(0.8); 
+                    const b3 = this.add.sprite(610, 600, 'beer').setScale(0.8); 
+                    this.squad.add(m2); this.squad.add(m3); 
+                    this.tweens.add({ targets: [m2, m3, b2, b3], y: 320, duration: 1500, onComplete: () => { showDialogue("Marine: 'Boys! This is Mike, the CTO!'"); }}); 
+                } 
+                else if (gameState.drinksConsumed === 6) { showDialogue("Squad: 'Nice to meet you sir! ROUNDS ON US!'"); } 
+                else if (gameState.drinksConsumed === 7) { showDialogue("The squad drinks heavily. 'Let's go meet some girls at the club!'"); } 
+                else if (gameState.drinksConsumed === 8) { showDialogue("Mike: 'Yeaaah... *hic*... let'sh go meEEtttsh gurrlss *hic*...'", () => { this.cameras.main.fade(1000, 0, 0, 0, false, (camera, progress) => { if (progress === 1) this.scene.start('ClubScene'); }); }); } 
+            } 
+            update() { 
+                this.player.update(this.cursors); 
+                if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10; this.pBeer.y = this.player.y; } 
+                const touching = this.physics.overlap(this.player, this.marineZone); 
+                document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
+            } 
+        }
+
+        class ClubScene extends Phaser.Scene { 
+            constructor() { super('ClubScene'); 
+                this.isInteracting = false; 
+            } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#111111'); 
+                this.cameras.main.setRotation(0); 
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) {
+                    this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x333333);
+                }
+                this.danceFloor = this.add.rectangle(350, 350, 400, 300, 0x000000).setStrokeStyle(4, 0xff00ff);
+                this.clubLights = [];
+                const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xff00ff, 0x00ffff];
+                for(let i=0; i<6; i++) {
+                    let light = this.add.circle(150 + i*100, 100, 20, colors[i%colors.length]);
+                    light.setBlendMode(Phaser.BlendModes.ADD);
+                    this.tweens.add({ targets: light, scale: 3, alpha: 0.2, duration: 400 + Math.random()*400, yoyo: true, repeat: -1 });
+                    this.clubLights.push(light);
+                }
+                this.clubBar = this.add.rectangle(700, 300, 80, 400, 0x222222); 
+                this.physics.add.existing(this.clubBar, true); 
+                this.add.rectangle(670, 300, 20, 400, 0x444444); 
+                for(let i=0; i<6; i++) {
+                    this.add.circle(630, 150 + i*60, 12, 0x880000).setStrokeStyle(2, 0xffaa00);
+                }
+                this.add.text(660, 80, "BAR", { fontSize: '20px', color: '#00ffff', fontStyle: 'bold', shadow: { color: '#000', blur: 4, fill: true } }); 
+                this.add.sprite(740, 200, 'server'); 
+                this.add.sprite(740, 400, 'server'); 
+                this.yvy = this.physics.add.sprite(300, 350, 'yvy'); 
+                this.marines = this.add.group(); 
+                this.civilians = this.add.group(); 
+                this.player = new Player(this, 100, 300); 
+                this.heldDrink = this.add.sprite(0,0,'cocktail').setScale(0.7).setVisible(false);
+                this.yvyDrink = this.add.sprite(0,0,'cocktail').setScale(0.7).setVisible(false); 
+                for(let i=0; i<3; i++) { 
+                    let m = this.physics.add.sprite(200 + i*50, 400, 'marine'); this.marines.add(m); 
+                    let c = this.physics.add.sprite(220 + i*50, 420, 'civilian'); this.civilians.add(c); 
+                } 
+                this.cursors = this.input.keyboard.createCursorKeys(); 
+                this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
+                this.fKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F); 
+                this.instructionText = this.add.text(20, 20, "Hold F to Dance", { fontSize: '16px', color: '#fff' }); 
+                this.time.addEvent({ delay: 450, loop: true, callback: () => { 
+                    playSound('club_beat'); 
+                    this.danceFloor.setFillStyle(Phaser.Display.Color.RandomRGB(10, 80).color);
+                    [this.yvy, ...this.marines.getChildren(), ...this.civilians.getChildren()].forEach(spr => { 
+                        spr.y += (Math.random() > 0.5 ? -4 : 4); 
+                        if(Math.random() > 0.8) spr.x += (Math.random() > 0.5 ? -10 : 10); 
+                    }); 
+                }}); 
+                this.physics.add.overlap(this.player, this.yvy, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.handleYvyInteraction(); }); 
+                this.physics.add.overlap(this.player, this.clubBar, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.handleBarInteraction(); }); 
+                this.physics.add.overlap(this.player, this.marines, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Marine: 'Woo! Dance with us Mike!'"); }); 
+            } 
+            update() { 
+                this.player.update(this.cursors); 
+                if (this.heldDrink.visible) { this.heldDrink.x = this.player.x+10; this.heldDrink.y = this.player.y; }
+                if (this.yvyDrink.visible) { this.yvyDrink.x = this.yvy.x+10; this.yvyDrink.y = this.yvy.y; }
+                if (this.fKey.isDown && !this.player.isLocked) { 
+                    this.player.setTint(Math.random() * 0xffffff); 
+                    this.player.y += (Math.random() - 0.5) * 5; 
+                    if (gameState.clubProgress === 0) gameState.clubProgress = 1; 
+                    if (gameState.clubProgress === 3 && !this.danceTimer3) { 
+                        this.danceTimer3 = this.time.delayedCall(2000, () => { 
+                            this.player.isLocked = true; 
+                            showDialogue("Mike: 'I'm getting hungry...'", () => { 
+                                showDialogue("Yvy: 'Me too. Let's go get pizza.'", () => { 
+                                    showDialogue("Mike: 'You know what?! We should get matching *hic* Eevee tattoos!'", () => {
+                                        showDialogue("Yvy: 'HMMM, maybe after getting food *giggles*'", () => {
+                                            this.scene.start('PizzaScene'); 
+                                        });
+                                    });
+                                }); 
+                            }); 
+                        }); 
+                    } 
+                } else { this.player.clearTint(); } 
+                if (gameState.clubProgress === 1) this.instructionText.setText("Talk to the girl (Space)"); 
+                else if (gameState.clubProgress === 2) this.instructionText.setText("Go to the Bar (Space)"); 
+                else if (gameState.clubProgress === 3) this.instructionText.setText("Dance again (Hold F)"); 
+                if (gameState.clubProgress >= 2) { 
+                    const dist = Phaser.Math.Distance.Between(this.yvy.x, this.yvy.y, this.player.x, this.player.y); 
+                    if (dist > 60) this.physics.moveToObject(this.yvy, this.player, 120); 
+                    else this.yvy.body.stop(); 
+                } 
+                const touching = this.physics.overlap(this.player, [this.yvy, this.clubBar]) || this.physics.overlap(this.player, this.marines); 
+                document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
+            } 
+            handleYvyInteraction() { 
+                if (this.isInteracting) return;
+                if (gameState.clubProgress < 1) { showDialogue("Dance first!"); return; } 
+                if (gameState.clubProgress === 1) { 
+                    this.isInteracting = true;
+                    showDialogue("Mike: 'Hi! You have great energy.'", () => { 
+                        showDialogue("Yvy: 'Thanks! I'm Yvy.'", () => { 
+                            showDialogue("Mike: 'Yvy? That sounds like Eevee... That's my favorite Pokemon!'", () => { 
+                                this.player.isLocked = true; 
+                                this.instructionText.setText("Dancing..."); 
+                                this.time.addEvent({ delay: 100, repeat: 20, callback: () => { this.player.y += (Math.random()-0.5)*8; this.yvy.y += (Math.random()-0.5)*8; } }); 
+                                this.time.delayedCall(2500, () => { 
+                                    this.player.isLocked = false; 
+                                    showDialogue("Yvy: 'Haha yes! I actually cosplay too.'", () => { 
+                                        showDialogue("Mike: 'Really? Me too. Let me see photos.'", () => { 
+                                            showDialogue("Mike: 'NO WAY! Is that a T-Rex??'", () => { 
+                                                showDialogue("Yvy: 'Yes! You have one too?'", () => { 
+                                                    showDialogue("Mike: 'I DO! Destiny! Drinks on me.'", () => { 
+                                                        gameState.clubProgress = 2; 
+                                                        this.isInteracting = false; 
+                                                    }); 
+                                                }); 
+                                            }); 
+                                        }); 
+                                    }); 
+                                }); 
+                            }); 
+                        }); 
+                    }); 
+                } 
+            } 
+            handleBarInteraction() { 
+                if (gameState.clubProgress === 2) { 
+                    playSound('clink'); 
+                    this.heldDrink.setVisible(true); 
+                    showDialogue("Mike ordered a mixed drink for Yvy.", () => { 
+                        this.heldDrink.setVisible(false); 
+                        this.yvyDrink.setVisible(true); 
+                        gameState.clubProgress = 3; 
+                    }); 
+                } 
+            } 
+        }
+
+        class PizzaScene extends Phaser.Scene { 
+            constructor() { super('PizzaScene'); } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#101010'); 
+                playLeFestinTheme();
+                for(let i=0; i<50; i++) { let x = Math.random() * 450; let y = Math.random() * 250; this.add.rectangle(x, y, 2, 2, 0xffffff, Math.random() * 0.8 + 0.2); }
+                this.add.circle(100, 80, 40, 0xffffcc).setAlpha(0.9);
+                for (let x=0; x<GAME_WIDTH/32; x++) { for (let y=0; y<GAME_HEIGHT/32; y++) { if (y < 10 && x < 15) continue; if (y >= 10 && y < 14) this.add.image(x*32+16, y*32+16, 'pavement'); else if (x >= 15 && y < 10) this.add.image(x*32+16, y*32+16, 'floor_tile'); else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x222222); } }
+                this.add.rectangle(650, 150, 300, 200, 0xc62828); this.add.rectangle(650, 150, 280, 180, 0xffe0b2); this.add.text(560, 50, "PIZZA SHOP", { fontSize: '24px', fontWeight: 'bold' }); this.add.sprite(730, 60, 'pizza_logo'); this.add.rectangle(750, 150, 40, 150, 0x5d4037); this.add.rectangle(600, 200, 60, 60, 0x8d6e63); 
+                [100, 300, 500].forEach(x => { this.add.image(x, 340, 'streetlight').setScale(2); this.add.circle(x+4, 348, 40, 0xffff00, 0.2); }); 
+                this.shopZone = this.add.rectangle(600, 200, 100, 100, 0xffff00, 0); this.physics.add.existing(this.shopZone, true); 
+                this.player = new Player(this, 100, 400); this.yvy = this.physics.add.sprite(150, 400, 'yvy'); 
+                this.drunks = this.add.group(); let d1 = this.physics.add.sprite(350, 380, 'drunk'); d1.body.setImmovable(true); this.drunks.add(d1); let d2 = this.physics.add.sprite(450, 400, 'drunk'); d2.setFlipX(true); d2.body.setImmovable(true); this.drunks.add(d2);
+                this.tweens.add({ targets: [d1, d2], x: '+=5', angle: { from: -5, to: 5 }, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+                this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
+                this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
+                this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' }); 
+                this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone) this.startFarewell(); }); 
+                this.physics.add.overlap(this.player, this.drunks, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+                    const lines = [
+                        "Drunk Guy: 'I love you man... you're my best friend... wait, who are you? Does not matter! I still love you man!'" ,
+                        "Drunk Guy: 'Is this the taco stand? No? It's pizza? Who puts pineapple on pizza anyway? Wait, do you guys have pineapple?'", 
+                        "Drunk Guy: 'Wheeeeere is the party?? I swear it was right here a minute ago. Did the party move? Or did I move?'", 
+                        "Drunk Guy: 'Nice shoes buddy. They look fast. I bet you can run really fast in those. Can I try them on? Just for a second?'"
+                    ]; 
+                    showDialogue(lines[Math.floor(Math.random() * lines.length)]); } 
+                });
+            } 
+            update() { 
+                this.player.update(this.cursors); 
+                if (this.player.x > this.yvy.x + 50) this.yvy.body.setVelocityX(130); else if (this.player.x < this.yvy.x - 50) this.yvy.body.setVelocityX(-130); else this.yvy.body.setVelocityX(0); 
+                if(this.player.y < this.yvy.y - 50) this.yvy.body.setVelocityY(-130); else if(this.player.y > this.yvy.y + 50) this.yvy.body.setVelocityY(130); else this.yvy.body.setVelocityY(0); 
+                if (this.pSlice.visible) { this.pSlice.x = this.player.x + 10; this.pSlice.y = this.player.y; this.ySlice.x = this.yvy.x + 10; this.ySlice.y = this.yvy.y; } 
+                document.getElementById('interaction-hint').style.display = this.physics.overlap(this.player, this.drunks) ? 'block' : 'none';
+            } 
+            startFarewell() { 
+                gameState.farewellDone = true; this.pSlice.setVisible(true); this.ySlice.setVisible(true); this.player.body.stop(); this.yvy.body.stop(); 
+                const convo = [ "Mike: 'This pizza looks amazing.'", "Yvy: 'Best in San Diego.'", "Mike: 'I... I have to go soon. Work early tomorrow.'", "Yvy: 'Aww. What time?'", "Mike: 'Need to be up by 4 AM.'", "Yvy: 'Tell you what. I'll give you a wake-up call at 4 AM.'", "Mike: 'Really? You'd do that?'", "Yvy: 'Promise. Bye Mike!'", "Mike: 'Bye Yvy!'" ]; 
+                let i = 0; const next = () => { if(i<convo.length) showDialogue(convo[i++], next); else { fadeOutMusic(2); this.cameras.main.fade(2000, 0, 0, 0, false, (c,p) => { if(p===1) this.scene.start('MorningScene'); }); } }; next(); 
+            } 
+        }
+
+        class MorningScene extends Phaser.Scene { 
+            constructor() { super('MorningScene'); } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#000'); 
+                for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood'); 
+                this.add.rectangle(400, 300, 64, 96, 0xffffff); this.add.rectangle(400, 280, 64, 20, 0x3498db); this.add.image(200, 300, 'couch'); 
+                this.dresser = this.physics.add.staticImage(600, 100, 'dresser'); this.door = this.physics.add.staticImage(100, 100, 'door'); 
+                this.add.rectangle(350, 300, 20, 20, 0x5d4037); this.add.rectangle(450, 300, 20, 20, 0x5d4037); this.add.image(350, 290, 'lamp').setScale(0.8); this.add.image(450, 290, 'lamp').setScale(0.8); 
+                this.add.text(180, 260, "Hotel Room", { fontSize: '12px', color: '#000' }); 
+                this.phone = this.add.circle(450, 320, 8, 0xe74c3c); this.physics.add.existing(this.phone, true); 
+                this.player = new Player(this, 400, 300); 
+                this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
+                this.ringing = true; this.tweens.add({ targets: this.phone, scale: 1.5, duration: 200, yoyo: true, repeat: -1 }); 
+                this.time.addEvent({ delay: 1000, callback: () => { if(this.ringing) playSound('select'); }, loop: true }); 
+                this.add.text(350, 50, "4:00 AM", { fontSize: '40px', color: '#fff', backgroundColor: '#000' }); 
+                this.instructionText = this.add.text(20, 20, "Answer Phone (Space)", { fontSize: '16px', color: '#fff' }); 
+                this.dresserZone = this.add.rectangle(600, 120, 80, 80, 0xffff00, 0); this.physics.add.existing(this.dresserZone, true); 
+                this.doorZone = this.add.rectangle(100, 100, 50, 60, 0x00ff00, 0); this.physics.add.existing(this.doorZone, true); 
+                this.physics.add.overlap(this.player, this.phone, () => { 
+                    if (this.ringing && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+                        this.ringing = false; this.phone.destroy(); playRomanticTheme(); 
+                        const seq = [ "Mike picks up the phone...", "Yvy: 'Good morning! It's 4 AM! Wake up!'", "Mike: 'You actually called!'", "Mike: 'I'm awake. Thank you, Yvy.'", "Mike: 'Bye Yvy-- I hope to see you soon!'", "*Click*", "Mike: 'Wow, she actually called... Best trip ever ❤️'", "Mike: 'Time to get ready for work.'" ]; 
+                        let i = 0; const next = () => { if (i > 0 && seq[i-1].includes("Bye Yvy.")) fadeOutMusic(2); if (i < seq.length) { showDialogue(seq[i++], next); } else { gameState.callFinished = true; this.instructionText.setText("Go to Dresser (Space)"); } }; next(); 
+                    } 
+                }); 
+                this.physics.add.overlap(this.player, this.dresserZone, () => { 
+                    if (gameState.callFinished && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+                        document.getElementById('wardrobe-modal').style.display = 'block'; this.player.isLocked = true; 
+                        document.getElementById('btn-suit').onclick = () => { this.player.setTexture('mike_suit'); this.game.registry.set('playerOutfit', 'mike_suit'); }; 
+                        document.getElementById('btn-casual').onclick = () => { this.player.setTexture('mike_casual'); this.game.registry.set('playerOutfit', 'mike_casual'); }; 
+                        document.getElementById('btn-confirm').onclick = () => { document.getElementById('btn-confirm').blur(); if (!this.game.registry.get('playerOutfit')) { this.player.setTexture('mike_suit'); this.game.registry.set('playerOutfit', 'mike_suit'); } closeWardrobe(); }; 
+                    } 
+                }); 
+                this.physics.add.overlap(this.player, this.doorZone, () => { if (gameState.dressedForWork && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { this.scene.start('ConferenceScene'); } }); 
+                const closeWardrobe = () => { document.getElementById('wardrobe-modal').style.display = 'none'; this.player.isLocked = false; this.player.y += 40; gameState.dressedForWork = true; this.instructionText.setText("Go to Work (Use Door)"); showDialogue("Mike: 'This is the one. Looking sharp!'"); }; 
+            } 
+            update() { this.player.update(this.cursors); document.getElementById('interaction-hint').style.display = (this.physics.overlap(this.player, this.phone) || (gameState.callFinished && this.physics.overlap(this.player, this.dresserZone)) || (gameState.dressedForWork && this.physics.overlap(this.player, this.doorZone))) ? 'block' : 'none'; } 
+        }
+
+        class ConferenceScene extends Phaser.Scene { 
+            constructor() { super('ConferenceScene'); } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#f0f0f0'); playConferenceTheme(); 
+                for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0xeeeeee); 
+                this.table = this.physics.add.staticImage(400, 300, 'conf_table'); this.add.text(350, 260, "NOTION\nTHEORY", { fontSize: '14px', color: '#000', align: 'center', fontWeight: 'bold' }); 
+                this.vrHeadset = this.physics.add.sprite(400, 300, 'vr_headset'); this.heldVR = this.add.sprite(0,0,'vr_headset').setScale(0.8).setVisible(false); 
+                this.booth1 = this.add.rectangle(150, 100, 80, 60, 0x3498db); this.add.text(120, 90, "AI GEN", {fontSize: '12px', color: '#fff', fontStyle: 'bold'}); this.booth1Zone = this.add.rectangle(150, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth1Zone, true);
+                this.booth2 = this.add.rectangle(650, 100, 80, 60, 0xe74c3c); this.add.text(620, 90, "WEB3", {fontSize: '12px', color: '#fff', fontStyle: 'bold'}); this.booth2Zone = this.add.rectangle(650, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth2Zone, true);
+                this.attendees = this.add.group(); 
+                [{x: 150, y: 150}, {x: 650, y: 150}, {x: 150, y: 500}, {x: 650, y: 500}].forEach(pos => { let npc = this.physics.add.sprite(pos.x, pos.y, 'civilian'); npc.setTint(Math.random() * 0xffffff); npc.hasTriedDemo = false; this.attendees.add(npc); this.tweens.add({ targets: npc, x: npc.x + (Math.random() > 0.5 ? 50 : -50), y: npc.y + (Math.random() > 0.5 ? 50 : -50), duration: 2000 + Math.random() * 2000, ease: 'Sine.easeInOut', yoyo: true, repeat: -1 }); }); 
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit'; this.player = new Player(this, 100, 550); this.player.setTexture(outfit); 
+                this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
+                this.add.text(20, 20, "Task: Pick up VR Headset -> Demo to 3 People", { fontSize: '16px', color: '#000', backgroundColor: '#fff' }); 
+                this.physics.add.overlap(this.player, this.vrHeadset, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !gameState.hasVR) { gameState.hasVR = true; this.vrHeadset.destroy(); this.heldVR.setVisible(true); playSound('select'); showDialogue("Mike picked up the VR Headset."); } }); 
+                this.physics.add.overlap(this.player, this.attendees, (player, npc) => { 
+                    if (gameState.hasVR && !npc.hasTriedDemo && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+                        npc.hasTriedDemo = true; 
+                        playSound('vr_boop'); 
+                        this.player.isLocked = true;
+                        npc.body.stop(); 
+                        const demoDialogues = [
+                            ["Mike explains: 'This headset uses high-resolution retinal projection.'", "Attendee puts on headset.", "Attendee: 'Whoa! The text is perfectly readable.'", "Mike: 'Exactly. It's designed for enterprise productivity.'", "Attendee: 'Incredible work. I need this for my team.'"],
+                            ["Mike: 'Let me show you the mixed reality pass-through.'", "Attendee puts on headset.", "Attendee looks around.", "Attendee: 'It feels so real! I can see the virtual objects on the table.'", "Mike: 'Latency is under 10ms.'", "Attendee: 'Sold! Where do I sign up?'"],
+                            ["Mike: 'We are building the future of remote collaboration.'", "Attendee: 'Is it compatible with existing workflows?'", "Mike: 'Yes, it integrates seamlessly.'", "Attendee tries it on.", "Attendee: 'This is smooth. Very impressive.'"]
+                        ];
+                        const dialogueSet = demoDialogues[Math.min(gameState.demosGiven, 2)];
+                        let i = 0;
+                        const nextLine = () => {
+                            if (i < dialogueSet.length) {
+                                showDialogue(dialogueSet[i++], nextLine);
+                            } else {
+                                this.player.isLocked = false;
+                                gameState.demosGiven++;
+                                if (gameState.demosGiven >= 3) { this.startTextingSequence(); }
+                            }
+                        };
+                        nextLine();
+                    } 
+                }); 
+                this.physics.add.overlap(this.player, this.booth1Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike checked the AI Gen booth: 'Another LLM wrapper... Doesn't scale.'"); });
+                this.physics.add.overlap(this.player, this.booth2Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike checked the Web3 booth: 'Crypto... I'm more focused on VR right now.'"); });
+            } 
+            startTextingSequence() { showDialogue("Mike: 'That went great! I should text Yvy.'", () => { playSound('msg_sent'); showDialogue("Mike sent: 'Demo went great! Dinner tonight?'", () => { this.time.delayedCall(1500, () => { playSound('msg_sent'); showDialogue("Yvy replied: 'YES OFC! ❤️'", () => { stopMusic(); this.scene.start('UberScene'); }); }); }); }); } 
+            update() { this.player.update(this.cursors); if (gameState.hasVR) { this.heldVR.x = this.player.x + 10; this.heldVR.y = this.player.y; } document.getElementById('interaction-hint').style.display = ((!gameState.hasVR && this.physics.overlap(this.player, this.vrHeadset)) || (gameState.hasVR && this.physics.overlap(this.player, this.attendees)) || this.physics.overlap(this.player, [this.booth1Zone, this.booth2Zone])) ? 'block' : 'none'; } 
+        }
+
+        class UberScene extends Phaser.Scene { 
+            constructor() { super('UberScene'); } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#111'); this.roadLines = this.add.tileSprite(400, 300, 800, 600, 'pavement'); this.roadLines.setAlpha(0.5); 
+                this.car = this.add.sprite(-100, 300, 'uber_car'); this.car.setScale(2); 
+                this.add.text(400, 100, "Traveling to Gordon Biersch BrewPub...", { fontSize: '24px', color: '#fff', align: 'center', fontStyle: 'bold' }).setOrigin(0.5); 
+                this.tweens.add({ targets: this.car, x: 900, duration: 4000, ease: 'Quad.easeInOut', onComplete: () => { this.scene.start('RestaurantScene'); } }); 
+            } 
+            update() { this.roadLines.tilePositionX += 5; } 
+        }
+
+        class RestaurantScene extends Phaser.Scene { 
+            constructor() { super('RestaurantScene'); } 
+            create() { 
+                this.cameras.main.setBackgroundColor('#3e2723'); playLeFestinTheme();
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood'); 
+                this.add.image(100, 150, 'conf_table').setTint(0x5d4037).setScale(0.8); this.add.image(700, 150, 'conf_table').setTint(0x5d4037).setScale(0.8); this.add.image(100, 450, 'conf_table').setTint(0x5d4037).setScale(0.8); 
+                [ {x: 80, y: 130}, {x: 120, y: 130}, {x: 680, y: 130}, {x: 720, y: 130}, {x: 80, y: 430} ].forEach(pos => { let c = this.add.sprite(pos.x, pos.y, 'civilian'); c.setTint(Math.random() * 0xffffff); }); 
+                this.add.image(50, 50, 'plant'); this.add.image(750, 50, 'plant'); this.add.image(750, 550, 'plant'); this.add.text(400, 50, "GORDON BIERSCH BREWPUB", { fontSize: '24px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5); 
+                this.hostStand = this.physics.add.staticImage(200, 200, 'host_stand'); this.host = this.add.sprite(220, 190, 'host'); this.hostZone = this.add.rectangle(200, 250, 60, 60, 0xffff00, 0); this.physics.add.existing(this.hostZone, true); 
+                this.table = this.add.image(600, 400, 'conf_table').setTint(0x5d4037); this.chairMike = this.add.image(580, 430, 'chair'); this.chairYvy = this.add.image(620, 430, 'chair'); 
+                this.menu1 = this.add.image(580, 390, 'menu'); this.menu2 = this.add.image(620, 390, 'menu'); 
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit'; this.player = new Player(this, 50, 500); this.player.setTexture(outfit); 
+                this.server = this.add.sprite(800, 100, 'server'); this.yvy = this.add.sprite(50, 550, 'yvy').setVisible(false); this.spaghetti = this.add.sprite(580, 390, 'spaghetti').setVisible(false); this.tacos = this.add.sprite(620, 390, 'tacos').setVisible(false); 
+                this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); this.progress = 0; 
+                this.tweens.add({ targets: this.player, x: 200, y: 280, duration: 1500 }); 
+                this.physics.add.overlap(this.player, this.hostZone, () => { 
+                    if (this.progress === 0 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+                        this.progress = 1; showDialogue("Mike: 'Table for two, please.'", () => { showDialogue("Host: 'Right this way sir.'", () => { 
+                            this.tweens.add({ targets: this.host, x: 600, y: 350, duration: 2000 }); this.tweens.add({ targets: this.player, x: 580, y: 430, duration: 2500, delay: 200, onComplete: () => { this.player.setFlipX(false); this.tweens.add({ targets: this.host, x: 220, y: 190, duration: 2000, onComplete: () => { this.time.delayedCall(1000, () => { this.startYvyArrival(); }); }}); }}); 
+                        }); }); 
+                    } 
+                }); 
+            } 
+            startYvyArrival() { 
+                this.yvy.setVisible(true); this.yvy.x = 50; this.yvy.y = 500; 
+                this.tweens.add({ targets: this.yvy, x: 200, y: 280, duration: 1500, onComplete: () => { showDialogue("Yvy: 'Hi, I'm meeting someone.'", () => { showDialogue("Host: 'He is seated right over there.'", () => { 
+                    this.tweens.add({ targets: this.host, x: 600, y: 350, duration: 2000 }); this.tweens.add({ targets: this.yvy, x: 620, y: 430, duration: 2500, delay: 200, onComplete: () => { showDialogue("Yvy waves: 'Hi Mike!'", () => { this.tweens.add({ targets: this.host, x: 220, y: 190, duration: 2000 }); this.startDinnerDate(); }); }}); 
+                }); }); }}); 
+            } 
+            startDinnerDate() { showDialogue("Mike: 'Hey! Glad you made it.'", () => { showDialogue("Mike: 'I went to church with my friend Hunter today. It was really nice.'", () => { showDialogue("Yvy: 'That sounds lovely! Let's order.'", () => { this.serverApproaches(); }); }); }); } 
+            
+            serverApproaches() { 
+                this.tweens.add({ targets: this.server, x: 600, y: 350, duration: 2000, onComplete: () => { 
+                    showDialogue("Server: 'What can I get you?'", () => { 
+                        showDialogue("Yvy: 'I'll have the tacos, please.'", () => { 
+                            this.showMenu();
+                        }); 
+                    }); 
+                }}); 
+            } 
+
+            showMenu() {
+                const modal = document.getElementById('restaurant-menu-modal');
+                modal.style.display = 'block';
+                this.player.isLocked = true;
+
+                document.getElementById('btn-order-tacos').onclick = () => {
+                    modal.style.display = 'none';
+                    showDialogue("Mike: 'You’re getting tacos, right? Hmm, maybe we can try something else'", () => {
+                        modal.style.display = 'block'; 
+                    });
+                };
+
+                document.getElementById('btn-order-pizza').onclick = () => {
+                    modal.style.display = 'none';
+                    showDialogue("Mike: 'Hmm, we might get this at the theater, though.'", () => {
+                        modal.style.display = 'block'; 
+                    });
+                };
+
+                document.getElementById('btn-order-spaghetti').onclick = () => {
+                    modal.style.display = 'none';
+                    this.player.isLocked = false;
+                    showDialogue("Mike: 'Can’t beat the classics!'", () => {
+                        showDialogue("Mike: 'And spaghetti for me.'", () => {
+                            showDialogue("Server: 'Coming right up.'", () => {
+                                this.tweens.add({ targets: this.server, x: 800, y: 100, duration: 1500, onComplete: () => {
+                                    this.time.delayedCall(1000, () => { this.serverReturns(); });
+                                }});
+                            });
+                        });
+                    });
+                };
+            }
+
+            serverReturns() { this.tweens.add({ targets: this.server, x: 600, y: 350, duration: 1500, onComplete: () => { this.tacos.setVisible(true); this.spaghetti.setVisible(true); this.menu1.setVisible(false); this.menu2.setVisible(false); showDialogue("Server: 'Here you go. Enjoy!'", () => { this.tweens.add({ targets: this.server, x: 800, y: 100, duration: 1500 }); showDialogue("*They eat delicious food*", () => { this.time.delayedCall(1000, () => { fadeOutMusic(2); this.time.delayedCall(2000, () => { showDialogue("Mike: 'Ready for the movie?'", () => { this.scene.start('MovieScene'); }); }); }); }); }); }}); } 
+            update() { if (this.progress === 0) this.player.update(this.cursors); document.getElementById('interaction-hint').style.display = (this.progress === 0 && this.physics.overlap(this.player, this.hostZone)) ? 'block' : 'none'; } 
+        }
+
+        class MovieScene extends Phaser.Scene {
+            constructor() { super('MovieScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#1a1a1a'); playDreamworksTheme();
+                this.add.rectangle(400, 150, 800, 300, 0x000000); 
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=9; y<GAME_HEIGHT/32; y++) { this.add.image(x*32+16, y*32+16, 'theater_carpet'); }
+                
+                // --- MOVIE SCREEN (BLACK BACKGROUND TO SHOW WHITE LIGHT FURY) ---
+                this.add.rectangle(400, 150, 520, 220, 0x111111); // Dark border
+                this.screenRect = this.add.rectangle(400, 150, 500, 200, 0x000000); // Black screen for contrast
+
+                // --- MASK FOR MOVIE SCREEN ---
+                const maskGraphics = this.make.graphics();
+                maskGraphics.fillStyle(0xffffff);
+                maskGraphics.fillRect(150, 50, 500, 200); 
+                this.screenMask = maskGraphics.createGeometryMask();
+                
+                for(let y=0; y<7; y++) { this.add.image(120, 50 + y*32, 'theater_curtain').setScale(1.5, 1); this.add.image(680, 50 + y*32, 'theater_curtain').setScale(1.5, 1); }
+                const light = this.add.graphics();
+                light.fillStyle(0xffffff, 0.1);
+                light.beginPath();
+                light.moveTo(395, 600); 
+                light.lineTo(405, 600);
+                light.lineTo(650, 150); 
+                light.lineTo(150, 150); 
+                light.closePath();
+                light.fillPath();
+                light.setBlendMode(Phaser.BlendModes.ADD);
+                this.tweens.add({ targets: light, alpha: 0.05, duration: 100, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+                this.screenText = this.add.text(400, 150, "How to Train Your Dragon 3", { fontSize: '24px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+                this.screenText.setMask(this.screenMask);
+
+                this.toothless = this.add.sprite(250, 150, 'toothless').setVisible(false); 
+                this.toothless.setMask(this.screenMask);
+
+                this.lightFury = this.add.sprite(550, 150, 'light_fury').setVisible(false).setFlipX(true); 
+                this.lightFury.setMask(this.screenMask);
+
+                this.nightLights = this.add.group();
+                for(let i=0; i<12; i++) { this.add.image(100 + i*50, 400, 'theater_seat'); this.add.image(100 + i*50, 480, 'theater_seat'); }
+                this.add.rectangle(400, 600, 800, 40, 0x000000); 
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = this.add.sprite(380, 480, outfit); this.yvy = this.add.sprite(420, 480, 'yvy'); this.popcorn = this.add.sprite(400, 490, 'popcorn').setScale(0.8);
+                this.jalapeno = this.add.sprite(420, 470, 'jalapeno').setVisible(false);
+                this.zzz = this.add.text(440, 450, "Zzz...", { fontSize: '20px', color: '#fff' }).setVisible(false);
+                this.patKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); this.stage = 0; 
+                this.time.delayedCall(1000, () => {
+                    showDialogue("Yvy: 'Wait! You have to try popcorn with jalapeños!'", () => { this.jalapeno.setVisible(true); this.tweens.add({targets: this.jalapeno, y: 480, duration: 500, yoyo: true, repeat: 2}); showDialogue("Mike tries it... 'Wow! Spicy but good!'", () => { this.jalapeno.setVisible(false); this.startMovie(); }); });
+                });
+            }
+            startMovie() {
+                this.screenText.setVisible(false); 
+                playBattleTheme();
+                const sequence = [
+                    { text: "The Rescue: After Grimmel captures Toothless and the Light Fury, Hiccup launches a rescue mission.", action: () => {
+                        this.toothless.setVisible(true); this.lightFury.setVisible(true);
+                        this.toothless.x = 350; this.toothless.y = 150;
+                        this.lightFury.x = 450; this.lightFury.y = 150;
+                    }},
+                    { text: "The Sacrifice: During a mid-air struggle, the Light Fury falls. Hiccup realizes he can't save both her and Toothless.", action: () => {
+                         this.tweens.add({targets: this.lightFury, y: 220, duration: 1000}); 
+                    }},
+                    { text: "Hiccup unclips his leg and urges the Light Fury to save Toothless instead.", action: () => {
+                        this.tweens.add({targets: this.lightFury, x: 350, y: 150, duration: 500});
+                    }},
+                    { text: "Grimmel's Defeat: The Light Fury rescues Toothless, then dives to catch Hiccup. Grimmel falls to his death.", action: () => {
+                        this.tweens.add({targets: [this.toothless, this.lightFury], y: 120, duration: 1000, yoyo: true});
+                    }},
+                    { text: "Letting Go: Hiccup realizes dragons will never be safe among humans. He sends them to the Hidden World.", action: () => {
+                         this.tweens.add({targets: [this.toothless, this.lightFury], x: -50, duration: 2000});
+                    }},
+                    { text: "The Farewell: In a tearful scene, the Berkians say goodbye. Toothless leads the dragons away.", action: () => {}},
+                    { text: "Epilogue: Years later... Hiccup and Astrid sail to the edge of the Hidden World.", action: () => {
+                        this.toothless.x = 300; this.lightFury.x = 400;
+                        this.toothless.setVisible(true); this.lightFury.setVisible(true);
+                        this.tweens.add({targets: [this.toothless, this.lightFury], x: '+=100', duration: 2000});
+                        const n1 = this.nightLights.create(350, 180, 'night_light');
+                        const n2 = this.nightLights.create(380, 170, 'night_light');
+                        const n3 = this.nightLights.create(320, 170, 'night_light');
+                        [n1, n2, n3].forEach(n => n.setMask(this.screenMask));
+                        this.tweens.add({targets: this.nightLights.getChildren(), y: '+=10', duration: 500, yoyo: true, repeat: -1});
+                    }},
+                    { text: "They reunite with Toothless, the Light Fury, and their three Night Lights.", action: () => {}},
+                    { text: "The End.", action: () => {
+                        this.screenText.setText("THE END").setVisible(true);
+                        this.toothless.setVisible(false); this.lightFury.setVisible(false); this.nightLights.setVisible(false);
+                    }}
+                ];
+                let i = 0;
+                const nextStep = () => {
+                    if(i < sequence.length) {
+                        const step = sequence[i];
+                        if(step.action) step.action();
+                        showDialogue(step.text, () => {
+                            i++;
+                            this.time.delayedCall(500, nextStep);
+                        });
+                    } else {
+                        stopMusic();
+                        this.zzz.setVisible(true);
+                        this.add.text(400, 550, "Yvy fell asleep. Press SPACE to Pat Head", { fontSize: '16px', color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
+                        this.stage = 1;
+                    }
+                };
+                nextStep();
+            }
+            update() {
+                if (this.stage === 1 && Phaser.Input.Keyboard.JustDown(this.patKey)) {
+                    this.stage = 2; showDialogue("Mike cautiously patted her head.", () => { showDialogue("Yvy wakes up: 'Oh! I'm sorry, I drifted off.'", () => { showDialogue("Mike: 'It's okay. You tired?'", () => { showDialogue("Yvy: 'Yeah... long day.'", () => { showDialogue("Mike: 'Want to crash at my hotel? No pressure.'", () => { showDialogue("Yvy: 'I'd love that.'", () => { this.scene.start('DriveToHotelScene'); }); }); }); }); }); });
+                }
+            }
+        }
+
+        class DriveToHotelScene extends Phaser.Scene {
+            constructor() { super('DriveToHotelScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#111'); this.roadLines = this.add.tileSprite(400, 300, 800, 600, 'pavement'); this.roadLines.setAlpha(0.5);
+                this.car = this.add.sprite(-100, 300, 'uber_car'); this.car.setScale(2);
+                this.add.text(400, 100, "Driving to the Fancy Hotel...", { fontSize: '24px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
+                this.tweens.add({ targets: this.car, x: 900, duration: 4000, ease: 'Quad.easeInOut', onComplete: () => { this.scene.start('FancyHotelScene'); } }); 
+            }
+            update() { this.roadLines.tilePositionX += 5; } 
+        }
+
+        class DowntownScene extends Phaser.Scene {
+            constructor() { super('DowntownScene'); }
+            preload() { this.load.image('penny_custom', 'https://i.ibb.co/GvxG9K4t/4105a167-b4d8-4c7b-b622-604dfc54c45a-removebg-preview.png'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#87CEEB'); 
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) { 
+                    if (y < 8) continue; 
+                    if (y > 14) this.add.image(x*32+16, y*32+16, 'pavement'); 
+                    else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0xcccccc); 
+                }
+                this.add.circle(700, 80, 40, 0xffff00).setAlpha(0.8); 
+                this.add.circle(700, 80, 60, 0xffff00, 0.2); 
+                const clouds = this.add.group();
+                for(let i=0; i<5; i++) {
+                    let c = this.add.ellipse(100 + i*150, 50 + Math.random()*50, 100, 40, 0xffffff, 0.8);
+                    this.tweens.add({targets: c, x: '+=100', duration: 10000 + Math.random()*5000, yoyo: true, repeat: -1});
+                }
+                this.add.text(400, 30, "Downtown San Diego", { fontSize: '24px', color: '#000', backgroundColor: '#fff' }).setOrigin(0.5);
+                this.add.image(100, 290, 'shop_clothing'); this.add.text(80, 260, "Fashion", {fontSize: '12px', color: '#fff'});
+                this.add.image(300, 290, 'shop_crystal'); this.add.text(280, 260, "Crystals", {fontSize: '12px', color: '#fff'});
+                this.add.image(450, 290, 'shop_book'); this.add.text(420, 260, "Book Store", {fontSize: '12px', color: '#fff'});
+                this.bookZone = this.add.rectangle(450, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.bookZone, true);
+                this.add.image(600, 290, 'donut_shop'); this.add.text(580, 260, "DONUT BAR", {fontSize: '14px', color: '#fff', backgroundColor: '#ec407a', padding: {x: 5, y: 2}});
+                this.add.image(750, 290, 'graffiti_wall').setScale(0.8); 
+                this.add.image(200, 500, 'park_bench');
+                [50, 200, 400, 550].forEach(x => this.add.image(x, 310, 'bush_detailed'));
+                this.add.image(180, 450, 'streetlight').setScale(1.5);
+                this.add.image(700, 450, 'streetlight').setScale(1.5); 
+                this.clothingZone = this.add.rectangle(100, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.clothingZone, true);
+                this.crystalZone = this.add.rectangle(300, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.crystalZone, true);
+                this.donutZone = this.add.rectangle(600, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.donutZone, true);
+                this.wallZone = this.add.rectangle(750, 330, 80, 60, 0xffff00, 0); this.physics.add.existing(this.wallZone, true); 
+                this.benchZone = this.add.rectangle(200, 500, 80, 40, 0xffff00, 0); this.physics.add.existing(this.benchZone, true);
+                this.add.rectangle(550, 500, 150, 100, 0x2e7d32); 
+                this.add.image(500, 500, 'fence_detailed'); this.add.image(600, 500, 'fence_detailed');
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = new Player(this, 50, 400); this.player.setTexture(outfit);
+                this.yvy = this.physics.add.sprite(100, 400, 'yvy');
+                this.stranger = this.physics.add.sprite(520, 500, 'civilian').setTint(0xaaaaaa);
+                this.dog = this.add.sprite(550, 520, 'generic_dog');
+                this.dogZone = this.add.rectangle(550, 520, 100, 80, 0xffff00, 0); this.physics.add.existing(this.dogZone, true);
+                this.pDonut = this.add.sprite(0,0,'donut_chocolate').setVisible(false); this.yDonut = this.add.sprite(0,0,'donut_strawberry').setVisible(false);
+                this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+                this.stage = 0; 
+                this.add.text(20, 560, "Task: Donut Bar → Donut wall → Puppy → Bench", { fontSize: '16px', color: '#000', backgroundColor: '#fff', fontStyle: 'bold' });
+                this.physics.add.overlap(this.player, this.clothingZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Yvy: 'Ooh, cute top!'"); });
+                this.physics.add.overlap(this.player, this.crystalZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Yvy: 'Good energy in there.'"); });
+                this.physics.add.overlap(this.player, this.bookZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike: 'I love old book stores.'"); }); 
+                this.physics.add.overlap(this.player, this.donutZone, () => { 
+                    if(this.stage === 0 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+                        this.stage = 1; showDialogue("Mike: 'Whoa, look at that line.'", () => { showDialogue("They wait patiently...", () => { showDialogue("Yvy: 'Strawberry and Cream for me!'", () => { showDialogue("Mike: 'Classic Chocolate for me.'", () => {
+                            this.pDonut.setVisible(true); this.yDonut.setVisible(true); showDialogue("Mike: 'Cheers!' *Chomp*", () => { this.pDonut.setVisible(false); this.yDonut.setVisible(false); this.stage = 2; showDialogue("They ate the delicious donuts."); }); }); }); }); });
+                    }
+                });
+                this.physics.add.overlap(this.player, this.wallZone, () => { if(this.stage >= 2 && this.stage < 3 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { this.stage = 3; playSound('select'); this.cameras.main.flash(200, 255, 255, 255); showDialogue("Mike: 'Smile!'", () => { showDialogue("They took a selfie at the famous Donut Wall."); }); } });
+                this.physics.add.overlap(this.player, this.dogZone, () => { if(this.stage >= 3 && this.stage < 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { this.stage = 4; showDialogue("Mike: 'Can we pet your dog?'", () => { showDialogue("Stranger: 'Sure! He's friendly.'", () => { showDialogue("Yvy: 'Who's a good boy!' *Pets dog*", () => { this.tweens.add({targets: this.dog, y: '-=5', duration: 100, yoyo: true, repeat: 3}); }); }); }); } });
+                this.physics.add.overlap(this.player, this.benchZone, () => {
+                    if(this.stage >= 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+                        this.stage = 5; this.player.x = 180; this.player.y = 500; this.yvy.x = 220; this.yvy.y = 500; this.player.body.stop(); this.yvy.body.stop();
+                        showDialogue("They sat down to enjoy the morning sun.", () => { showDialogue("Mike: 'I really like San Diego. And I really like being with you.'", () => { showDialogue("Yvy: 'Me too. What do you want out of life, Mike?'", () => { showDialogue("Mike: 'To build cool things. And to be happy with someone special.'", () => { showDialogue("Yvy: 'I also want to create things.. Create a better future for our world, and meet someone who has a vision to do the same... Someone special too..'", () => {
+                            const heart = this.add.text(this.player.x + 10, this.player.y - 40, '❤️', { fontSize: '24px' });
+                            this.tweens.add({ targets: heart, y: this.player.y - 80, alpha: 0, duration: 2000 });
+                            showDialogue("They sat in comfortable silence for a while.", () => { this.scene.start('TravelScene'); }); }); }); }); }); });
+                    }
+                });
+            }
+            update() {
+                this.player.update(this.cursors); const dist = Phaser.Math.Distance.Between(this.yvy.x, this.yvy.y, this.player.x, this.player.y); 
+                if (dist > 60 && this.stage !== 5) this.physics.moveToObject(this.yvy, this.player, 120); else this.yvy.body.stop();
+                if (this.pDonut.visible) { this.pDonut.x = this.player.x; this.pDonut.y = this.player.y - 10; }
+                if (this.yDonut.visible) { this.yDonut.x = this.yvy.x; this.yDonut.y = this.yvy.y - 10; }
+                document.getElementById('interaction-hint').style.display = this.physics.overlap(this.player, [this.clothingZone, this.crystalZone, this.donutZone, this.wallZone, this.dogZone, this.benchZone, this.bookZone]) ? 'block' : 'none';
+            }
+        }
+
+        class FancyHotelScene extends Phaser.Scene {
+            constructor() { super('FancyHotelScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#200020'); playRomanticTheme();
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) {
+                    if (y < 12) this.add.image(x*32+16, y*32+16, 'fancy_wallpaper'); 
+                    else this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0x554455);
+                }
+                this.add.image(400, 500, 'fancy_rug'); 
+                this.add.image(400, 80, 'chandelier').setScale(2); 
+                this.add.rectangle(340, 440, 20, 20, 0x3e2723); this.add.image(340, 430, 'fancy_lamp');
+                this.add.rectangle(460, 440, 20, 20, 0x3e2723); this.add.image(460, 430, 'fancy_lamp');
+                this.add.image(50, 50, 'plant'); this.add.image(750, 50, 'plant'); this.add.image(50, 550, 'plant'); this.add.image(750, 550, 'plant');
+                this.bed = this.add.image(400, 420, 'fancy_bed'); 
+                this.couch = this.add.image(600, 500, 'couch').setTint(0xccaa00);
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = new Player(this, 200, 500); this.player.setTexture(outfit);
+                this.yvy = this.add.sprite(250, 500, 'yvy');
+                this.cursors = this.input.keyboard.createCursorKeys();
+                this.time.delayedCall(1000, () => {
+                    showDialogue("Mike: 'Home sweet home.'", () => { showDialogue("Yvy: 'It's beautiful. What a great day.'", () => { showDialogue("Mike: 'The best day.'", () => {
+                        this.tweens.add({ targets: this.player, x: 380, y: 440, duration: 2000 });
+                        this.tweens.add({ targets: this.yvy, x: 420, y: 440, duration: 2000, onComplete: () => {
+                            this.add.text(400, 350, "❤️", { fontSize: '40px' }).setOrigin(0.5); fadeOutMusic(2);
+                            showDialogue("Mike and Yvy share a kiss.", () => { this.time.delayedCall(3000, () => { this.scene.start('DowntownScene'); }); });
+                        }});
+                    }); }); });
+                });
+            }
+            update() { this.player.update(this.cursors); }
+        }
+
+        class TravelScene extends Phaser.Scene {
+            constructor() { super('TravelScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#87ceeb');
+                // --- CHANGED: NC to DC ---
+                this.add.circle(100, 300, 10, 0x0000ff); this.add.text(100, 320, "SD", { fontSize: '20px', color: '#fff' }).setOrigin(0.5);
+                this.add.circle(700, 300, 10, 0xff0000); this.add.text(700, 320, "DC", { fontSize: '20px', color: '#fff' }).setOrigin(0.5);
+                const graphics = this.add.graphics();
+                graphics.lineStyle(2, 0xffffff, 0.5);
+                graphics.beginPath(); graphics.moveTo(100, 300); graphics.lineTo(700, 300); graphics.strokePath();
+                const plane = this.add.container(100, 300, [this.add.rectangle(0,0,15,60,0xcccccc), this.add.rectangle(0,0,60,20,0xffffff)]);
+                plane.setScale(1, 1);
+                this.tweens.add({
+                    targets: plane, x: 700, duration: 2000, ease: 'Sine.easeInOut',
+                    onComplete: () => {
+                        showDialogue("Mike and Yvy got to know each other more.", () => {
+                            plane.setScale(-1, 1);
+                            this.tweens.add({
+                                targets: plane, x: 100, duration: 2000, ease: 'Sine.easeInOut',
+                                onComplete: () => {
+                                    showDialogue("Yvy was scared at first because Mike seemed too NICE...", () => {
+                                        plane.setScale(1, 1);
+                                        this.tweens.add({
+                                            targets: plane, x: 700, duration: 2000, ease: 'Sine.easeInOut',
+                                            onComplete: () => {
+                                                showDialogue("But as time passed, she realized Mike was kind, safe, and truly genuine.", () => {
+                                                    this.scene.start('HouseScene');
+                                                });
+                                            }
+                                        });
+                                    });
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+        }
+
+        class HouseScene extends Phaser.Scene {
+            constructor() { super('HouseScene'); }
+            preload() { this.load.image('penny_custom', 'https://i.ibb.co/GvxG9K4t/4105a167-b4d8-4c7b-b622-604dfc54c45a-removebg-preview.png'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#8d6e63');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood');
+                this.add.text(400, 50, "Yvy's 54th Street House", { fontSize: '24px', color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = new Player(this, 100, 300); this.player.setTexture(outfit);
+                this.yvy = this.add.sprite(200, 300, 'yvy');
+                this.aiden = this.add.sprite(600, 300, 'aiden');
+                this.penny = this.add.sprite(650, 320, 'penny_custom'); this.penny.setDisplaySize(20, 20);
+                this.tweens.add({ targets: this.aiden, y: 290, duration: 300, yoyo: true, repeat: -1 });
+                this.tweens.add({ targets: this.penny, x: 670, duration: 200, yoyo: true, repeat: -1 });
+                this.cursors = this.input.keyboard.createCursorKeys();
+                this.time.delayedCall(1000, () => {
+                     showDialogue("Because of this connection, Mike got to meet the most important parts of her life...", () => {
+                        this.tweens.add({ targets: this.player, x: 500, duration: 2000 });
+                        this.tweens.add({ targets: this.yvy, x: 550, duration: 2000, onComplete: () => {
+                            showDialogue("Her son, Aiden (he was 4). And her best friend, Penny.", () => {
+                                showDialogue("Mike became part of their family.", () => {
+                                    this.scene.start('SurgeryScene');
+                                });
+                            });
+                        }});
+                     });
+                });
+            }
+            update() { this.player.update(this.cursors); }
+        }
+
+        class SurgeryScene extends Phaser.Scene {
+            constructor() { super('SurgeryScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#e0f7fa');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) {
+                    if (y < 12) this.add.image(x*32+16, y*32+16, 'hospital_wall');
+                    else this.add.image(x*32+16, y*32+16, 'floor_tile');
+                }
+                this.add.image(200, 150, 'hospital_window');
+                this.add.image(600, 150, 'hospital_window');
+                this.add.text(400, 50, "Hospital", { fontSize: '24px', color: '#000', fontStyle: 'bold' }).setOrigin(0.5);
+                this.bed = this.add.image(400, 300, 'hospital_bed');
+                this.add.image(320, 250, 'iv_stand');
+                this.monitor = this.add.image(480, 250, 'heart_monitor');
+                this.tweens.add({targets: this.monitor, alpha: 0.8, duration: 500, yoyo: true, repeat: -1});
+                this.aiden = this.add.sprite(400, 290, 'aiden');
+                this.doctor = this.add.sprite(520, 250, 'doctor');
+                this.yvy = this.add.sprite(350, 350, 'yvy');
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = this.add.sprite(300, 350, outfit);
+                this.time.delayedCall(1000, () => {
+                    showDialogue("They went through so many trials and challenges.", () => {
+                        showDialogue("Mike was there when Aiden had his big surgery for his throat...", () => {
+                            showDialogue("He stood strong by their side, supporting them through the fear.", () => {
+                                this.scene.start('BurialScene');
+                            });
+                        });
+                    });
+                });
+            }
+        }
+
+        class BurialScene extends Phaser.Scene {
+            constructor() { super('BurialScene'); }
+            preload() { this.load.image('penny_custom', 'https://i.ibb.co/GvxG9K4t/4105a167-b4d8-4c7b-b622-604dfc54c45a-removebg-preview.png'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#2e7d32');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'grass');
+                const walls = this.physics.add.staticGroup();
+                for(let x=0; x<GAME_WIDTH; x+=32) walls.create(x+16, 16, 'floor_wood').setTint(0x3e2723);
+                this.add.rectangle(600, 300, 64, 32, 0x3e2723);
+                this.yvy = this.add.sprite(200, 300, 'yvy');
+                this.aiden = this.add.sprite(240, 310, 'aiden');
+                this.penny = this.add.sprite(220, 320, 'penny_custom'); this.penny.setDisplaySize(20, 20);
+                this.tear1 = this.add.text(200, 260, '💧', { fontSize: '20px' }).setOrigin(0.5);
+                this.tear2 = this.add.text(240, 270, '💧', { fontSize: '20px' }).setOrigin(0.5);
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = this.add.sprite(400, 300, outfit);
+                this.casket = this.add.image(220, 320, 'casket').setVisible(false);
+                this.time.delayedCall(1000, () => {
+                    showDialogue("When Penny passed away, Mike stood nearby as Yvy and Aiden said their goodbyes.", () => {
+                        this.tweens.add({ targets: this.player, x: 260, duration: 1500, onComplete: () => {
+                            showDialogue("He helped her place Penny in the casket.", () => {
+                                this.penny.setVisible(false);
+                                this.casket.setVisible(true);
+                                this.casket.x = 260; this.casket.y = 310;
+                                this.time.delayedCall(1000, () => {
+                                    this.tweens.add({ targets: [this.player, this.casket], x: 580, duration: 2500, onComplete: () => {
+                                         showDialogue("He helped bury her in the backyard, sharing in their grief.", () => {
+                                             this.scene.start('NewYearsScene');
+                                         });
+                                    }});
+                                    this.tweens.add({ targets: this.yvy, x: 540, duration: 2500, delay: 200 });
+                                    this.tweens.add({ targets: this.aiden, x: 520, duration: 2500, delay: 400 });
+                                });
+                            });
+                        }});
+                    });
+                });
+            }
+            update() {
+                if (this.yvy && this.tear1) {
+                    this.tear1.x = this.yvy.x;
+                    this.tear1.y = this.yvy.y - 40;
+                }
+                if (this.aiden && this.tear2) {
+                    this.tear2.x = this.aiden.x;
+                    this.tear2.y = this.aiden.y - 40;
+                }
+            }
+        }
+
+        class NewYearsScene extends Phaser.Scene {
+            constructor() { super('NewYearsScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#000033');
+                for(let i=0; i<10; i++) {
+                    let h = 100 + Math.random() * 200;
+                    this.add.rectangle(50 + i*80, 600 - h/2, 60, h, 0x111111);
+                    for(let j=0; j<5; j++) {
+                        if(Math.random() > 0.5) this.add.rectangle(50 + i*80, 600 - h + 20 + j*30, 10, 10, 0xffff00);
+                    }
+                }
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = this.add.sprite(380, 400, outfit);
+                this.yvy = this.add.sprite(420, 400, 'yvy');
+                this.fireworks = this.add.group();
+                this.time.addEvent({
+                    delay: 800,
+                    loop: true,
+                    callback: () => {
+                        let x = Math.random() * 800;
+                        let y = Math.random() * 300;
+                        let color = ['firework_red', 'firework_green', 'firework_blue'][Math.floor(Math.random() * 3)];
+                        let fw = this.add.particles(x, y, color, { speed: 100, lifespan: 1000, scale: { start: 1, end: 0 }, quantity: 20, blendMode: 'ADD' });
+                        playSound('fire');
+                        this.time.delayedCall(1000, () => fw.destroy());
+                    }
+                });
+                this.time.delayedCall(1000, () => {
+                    showDialogue("Mike and Yvy shared valuable time together.", () => {
+                        showDialogue("And as the story unfolded, Mike and Yvy became official on New Years Day.", () => {
+                            this.tweens.add({ targets: this.player, x: 395, duration: 1000 });
+                            this.tweens.add({ targets: this.yvy, x: 405, duration: 1000, onComplete: () => {
+                                this.add.text(400, 350, "❤️", { fontSize: '40px' }).setOrigin(0.5);
+                                showDialogue("They shared a kiss as the fireworks lit up the sky.", () => {
+                                    this.scene.start('ApartmentScene');
+                                });
+                            }});
+                        });
+                    });
+                });
+            }
+        }
+
+        class ApartmentScene extends Phaser.Scene {
+            constructor() { super('ApartmentScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#dcedc8');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood');
+                this.add.text(400, 50, "Their First Apartment", { fontSize: '24px', color: '#000', backgroundColor: '#fff' }).setOrigin(0.5);
+                this.add.image(100, 500, 'box'); this.add.image(130, 500, 'box'); this.add.image(115, 470, 'box'); this.add.image(700, 500, 'box');
+                this.add.image(400, 320, 'couch_green'); this.add.image(400, 240, 'tv'); this.add.image(200, 200, 'lamp');
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = this.add.sprite(350, 350, outfit);
+                this.yvy = this.add.sprite(450, 350, 'yvy');
+                this.aiden = this.add.sprite(400, 320, 'aiden');
+                this.visitors = this.add.group();
+                this.time.delayedCall(1000, () => {
+                    showDialogue("Since then, they've grown closer together.", () => {
+                        // --- CHANGED: NC to DC ---
+                        showDialogue("Mike moved in from DC to SD.", () => {
+                            showDialogue("They got their first apartment...", () => {
+                                let mom = this.add.sprite(100, 300, 'civilian').setTint(0xffaaaa);
+                                let alex = this.add.sprite(700, 300, 'mike').setTint(0x8888ff);
+                                let kevin = this.add.sprite(650, 320, 'mike_casual').setTint(0xaaaaaa);
+                                this.visitors.addMultiple([mom, alex, kevin]);
+                                this.visitors.setAlpha(0);
+                                this.tweens.add({ targets: this.visitors.getChildren(), alpha: 1, duration: 1000 });
+                                showDialogue("Yvy's mom, half-brother Alex, and Kevin came to visit.", () => {
+                                    showDialogue("Mike met them for the first time, and they grew to appreciate each other.", () => {
+                                        this.scene.start('ThanksgivingScene');
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+        }
+
+        class ThanksgivingScene extends Phaser.Scene {
+            constructor() { super('ThanksgivingScene'); }
+            preload() { this.load.image('turkey_custom', 'https://i.ibb.co/QvSHdfNg/delicious-chicken-dish-perfect-pixel-art-style-stickers-decorations-515427-229-removebg-preview.png'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#d35400');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0xcc9966);
+                playLeFestinTheme();
+                // --- CHANGED: NC to DC ---
+                this.add.text(400, 50, "Thanksgiving in DC", { fontSize: '24px', color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
+                this.add.image(400, 300, 'conf_table').setScale(1.5, 1);
+                let turkey = this.add.image(400, 280, 'turkey_custom');
+                turkey.setDisplaySize(48, 48);
+                this.add.image(350, 280, 'mashed_potatoes').setScale(0.8);
+                this.add.image(450, 280, 'cranberry').setScale(0.8);
+                this.add.image(380, 310, 'pie').setScale(0.8);
+                this.add.image(420, 310, 'mashed_potatoes').setScale(0.8);
+                
+                // --- Characters ---
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = new Player(this, 100, 450); this.player.setTexture(outfit);
+                
+                // Interactive Zones
+                this.yvyFamilyZone = this.add.rectangle(150, 250, 150, 100, 0xffff00, 0); this.physics.add.existing(this.yvyFamilyZone, true);
+                this.mikeFamilyZone = this.add.rectangle(650, 250, 150, 100, 0xffff00, 0); this.physics.add.existing(this.mikeFamilyZone, true);
+                this.cousinZone = this.add.rectangle(400, 500, 100, 100, 0xffff00, 0); this.physics.add.existing(this.cousinZone, true);
+
+                // Yvy's Family
+                this.yvyDad = this.physics.add.sprite(150, 250, 'civilian').setTint(0x8d6e63); 
+                this.yvyStepmom = this.physics.add.sprite(180, 260, 'civilian').setTint(0xffccbc);
+                
+                // Mike's Family
+                this.mikeMom = this.physics.add.sprite(650, 250, 'civilian').setTint(0xffaaaa);
+                this.mikeDad = this.physics.add.sprite(680, 250, 'mike_suit').setTint(0x555555); 
+                this.jocelyn = this.physics.add.sprite(710, 260, 'civilian').setTint(0xccaaff);
+
+                // Cousin
+                this.cousin = this.physics.add.sprite(400, 500, 'aiden').setTint(0xcccc55); 
+
+                // Followers
+                this.yvy = this.physics.add.sprite(this.player.x - 30, this.player.y, 'yvy');
+                this.aiden = this.physics.add.sprite(this.player.x - 60, this.player.y, 'aiden');
+
+                this.cursors = this.input.keyboard.createCursorKeys();
+                this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+                this.talkedState = { yvyFamily: false, mikeFamily: false, cousin: false };
+
+                this.add.text(20, 550, "Talk to everyone! (Space)", { fontSize: '16px', color: '#fff' });
+
+                this.physics.add.overlap(this.player, this.yvyFamilyZone, () => {
+                     if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !this.talkedState.yvyFamily) {
+                         this.talkedState.yvyFamily = true;
+                         showDialogue("Yvy's Dad: '¡Hola Miguel! ¿Cómo estás? Bienvenido.'", () => {
+                             showDialogue("Mike (trying his best): 'Uh... Hola! Muy... good? Gracias?'", () => {
+                                 showDialogue("Yvy's Stepmom laughs warmly: '¡Siéntate, come! La comida está deliciosa.'", () => {
+                                     showDialogue("Mike: 'Si, si... delicioso!'", () => {
+                                          showDialogue("They all laugh together, sharing a warm moment beyond language barriers.", () => {
+                                              this.checkProgress();
+                                          });
+                                     });
+                                 });
+                             });
+                         });
+                     }
+                });
+
+                this.physics.add.overlap(this.player, this.mikeFamilyZone, () => {
+                     if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !this.talkedState.mikeFamily) {
+                         this.talkedState.mikeFamily = true;
+                         showDialogue("Mike's Mom: 'So glad you made it, Mike. The garden is blooming beautifully this year.'", () => {
+                             showDialogue("Mike's Dad: 'The turkey came out perfect. Let's eat.'", () => {
+                                 showDialogue("Jocelyn: 'It's so lively with everyone here! I love it.'", () => {
+                                      showDialogue("Mike's family welcomes everyone with open arms.", () => {
+                                          this.checkProgress();
+                                      });
+                                 });
+                             });
+                         });
+                     }
+                });
+
+                this.physics.add.overlap(this.player, this.cousinZone, () => {
+                     if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !this.talkedState.cousin) {
+                         this.talkedState.cousin = true;
+                         showDialogue("Cousin: 'Bet you can't catch me!'", () => {
+                             showDialogue("Aiden: 'I'm gonna get you!'", () => {
+                                 showDialogue("Aiden runs off to play tag with his cousin, giggling uncontrollably.", () => {
+                                     this.tweens.add({targets: this.aiden, x: this.cousin.x + 40, duration: 500, yoyo: true, repeat: 2});
+                                     this.checkProgress();
+                                 });
+                             });
+                         });
+                     }
+                });
+            }
+
+            update() {
+                this.player.update(this.cursors);
+                
+                // Follow Logic
+                if (this.player.body.velocity.length() > 5) {
+                    this.physics.moveToObject(this.yvy, this.player, 140);
+                    if (!this.talkedState.cousin) this.physics.moveToObject(this.aiden, this.player, 130); // Stop following if playing
+                } else {
+                     const distYvy = Phaser.Math.Distance.BetweenPoints(this.player, this.yvy);
+                     if (distYvy < 60) this.yvy.body.stop();
+                     
+                     if (!this.talkedState.cousin) {
+                        const distAiden = Phaser.Math.Distance.BetweenPoints(this.player, this.aiden);
+                        if (distAiden < 60) this.aiden.body.stop();
+                     }
+                }
+                
+                const touching = this.physics.overlap(this.player, [this.yvyFamilyZone, this.mikeFamilyZone, this.cousinZone]);
+                document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none';
+            }
+
+            checkProgress() {
+                if (this.talkedState.yvyFamily && this.talkedState.mikeFamily && this.talkedState.cousin) {
+                    this.time.delayedCall(1000, () => {
+                        fadeOutMusic(2);
+                        showDialogue("Families blending together, sharing food and laughter.", () => {
+                            this.scene.start('HomeScene');
+                        });
+                    });
+                }
+            }
+        }
+
+        class HomeScene extends Phaser.Scene {
+            constructor() { super('HomeScene'); }
+            preload() {
+                this.load.image('riot_custom', 'https://i.ibb.co/HTG4krrJ/Screenshot-2026-02-12-172636-removebg-preview.png');
+                this.load.image('snow_custom', 'https://i.ibb.co/mrFbGHwS/Screenshot-2026-02-12-174923-removebg-preview.png');
+                this.load.image('beyonce_custom', 'https://i.ibb.co/1tDvXP0x/Untitled-design-removebg-preview.png');
+                this.load.image('penny_custom', 'https://i.ibb.co/GvxG9K4t/4105a167-b4d8-4c7b-b622-604dfc54c45a-removebg-preview.png');
+                this.load.image('bojji_custom', 'https://i.ibb.co/TqNj3DrS/Screenshot-2026-02-12-193330-removebg-preview.png');
+                this.load.image('peaches_custom', 'https://i.ibb.co/ZzJ5dBV8/Screenshot-2026-02-12-193359-removebg-preview.png');
+                this.load.image('lychee_custom', 'https://i.ibb.co/cKjz4rRH/4299678-middle-removebg-preview.png');
+            }
+            create() {
+                this.cameras.main.setBackgroundColor('#8d6e63');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<12; y++) this.add.image(x*32+16, y*32+16, 'floor_wood_detailed');
+                for (let x=0; x<GAME_WIDTH/32; x++) for (let y=12; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'grass_detailed');
+                const fences = this.physics.add.staticGroup();
+                for(let x=0; x<GAME_WIDTH/32; x++) {
+                    if (x < 10 || x > 14) {
+                        this.add.image(x*32+16, 11*32+16, 'fence_detailed');
+                        let barrier = this.add.rectangle(x*32+16, 11*32+16, 32, 32, 0, 0);
+                        fences.add(barrier);
+                    }
+                }
+                this.add.image(400, 200, 'fancy_rug').setScale(0.8);
+                this.add.image(100, 400, 'bush_detailed'); this.add.image(140, 420, 'bush_detailed'); this.add.image(700, 400, 'bush_detailed');
+                this.add.image(60, 500, 'flower_red'); this.add.image(90, 520, 'flower_red'); this.add.image(750, 500, 'flower_red');
+                this.add.image(250, 450, 'dirt_patch'); this.add.image(400, 480, 'dirt_patch'); this.add.image(550, 440, 'dirt_patch');
+                this.add.text(400, 40, "Their Beautiful Home", { fontSize: '24px', color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = this.physics.add.sprite(280, 200, outfit);
+                this.player.setCollideWorldBounds(true);
+                this.physics.add.collider(this.player, fences);
+                this.yvy = this.add.sprite(340, 200, 'yvy');
+                this.mom = this.add.sprite(400, 200, 'civilian').setTint(0xffaaaa);
+                this.aiden = this.add.sprite(460, 210, 'aiden_older');
+                this.lychee = this.add.sprite(200, 250, 'lychee_custom'); this.lychee.setDisplaySize(24, 24);
+                this.bojji = this.add.sprite(600, 300, 'bojji_custom'); this.bojji.setDisplaySize(48, 48);
+                this.peaches = this.add.sprite(350, 280, 'peaches_custom'); this.peaches.setDisplaySize(32, 32);
+                this.riot = this.add.sprite(250, 450, 'riot_custom'); this.riot.setDisplaySize(32, 32); 
+                this.beyonce = this.add.sprite(400, 480, 'beyonce_custom'); this.beyonce.setDisplaySize(32, 32);
+                this.snow = this.add.sprite(550, 440, 'snow_custom'); this.snow.setDisplaySize(32, 32);
+                this.tweens.add({ targets: [this.riot, this.beyonce, this.snow], x: '+=20', y: '+=10', duration: 2000, yoyo: true, repeat: -1 });
+                this.tweens.add({ targets: this.bojji, x: '-=30', duration: 3000, yoyo: true, repeat: -1 });
+                this.tweens.add({ targets: this.peaches, x: 570, yoyo: true, repeat: -1, duration: 2000, flipX: true });
+                this.time.delayedCall(1000, () => {
+                    playRomanticTheme();
+                    showDialogue("Mike and Yvy bought a house and end up growing their family.", () => {
+                        showDialogue("They adopted Lychee the gray tabby, and Bojji the brown dog.", () => {
+                            showDialogue("Then came the chickens: Riot, Beyonce, and Snow.", () => {
+                                showDialogue("Yvy's mom got really ill and moved in with them. To ease the pain and because Yvy always wanted a Pomeranian, they adopted Peaches.", () => {
+                                    showDialogue("Aiden grew up and is now 11. He's grown to love Mike and misses him when he travels to work.", () => {
+                                        showDialogue("Aiden: 'I want to be like Mike when I grow up!'", () => {
+                                            showDialogue("Aiden: 'Mike is PERFECT but mommy.. you're *IMPERFECTLY* PERFECT.'", () => {
+                                                showDialogue("They have a beautiful home and as time passed, Mike, Yvy, and Aiden keep growing together as they learn to love every pixel of each other.", () => {
+                                                    this.scene.start('PresentScene');
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+            update() { if (this.player && this.player.body) this.player.update(this.cursors); }
+        }
+
+        class PresentScene extends Phaser.Scene {
+            constructor() { super('PresentScene'); }
+            create() {
+                this.cameras.main.setBackgroundColor('#ff9a9e');
+                
+                // --- SWITCHED TO BLUE THEME BY YUNG KAI ---
+                playBlueTheme(); 
+
+                this.add.rectangle(400, 150, 800, 300, 0xfecfef);
+                this.add.circle(400, 300, 80, 0xffd700).setAlpha(0.8);
+                this.add.rectangle(400, 450, 800, 300, 0x89c2d9);
+                this.add.rectangle(400, 450, 800, 10, 0xffffff).setAlpha(0.3);
+                this.add.rectangle(400, 550, 800, 100, 0x5d4037);
+                for(let i=0; i<800; i+=40) this.add.rectangle(i+20, 500, 10, 50, 0x3e2723);
+                this.add.rectangle(400, 480, 800, 10, 0x3e2723);
+                const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+                this.player = this.add.sprite(350, 520, outfit);
+                this.yvy = this.add.sprite(450, 520, 'yvy');
+                this.aiden = this.add.sprite(400, 535, 'aiden_older'); 
+                this.add.text(400, 50, "Present Day", { fontSize: '28px', color: '#fff', fontStyle: 'bold', backgroundColor: '#000' }).setOrigin(0.5);
+                this.time.addEvent({
+                    delay: 600, loop: true,
+                    callback: () => {
+                        let h = this.add.text(400 + (Math.random()-0.5)*100, 500, "❤️", { fontSize: '20px' });
+                        this.tweens.add({ targets: h, y: 300, alpha: 0, duration: 2000, onComplete: () => h.destroy() });
+                    }
+                });
+                this.time.delayedCall(1500, () => {
+                    showDialogue("Mike: 'Every day with you feels like a dream.'", () => {
+                        showDialogue("Yvy: 'I love you more today than I did yesterday.'", () => {
+                            showDialogue("Mike: 'And I'll love you even more tomorrow.'", () => {
+                                showDialogue("They stand together, looking out at the sunset, hand in hand.", () => {
+                                    showDialogue("Their story continues, building a life full of love, laughter, and endless adventure.", () => {
+                                        showDialogue("❤️ THE END ❤️", () => {});
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+        }
+
+        const config = {
+            type: Phaser.AUTO,
+            width: GAME_WIDTH,
+            height: GAME_HEIGHT,
+            parent: 'game-container',
+            physics: { default: 'arcade', arcade: { debug: false } },
+            scene: [TitleScene, AirportScene, FlightScene, BarScene, ClubScene, PizzaScene, MorningScene, ConferenceScene, UberScene, RestaurantScene, MovieScene, DriveToHotelScene, FancyHotelScene, DowntownScene, TravelScene, HouseScene, SurgeryScene, BurialScene, NewYearsScene, ApartmentScene, ThanksgivingScene, HomeScene, PresentScene],
+            pixelArt: true
+        };
+
+        const game = new Phaser.Game(config);
+    </script>
+</body>
+</html>
