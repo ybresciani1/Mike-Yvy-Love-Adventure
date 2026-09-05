@@ -2,13 +2,21 @@
   "name": "mike-yvy-love-adventure",
   "private": true,
   "version": "0.0.0",
+  "description": "Mike & Yvy: A Love Story (RPG Edition) — a Phaser 3 pixel-art story game.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
   },
   "devDependencies": {
-    "vite": "^8.0.4"
+    "jsdom": "^30.0.1",
+    "vite": "^8.2.2",
+    "vitest": "^5.0.0"
   }
 }

@@ -1,0 +1,149 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #2d2d2d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+}
+#game-container {
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 8px solid #4a3b2a;
+    border-radius: 4px;
+    position: relative;
+    background: #000;
+}
+#scrolling-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background-color: #000;
+    border-bottom: 2px solid #333;
+    overflow: hidden;
+    z-index: 100;
+    display: none; /* Hidden by default */
+    font-family: 'Courier New', Courier, monospace;
+}
+.marquee {
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    animation: scroll-left 20s linear infinite;
+    color: #0f0; /* Terminal Green */
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 30px;
+    padding-left: 100%;
+}
+@keyframes scroll-left {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+}
+#ui-layer {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+}
+
+.dialogue-box {
+    background: #e1c699;
+    border: 4px solid #8b4513;
+    border-radius: 5px;
+    padding: 15px;
+    width: 100%;
+    min-height: 80px;
+    display: none; /* Changed to flex in JS */
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+.portrait-frame {
+    width: 100px;
+    height: 100px;
+    border: 4px solid #8b4513;
+    background-color: #d2b48c; /* Fallback color */
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: none; /* Hidden by default */
+    overflow: hidden;
+}
+
+.portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%; 
+    image-rendering: pixelated;
+}
+
+.dialogue-text {
+    color: #3e2723;
+    font-size: 18px;
+    font-weight: bold;
+    white-space: pre-wrap;
+    font-family: 'Courier New', Courier, monospace;
+    flex-grow: 1;
+    margin-top: 5px;
+}
+
+.interaction-hint {
+    color: white;
+    text-shadow: 2px 2px 0 #000;
+    font-size: 20px;
+    margin-bottom: 10px;
+    animation: bounce 1s infinite;
+    display: none;
+}
+
+/* Wardrobe Modal */
+#wardrobe-modal, #restaurant-menu-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff8e1;
+    border: 4px solid #5d4037;
+    padding: 20px;
+    text-align: center;
+    display: none;
+    z-index: 20;
+    box-shadow: 0 0 15px rgba(0,0,0,0.7);
+    font-family: 'Courier New', Courier, monospace;
+}
+#wardrobe-modal h2, #restaurant-menu-modal h2 { margin-top: 0; color: #3e2723; }
+.outfit-btn {
+    display: block;
+    width: 200px;
+    padding: 10px;
+    margin: 10px auto;
+    background: #8d6e63;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: inherit;
+}
+.outfit-btn:hover { background: #6d4c41; }
+#btn-confirm { background: #2e7d32; }
+#btn-confirm:hover { background: #1b5e20; }
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
