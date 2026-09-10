@@ -946,55 +946,74 @@ export function generateTextures(scene) {
     g.generateTexture('plant', 32, 32);
     g.clear(); g.fillStyle(0x4e342e, 1); g.fillRect(4, 4, 24, 24); g.fillStyle(0x8d6e63, 1); g.fillRect(4, 4, 24, 8); g.generateTexture('host_stand', 32, 32);
 
+    // Modern hotel wall: warm greige with a fine grasscloth weave.
     g.clear();
-    g.fillStyle(0x4a148c, 1); g.fillRect(0,0,32,32);
-    g.fillStyle(0x6a1b9a, 1); 
-    g.fillCircle(16, 16, 6); 
-    g.beginPath(); g.moveTo(16, 8); g.lineTo(12, 16); g.lineTo(16, 24); g.lineTo(20, 16); g.fill();
+    fillRect(0, 0, 32, 32, 0xbdb2a4);
+    for (let x = 0; x < 32; x += 2) fillRect(x, 0, 1, 32, 0xb5a99a); // vertical weave
+    for (let y = 3; y < 32; y += 7) fillRect(0, y, 32, 1, 0xc6bcae); // slubs
+    drawPixel(6, 12, 0xa89c8d);
+    drawPixel(21, 25, 0xa89c8d);
+    fillRect(0, 31, 32, 1, 0xa89c8d);
     g.generateTexture('fancy_wallpaper', 32, 32);
 
-    g.clear(); 
-    g.fillStyle(0x880e4f, 1); g.fillRect(0,0,64,64); // Dark Red
-    g.lineStyle(2, 0xffd700, 1); g.strokeRect(4,4,56,56); // Gold border
-    g.lineStyle(1, 0xffd700, 1);
-    g.beginPath(); g.moveTo(4,4); g.lineTo(16,16); g.stroke();
-    g.beginPath(); g.moveTo(60,4); g.lineTo(48,16); g.stroke();
-    g.beginPath(); g.moveTo(4,60); g.lineTo(16,48); g.stroke();
-    g.beginPath(); g.moveTo(60,60); g.lineTo(48,48); g.stroke();
-    g.strokeRect(16,16,32,32); 
-    g.fillStyle(0xad1457, 1); g.fillCircle(32,32,10); 
+    // Low-pile rug in soft taupe with a woven border.
+    g.clear();
+    fillRect(0, 0, 64, 64, 0xa89880);
+    fillRect(2, 2, 60, 60, 0xb8a992);
+    fillRect(5, 5, 54, 54, 0xc3b49c); // inner field
+    fillRect(5, 5, 54, 1, 0xcec0a9);
+    for (let y = 8; y < 58; y += 4) fillRect(6, y, 52, 1, 0xbdae96); // pile texture
+    for (let x = 8; x < 58; x += 9) fillRect(x, 6, 1, 52, 0xbcac94);
+    fillRect(10, 10, 44, 2, 0x9c8d76); // quiet border lines
+    fillRect(10, 52, 44, 2, 0x9c8d76);
     g.generateTexture('fancy_rug', 64, 64);
 
-    g.clear(); 
-    g.fillStyle(0xffffff, 1); g.fillRect(0,0,80,64); 
-    g.fillStyle(0x3e2723, 1); g.fillRect(0,0,80,16); 
-    g.fillStyle(0xd4af37, 1); g.fillRect(0,0,80,2); 
-    g.fillStyle(0x5d4037, 1); g.fillRect(2, 2, 76, 12);
-    g.fillStyle(0x3e2723, 1); g.fillCircle(10,8,2); g.fillCircle(30,8,2); g.fillCircle(50,8,2); g.fillCircle(70,8,2);
-    g.fillStyle(0x1a237e, 1); g.fillRect(5,25,70,39); 
-    g.fillStyle(0x283593, 1); g.fillRect(5,25,70,5); 
+    // Modern king: upholstered headboard, white duvet, folded runner.
+    g.clear();
+    fillRect(0, 0, 80, 15, 0x6f6558); // headboard
+    fillRect(0, 0, 80, 2, 0x8a7f70);
+    for (let x = 4; x < 78; x += 8) fillRect(x, 3, 6, 11, 0x7b7063); // channel tufting
+    fillRect(0, 15, 80, 2, 0x574e44); // shadow under it
+    fillRect(3, 18, 34, 12, 0xfbfaf7); // pillows
+    fillRect(43, 18, 34, 12, 0xfbfaf7);
+    fillRect(3, 18, 34, 2, 0xffffff);
+    fillRect(3, 28, 34, 2, 0xe8e5df);
+    fillRect(43, 28, 34, 2, 0xe8e5df);
+    fillRect(8, 21, 12, 6, 0x33566b); // accent cushions
+    fillRect(56, 21, 12, 6, 0x33566b);
+    fillRect(2, 31, 76, 31, 0xf7f5f0); // duvet
+    fillRect(2, 31, 76, 3, 0xffffff);
+    fillRect(70, 31, 8, 31, 0xe6e2da); // shadowed side
+    fillRect(2, 45, 76, 10, 0x33566b); // runner across the foot
+    fillRect(2, 45, 76, 2, 0x3f6a84);
+    fillRect(2, 62, 76, 2, 0xdad5cb);
+    fillRect(39, 31, 2, 14, 0xeceae3); // fold between the halves
     g.generateTexture('fancy_bed', 80, 64);
 
+    // Three slim pendants on brushed stems.
     g.clear();
-    g.fillStyle(0xd4af37, 1); 
-    g.fillRect(15, 0, 2, 10);
-    g.fillStyle(0xd4af37, 1); 
-    g.fillCircle(16, 14, 6);
-    g.lineStyle(2, 0xd4af37, 1);
-    g.beginPath(); g.moveTo(16, 14); g.lineTo(4, 10); g.stroke();
-    g.beginPath(); g.moveTo(16, 14); g.lineTo(28, 10); g.stroke();
-    g.beginPath(); g.moveTo(16, 14); g.lineTo(8, 20); g.stroke();
-    g.beginPath(); g.moveTo(16, 14); g.lineTo(24, 20); g.stroke();
-    g.fillStyle(0xffffe0, 1); 
-    g.fillCircle(4, 8, 2); g.fillCircle(28, 8, 2); 
-    g.fillCircle(8, 22, 2); g.fillCircle(24, 22, 2);
-    g.fillCircle(16, 26, 3); 
+    fillRect(4, 0, 24, 2, 0x8a8176); // ceiling plate
+    for (const [x, drop] of [[8, 9], [16, 14], [24, 7]]) {
+        fillRect(x, 2, 1, drop, 0x9a9186); // stem
+        g.fillStyle(0xf6e7c3, 1); // glass globe
+        g.fillCircle(x, drop + 5, 4);
+        g.fillStyle(0xfff7e2, 1);
+        g.fillCircle(x - 1, drop + 4, 2);
+        g.fillStyle(0xffe9a8, 0.28); // glow
+        g.fillCircle(x, drop + 6, 7);
+    }
     g.generateTexture('chandelier', 32, 32);
 
+    // Drum-shade table lamp on a brushed stem.
     g.clear();
-    g.fillStyle(0xd4af37, 1); g.fillRect(12, 16, 8, 16); // Gold Base
-    g.fillStyle(0xffecb3, 1); // Cream Shade
-    g.beginPath(); g.moveTo(6, 16); g.lineTo(26, 16); g.lineTo(22, 4); g.lineTo(10, 4); g.closePath(); g.fill();
+    fillRect(11, 6, 10, 10, 0xf2ece0); // shade
+    fillRect(11, 6, 10, 2, 0xfbf7ee);
+    fillRect(19, 6, 2, 10, 0xdfd6c6);
+    fillRect(15, 16, 2, 10, 0xa39a8c); // stem
+    fillRect(12, 26, 8, 2, 0x8a8176); // base
+    fillRect(12, 26, 8, 1, 0xb0a698);
+    g.fillStyle(0xffe9a8, 0.22); // light spill
+    g.fillEllipse(16, 18, 22, 12);
     g.generateTexture('fancy_lamp', 32, 32);
     
     g.clear();
@@ -2999,16 +3018,43 @@ export function generateTextures(scene) {
     g.generateTexture('champagne_service', 32, 24);
 
     // Chaise longue.
+    // Chaise in muted blue-grey on pale wood legs, to match the suite.
     g.clear();
-    fillRect(0, 6, 12, 18, 0x6b1f33); // raised end
-    fillRect(0, 6, 12, 3, 0x8a2b45);
-    fillRect(10, 12, 38, 12, 0x7d2440); // seat
-    fillRect(10, 12, 38, 2, 0x9c3050);
-    fillRect(10, 22, 38, 3, 0x5b1628); // shadow under the cushion
-    fillRect(14, 15, 14, 6, 0x8a2b45); // cushions
-    fillRect(30, 15, 14, 6, 0x8a2b45);
-    fillRect(4, 24, 4, 4, 0x3e2723); // feet
-    fillRect(40, 24, 4, 4, 0x3e2723);
-    fillRect(2, 9, 8, 2, 0xc9a227); // gilt trim
+    fillRect(0, 6, 12, 18, 0x4d6274); // raised end
+    fillRect(0, 6, 12, 3, 0x64798b);
+    fillRect(10, 12, 38, 12, 0x5a7085); // seat
+    fillRect(10, 12, 38, 2, 0x6f8598);
+    fillRect(10, 22, 38, 3, 0x3f5364); // shadow beneath the cushion
+    fillRect(14, 15, 14, 6, 0x64798b); // cushions
+    fillRect(30, 15, 14, 6, 0x64798b);
+    fillRect(16, 9, 8, 4, 0xd8cdb8); // throw cushion
+    fillRect(4, 24, 4, 4, 0xa9906c); // pale wood legs
+    fillRect(40, 24, 4, 4, 0xa9906c);
     g.generateTexture('chaise', 48, 28);
+    // Walnut slat accent panel — the wall treatment behind every modern hotel bed.
+    g.clear();
+    fillRect(0, 0, 32, 64, 0x4a3527);
+    for (let x = 0; x < 32; x += 4) {
+        fillRect(x, 0, 3, 64, 0x6b4c36); // slat face
+        fillRect(x, 0, 1, 64, 0x7d5a41); // lit edge
+        fillRect(x + 3, 0, 1, 64, 0x33241a); // shadow gap
+    }
+    for (let y = 9; y < 64; y += 17) fillRect(0, y, 32, 1, 0x5c4230); // grain
+    g.generateTexture('wood_slat_panel', 32, 64);
+
+    // Wide abstract canvas in muted tones.
+    g.clear();
+    fillRect(0, 0, 48, 32, 0x2b2b2b); // slim frame
+    fillRect(2, 2, 44, 28, 0xe8e2d6); // canvas
+    g.fillStyle(0x8c9c92, 1);
+    g.fillRect(4, 8, 40, 8);
+    g.fillStyle(0x33566b, 1);
+    g.fillRect(4, 16, 40, 5);
+    g.fillStyle(0xc2a878, 1);
+    g.fillRect(4, 21, 40, 3);
+    g.fillStyle(0xf4f1ea, 1);
+    g.fillCircle(33, 12, 5);
+    g.fillStyle(0x6f6558, 1);
+    g.fillRect(9, 5, 18, 2);
+    g.generateTexture('abstract_art', 48, 32);
 }

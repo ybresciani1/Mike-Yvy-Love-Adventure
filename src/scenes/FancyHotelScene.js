@@ -10,16 +10,17 @@ export class FancyHotelScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('#200020'); playRomanticTheme();
         for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) {
             if (y < 12) this.add.image(x*32+16, y*32+16, 'fancy_wallpaper'); 
-            else this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0x554455);
+            else this.add.image(x*32+16, y*32+16, 'floor_wood');
         }
+        for (let x = 304; x <= 496; x += 32) this.add.image(x, 352, 'wood_slat_panel');
         this.add.image(400, 500, 'fancy_rug'); 
-        this.add.image(400, 80, 'chandelier').setScale(2); 
+        this.add.image(400, 92, 'chandelier').setScale(1.8); 
         this.add.rectangle(340, 440, 20, 20, 0x3e2723); this.add.image(340, 430, 'fancy_lamp');
         this.add.rectangle(460, 440, 20, 20, 0x3e2723); this.add.image(460, 430, 'fancy_lamp');
         // Balcony doors over the city, art and a mirrored console on the wall.
                 this.add.image(660, 200, 'balcony_doors').setScale(1.6);
-                this.add.image(160, 170, 'fancy_art').setScale(1.4);
-                this.add.image(300, 170, 'fancy_art').setScale(1.4);
+                this.add.image(150, 170, 'abstract_art').setScale(1.3);
+                this.add.image(150, 250, 'abstract_art').setScale(0.9);
                 this.add.image(160, 330, 'console_mirror');
                 this.add.image(160, 316, 'champagne_service').setScale(0.8);
         
@@ -29,7 +30,7 @@ export class FancyHotelScene extends Phaser.Scene {
                 this.add.image(60, 560, 'plant_snake');
                 this.add.image(680, 470, 'chaise');
         this.bed = this.add.image(400, 420, 'fancy_bed'); 
-        this.couch = this.add.image(600, 500, 'couch').setTint(0xccaa00);
+        this.couch = this.add.image(600, 500, 'couch').setTint(0xa9a396);
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
         this.player = new Player(this, 200, 500); this.player.setTexture(outfit);
         this.yvy = this.add.sprite(250, 500, 'yvy');
