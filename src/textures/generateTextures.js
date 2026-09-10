@@ -3124,6 +3124,124 @@ export function generateTextures(scene) {
     g.fillStyle(0x6f6558, 1);
     g.fillRect(9, 5, 18, 2);
     g.generateTexture('abstract_art', 48, 32);
+    // A proper picture window rather than a porthole — the suite's one view, so
+    // it runs most of the wall: skyline below, a band of city glow above it, and
+    // sheer drapes pushed to either end.
+    g.clear();
+    fillRect(0, 0, 160, 88, 0x3a3f47); // bronze frame
+    fillRect(4, 4, 152, 74, 0x0b1420); // night sky
+    fillRect(4, 4, 152, 22, 0x14263a); // haze near the horizon glow
+    fillRect(4, 20, 152, 10, 0x1d3350);
+    for (let i = 0; i < 46; i++) { // stars
+        drawPixel(7 + ((i * 17 + (i % 5) * 7) % 146), 6 + ((i * 11) % 20), i % 4 ? 0x9fb8d0 : 0xdfe9f5);
+    }
+    const skyline = [[8, 44, 18, 34], [28, 34, 14, 44], [44, 52, 12, 26], [58, 28, 16, 50], [76, 46, 10, 32],
+        [88, 38, 15, 40], [105, 30, 13, 48], [120, 50, 12, 28], [134, 40, 18, 38]];
+    skyline.forEach(([bx, by, bw, bh], i) => {
+        fillRect(bx, by, bw, bh, i % 2 ? 0x121e2b : 0x0d1822);
+        fillRect(bx, by, bw, 1, 0x24384c); // parapet catching the light
+        for (let wy = by + 4; wy < by + bh - 2; wy += 5) {
+            for (let wx = bx + 2; wx < bx + bw - 2; wx += 4) {
+                if ((wx + wy + i) % 3) drawPixel(wx, wy, (wx + wy) % 5 ? 0xffd166 : 0xbfe3ff);
+            }
+        }
+    });
+    fillRect(4, 74, 152, 4, 0x1a2c3e); // the river taking the reflection
+    for (let rx = 8; rx < 152; rx += 11) fillRect(rx, 75, 5, 1, 0x3f6a8a);
+    fillRect(52, 4, 3, 74, 0x3a3f47); // mullions
+    fillRect(104, 4, 3, 74, 0x3a3f47);
+    fillRect(4, 32, 152, 2, 0x2f343b); // transom
+    fillRect(0, 78, 160, 10, 0x6f6a62); // stone sill
+    fillRect(0, 78, 160, 2, 0x8d877d);
+    fillRect(0, 0, 12, 88, 0xd8cdb8); // sheer drapes pushed to the ends
+    fillRect(148, 0, 12, 88, 0xd8cdb8);
+    fillRect(2, 0, 3, 88, 0xe8e0cf);
+    fillRect(153, 0, 3, 88, 0xe8e0cf);
+    fillRect(9, 0, 2, 88, 0xbdb3a0);
+    fillRect(147, 0, 2, 88, 0xbdb3a0);
+    g.generateTexture('suite_window', 160, 88);
+
+    // Kitchenette uppers: handleless doors with a strip light underneath.
+    g.clear();
+    fillRect(0, 0, 112, 24, 0xe6e2d9); // door fronts
+    fillRect(0, 0, 112, 2, 0xf2efe8);
+    for (let dx = 28; dx < 112; dx += 28) fillRect(dx - 1, 1, 1, 22, 0xc6c0b4); // shadow gaps
+    fillRect(0, 21, 112, 3, 0xbdb6a8); // rail below the doors
+    fillRect(84, 2, 26, 20, 0x6b4c36); // one bay left open in walnut
+    fillRect(86, 4, 22, 8, 0x543a28);
+    fillRect(89, 6, 5, 6, 0xf4f6f7); // mugs on the open shelf
+    fillRect(96, 6, 5, 6, 0xf4f6f7);
+    fillRect(102, 7, 4, 5, 0xd9b48a);
+    fillRect(2, 24, 108, 2, 0xffe9b0); // under-cabinet strip light
+    g.generateTexture('kitchenette_uppers', 112, 26);
+
+    // Kitchenette run: stone top, sink and tap, cabinets under.
+    g.clear();
+    fillRect(0, 0, 112, 7, 0xd8d6d0); // stone counter
+    fillRect(0, 0, 112, 2, 0xeceae4);
+    drawPixel(19, 4, 0xb9b6ae); // veining
+    drawPixel(20, 3, 0xb9b6ae);
+    drawPixel(63, 5, 0xb9b6ae);
+    drawPixel(88, 3, 0xb9b6ae);
+    fillRect(0, 7, 112, 2, 0xa8a49b); // counter edge
+    fillRect(60, 1, 26, 5, 0x9aa5b1); // stainless sink basin
+    fillRect(62, 2, 22, 3, 0x7d8792);
+    fillRect(71, 0, 3, 2, 0xc0c8cc); // tap rising against the wall
+    fillRect(72, 0, 1, 3, 0xdfe4e7);
+    fillRect(0, 9, 112, 30, 0x8a8378); // cabinet fronts
+    fillRect(0, 9, 112, 1, 0x9d968a);
+    for (let dx = 28; dx < 112; dx += 28) fillRect(dx - 1, 9, 1, 30, 0x6d675e); // gaps
+    for (let hx = 8; hx < 108; hx += 28) fillRect(hx, 13, 12, 2, 0xc9a227); // brass bar pulls
+    fillRect(0, 39, 112, 5, 0x5e5951); // recessed plinth
+    fillRect(0, 39, 112, 1, 0x746e65);
+    g.generateTexture('kitchenette_base', 112, 44);
+
+    // Espresso machine, because it is that kind of hotel.
+    g.clear();
+    fillRect(2, 2, 14, 12, 0x2b2b33); // body
+    fillRect(2, 2, 14, 2, 0x44444f);
+    fillRect(3, 5, 9, 4, 0x8a9aa8); // chrome front
+    fillRect(4, 6, 7, 2, 0xc0c8cc);
+    fillRect(13, 6, 2, 4, 0xd44c3c); // indicator
+    fillRect(5, 14, 6, 3, 0x9aa5b1); // group head
+    fillRect(6, 17, 4, 3, 0xf4f6f7); // cup
+    fillRect(6, 17, 4, 1, 0xd7dbdd);
+    g.generateTexture('coffee_machine', 20, 20);
+
+    // Botanical study — tall, cream, a single stem. Nothing like the horizon
+    // canvas next to it; two identical frames on one wall look like a mistake.
+    g.clear();
+    fillRect(0, 0, 32, 44, 0xb9a07a); // oak frame
+    fillRect(2, 2, 28, 40, 0x8a7658);
+    fillRect(3, 3, 26, 38, 0xf3efe4); // mount and paper
+    fillRect(15, 12, 2, 26, 0x4f6b3a); // stem
+    for (const [lx, ly, dir] of [[10, 14, -1], [18, 18, 1], [9, 22, -1], [19, 26, 1], [11, 30, -1]]) {
+        g.fillStyle(0x5f7f45, 1);
+        g.fillEllipse(lx + dir * 2, ly, 9, 5);
+        g.fillStyle(0x7b9c5c, 1);
+        g.fillEllipse(lx + dir * 2, ly - 1, 6, 3);
+    }
+    fillRect(14, 8, 4, 5, 0x3f5730); // bud at the top
+    drawPixel(15, 7, 0x7b9c5c);
+    g.generateTexture('suite_art_botanical', 32, 44);
+
+    // Terracotta arch print — flat shapes, no horizon, no leaves.
+    g.clear();
+    fillRect(0, 0, 40, 40, 0x2b2b2b); // slim black frame
+    fillRect(2, 2, 36, 36, 0xf0e7db); // paper
+    g.fillStyle(0xc0623c, 1); // the arch
+    g.fillCircle(20, 20, 11);
+    fillRect(9, 20, 23, 14, 0xc0623c);
+    fillRect(2, 34, 36, 4, 0xf0e7db); // cut off above the base
+    g.fillStyle(0xf0e7db, 1); // the arch is hollow
+    g.fillCircle(20, 20, 6);
+    fillRect(14, 20, 13, 14, 0xf0e7db);
+    fillRect(2, 34, 36, 4, 0xf0e7db);
+    g.fillStyle(0x2f4858, 1); // a disc behind the shoulder of the arch
+    g.fillCircle(30, 12, 5);
+    fillRect(6, 33, 28, 2, 0xc9a86a); // ground line
+    g.generateTexture('suite_art_arch', 40, 40);
+
     // --- CANTINA DRESSING ----------------------------------------------------
     // Papel picado: a run of cut-paper flags on a string.
     g.clear();
