@@ -18,10 +18,13 @@ export class PizzaScene extends Phaser.Scene {
     create() { 
         this.cameras.main.setBackgroundColor('#101010'); 
         playLeFestinTheme();
-        for(let i=0; i<60; i++) { let x = Math.random() * 470; let y = Math.random() * 210; this.add.rectangle(x, y, 2, 2, 0xffffff, Math.random() * 0.8 + 0.2); }
+        for(let i=0; i<80; i++) { let x = Math.random() * GAME_WIDTH; let y = Math.random() * 190; this.add.rectangle(x, y, 2, 2, 0xffffff, Math.random() * 0.8 + 0.2); }
         this.add.image(96, 80, 'moon');
-        for (let x=0; x<GAME_WIDTH/32; x++) { for (let y=0; y<GAME_HEIGHT/32; y++) { if (y < 10 && x < 15) continue; if (y >= 10 && y < 14) this.add.image(x*32+16, y*32+16, 'pavement'); else if (x >= 15 && y < 10) this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x3b3b4a); else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x222222); } }
-        this.add.rectangle(650, 150, 300, 200, 0x8c2a22); this.add.image(650, 150, 'pizza_storefront').setScale(2).setFlipX(true); this.add.image(744, 116, 'neon_pizza_sign').setScale(1.3); this.add.text(560, 50, "PIZZA SHOP", { fontSize: '24px', fontWeight: 'bold' }); this.add.sprite(730, 60, 'pizza_logo'); this.add.image(64, 272, 'night_shop_taco');
+        for (let x=0; x<GAME_WIDTH/32; x++) { for (let y=0; y<GAME_HEIGHT/32; y++) { if (y < 10) continue; if (y < 14) this.add.image(x*32+16, y*32+16, 'pavement'); else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x222222); } }
+        this.add.image(620, 250, 'night_shop_pizza');
+        this.add.text(620, 221, "TONY'S PIZZERIA", { fontSize: '11px', color: '#ffb0a0', fontStyle: 'bold' }).setOrigin(0.5);
+        this.add.image(688, 236, 'neon_pizza_sign'); // projecting off the facade
+        this.add.sprite(688, 208, 'pizza_logo').setScale(0.6); this.add.image(64, 272, 'night_shop_taco');
         this.add.image(176, 272, 'night_shop_laundry');
         this.add.image(288, 272, 'night_shop_liquor');
         this.add.image(400, 272, 'night_shop_tattoo');
@@ -29,11 +32,13 @@ export class PizzaScene extends Phaser.Scene {
         this.add.text(176, 263, "WASH & FOLD", { fontSize: '9px', color: '#bfe9ff', fontStyle: 'bold' }).setOrigin(0.5);
         this.add.text(288, 263, "LIQUOR", { fontSize: '9px', color: '#ff9aa6', fontStyle: 'bold' }).setOrigin(0.5);
         this.add.text(400, 263, "INK & NEEDLE", { fontSize: '9px', color: '#e0b0ff', fontStyle: 'bold' }).setOrigin(0.5);
-        this.add.image(210, 366, 'trash_bin').setScale(1.5); this.add.image(430, 364, 'fire_hydrant'); this.add.image(700, 372, 'park_bench').setScale(0.8); 
-        [100, 300, 500].forEach(x => { this.add.image(x, 340, 'streetlight').setScale(2); this.add.circle(x+4, 348, 40, 0xffff00, 0.2); }); 
-        this.shopZone = this.add.rectangle(600, 200, 100, 100, 0xffff00, 0); this.physics.add.existing(this.shopZone, true); 
+        this.add.image(210, 366, 'trash_bin').setScale(1.5); this.add.image(430, 364, 'fire_hydrant'); this.add.image(560, 430, 'park_bench').setScale(0.8); 
+        [160, 300, 490].forEach(x => { this.add.image(x, 340, 'streetlight').setScale(2); this.add.circle(x+4, 348, 40, 0xffff00, 0.2); }); 
+        // The door zone is the full depth of the pavement outside the shop: the
+        // player walks along the middle of it, not up against the building.
+        this.shopZone = this.add.rectangle(640, 382, 110, 118, 0xffff00, 0); this.physics.add.existing(this.shopZone, true); 
         this.player = new Player(this, 100, 400); this.yvy = this.physics.add.sprite(150, 400, 'yvy');
-        this.skyline = this.add.rectangle(240, 158, 480, 316, 0x000000, 0);
+        this.skyline = this.add.rectangle(400, 158, GAME_WIDTH, 316, 0x000000, 0);
         this.physics.add.existing(this.skyline, true);
         this.physics.add.collider(this.player, this.skyline);
         this.physics.add.collider(this.yvy, this.skyline); 
@@ -42,6 +47,7 @@ export class PizzaScene extends Phaser.Scene {
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' });
+        this.dressStreetLife();
         this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone && !this.brawlArguing && !this.fighting) this.startFarewell(); });
         this.physics.add.overlap(this.player, this.fightZone, () => {
             if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.takePhotos();
@@ -57,7 +63,49 @@ export class PizzaScene extends Phaser.Scene {
         const canFilm = this.fighting && !this.photoTaken && this.physics.overlap(this.player, this.fightZone);
         const touching = this.physics.overlap(this.player, this.drunks) || canFilm;
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none';
-    }    /** Two more drunks loitering up the street, waiting for a reason. */
+    }    /**
+     * The street was empty apart from our two and the drunks. Late-night food
+     * places have a queue outside and people eating on the kerb, and that is
+     * most of what makes a street look busy.
+     */
+    dressStreetLife() {
+        // The line at the taco window, shuffling forward and back.
+        const queue = [[104, 344, 'civilian', 0x8c7ab0], [98, 372, 'civilian_f', 0xb07a8c],
+            [106, 398, 'drunk', 0x7a9cb0], [96, 424, 'civilian', 0xb0a07a]];
+        queue.forEach(([qx, qy, key, tint], i) => {
+            const person = this.add.sprite(qx, qy, key).setTint(tint);
+            this.tweens.add({
+                targets: person, y: qy - 4, duration: 1400 + i * 210,
+                yoyo: true, repeat: -1, delay: i * 260, ease: 'Sine.easeInOut'
+            });
+        });
+        this.add.sprite(120, 330, 'tacos').setScale(0.5); // an order going out of the window
+
+        // People eating at the tables outside, which is the point of the queue.
+        const diners = [
+            [498, 396, 'civilian', 0xa08cb4, 'pizza_slice'],
+            [542, 396, 'civilian_f', 0xb48ca0, 'pizza_slice'],
+            [742, 396, 'drunk', 0x8cb4a0, 'tacos'],
+            [700, 402, 'civilian', 0xb4a88c, 'tacos'],
+            [560, 418, 'civilian_f', 0x8ca0b4, 'pizza_slice']
+        ];
+        this.add.image(520, 410, 'cafe_table_set');
+        this.add.image(722, 410, 'cafe_table_set');
+        diners.forEach(([dx, dy, key, tint, food], i) => {
+            const diner = this.add.sprite(dx, dy, key).setTint(tint);
+            const plate = this.add.sprite(dx + (i % 2 ? 11 : -11), dy + 2, food)
+                .setScale(food === 'tacos' ? 0.45 : 0.55);
+            this.tweens.add({ // lifting it to their mouth and back down
+                targets: plate, y: dy - 5, duration: 900 + i * 170,
+                yoyo: true, repeat: -1, delay: i * 340, ease: 'Sine.easeInOut'
+            });
+            this.tweens.add({
+                targets: diner, y: dy - 1, duration: 1100 + i * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+            });
+        });
+    }
+
+    /** Two more drunks loitering up the street, waiting for a reason. */
     setUpBrawl() {
         this.fighting = false;
         this.photoTaken = false;

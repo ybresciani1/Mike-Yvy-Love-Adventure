@@ -3419,6 +3419,54 @@ export function generateTextures(scene) {
     });
     g.generateTexture('night_shop_tattoo', 104, 100);
 
+    // The pizza shop, built from the same shell as its neighbours instead of a
+    // flat red slab — it is the destination, so it is simply wider and taller.
+    drawNightShop(160, 140, {
+        wall: 0x2c1a18, wallLit: 0x4a2c26, signBack: 0x1a0f0e, neon: 0xe03c2c, neonGlow: 0xffb0a0,
+        glass: 0x7a4a20, spill: 0xffb066
+    }, (w, h) => {
+        // Wood-fired oven on the left, with the fire actually visible in it.
+        fillRect(12, 74, 40, 44, 0x6b4a3a);
+        fillRect(12, 74, 40, 2, 0x8a6450);
+        g.fillStyle(0x3a2418, 1); // the arch
+        g.fillCircle(32, 96, 15);
+        fillRect(17, 96, 30, 22, 0x3a2418);
+        g.fillStyle(0xd4641e, 1); // fire
+        g.fillCircle(32, 100, 10);
+        g.fillStyle(0xf5a623, 1);
+        g.fillCircle(32, 103, 7);
+        g.fillStyle(0xffe08a, 1);
+        g.fillCircle(31, 105, 4);
+        for (let bx = 14; bx < 50; bx += 8) fillRect(bx, 72, 6, 2, 0x8a6450); // brick course
+
+        // Counter running the width, with pies on it.
+        fillRect(58, 104, 74, 5, 0xb08c50);
+        fillRect(58, 104, 74, 1, 0xd4ab6a);
+        fillRect(58, 109, 74, 9, 0x6b4a2c);
+        for (const cx of [70, 94, 118]) {
+            g.fillStyle(0xe8b45c, 1); // crust
+            g.fillCircle(cx, 100, 9);
+            g.fillStyle(0xc4402c, 1); // sauce
+            g.fillCircle(cx, 100, 7);
+            g.fillStyle(0xf0d68c, 1); // cheese
+            g.fillCircle(cx, 99, 6);
+            drawPixel(cx - 3, 98, 0x9c2a22); // pepperoni
+            drawPixel(cx + 2, 101, 0x9c2a22);
+            drawPixel(cx + 3, 96, 0x9c2a22);
+        }
+
+        // The guy working the peel.
+        fillRect(80, 76, 11, 22, 0xe8e2d6);
+        fillRect(80, 76, 11, 2, 0xf6f4ee);
+        fillRect(82, 70, 7, 6, 0x6b4a2c); // head
+        fillRect(80, 68, 11, 3, 0xf6f4ee); // hat
+        fillRect(91, 80, 20, 2, 0xa9906c); // the peel, held out towards the oven
+        fillRect(108, 76, 9, 8, 0xc0c8cc);
+        fillRect(60, 62, 62, 3, 0xffb0a0); // menu strip above the counter
+        for (let mx = 62; mx < 120; mx += 9) fillRect(mx, 66, 6, 2, 0xd4ab6a);
+    });
+    g.generateTexture('night_shop_pizza', 160, 140);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in
