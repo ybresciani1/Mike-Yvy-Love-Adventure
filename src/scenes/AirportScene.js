@@ -175,15 +175,7 @@ export class AirportScene extends Phaser.Scene {
 
         // One man who is going to miss it, sprinting the length of the terminal
         // and then trudging back to do it again.
-        this.runner = this.add.sprite(700, 340, 'civilian').setTint(0xd48c8c);
-        this.runnerBag = this.add.sprite(686, 348, 'suitcase').setScale(0.85);
-        this.runnerCry = this.add.text(700, 312, "WAIT!", {
-            fontSize: '11px', color: '#c0392b', fontStyle: 'bold'
-        }).setOrigin(0.5);
-        this.tweens.add({ targets: this.runner, x: 2180, duration: 7000, ease: 'Linear', repeat: -1, repeatDelay: 5000 });
-        this.tweens.add({ targets: this.runner, y: 330, duration: 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-        this.tweens.add({ targets: this.runner, angle: { from: -9, to: -3 }, duration: 240, yoyo: true, repeat: -1 });
-        this.wanderers.push({ sprite: this.runner, bag: this.runnerBag, lastX: 700, cry: this.runnerCry });
+        this.time.delayedCall(6000, () => this.sendTheLateRunner());
 
         this.player = new Player(this, 100, 300);
         this.player.setDepth(5);
@@ -247,6 +239,36 @@ export class AirportScene extends Phaser.Scene {
 
         bag.setDepth(bag.y < this.player.y ? 4 : 6);
     }    /**
+     * One man who is going to miss his flight, once. He comes past from behind
+     * whichever bit of the terminal Mike is standing in, runs the length of it
+     * and is gone — looping him meant he snapped back to the same spot every
+     * few seconds, which reads as a glitch rather than as a man in trouble.
+     */
+    sendTheLateRunner() {
+        const startX = Math.max(-40, this.player.x - 460);
+        const runner = this.add.sprite(startX, 340, 'civilian').setTint(0xd48c8c);
+        const bag = this.add.sprite(startX - 14, 348, 'suitcase').setScale(0.85);
+        const cry = this.add.text(startX, 312, "WAIT!", {
+            fontSize: '11px', color: '#c0392b', fontStyle: 'bold'
+        }).setOrigin(0.5);
+        this.tweens.add({ targets: cry, alpha: 0.25, duration: 420, yoyo: true, repeat: -1 });
+        this.tweens.add({ targets: runner, y: 330, duration: 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.tweens.add({ targets: runner, angle: { from: -9, to: -3 }, duration: 240, yoyo: true, repeat: -1 });
+
+        const entry = { sprite: runner, bag, lastX: startX, cry };
+        this.wanderers.push(entry);
+        this.tweens.add({
+            targets: runner, x: 2470, duration: (2470 - startX) / 0.3, ease: 'Linear',
+            onComplete: () => {
+                this.wanderers.splice(this.wanderers.indexOf(entry), 1);
+                this.tweens.killTweensOf(runner);
+                this.tweens.killTweensOf(cry);
+                [runner, bag, cry].forEach(o => o.destroy());
+            }
+        });
+    }
+
+    /**
      * Mike drops into the seat: he slides across to it, settles with a squash on
      * landing, and then just breathes. Depth 1 puts him under the seat backs, so
      * the chair crosses his lap the same way it does for everyone else in the row.
