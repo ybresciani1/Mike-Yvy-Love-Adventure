@@ -7,6 +7,8 @@ import { Player } from '../entities/Player.js';
 
 // Held-F dancing cycles these poses; the floor chases these colours on the beat.
 const DANCE_POSES = ['mike_dance_1', 'mike_dance_2', 'mike_dance_3', 'mike_dance_4'];
+const MARINE_POSES = ['marine_dance_1', 'marine_dance_2', 'marine_dance_3'];
+const LIGHT_COLORS = [0xff2d95, 0x00e5ff, 0xaeea00, 0xffc400, 0xb388ff, 0xff7043];
 const FLOOR_COLORS = [0x8e1450, 0x0b6f7d, 0x4d7a1f, 0x8a5c00, 0x4b3579, 0x1b1b26];
 
 export class ClubScene extends Phaser.Scene { 
@@ -30,14 +32,34 @@ export class ClubScene extends Phaser.Scene {
                 tile.gridIndex = cx + cy;
                 this.floorTiles.push(tile);
             }
-        }
+        }        for (let x = 16; x < GAME_WIDTH; x += 32) this.add.image(x, 26, 'truss');
         this.clubLights = [];
-        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xff00ff, 0x00ffff];
-        for(let i=0; i<6; i++) {
-            let light = this.add.circle(150 + i*100, 100, 20, colors[i%colors.length]).setAlpha(0.3);
-            light.setBlendMode(Phaser.BlendModes.ADD);
-            this.tweens.add({ targets: light, scale: 3, alpha: 0.2, duration: 400 + Math.random()*400, yoyo: true, repeat: -1 });
-            this.clubLights.push(light);
+        this.lightBeams = [];        for (let i = 0; i < 6; i++) {
+            const x = 108 + i * 118;
+            const color = LIGHT_COLORS[i % LIGHT_COLORS.length];
+            this.clubLights.push(this.add.image(x, 44, 'par_can').setTint(color));
+
+            // Drawn in local coordinates so the cone swings about its fixture.
+            const beam = this.add.graphics({ x, y: 54 });
+            beam.setBlendMode(Phaser.BlendModes.ADD);
+            beam.fillStyle(color, 0.18);
+            beam.beginPath();
+            beam.moveTo(-5, 0);
+            beam.lineTo(-64, 420);
+            beam.lineTo(64, 420);
+            beam.lineTo(5, 0);
+            beam.closePath();
+            beam.fill();
+            beam.setAlpha(0.25);
+            this.tweens.add({
+                targets: beam,
+                rotation: i % 2 ? 0.17 : -0.17,
+                duration: 1700 + i * 130,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            this.lightBeams.push(beam);
         }
         this.add.image(320, 62, 'speaker_stack');
         this.add.image(480, 62, 'speaker_stack');
@@ -61,16 +83,16 @@ export class ClubScene extends Phaser.Scene {
 
         this.clubBar = this.add.rectangle(700, 300, 80, 400, 0x222222); 
         this.physics.add.existing(this.clubBar, true); 
-        this.add.rectangle(670, 300, 20, 400, 0x444444); 
-        for(let i=0; i<6; i++) {
-            this.add.circle(630, 150 + i*60, 12, 0x880000).setStrokeStyle(2, 0xffaa00);
-        }
+        this.add.rectangle(670, 300, 20, 400, 0x444444);        for (let y = 120; y <= 480; y += 32) this.add.image(670, y, 'bar_top_tile');
+        for (const y of [150, 230, 310, 390, 470]) this.add.image(638, y, 'bar_stool');
+        this.add.sprite(634, 196, 'civilian_f').setTint(0xffc0dd);
+        this.add.sprite(634, 356, 'civilian').setTint(0xa8d8ff);
+        for (const y of [172, 268, 424]) this.add.image(668, y, 'cocktail').setScale(0.7);
+        this.add.image(696, 104, 'glass_rack');
+        this.add.image(728, 104, 'glass_rack');
         this.add.text(660, 80, "BAR", { fontSize: '20px', color: '#00ffff', fontStyle: 'bold', shadow: { color: '#000', blur: 4, fill: true } }); 
-        for (let y = 120; y <= 480; y += 32) {
-            this.add.image(696, y, 'club_bar_front');
-            this.add.image(726, y, 'club_bar_front');
-        }
-        for (let y = 140; y <= 460; y += 32) this.add.image(772, y, 'club_shelf');
+        this.add.rectangle(726, 300, 30, 380, 0x121219); // unlit back half of the bar
+        for (let y = 120; y <= 480; y += 32) this.add.image(696, y, 'club_bar_front');        [140, 172, 204, 236, 268, 300, 332, 364, 396, 428, 460].forEach((y, i) => this.add.image(772, y, i % 3 === 1 ? 'led_panel' : 'club_shelf'));
         this.add.sprite(740, 200, 'server'); 
         this.add.sprite(740, 400, 'server'); 
         this.yvy = this.physics.add.sprite(300, 350, 'yvy'); 
@@ -94,8 +116,9 @@ export class ClubScene extends Phaser.Scene {
         this.instructionText = this.add.text(20, 20, "Hold F to Dance", { fontSize: '16px', color: '#fff' }); 
         this.time.addEvent({ delay: 450, loop: true, callback: () => { 
             playSound('club_beat'); 
-            this.beat = (this.beat + 1) % FLOOR_COLORS.length;
-            this.floorTiles.forEach(t => t.setTint(FLOOR_COLORS[(t.gridIndex + this.beat) % FLOOR_COLORS.length]));
+            this.beat = (this.beat + 1) % FLOOR_COLORS.length;            this.floorTiles.forEach(t => t.setTint(FLOOR_COLORS[(t.gridIndex + this.beat) % FLOOR_COLORS.length]));
+            this.lightBeams.forEach((beam, i) => beam.setAlpha((i + this.beat) % 2 ? 0.5 : 0.16));
+            this.marines.getChildren().forEach((m, i) => m.setTexture(MARINE_POSES[(this.beat + i) % MARINE_POSES.length]));
             [this.yvy, ...this.marines.getChildren(), ...this.civilians.getChildren()].forEach(spr => { 
                 spr.y += (Math.random() > 0.5 ? -4 : 4); 
                 if(Math.random() > 0.8) spr.x += (Math.random() > 0.5 ? -10 : 10); 

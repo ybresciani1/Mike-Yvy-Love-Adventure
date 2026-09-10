@@ -1788,14 +1788,16 @@ export function generateTextures(scene) {
     g.generateTexture('disco_ball', 32, 32);
 
     // Neon-fronted bar panel.
+    // Bar face. The club bar runs top-to-bottom, so the neon accent runs down
+    // the tile edge — a horizontal strip would ladder every 32px when stacked.
     g.clear();
     fillRect(0, 0, 32, 32, 0x14141c);
-    fillRect(0, 0, 32, 3, 0x2b2b3a);
-    fillRect(0, 6, 32, 2, 0x00e5ff); // neon strip
-    fillRect(0, 6, 32, 1, 0x9ff6ff);
-    fillRect(0, 22, 32, 2, 0xff2d95);
-    fillRect(0, 22, 32, 1, 0xffa8d6);
-    for (let i = 2; i < 32; i += 8) fillRect(i, 11, 4, 9, 0x1d1d28); // panel seams
+    fillRect(0, 0, 3, 32, 0x00e5ff); // lit edge facing the room
+    fillRect(1, 0, 1, 32, 0x9ff6ff);
+    fillRect(3, 0, 3, 32, 0x08323d); // glow spill
+    fillRect(29, 0, 3, 32, 0x1d1d28); // shadowed back edge
+    fillRect(10, 0, 1, 32, 0x1b1b26); // panel seams, vertical
+    fillRect(20, 0, 1, 32, 0x1b1b26);
     g.generateTexture('club_bar_front', 32, 32);
 
     // Backlit spirits shelf.
@@ -1825,4 +1827,146 @@ export function generateTextures(scene) {
     g.fillRect(4, 1, 1, 5);
     g.fillRect(5, 1, 3, 1);
     g.generateTexture('music_note', 8, 8);
+    // --- MARINE DANCE POSES --------------------------------------------------
+    // The squad dances too, but with their own moves — nothing shared with
+    // Mike's set, so a glance at the floor tells you who is who.
+    const USMC = COLORS.marine;
+    const USMC_SHADE = 0x24471f;
+    const USMC_DARK = 0x1e3a1a;
+
+    const marineHead = () => {
+        drawFace(5, { brow: 0x2b1e13 });
+        drawShortHair(0x3e2b1c, 0x5a412a, 0x2b1e13);
+        fillRect(9, 1, 14, 4, USMC_DARK); // cap
+        fillRect(9, 4, 14, 1, 0x152b13);
+        fillRect(8, 5, 16, 1, 0x152b13); // brim
+        fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+    };
+
+    const marineTorso = () => {
+        fillRect(10, 17, 12, 9, USMC);
+        fillRect(20, 17, 2, 9, USMC_SHADE);
+        fillRect(12, 18, 2, 1, 0xf1c40f); // collar insignia
+        fillRect(10, 26, 12, 1, 0x1b1b1b); // belt
+    };
+
+    // Disco point: one arm thrown up on the diagonal, the other hand on the hip.
+    g.clear();
+    marineHead();
+    marineTorso();
+    fillRect(22, 12, 3, 6, USMC); // upper arm angled up
+    fillRect(25, 7, 3, 6, USMC);
+    fillRect(27, 4, 3, 3, SKIN); // pointing hand
+    fillRect(7, 19, 3, 5, USMC_SHADE); // hand on the hip
+    fillRect(7, 23, 4, 3, SKIN);
+    fillRect(12, 27, 4, 4, USMC_SHADE);
+    fillRect(17, 27, 4, 4, USMC_DARK);
+    fillRect(11, 31, 5, 1, 0x1b1b1b);
+    fillRect(17, 31, 5, 1, 0x111111);
+    g.generateTexture('marine_dance_1', 32, 32);
+
+    // Raise the roof: both forearms up, palms to the ceiling.
+    g.clear();
+    marineHead();
+    marineTorso();
+    fillRect(6, 12, 3, 6, USMC); // left arm bent up
+    fillRect(6, 9, 4, 3, SKIN);
+    fillRect(23, 12, 3, 6, USMC_SHADE); // right arm bent up
+    fillRect(22, 9, 4, 3, SKIN_SHADE);
+    fillRect(11, 27, 4, 4, USMC_SHADE);
+    fillRect(17, 27, 4, 4, USMC_DARK);
+    fillRect(10, 31, 5, 1, 0x1b1b1b);
+    fillRect(17, 31, 5, 1, 0x111111);
+    g.generateTexture('marine_dance_2', 32, 32);
+
+    // The robot: one forearm level at the chest, the other cranked up square.
+    g.clear();
+    marineHead();
+    marineTorso();
+    fillRect(4, 19, 7, 3, USMC); // arm straight out
+    fillRect(2, 19, 3, 3, SKIN);
+    fillRect(22, 19, 3, 3, USMC_SHADE); // elbow out
+    fillRect(24, 12, 3, 8, USMC_SHADE); // forearm straight up
+    fillRect(24, 9, 3, 3, SKIN_SHADE);
+    fillRect(12, 27, 4, 5, USMC_SHADE); // stiff stance
+    fillRect(17, 27, 4, 5, USMC_DARK);
+    fillRect(11, 31, 5, 1, 0x1b1b1b);
+    fillRect(17, 31, 5, 1, 0x111111);
+    g.generateTexture('marine_dance_3', 32, 32);
+
+    // --- CLUB BAR FITTINGS ---------------------------------------------------
+    // Counter top: black gloss with a neon edge and a wet-look reflection.
+    // Counter top: black gloss with the lit rim down the customer side.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x16161f);
+    fillRect(0, 0, 2, 32, 0xff2d95); // neon rim
+    fillRect(2, 0, 2, 32, 0x4a0c2b);
+    fillRect(8, 0, 3, 32, 0x24242f); // long reflection down the gloss
+    fillRect(17, 0, 1, 32, 0x20202a);
+    fillRect(30, 0, 2, 32, 0x0e0e16); // back edge
+    g.generateTexture('bar_top_tile', 32, 32);
+
+    // Stemware hanging from an overhead rail.
+    g.clear();
+    fillRect(0, 0, 32, 3, 0x8a9699); // rail
+    fillRect(0, 0, 32, 1, 0xc3cacd);
+    for (const x of [5, 15, 25]) {
+        fillRect(x, 3, 2, 6, 0xd7dbdd); // stem
+        g.fillStyle(0xbcd7e6, 1); // bowl
+        g.beginPath();
+        g.moveTo(x - 4, 9); g.lineTo(x + 6, 9); g.lineTo(x + 1, 18); g.closePath(); g.fill();
+        fillRect(x - 3, 10, 8, 1, 0xeaf6ff); // rim highlight
+    }
+    g.generateTexture('glass_rack', 32, 24);
+
+    // LED wall panel: an equaliser frozen mid-bar.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x0b0b12);
+    fillRect(0, 0, 32, 1, 0x1d1d2a);
+    const bars = [
+        { x: 3, h: 18, c: 0x00e5ff },
+        { x: 8, h: 26, c: 0xff2d95 },
+        { x: 13, h: 12, c: 0xaeea00 },
+        { x: 18, h: 22, c: 0xffc400 },
+        { x: 23, h: 16, c: 0xb388ff },
+        { x: 28, h: 9, c: 0x00e5ff }
+    ];
+    for (const b of bars) {
+        fillRect(b.x, 30 - b.h, 3, b.h, b.c);
+        fillRect(b.x, 30 - b.h, 3, 2, 0xffffff); // hot tip
+        for (let y = 30 - b.h + 3; y < 30; y += 3) fillRect(b.x, y, 3, 1, 0x0b0b12); // segments
+    }
+    g.generateTexture('led_panel', 32, 32);
+
+    // --- LIGHTING RIG --------------------------------------------------------
+    // Truss segment: two rails with diagonal bracing.
+    g.clear();
+    fillRect(0, 1, 32, 3, 0x9aa5b1);
+    fillRect(0, 1, 32, 1, 0xc3cacd);
+    fillRect(0, 12, 32, 3, 0x7f8c8d);
+    for (let i = 0; i < 32; i += 8) {
+        g.fillStyle(0x8a9699, 1);
+        g.beginPath();
+        g.moveTo(i, 4); g.lineTo(i + 6, 12); g.lineTo(i + 8, 12); g.lineTo(i + 2, 4); g.closePath(); g.fill();
+        g.beginPath();
+        g.moveTo(i + 8, 4); g.lineTo(i + 2, 12); g.lineTo(i + 4, 12); g.lineTo(i + 10, 4); g.closePath(); g.fill();
+    }
+    g.generateTexture('truss', 32, 16);
+
+    // Par can: yoke, ribbed housing and a bright lens. Scenes tint the whole
+    // fixture, so the lens colour follows the beam colour.
+    g.clear();
+    fillRect(10, 0, 4, 4, 0x6c7679); // hanging clamp
+    fillRect(4, 3, 16, 3, 0x8a9699); // yoke
+    fillRect(4, 3, 3, 12, 0x8a9699);
+    fillRect(17, 3, 3, 12, 0x8a9699);
+    fillRect(6, 6, 12, 12, 0x2b2b34); // housing
+    fillRect(6, 6, 12, 1, 0x494957);
+    for (let y = 8; y < 18; y += 3) fillRect(6, y, 12, 1, 0x1d1d24); // cooling ribs
+    fillRect(5, 17, 14, 4, 0x3a3a46); // barn doors
+    g.fillStyle(0xffffff, 1); // lens
+    g.fillCircle(12, 20, 4);
+    g.fillStyle(0xdff6ff, 1);
+    g.fillCircle(12, 20, 2);
+    g.generateTexture('par_can', 24, 24);
 }
