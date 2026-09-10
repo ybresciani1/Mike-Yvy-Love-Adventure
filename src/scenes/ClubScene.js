@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
-import { showDialogue, isDialogueOpen } from '../ui/dialogue.js';
+import { showDialogue, isDialogueOpen, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 
 // Held-F dancing cycles these poses; the floor chases these colours on the beat.
@@ -152,8 +152,8 @@ export class ClubScene extends Phaser.Scene {
                 if(Math.random() > 0.8) spr.x += (Math.random() > 0.5 ? -10 : 10); 
             }); 
         }}); 
-        this.physics.add.overlap(this.player, this.yvy, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.handleYvyInteraction(); }); 
-        this.physics.add.overlap(this.player, this.barZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.handleBarInteraction(); }); this.physics.add.overlap(this.player, this.marines, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Marine: 'Woo! Dance with us Mike!'"); }); 
+        this.physics.add.overlap(this.player, this.yvy, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleYvyInteraction(); }); 
+        this.physics.add.overlap(this.player, this.barZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleBarInteraction(); }); this.physics.add.overlap(this.player, this.marines, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Marine: 'Woo! Dance with us Mike!'"); }); 
     } 
     update() { 
         this.player.update(this.cursors); 

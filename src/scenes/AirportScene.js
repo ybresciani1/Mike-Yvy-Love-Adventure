@@ -3,7 +3,7 @@ import { GAME_HEIGHT } from '../constants.js';
 import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { stopMusic, playAirportTheme } from '../audio/music.js';
-import { showDialogue } from '../ui/dialogue.js';
+import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { generateTextures } from '../textures/generateTextures.js';
 import { Player } from '../entities/Player.js';
 
@@ -73,15 +73,15 @@ export class AirportScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.add.text(20, 550, "Task: Ticket -> Suitcase -> Security -> Starbucks -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
-        this.physics.add.overlap(this.player, this.suitcase, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !gameState.hasSuitcase) { gameState.hasSuitcase = true; this.suitcase.destroy(); this.heldSuitcase.setVisible(true); playSound('select'); showDialogue("Mike grabbed his suitcase."); } });
-        this.physics.add.overlap(this.player, this.ticket, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !gameState.hasTicket) { gameState.hasTicket = true; this.ticket.destroy(); this.heldTicket.setVisible(true); playSound('select'); showDialogue("Mike found the Boarding Pass."); } });
-        this.physics.add.overlap(this.player, this.tsaZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if (gameState.hasSuitcase && gameState.hasTicket) { if (!gameState.securityCleared) { gameState.securityCleared = true; showDialogue("TSA: 'You're clear. Have a safe flight.'"); this.securityBarrier.destroy(); this.gateVisual.fillColor = 0x00ff00; } } else { showDialogue("TSA: 'Ticket and luggage required.'"); } } });
-        this.physics.add.overlap(this.player, this.starbucksZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if (gameState.securityCleared) { if (!gameState.hasCoffee) { gameState.hasCoffee = true; this.heldCoffee.setVisible(true); playSound('select'); showDialogue("Mike bought a coffee. Essential fuel."); } } else { showDialogue("Security won't let you through yet."); } } });
-        this.physics.add.overlap(this.player, this.gateZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if (gameState.securityCleared && gameState.hasCoffee) { showDialogue("Boarding Flight...", () => { stopMusic(); document.getElementById('scrolling-banner').style.display = 'none'; this.scene.start('FlightScene'); }); } else if (!gameState.hasCoffee) showDialogue("Mike needs a coffee before boarding."); else showDialogue("Security Check Required."); } });
-        this.physics.add.overlap(this.player, this.newsZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike browsed the tech magazines."); });
-        this.physics.add.overlap(this.player, this.burgerZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Smells greasy... Mike isn't hungry right now."); });
-        this.physics.add.overlap(this.player, this.restroomZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike checked his hair in the mirror. Still looks good."); });
-        this.physics.add.overlap(this.player, this.viewingZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike spent a moment watching the planes take off and land."); });
+        this.physics.add.overlap(this.player, this.suitcase, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasSuitcase) { gameState.hasSuitcase = true; this.suitcase.destroy(); this.heldSuitcase.setVisible(true); playSound('select'); showDialogue("Mike grabbed his suitcase."); } });
+        this.physics.add.overlap(this.player, this.ticket, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasTicket) { gameState.hasTicket = true; this.ticket.destroy(); this.heldTicket.setVisible(true); playSound('select'); showDialogue("Mike found the Boarding Pass."); } });
+        this.physics.add.overlap(this.player, this.tsaZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.hasSuitcase && gameState.hasTicket) { if (!gameState.securityCleared) { gameState.securityCleared = true; showDialogue("TSA: 'You're clear. Have a safe flight.'"); this.securityBarrier.destroy(); this.gateVisual.fillColor = 0x00ff00; } } else { showDialogue("TSA: 'Ticket and luggage required.'"); } } });
+        this.physics.add.overlap(this.player, this.starbucksZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared) { if (!gameState.hasCoffee) { gameState.hasCoffee = true; this.heldCoffee.setVisible(true); playSound('select'); showDialogue("Mike bought a coffee. Essential fuel."); } } else { showDialogue("Security won't let you through yet."); } } });
+        this.physics.add.overlap(this.player, this.gateZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared && gameState.hasCoffee) { showDialogue("Boarding Flight...", () => { stopMusic(); document.getElementById('scrolling-banner').style.display = 'none'; this.scene.start('FlightScene'); }); } else if (!gameState.hasCoffee) showDialogue("Mike needs a coffee before boarding."); else showDialogue("Security Check Required."); } });
+        this.physics.add.overlap(this.player, this.newsZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike browsed the tech magazines."); });
+        this.physics.add.overlap(this.player, this.burgerZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Smells greasy... Mike isn't hungry right now."); });
+        this.physics.add.overlap(this.player, this.restroomZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike checked his hair in the mirror. Still looks good."); });
+        this.physics.add.overlap(this.player, this.viewingZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike spent a moment watching the planes take off and land."); });
         this.physics.add.overlap(this.player, this.walkways, () => { this.player.x += 2; });
     }    /**
      * Wheel the case along behind him: it trails whichever way he is walking,

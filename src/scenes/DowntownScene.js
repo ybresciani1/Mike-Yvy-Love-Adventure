@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { REMOTE_IMAGES } from '../assets.js';
 import { playSound } from '../audio/sfx.js';
-import { showDialogue } from '../ui/dialogue.js';
+import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 
 export class DowntownScene extends Phaser.Scene {
@@ -50,19 +50,19 @@ export class DowntownScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.stage = 0; 
         this.add.text(20, 560, "Task: Donut Bar → Donut wall → Puppy → Bench", { fontSize: '16px', color: '#000', backgroundColor: '#fff', fontStyle: 'bold' });
-        this.physics.add.overlap(this.player, this.clothingZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Yvy: 'Ooh, cute top!'"); });
-        this.physics.add.overlap(this.player, this.crystalZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Yvy: 'Good energy in there.'"); });
-        this.physics.add.overlap(this.player, this.bookZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike: 'I love old book stores.'"); }); 
+        this.physics.add.overlap(this.player, this.clothingZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Yvy: 'Ooh, cute top!'"); });
+        this.physics.add.overlap(this.player, this.crystalZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Yvy: 'Good energy in there.'"); });
+        this.physics.add.overlap(this.player, this.bookZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike: 'I love old book stores.'"); }); 
         this.physics.add.overlap(this.player, this.donutZone, () => { 
-            if(this.stage === 0 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+            if(this.stage === 0 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) {
                 this.stage = 1; showDialogue("Mike: 'Whoa, look at that line.'", () => { showDialogue("They wait patiently...", () => { showDialogue("Yvy: 'Strawberry and Cream for me!'", () => { showDialogue("Mike: 'Classic Chocolate for me.'", () => {
                     this.pDonut.setVisible(true); this.yDonut.setVisible(true); showDialogue("Mike: 'Cheers!' *Chomp*", () => { this.pDonut.setVisible(false); this.yDonut.setVisible(false); this.stage = 2; showDialogue("They ate the delicious donuts."); }); }); }); }); });
             }
         });
-        this.physics.add.overlap(this.player, this.wallZone, () => { if(this.stage >= 2 && this.stage < 3 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { this.stage = 3; playSound('select'); this.cameras.main.flash(200, 255, 255, 255); showDialogue("Mike: 'Smile!'", () => { showDialogue("They took a selfie at the famous Donut Wall."); }); } });
-        this.physics.add.overlap(this.player, this.dogZone, () => { if(this.stage >= 3 && this.stage < 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { this.stage = 4; showDialogue("Mike: 'Can we pet your dog?'", () => { showDialogue("Stranger: 'Sure! He's friendly.'", () => { showDialogue("Yvy: 'Who's a good boy!' *Pets dog*", () => { this.tweens.add({targets: this.dog, y: '-=5', duration: 100, yoyo: true, repeat: 3}); }); }); }); } });
+        this.physics.add.overlap(this.player, this.wallZone, () => { if(this.stage >= 2 && this.stage < 3 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { this.stage = 3; playSound('select'); this.cameras.main.flash(200, 255, 255, 255); showDialogue("Mike: 'Smile!'", () => { showDialogue("They took a selfie at the famous Donut Wall."); }); } });
+        this.physics.add.overlap(this.player, this.dogZone, () => { if(this.stage >= 3 && this.stage < 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { this.stage = 4; showDialogue("Mike: 'Can we pet your dog?'", () => { showDialogue("Stranger: 'Sure! He's friendly.'", () => { showDialogue("Yvy: 'Who's a good boy!' *Pets dog*", () => { this.tweens.add({targets: this.dog, y: '-=5', duration: 100, yoyo: true, repeat: 3}); }); }); }); } });
         this.physics.add.overlap(this.player, this.benchZone, () => {
-            if(this.stage >= 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+            if(this.stage >= 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) {
                 this.stage = 5; this.player.x = 180; this.player.y = 500; this.yvy.x = 220; this.yvy.y = 500; this.player.body.stop(); this.yvy.body.stop();
                 showDialogue("They sat down to enjoy the morning sun.", () => { showDialogue("Mike: 'I really like San Diego. And I really like being with you.'", () => { showDialogue("Yvy: 'Me too. What do you want out of life, Mike?'", () => { showDialogue("Mike: 'To build cool things. And to be happy with someone special.'", () => { showDialogue("Yvy: 'I also want to create things.. Create a better future for our world, and meet someone who has a vision to do the same... Someone special too..'", () => {
                     const heart = this.add.text(this.player.x + 10, this.player.y - 40, '❤️', { fontSize: '24px' });

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
-import { showDialogue } from '../ui/dialogue.js';
+import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 
 export class RestaurantScene extends Phaser.Scene { 
@@ -53,7 +53,7 @@ export class RestaurantScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); this.progress = 0; 
         this.tweens.add({ targets: this.player, x: 200, y: 280, duration: 1500 }); 
         this.physics.add.overlap(this.player, this.hostZone, () => { 
-            if (this.progress === 0 && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+            if (this.progress === 0 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { 
                 this.progress = 1; showDialogue("Mike: 'Table for two, please.'", () => { showDialogue("Host: 'Right this way sir.'", () => { 
                     this.tweens.add({ targets: this.host, x: 600, y: 350, duration: 2000 }); this.tweens.add({ targets: this.player, x: 580, y: 430, duration: 2500, delay: 200, onComplete: () => { this.player.setFlipX(false); this.tweens.add({ targets: this.host, x: 220, y: 190, duration: 2000, onComplete: () => { this.time.delayedCall(1000, () => { this.startYvyArrival(); }); }}); }}); 
                 }); }); 

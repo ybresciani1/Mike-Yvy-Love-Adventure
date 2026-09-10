@@ -3,7 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { stopMusic, playConferenceTheme } from '../audio/music.js';
-import { showDialogue, isDialogueOpen } from '../ui/dialogue.js';
+import { showDialogue, isDialogueOpen, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 
 export class ConferenceScene extends Phaser.Scene { 
@@ -32,9 +32,9 @@ export class ConferenceScene extends Phaser.Scene {
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit'; this.player = new Player(this, 100, 550); this.player.setTexture(outfit); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.add.text(20, 20, "Task: Pick up VR Headset -> Demo to 3 People", { fontSize: '16px', color: '#000', backgroundColor: '#fff' }); 
-        this.physics.add.overlap(this.player, this.vrHeadset, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !gameState.hasVR) { gameState.hasVR = true; this.vrHeadset.destroy(); this.heldVR.setVisible(true); playSound('select'); showDialogue("Mike picked up the VR Headset."); } }); 
+        this.physics.add.overlap(this.player, this.vrHeadset, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasVR) { gameState.hasVR = true; this.vrHeadset.destroy(); this.heldVR.setVisible(true); playSound('select'); showDialogue("Mike picked up the VR Headset."); } }); 
         this.physics.add.overlap(this.player, this.attendees, (player, npc) => { 
-            if (gameState.hasVR && !npc.hasTriedDemo && !this.player.isLocked && !isDialogueOpen() && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+            if (gameState.hasVR && !npc.hasTriedDemo && !this.player.isLocked && !isDialogueOpen() && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { 
                 npc.hasTriedDemo = true; 
                 playSound('vr_boop'); 
                 this.player.isLocked = true;
@@ -62,8 +62,8 @@ export class ConferenceScene extends Phaser.Scene {
                 nextLine();
             } 
         }); 
-        this.physics.add.overlap(this.player, this.booth1Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike checked the AI Gen booth: 'Another LLM wrapper... Doesn't scale.'"); });
-        this.physics.add.overlap(this.player, this.booth2Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike checked the Web3 booth: 'Crypto... I'm more focused on VR right now.'"); });
+        this.physics.add.overlap(this.player, this.booth1Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike checked the AI Gen booth: 'Another LLM wrapper... Doesn't scale.'"); });
+        this.physics.add.overlap(this.player, this.booth2Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike checked the Web3 booth: 'Crypto... I'm more focused on VR right now.'"); });
     } 
     startTextingSequence() { showDialogue("Mike: 'That went great! I should text Yvy.'", () => { playSound('msg_sent'); showDialogue("Mike sent: 'Demo went great! Dinner tonight?'", () => { this.time.delayedCall(1500, () => { playSound('msg_sent'); showDialogue("Yvy replied: 'YES OFC! ❤️'", () => { stopMusic(); this.scene.start('UberScene'); }); }); }); }); } 
     update() { this.player.update(this.cursors); if (gameState.hasVR) { this.heldVR.x = this.player.x + 10; this.heldVR.y = this.player.y; } document.getElementById('interaction-hint').style.display = ((!gameState.hasVR && this.physics.overlap(this.player, this.vrHeadset)) || (gameState.hasVR && this.physics.overlap(this.player, this.attendees)) || this.physics.overlap(this.player, [this.booth1Zone, this.booth2Zone])) ? 'block' : 'none'; } 

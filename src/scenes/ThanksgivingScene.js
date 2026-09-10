@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { REMOTE_IMAGES } from '../assets.js';
 import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
-import { showDialogue } from '../ui/dialogue.js';
+import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 
 export class ThanksgivingScene extends Phaser.Scene {
@@ -54,7 +54,7 @@ export class ThanksgivingScene extends Phaser.Scene {
         this.add.text(20, 550, "Talk to everyone! (Space)", { fontSize: '16px', color: '#fff' });
 
         this.physics.add.overlap(this.player, this.yvyFamilyZone, () => {
-             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !this.talkedState.yvyFamily) {
+             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !this.talkedState.yvyFamily) {
                  this.talkedState.yvyFamily = true;
                  showDialogue("Yvy's Dad: '¡Hola Miguel! ¿Cómo estás? Bienvenido.'", () => {
                      showDialogue("Mike (trying his best): 'Uh... Hola! Muy... good? Gracias?'", () => {
@@ -71,7 +71,7 @@ export class ThanksgivingScene extends Phaser.Scene {
         });
 
         this.physics.add.overlap(this.player, this.mikeFamilyZone, () => {
-             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !this.talkedState.mikeFamily) {
+             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !this.talkedState.mikeFamily) {
                  this.talkedState.mikeFamily = true;
                  showDialogue("Mike's Mom: 'So glad you made it, Mike. The garden is blooming beautifully this year.'", () => {
                      showDialogue("Mike's Dad: 'The turkey came out perfect. Let's eat.'", () => {
@@ -86,7 +86,7 @@ export class ThanksgivingScene extends Phaser.Scene {
         });
 
         this.physics.add.overlap(this.player, this.cousinZone, () => {
-             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !this.talkedState.cousin) {
+             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !this.talkedState.cousin) {
                  this.talkedState.cousin = true;
                  showDialogue("Cousin: 'Bet you can't catch me!'", () => {
                      showDialogue("Aiden: 'I'm gonna get you!'", () => {

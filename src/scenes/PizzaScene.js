@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { gameState } from '../state.js';
 import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
-import { showDialogue } from '../ui/dialogue.js';
+import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { playSound } from '../audio/sfx.js';
 import { Player } from '../entities/Player.js';
 
@@ -32,9 +32,9 @@ export class PizzaScene extends Phaser.Scene {
         this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' });
         this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone) this.startFarewell(); });
         this.physics.add.overlap(this.player, this.fightZone, () => {
-            if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.takePhotos();
+            if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.takePhotos();
         }); this.physics.add.overlap(this.player, this.drunks, () => {
-            if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue(this.nextDrunkLine());
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(this.nextDrunkLine());
         });
     } 
     update() { 

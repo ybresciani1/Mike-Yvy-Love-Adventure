@@ -16,13 +16,14 @@ let showDialogue;
 let isDialogueOpen;
 let portraitFor;
 let resetDialogue;
+let dialogueBusy;
 
 beforeEach(async () => {
     document.body.innerHTML = OVERLAY_HTML;
     vi.useFakeTimers();
     // Fresh module instance so the open/closed flag does not leak between tests.
     vi.resetModules();
-    ({ showDialogue, isDialogueOpen, portraitFor, resetDialogue } = await import("../src/ui/dialogue.js"));
+    ({ showDialogue, isDialogueOpen, portraitFor, resetDialogue, dialogueBusy } = await import("../src/ui/dialogue.js"));
 });
 
 const pressSpace = () => document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' }));
@@ -185,5 +186,42 @@ describe('re-trigger guard', () => {
     it('reports refusal while another line is open', () => {
         showDialogue('first');
         expect(showDialogue('second')).toBe(false);
+    });
+});
+
+describe('dialogueBusy', () => {
+    // Interactions check this before changing anything. Without it, the press
+    // that dismissed a line also fired the interaction it was standing in, and
+    // the line that press tried to open was refused — so at the bar a round was
+    // drunk with no dialogue, and the round carrying the scene transition could
+    // be lost outright.
+    it('is busy while a line is open', () => {
+        expect(dialogueBusy()).toBe(false);
+        showDialogue('Mike: cheers');
+        expect(dialogueBusy()).toBe(true);
+    });
+
+    it('stays busy across the press that closes a line', () => {
+        showDialogue('Mike: cheers');
+        typeOut('Mike: cheers');
+        pressSpace();
+
+        expect(isDialogueOpen()).toBe(false);
+        expect(dialogueBusy()).toBe(true);
+    });
+
+    it('clears once the press has settled', () => {
+        showDialogue('Mike: cheers');
+        typeOut('Mike: cheers');
+        pressSpace();
+        vi.advanceTimersByTime(200);
+
+        expect(dialogueBusy()).toBe(false);
+    });
+
+    it('is not busy after a reset', () => {
+        showDialogue('Mike: cheers');
+        resetDialogue();
+        expect(dialogueBusy()).toBe(false);
     });
 });

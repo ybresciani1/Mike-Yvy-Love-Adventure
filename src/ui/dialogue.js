@@ -46,6 +46,20 @@ export function isDialogueOpen() {
 }
 
 /**
+ * True while a line is open and for a moment after one closes.
+ *
+ * Interactions that change state must check this before acting. The press that
+ * dismisses a line is also seen by Phaser as a fresh JustDown, and showDialogue
+ * refuses the line that press would open — so an interaction that fired anyway
+ * would advance the game a step the player never saw. That is how drinks at the
+ * bar were being counted without their dialogue, losing the round that carries
+ * the transition out of the scene.
+ */
+export function dialogueBusy() {
+    return dialogueOpen || Date.now() - lastClosedAt < RETRIGGER_GUARD_MS;
+}
+
+/**
  * Show one line. Returns false when the line was refused: another line is
  * already open, or the press that closed the previous one is still settling.
  */

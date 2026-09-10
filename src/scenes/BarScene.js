@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
-import { showDialogue } from '../ui/dialogue.js';
+import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 
 export class BarScene extends Phaser.Scene { 
@@ -82,7 +82,7 @@ export class BarScene extends Phaser.Scene {
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.add.text(20, 556, "Space: Drink with Marine", { fontSize: '16px', color: '#fff' }); 
         this.squad = this.add.group(); 
-        this.physics.add.overlap(this.player, this.marineZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.handleDrinking(); }); 
+        this.physics.add.overlap(this.player, this.marineZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleDrinking(); }); 
     } 
     handleDrinking() { 
         if(gameState.drinksConsumed >= 8) return; 
