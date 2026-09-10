@@ -609,7 +609,21 @@ export function generateTextures(scene) {
     g.fillCircle(18, 4, 2);
     drawPixel(18, 4, 0xc0392b);
     g.generateTexture('cocktail', 32, 32);
-    g.clear(); g.fillStyle(COLORS.pizza_crust, 1); g.beginPath(); g.moveTo(16,32); g.lineTo(0,10); g.lineTo(32,10); g.closePath(); g.fill(); g.fillStyle(COLORS.pizza_sauce, 1); g.beginPath(); g.moveTo(16,28); g.lineTo(4,12); g.lineTo(28,12); g.closePath(); g.fill(); g.generateTexture('pizza_slice', 32, 32);
+    // Held slice, drawn to match the slice on the shop's neon sign: golden
+    // cheese and red pepperoni rather than a dark sauce wedge.
+    g.clear();
+    fillRect(3, 5, 26, 6, 0xd9a441); // browned crust along the wide end
+    fillRect(3, 5, 26, 2, 0xe6b95c);
+    fillRect(3, 10, 26, 1, 0xb9822c);
+    g.fillStyle(0xffd166, 1); // cheese
+    g.beginPath(); g.moveTo(4, 11); g.lineTo(28, 11); g.lineTo(16, 29); g.closePath(); g.fill();
+    g.fillStyle(0xe8b84e, 1); // shaded side of the wedge
+    g.beginPath(); g.moveTo(23, 11); g.lineTo(28, 11); g.lineTo(16, 29); g.closePath(); g.fill();
+    g.fillStyle(0xff6b6b, 1); // pepperoni, same red as the sign
+    g.fillCircle(11, 16, 2); g.fillCircle(20, 15, 2); g.fillCircle(16, 22, 2);
+    g.fillStyle(0xd94f4f, 1);
+    g.fillRect(10, 17, 3, 1); g.fillRect(19, 16, 3, 1); g.fillRect(15, 23, 3, 1);
+    g.generateTexture('pizza_slice', 32, 32);
     g.clear(); g.fillStyle(COLORS.pizza_sauce, 1); g.fillCircle(16,16,16); g.fillStyle(COLORS.pizza_crust, 1); g.fillCircle(16,16,12); g.generateTexture('pizza_logo', 32, 32);
     g.clear(); g.fillStyle(COLORS.furniture, 1); g.fillRect(0,0,64,32); g.fillStyle(0x3e2723, 1); g.fillRect(5,5,54,10); g.generateTexture('dresser', 64, 32);
     g.clear(); g.fillStyle(0x8d6e63, 1); g.fillRect(0,0,64,32); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,10,32); g.fillRect(54,0,10,32); g.fillRect(0,0,64,10); g.generateTexture('couch', 64, 32);
