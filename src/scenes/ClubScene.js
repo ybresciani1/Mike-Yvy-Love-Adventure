@@ -41,7 +41,7 @@ export class ClubScene extends Phaser.Scene {
         this.yvyDrink = this.add.sprite(0,0,'cocktail').setScale(0.7).setVisible(false); 
         for(let i=0; i<3; i++) { 
             let m = this.physics.add.sprite(200 + i*50, 400, 'marine'); this.marines.add(m); 
-            let c = this.physics.add.sprite(220 + i*50, 420, 'civilian'); this.civilians.add(c); 
+            let c = this.physics.add.sprite(220 + i*50, 420, i % 2 ? 'civilian_f' : 'civilian'); this.civilians.add(c); 
         } 
         this.cursors = this.input.keyboard.createCursorKeys(); 
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 

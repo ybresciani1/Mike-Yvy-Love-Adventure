@@ -37,7 +37,7 @@ export class HomeScene extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, fences);
         this.yvy = this.add.sprite(340, 200, 'yvy');
-        this.mom = this.add.sprite(400, 200, 'civilian').setTint(0xffaaaa);
+        this.mom = this.add.sprite(400, 200, 'yvy_mom');
         this.aiden = this.add.sprite(460, 210, 'aiden_older');
         this.lychee = this.add.sprite(200, 250, 'lychee_custom'); this.lychee.setDisplaySize(24, 24);
         this.bojji = this.add.sprite(600, 300, 'bojji_custom'); this.bojji.setDisplaySize(48, 48);

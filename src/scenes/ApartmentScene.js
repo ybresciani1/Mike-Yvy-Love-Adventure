@@ -20,9 +20,9 @@ export class ApartmentScene extends Phaser.Scene {
                 // --- CHANGED: NC to DC ---
                 showDialogue("Mike moved in from DC to SD.", () => {
                     showDialogue("They got their first apartment...", () => {
-                        let mom = this.add.sprite(100, 300, 'civilian').setTint(0xffaaaa);
-                        let alex = this.add.sprite(700, 300, 'mike').setTint(0x8888ff);
-                        let kevin = this.add.sprite(650, 320, 'mike_casual').setTint(0xaaaaaa);
+                        let mom = this.add.sprite(100, 300, 'yvy_mom');
+                        let alex = this.add.sprite(700, 300, 'alex');
+                        let kevin = this.add.sprite(650, 320, 'kevin');
                         this.visitors.addMultiple([mom, alex, kevin]);
                         this.visitors.setAlpha(0);
                         this.tweens.add({ targets: this.visitors.getChildren(), alpha: 1, duration: 1000 });

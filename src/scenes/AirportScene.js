@@ -55,7 +55,7 @@ export class AirportScene extends Phaser.Scene {
         this.add.text(1860, 450, "STARBUCKS", { fontSize: '14px', color: '#fff', backgroundColor: '#00704a' });
         this.add.sprite(1950, 520, 'marine').setTint(0x000000);
         this.gateZone = this.add.rectangle(2200, 150, 50, 100, 0x00ff00, 0.3); this.physics.add.existing(this.gateZone, true);
-        for(let i=0; i<10; i++) { let npc = this.add.sprite(700 + Math.random()*1500, 200 + Math.random()*200, 'civilian'); npc.setTint(Math.random() * 0xffffff); }
+        for(let i=0; i<10; i++) { let npc = this.add.sprite(700 + Math.random()*1500, 200 + Math.random()*200, i % 2 ? 'civilian_f' : 'civilian'); npc.setTint(Math.random() * 0xffffff); }
         this.player = new Player(this, 100, 300);
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
         this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor);

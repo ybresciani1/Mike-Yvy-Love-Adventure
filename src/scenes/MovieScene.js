@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { stopMusic, playDreamworksTheme, playBattleTheme } from '../audio/music.js';
 import { showDialogue } from '../ui/dialogue.js';
+import { playSound } from '../audio/sfx.js';
 
 export class MovieScene extends Phaser.Scene {
     constructor() { super('MovieScene'); }
@@ -17,8 +18,8 @@ export class MovieScene extends Phaser.Scene {
         // --- MASK FOR MOVIE SCREEN ---
         const maskGraphics = this.make.graphics();
         maskGraphics.fillStyle(0xffffff);
-        maskGraphics.fillRect(150, 50, 500, 200); 
-        this.screenMask = maskGraphics.createGeometryMask();
+        maskGraphics.fillRect(150, 50, 500, 200);        this.screenMask = maskGraphics.createGeometryMask();
+        this.buildScreenAtmosphere();
         
         for(let y=0; y<7; y++) { this.add.image(120, 50 + y*32, 'theater_curtain').setScale(1.5, 1); this.add.image(680, 50 + y*32, 'theater_curtain').setScale(1.5, 1); }
         const light = this.add.graphics();
@@ -53,15 +54,81 @@ export class MovieScene extends Phaser.Scene {
         this.time.delayedCall(1000, () => {
             showDialogue("Yvy: 'Wait! You have to try popcorn with jalapeños!'", () => { this.jalapeno.setVisible(true); this.tweens.add({targets: this.jalapeno, y: 480, duration: 500, yoyo: true, repeat: 2}); showDialogue("Mike tries it... 'Wow! Spicy but good!'", () => { this.jalapeno.setVisible(false); this.startMovie(); }); });
         });
+    }    /**
+     * The screen was a flat black rectangle. Give it a night sky, an aurora over
+     * the Hidden World and a sea below the horizon, all clipped to the screen so
+     * the film feels like it is actually playing.
+     */
+    buildScreenAtmosphere() {
+        for (let i = 0; i < 70; i++) {
+            const big = Math.random() > 0.85;
+            const star = this.add
+                .rectangle(160 + Math.random() * 480, 58 + Math.random() * 150, big ? 2 : 1, big ? 2 : 1, 0xffffff)
+                .setAlpha(0.3 + Math.random() * 0.7);
+            star.setMask(this.screenMask);
+            this.tweens.add({ targets: star, alpha: 0.12, duration: 600 + Math.random() * 1800, yoyo: true, repeat: -1 });
+        }
+
+        this.aurora = this.add.graphics();
+        this.aurora.setMask(this.screenMask);
+        this.aurora.setBlendMode(Phaser.BlendModes.ADD);
+        [[0x1b3a5c, 70], [0x14504f, 44], [0x2a1b5c, 30]].forEach(([color, height], i) => {
+            this.aurora.fillStyle(color, 0.5);
+            this.aurora.fillEllipse(300 + i * 120, 115 + i * 22, 460 - i * 60, height);
+        });
+        this.tweens.add({ targets: this.aurora, alpha: 0.45, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+        const sea = this.add.graphics();
+        sea.setMask(this.screenMask);
+        sea.fillStyle(0x061520, 1);
+        sea.fillRect(150, 208, 500, 42);
+        sea.fillStyle(0x0d3a4a, 0.85);
+        for (let i = 0; i < 12; i++) sea.fillRect(158 + i * 42, 214 + (i % 3) * 9, 26, 2);
     }
+
+    /** Slow wingbeat bob, so a dragon on screen never sits perfectly still. */
+    hover(dragon) {
+        this.tweens.add({ targets: dragon, y: dragon.y - 6, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.tweens.add({ targets: dragon, scaleY: 0.9, duration: 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
+
+    /** Toothless's signature shot: a plasma bolt, a screen flash and a shake. */
+    firePlasma(fromX, fromY, toX, toY) {
+        const bolt = this.add.sprite(fromX, fromY, 'blue_fire').setScale(2.5);
+        bolt.setMask(this.screenMask);
+        bolt.setBlendMode(Phaser.BlendModes.ADD);
+        const flash = this.add.rectangle(400, 150, 500, 200, 0x7fdfff, 0.22);
+        flash.setMask(this.screenMask);
+        this.tweens.add({ targets: flash, alpha: 0, duration: 260, onComplete: () => flash.destroy() });
+        this.cameras.main.shake(200, 0.005);
+        playSound('fire');
+        this.tweens.add({
+            targets: bolt, x: toX, y: toY, scale: 4, duration: 420, ease: 'Quad.easeIn',
+            onComplete: () => {
+                const burst = this.add.sprite(toX, toY, 'blue_fire').setScale(3);
+                burst.setMask(this.screenMask);
+                burst.setBlendMode(Phaser.BlendModes.ADD);
+                this.tweens.add({ targets: burst, scale: 7, alpha: 0, duration: 340, onComplete: () => burst.destroy() });
+                bolt.destroy();
+            }
+        });
+    }
+
+    /** The Hidden World lighting up as the family is reunited. */
+    auroraSwell() {
+        if (!this.aurora) return;
+        this.tweens.add({ targets: this.aurora, alpha: 1, duration: 1800, ease: 'Sine.easeInOut' });
+    }
+
     startMovie() {
         this.screenText.setVisible(false); 
         playBattleTheme();
         const sequence = [
-            { text: "The Rescue: After Grimmel captures Toothless and the Light Fury, Hiccup launches a rescue mission.", action: () => {
-                this.toothless.setVisible(true); this.lightFury.setVisible(true);
-                this.toothless.x = 350; this.toothless.y = 150;
-                this.lightFury.x = 450; this.lightFury.y = 150;
+            { text: "The Rescue: After Grimmel captures Toothless and the Light Fury, Hiccup launches a rescue mission.", action: () => {                    this.toothless.setVisible(true); this.lightFury.setVisible(true);
+                        this.toothless.x = 350; this.toothless.y = 150;
+                        this.lightFury.x = 450; this.lightFury.y = 150;
+                        this.hover(this.toothless); this.hover(this.lightFury);
+                        this.firePlasma(this.toothless.x + 18, this.toothless.y, 620, 110);
             }},
             { text: "The Sacrifice: During a mid-air struggle, the Light Fury falls. Hiccup realizes he can't save both her and Toothless.", action: () => {
                  this.tweens.add({targets: this.lightFury, y: 220, duration: 1000}); 
@@ -69,8 +136,9 @@ export class MovieScene extends Phaser.Scene {
             { text: "Hiccup unclips his leg and urges the Light Fury to save Toothless instead.", action: () => {
                 this.tweens.add({targets: this.lightFury, x: 350, y: 150, duration: 500});
             }},
-            { text: "Grimmel's Defeat: The Light Fury rescues Toothless, then dives to catch Hiccup. Grimmel falls to his death.", action: () => {
-                this.tweens.add({targets: [this.toothless, this.lightFury], y: 120, duration: 1000, yoyo: true});
+            { text: "Grimmel's Defeat: The Light Fury rescues Toothless, then dives to catch Hiccup. Grimmel falls to his death.", action: () => {                    this.tweens.add({targets: [this.toothless, this.lightFury], y: 120, duration: 1000, yoyo: true});
+                        this.firePlasma(this.toothless.x + 18, this.toothless.y, 180, 210);
+                        this.time.delayedCall(500, () => this.firePlasma(this.lightFury.x + 18, this.lightFury.y, 200, 190));
             }},
             { text: "Letting Go: Hiccup realizes dragons will never be safe among humans. He sends them to the Hidden World.", action: () => {
                  this.tweens.add({targets: [this.toothless, this.lightFury], x: -50, duration: 2000});
@@ -83,8 +151,9 @@ export class MovieScene extends Phaser.Scene {
                 const n1 = this.nightLights.create(350, 180, 'night_light');
                 const n2 = this.nightLights.create(380, 170, 'night_light');
                 const n3 = this.nightLights.create(320, 170, 'night_light');
-                [n1, n2, n3].forEach(n => n.setMask(this.screenMask));
-                this.tweens.add({targets: this.nightLights.getChildren(), y: '+=10', duration: 500, yoyo: true, repeat: -1});
+                [n1, n2, n3].forEach(n => n.setMask(this.screenMask));                    this.tweens.add({targets: this.nightLights.getChildren(), y: '+=10', duration: 500, yoyo: true, repeat: -1});
+                        [n1, n2, n3].forEach((n, i) => this.tweens.add({ targets: n, scale: 1.15, duration: 700 + i * 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' }));
+                        this.auroraSwell();
             }},
             { text: "They reunite with Toothless, the Light Fury, and their three Night Lights.", action: () => {}},
             { text: "The End.", action: () => {

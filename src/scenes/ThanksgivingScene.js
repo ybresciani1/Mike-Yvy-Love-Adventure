@@ -32,13 +32,13 @@ export class ThanksgivingScene extends Phaser.Scene {
         this.cousinZone = this.add.rectangle(400, 500, 100, 100, 0xffff00, 0); this.physics.add.existing(this.cousinZone, true);
 
         // Yvy's Family
-        this.yvyDad = this.physics.add.sprite(150, 250, 'civilian').setTint(0x8d6e63); 
-        this.yvyStepmom = this.physics.add.sprite(180, 260, 'civilian').setTint(0xffccbc);
+        this.yvyDad = this.physics.add.sprite(150, 250, 'yvy_dad'); 
+        this.yvyStepmom = this.physics.add.sprite(180, 260, 'yvy_stepmom');
         
         // Mike's Family
-        this.mikeMom = this.physics.add.sprite(650, 250, 'civilian').setTint(0xffaaaa);
-        this.mikeDad = this.physics.add.sprite(680, 250, 'mike_suit').setTint(0x555555); 
-        this.jocelyn = this.physics.add.sprite(710, 260, 'civilian').setTint(0xccaaff);
+        this.mikeMom = this.physics.add.sprite(650, 250, 'mike_mom');
+        this.mikeDad = this.physics.add.sprite(680, 250, 'mike_dad'); 
+        this.jocelyn = this.physics.add.sprite(710, 260, 'jocelyn');
 
         // Cousin
         this.cousin = this.physics.add.sprite(400, 500, 'aiden').setTint(0xcccc55); 
