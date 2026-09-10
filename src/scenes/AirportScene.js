@@ -63,6 +63,8 @@ export class AirportScene extends Phaser.Scene {
         this.gateZone = this.add.rectangle(2200, 150, 50, 100, 0x00ff00, 0.3); this.physics.add.existing(this.gateZone, true);
         for(let i=0; i<10; i++) { let npc = this.add.sprite(700 + Math.random()*1500, 200 + Math.random()*200, i % 2 ? 'civilian_f' : 'civilian'); npc.setTint(Math.random() * 0xffffff); }
         this.player = new Player(this, 100, 300);
+        this.player.setDepth(5);
+        this.pullAngle = Math.PI; // parked behind him until he first moves
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
         this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor);
         this.heldSuitcase = this.add.sprite(0, 0, 'suitcase').setScale(0.5).setVisible(false);
@@ -81,10 +83,40 @@ export class AirportScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.restroomZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike checked his hair in the mirror. Still looks good."); });
         this.physics.add.overlap(this.player, this.viewingZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue("Mike spent a moment watching the planes take off and land."); });
         this.physics.add.overlap(this.player, this.walkways, () => { this.player.x += 2; });
+    }    /**
+     * Wheel the case along behind him: it trails whichever way he is walking,
+     * eases into place rather than snapping, leans on its wheels, jostles while
+     * rolling, and passes behind him when he walks towards the camera.
+     */
+    rollSuitcase() {
+        const bag = this.heldSuitcase;
+        const body = this.player.body;
+        const moving = body.speed > 5;
+        if (moving) this.pullAngle = Math.atan2(body.velocity.y, body.velocity.x);
+
+        const TRAIL = 15;
+        const targetX = this.player.x - Math.cos(this.pullAngle) * TRAIL;
+        const targetY = this.player.y - Math.sin(this.pullAngle) * TRAIL + 6;
+
+        if (!bag.visible) {
+            // Place it rather than letting it fly in from the origin.
+            bag.setPosition(targetX, targetY).setVisible(true);
+        }
+
+        const jostle = moving ? Math.sin(this.time.now / 45) * 1.2 : 0;
+        bag.x = Phaser.Math.Linear(bag.x, targetX, 0.2);
+        bag.y = Phaser.Math.Linear(bag.y, targetY + jostle, 0.2);
+
+        // Tipped back on its wheels, leaning the way it is being pulled.
+        const lean = Phaser.Math.Clamp((this.player.x - bag.x) / TRAIL, -1, 1);
+        bag.rotation = Phaser.Math.Linear(bag.rotation, lean * 0.45, 0.15);
+
+        bag.setDepth(bag.y < this.player.y ? 4 : 6);
     }
+
     update() { 
         this.player.update(this.cursors); 
-        if (gameState.hasSuitcase) { this.heldSuitcase.x = this.player.x - 12; this.heldSuitcase.y = this.player.y + 5; this.heldSuitcase.setVisible(true); } 
+        if (gameState.hasSuitcase) this.rollSuitcase(); 
         if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
         if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
         const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone]); 
