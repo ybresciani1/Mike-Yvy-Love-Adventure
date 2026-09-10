@@ -2378,4 +2378,58 @@ export function generateTextures(scene) {
     fillRect(4, 18, 8, 1, 0x3b3b46);
     drawPixel(12, 1, 0xffe082); // lens flash
     g.generateTexture('phone_cam', 16, 20);
+
+    // --- AIRLINER ------------------------------------------------------------
+    // Side view facing right; the flight scenes flip scaleX to fly the other way.
+    g.clear();
+    g.fillStyle(0x2980b9, 1); // tail fin, swept back
+    g.beginPath(); g.moveTo(20, 18); g.lineTo(8, 2); g.lineTo(16, 2); g.lineTo(30, 18); g.closePath(); g.fill();
+    g.fillStyle(0x1f6698, 1); // tailplane
+    g.beginPath(); g.moveTo(16, 20); g.lineTo(2, 12); g.lineTo(2, 17); g.lineTo(16, 24); g.closePath(); g.fill();
+    g.fillStyle(0x2471a3, 1); // far wing, going up and back
+    g.beginPath(); g.moveTo(52, 20); g.lineTo(28, 4); g.lineTo(40, 4); g.lineTo(64, 20); g.closePath(); g.fill();
+    g.fillStyle(0xf4f6f7, 1); // fuselage
+    g.fillRect(12, 18, 72, 13);
+    g.fillStyle(0xf4f6f7, 1); // nose cone
+    g.beginPath(); g.moveTo(84, 18); g.lineTo(94, 25); g.lineTo(84, 31); g.closePath(); g.fill();
+    g.fillStyle(0xd7dbdd, 1); // belly shadow
+    g.fillRect(12, 28, 74, 3);
+    g.fillStyle(0x2980b9, 1); // cheatline
+    g.fillRect(12, 25, 72, 2);
+    g.fillStyle(0x8fd3ff, 1); // cabin windows
+    for (let i = 20; i < 78; i += 6) g.fillRect(i, 20, 3, 3);
+    g.fillStyle(0x1b2631, 1); // flight deck glass
+    g.fillRect(80, 20, 6, 3);
+    g.fillStyle(0x2980b9, 1); // near wing, swept down and back
+    g.beginPath(); g.moveTo(50, 30); g.lineTo(26, 44); g.lineTo(40, 44); g.lineTo(64, 31); g.closePath(); g.fill();
+    g.fillStyle(0x4a5765, 1); // pylon onto the wing
+    g.fillRect(45, 30, 5, 4);
+    g.fillStyle(0x5d6d7e, 1); // engine nacelle
+    g.fillRect(38, 33, 18, 8);
+    g.fillStyle(0x8a9aa8, 1);
+    g.fillRect(38, 34, 18, 2); // lit top of the cowling
+    g.fillStyle(0x9aa5b1, 1);
+    g.fillRect(54, 33, 2, 8); // intake lip
+    g.fillStyle(0x1b2631, 1);
+    g.fillRect(52, 35, 2, 5); // intake shadow
+    g.fillStyle(0x3a4550, 1);
+    g.fillRect(38, 40, 18, 1) // exhaust line
+    g.fillStyle(0xd7dbdd, 1);
+    g.fillRect(12, 18, 72, 1); // lit upper edge
+    g.generateTexture('airliner', 96, 48);
+
+    // Soft cloud for the sky scenes.
+    g.clear();
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(20, 20, 11);
+    g.fillCircle(34, 16, 13);
+    g.fillCircle(48, 21, 10);
+    g.fillCircle(28, 24, 9);
+    g.fillStyle(0xe4edf5, 1); // shaded underside
+    g.fillCircle(20, 27, 7);
+    g.fillCircle(34, 28, 8);
+    g.fillCircle(47, 27, 6);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(34, 12, 6);
+    g.generateTexture('cloud', 64, 40);
 }

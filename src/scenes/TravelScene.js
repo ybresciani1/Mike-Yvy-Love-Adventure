@@ -11,18 +11,22 @@ export class TravelScene extends Phaser.Scene {
         const graphics = this.add.graphics();
         graphics.lineStyle(2, 0xffffff, 0.5);
         graphics.beginPath(); graphics.moveTo(100, 300); graphics.lineTo(700, 300); graphics.strokePath();
-        const plane = this.add.container(100, 300, [this.add.rectangle(0,0,15,60,0xcccccc), this.add.rectangle(0,0,60,20,0xffffff)]);
-        plane.setScale(1, 1);
+        [{x: 220, y: 140, s: 1.4}, {x: 540, y: 430, s: 1.8}, {x: 380, y: 90, s: 1.1}].forEach(c =>
+                    this.add.image(c.x, c.y, 'cloud').setScale(c.s).setAlpha(0.28)
+                );
+                const plane = this.add.image(100, 300, 'airliner').setScale(0.8);
+                this.tweens.add({ targets: plane, y: 294, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        plane.setScale(0.8, 0.8);
         this.tweens.add({
             targets: plane, x: 700, duration: 2000, ease: 'Sine.easeInOut',
             onComplete: () => {
                 showDialogue("Mike and Yvy got to know each other more.", () => {
-                    plane.setScale(-1, 1);
+                    plane.setScale(-0.8, 0.8);
                     this.tweens.add({
                         targets: plane, x: 100, duration: 2000, ease: 'Sine.easeInOut',
                         onComplete: () => {
                             showDialogue("Yvy was scared at first because Mike seemed too NICE...", () => {
-                                plane.setScale(1, 1);
+                                plane.setScale(0.8, 0.8);
                                 this.tweens.add({
                                     targets: plane, x: 700, duration: 2000, ease: 'Sine.easeInOut',
                                     onComplete: () => {
