@@ -6,6 +6,13 @@ import { showDialogue } from '../ui/dialogue.js';
 import { playSound } from '../audio/sfx.js';
 import { Player } from '../entities/Player.js';
 
+const DRUNK_LINES = [
+    "Drunk Guy: 'I love you man... you're my best friend... wait, who are you? Does not matter! I still love you man!'",
+    "Drunk Guy: 'Is this the taco stand? No? It's pizza? Who puts pineapple on pizza anyway? Wait, do you guys have pineapple?'",
+    "Drunk Guy: 'Wheeeeere is the party?? I swear it was right here a minute ago. Did the party move? Or did I move?'",
+    "Drunk Guy: 'Nice shoes buddy. They look fast. I bet you can run really fast in those. Can I try them on? Just for a second?'"
+];
+
 export class PizzaScene extends Phaser.Scene { 
     constructor() { super('PizzaScene'); } 
     create() { 
@@ -18,7 +25,7 @@ export class PizzaScene extends Phaser.Scene {
         [100, 300, 500].forEach(x => { this.add.image(x, 340, 'streetlight').setScale(2); this.add.circle(x+4, 348, 40, 0xffff00, 0.2); }); 
         this.shopZone = this.add.rectangle(600, 200, 100, 100, 0xffff00, 0); this.physics.add.existing(this.shopZone, true); 
         this.player = new Player(this, 100, 400); this.yvy = this.physics.add.sprite(150, 400, 'yvy'); 
-        this.drunks = this.add.group(); let d1 = this.physics.add.sprite(350, 380, 'drunk'); d1.body.setImmovable(true); this.drunks.add(d1); let d2 = this.physics.add.sprite(450, 400, 'drunk'); d2.setFlipX(true); d2.body.setImmovable(true); this.drunks.add(d2);
+        this.drunks = this.add.group(); let d1 = this.physics.add.sprite(205, 398, 'drunk'); d1.body.setImmovable(true); this.drunks.add(d1); let d2 = this.physics.add.sprite(268, 424, 'drunk'); d2.setFlipX(true); d2.body.setImmovable(true); this.drunks.add(d2);
         this.tweens.add({ targets: [d1, d2], x: '+=5', angle: { from: -5, to: 5 }, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
@@ -26,14 +33,8 @@ export class PizzaScene extends Phaser.Scene {
         this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone) this.startFarewell(); });
         this.physics.add.overlap(this.player, this.fightZone, () => {
             if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.takePhotos();
-        }); this.physics.add.overlap(this.player, this.drunks, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
-            const lines = [
-                "Drunk Guy: 'I love you man... you're my best friend... wait, who are you? Does not matter! I still love you man!'" ,
-                "Drunk Guy: 'Is this the taco stand? No? It's pizza? Who puts pineapple on pizza anyway? Wait, do you guys have pineapple?'", 
-                "Drunk Guy: 'Wheeeeere is the party?? I swear it was right here a minute ago. Did the party move? Or did I move?'", 
-                "Drunk Guy: 'Nice shoes buddy. They look fast. I bet you can run really fast in those. Can I try them on? Just for a second?'"
-            ]; 
-            showDialogue(lines[Math.floor(Math.random() * lines.length)]); } 
+        }); this.physics.add.overlap(this.player, this.drunks, () => {
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) showDialogue(this.nextDrunkLine());
         });
     } 
     update() { 
@@ -141,6 +142,18 @@ export class PizzaScene extends Phaser.Scene {
                 });
             });
         });
+    }
+
+    /**
+     * A shuffled bag rather than a fresh random pick each time. Picking at
+     * random meant one line could come up over and over while another went
+     * unheard; this plays all four before any of them repeats.
+     */
+    nextDrunkLine() {
+        if (!this.drunkBag || this.drunkBag.length === 0) {
+            this.drunkBag = Phaser.Utils.Array.Shuffle([...DRUNK_LINES]);
+        }
+        return this.drunkBag.pop();
     }
 
     startFarewell() { 
