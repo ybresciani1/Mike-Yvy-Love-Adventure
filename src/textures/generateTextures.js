@@ -3289,6 +3289,136 @@ export function generateTextures(scene) {
     drawPixel(50, 39, 0xffffff);
     g.generateTexture('plaza_fountain', 72, 52);
 
+    // --- THE STREET OUTSIDE THE PIZZA SHOP -----------------------------------
+    // Night storefronts. The daytime Gaslamp shells do not work here: at night
+    // what you actually see is the lit window and the sign, with the building
+    // above them nearly black. So these are built the other way round — dark
+    // mass, bright glass, and a spill of light onto the pavement.
+    const drawNightShop = (w, h, o, dressWindow) => {
+        g.clear();
+        fillRect(0, 6, w, h - 6, o.wall); // building mass
+        fillRect(0, 6, w, 2, o.wallLit); // parapet catching the streetlight
+        fillRect(0, 8, w, 2, 0x0d0d12);
+        fillRect(0, 6, 2, h - 6, 0x14141a); // corner shadow
+        fillRect(w - 2, 6, 2, h - 6, 0x14141a);
+        for (let ux = 8; ux < w - 14; ux += 22) { // flats above, a couple lit
+            const lit = (ux / 22) % 3 === 1;
+            fillRect(ux, 14, 14, 16, lit ? 0x5c4a2a : 0x191922);
+            fillRect(ux, 14, 14, 1, 0x2a2a34);
+            if (lit) {
+                fillRect(ux + 1, 15, 12, 8, 0x8a6c34);
+                fillRect(ux + 4, 18, 6, 9, 0x241d10); // someone at the window
+            }
+            fillRect(ux + 6, 14, 2, 16, 0x101016); // sash bar
+        }
+        // A dark plate with neon piping top and bottom, rather than a solid bar
+        // of neon — the shop's name has to sit on this and be readable at 9px.
+        fillRect(4, 34, w - 8, 15, o.signBack);
+        fillRect(5, 35, w - 10, 2, o.neon);
+        fillRect(5, 35, w - 10, 1, o.neonGlow);
+        fillRect(5, 46, w - 10, 2, o.neon);
+        fillRect(5, 47, w - 10, 1, o.neonGlow);
+        fillRect(4, 34, 1, 15, o.neon);
+        fillRect(w - 5, 34, 1, 15, o.neon);
+        fillRect(2, 50, w - 4, 3, 0x101016); // fascia below the sign
+
+        fillRect(5, 54, w - 10, h - 66, 0x0a0a0e); // window reveal
+        fillRect(7, 56, w - 14, h - 70, o.glass); // lit interior
+        dressWindow(w, h);
+        fillRect(w - 24, 56, 18, h - 70, 0x14141a); // door
+        fillRect(w - 22, 58, 14, h - 76, o.glass);
+        fillRect(w - 12, h - 30, 2, 4, 0xb9a06a); // handle
+        g.fillStyle(0xffffff, 0.06); // reflection down the glass
+        g.fillRect(11, 56, 4, h - 70);
+        g.fillRect(21, 56, 2, h - 70);
+        fillRect(0, h - 12, w, 12, 0x1b1b22); // stall riser
+        fillRect(0, h - 12, w, 1, 0x2c2c36);
+        g.fillStyle(o.spill, 0.18); // light spilling onto the pavement
+        g.fillRect(6, h - 4, w - 26, 4);
+    };
+
+    // Taqueria — open late, which is the whole point of it.
+    drawNightShop(104, 100, {
+        wall: 0x241f1c, wallLit: 0x3a322c, signBack: 0x1a1411, neon: 0xf2a03c, neonGlow: 0xffd88a,
+        glass: 0x6b4a1e, spill: 0xffc266
+    }, (w, h) => {
+        fillRect(10, 74, 62, 4, 0x8a6a3a); // counter
+        fillRect(10, 74, 62, 1, 0xb08c50);
+        fillRect(14, 62, 10, 12, 0x2b1c0e); // cook behind it
+        fillRect(15, 58, 8, 5, 0x6b4a2c);
+        fillRect(14, 57, 10, 2, 0xe8e2d6); // paper hat
+        fillRect(44, 63, 9, 11, 0x35240f); // customer, back to us
+        fillRect(45, 59, 7, 5, 0x4a3320);
+        for (let px = 30, i = 0; px < 66; px += 8, i++) { // menu board
+            fillRect(px, 60, 6, 2, i % 2 ? 0xffd88a : 0xf2a03c);
+        }
+        g.fillStyle(0xffe9b0, 0.35); // heat lamps
+        g.fillCircle(24, 62, 5);
+        g.fillCircle(58, 62, 5);
+    });
+    g.generateTexture('night_shop_taco', 104, 100);
+
+    // Laundromat — the coldest light on any street at night.
+    drawNightShop(104, 100, {
+        wall: 0x1c2028, wallLit: 0x2e3540, signBack: 0x121620, neon: 0x4fc3f7, neonGlow: 0xbfe9ff,
+        glass: 0x9fb8c4, spill: 0xcfe8f5
+    }, (w, h) => {
+        for (let mx = 10; mx < 70; mx += 16) { // washers along the back wall
+            fillRect(mx, 60, 13, 20, 0xdfe6ea);
+            fillRect(mx, 60, 13, 2, 0xf2f6f8);
+            fillRect(mx, 78, 13, 2, 0x9aa5b1);
+            g.fillStyle(0x37474f, 1);
+            g.fillCircle(mx + 6, 69, 5);
+            g.fillStyle(0x8fd0e6, 1);
+            g.fillCircle(mx + 6, 69, 4);
+            g.fillStyle(0xffffff, 1);
+            g.fillCircle(mx + 4, 67, 1);
+        }
+        fillRect(74, 62, 8, 18, 0x2b3439); // a lone customer waiting
+        fillRect(75, 57, 6, 5, 0x6b4a2c);
+        fillRect(8, 82, 66, 2, 0x8fa0aa); // bench
+    });
+    g.generateTexture('night_shop_laundry', 104, 100);
+
+    // Liquor store — bottles all the way up, red neon in the window.
+    drawNightShop(104, 100, {
+        wall: 0x261a1c, wallLit: 0x3d2a2c, signBack: 0x180f10, neon: 0xe53950, neonGlow: 0xff9aa6,
+        glass: 0x4a2c2e, spill: 0xff8a96
+    }, (w, h) => {
+        const bottles = [0x2f5d3a, 0x7a4a1e, 0x3a4a7a, 0x6b2b2b, 0x8a7a2a];
+        for (let shelf = 60; shelf < 84; shelf += 11) {
+            for (let bx = 10; bx < 72; bx += 5) {
+                fillRect(bx, shelf, 3, 8, bottles[(bx + shelf) % bottles.length]);
+                fillRect(bx, shelf, 1, 8, 0xd8cfae); // the light through the glass
+                drawPixel(bx + 1, shelf - 1, 0x2a2018); // neck
+            }
+            fillRect(8, shelf + 8, 66, 2, 0x3a2a24); // shelf
+        }
+        fillRect(12, 56, 20, 3, 0xff9aa6); // OPEN sign
+        fillRect(12, 56, 20, 1, 0xffffff);
+    });
+    g.generateTexture('night_shop_liquor', 104, 100);
+
+    // Tattoo parlour — purple neon, one artist still working.
+    drawNightShop(104, 100, {
+        wall: 0x1e1826, wallLit: 0x332a40, signBack: 0x140f1a, neon: 0xb14ef2, neonGlow: 0xe0b0ff,
+        glass: 0x3a2b4c, spill: 0xd09aff
+    }, (w, h) => {
+        for (let fx = 10; fx < 72; fx += 15) { // flash sheets on the wall
+            fillRect(fx, 58, 12, 14, 0xe8e2d6);
+            fillRect(fx + 2, 60, 8, 2, 0x2b2b33);
+            fillRect(fx + 3, 64, 6, 5, [0xd94f4f, 0x4f7fd9, 0x2f7d4f][(fx / 15) % 3]);
+        }
+        fillRect(14, 78, 30, 4, 0x2b2b33); // the chair
+        fillRect(16, 74, 26, 4, 0x3f3f4a);
+        fillRect(20, 70, 8, 5, 0xe6cbb0); // client's arm on the rest
+        fillRect(46, 70, 9, 12, 0x24202c); // artist leaning in
+        fillRect(47, 65, 7, 5, 0x5a4030);
+        g.fillStyle(0xf4f0ff, 0.4); // lamp over the chair
+        g.fillCircle(30, 66, 7);
+    });
+    g.generateTexture('night_shop_tattoo', 104, 100);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in

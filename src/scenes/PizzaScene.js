@@ -18,13 +18,25 @@ export class PizzaScene extends Phaser.Scene {
     create() { 
         this.cameras.main.setBackgroundColor('#101010'); 
         playLeFestinTheme();
-        for(let i=0; i<50; i++) { let x = Math.random() * 450; let y = Math.random() * 250; this.add.rectangle(x, y, 2, 2, 0xffffff, Math.random() * 0.8 + 0.2); }
+        for(let i=0; i<60; i++) { let x = Math.random() * 470; let y = Math.random() * 210; this.add.rectangle(x, y, 2, 2, 0xffffff, Math.random() * 0.8 + 0.2); }
         this.add.image(96, 80, 'moon');
         for (let x=0; x<GAME_WIDTH/32; x++) { for (let y=0; y<GAME_HEIGHT/32; y++) { if (y < 10 && x < 15) continue; if (y >= 10 && y < 14) this.add.image(x*32+16, y*32+16, 'pavement'); else if (x >= 15 && y < 10) this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x3b3b4a); else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x222222); } }
-        this.add.rectangle(650, 150, 300, 200, 0x8c2a22); this.add.image(650, 150, 'pizza_storefront').setScale(2).setFlipX(true); this.add.image(744, 116, 'neon_pizza_sign').setScale(1.3); this.add.text(560, 50, "PIZZA SHOP", { fontSize: '24px', fontWeight: 'bold' }); this.add.sprite(730, 60, 'pizza_logo'); this.add.image(210, 366, 'trash_bin').setScale(1.5); this.add.image(430, 364, 'fire_hydrant'); this.add.image(700, 372, 'park_bench').setScale(0.8); 
+        this.add.rectangle(650, 150, 300, 200, 0x8c2a22); this.add.image(650, 150, 'pizza_storefront').setScale(2).setFlipX(true); this.add.image(744, 116, 'neon_pizza_sign').setScale(1.3); this.add.text(560, 50, "PIZZA SHOP", { fontSize: '24px', fontWeight: 'bold' }); this.add.sprite(730, 60, 'pizza_logo'); this.add.image(64, 272, 'night_shop_taco');
+        this.add.image(176, 272, 'night_shop_laundry');
+        this.add.image(288, 272, 'night_shop_liquor');
+        this.add.image(400, 272, 'night_shop_tattoo');
+        this.add.text(64, 263, "EL PRIMO TACOS", { fontSize: '9px', color: '#ffd88a', fontStyle: 'bold' }).setOrigin(0.5);
+        this.add.text(176, 263, "WASH & FOLD", { fontSize: '9px', color: '#bfe9ff', fontStyle: 'bold' }).setOrigin(0.5);
+        this.add.text(288, 263, "LIQUOR", { fontSize: '9px', color: '#ff9aa6', fontStyle: 'bold' }).setOrigin(0.5);
+        this.add.text(400, 263, "INK & NEEDLE", { fontSize: '9px', color: '#e0b0ff', fontStyle: 'bold' }).setOrigin(0.5);
+        this.add.image(210, 366, 'trash_bin').setScale(1.5); this.add.image(430, 364, 'fire_hydrant'); this.add.image(700, 372, 'park_bench').setScale(0.8); 
         [100, 300, 500].forEach(x => { this.add.image(x, 340, 'streetlight').setScale(2); this.add.circle(x+4, 348, 40, 0xffff00, 0.2); }); 
         this.shopZone = this.add.rectangle(600, 200, 100, 100, 0xffff00, 0); this.physics.add.existing(this.shopZone, true); 
-        this.player = new Player(this, 100, 400); this.yvy = this.physics.add.sprite(150, 400, 'yvy'); 
+        this.player = new Player(this, 100, 400); this.yvy = this.physics.add.sprite(150, 400, 'yvy');
+        this.skyline = this.add.rectangle(240, 158, 480, 316, 0x000000, 0);
+        this.physics.add.existing(this.skyline, true);
+        this.physics.add.collider(this.player, this.skyline);
+        this.physics.add.collider(this.yvy, this.skyline); 
         this.drunks = this.add.group(); let d1 = this.physics.add.sprite(205, 398, 'drunk'); d1.body.setImmovable(true); this.drunks.add(d1); let d2 = this.physics.add.sprite(268, 424, 'drunk'); d2.setFlipX(true); d2.body.setImmovable(true); this.drunks.add(d2);
         this.tweens.add({ targets: [d1, d2], x: '+=5', angle: { from: -5, to: 5 }, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
