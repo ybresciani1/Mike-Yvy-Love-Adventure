@@ -1219,7 +1219,6 @@ export function generateTextures(scene) {
     fillRect(26, 14, 2, 1, 0x1c2833); // cockpit
     g.generateTexture('mini_plane', 32, 32);
     
-    g.clear(); g.fillStyle(0xffcdd2, 1); g.fillRect(0,0,64,48); g.fillStyle(0xec407a, 1); g.fillRect(0,0,64,12); g.fillStyle(0xffffff, 1); g.fillRect(16,20,32,28); g.generateTexture('donut_shop', 64, 48);
     
     g.clear(); g.fillStyle(0xfbc02d, 1); g.fillCircle(16,16,12); g.fillStyle(0xec407a, 1); g.fillCircle(16,16,10); g.fillStyle(0x2d2d2d, 1); g.fillCircle(16,16,4); g.generateTexture('donut_strawberry', 32, 32);
     g.clear(); g.fillStyle(0xfbc02d, 1); g.fillCircle(16,16,12); g.fillStyle(0x5d4037, 1); g.fillCircle(16,16,10); g.fillStyle(0x2d2d2d, 1); g.fillCircle(16,16,4); g.generateTexture('donut_chocolate', 32, 32);
@@ -1240,11 +1239,7 @@ export function generateTextures(scene) {
     }
     g.generateTexture('graffiti_wall', 96, 64);
     
-    g.clear(); g.fillStyle(0x9575cd, 1); g.fillRect(0,0,64,48); g.fillStyle(0x5e35b1, 1); g.fillRect(0,0,64,12); g.generateTexture('shop_crystal', 64, 48);
-    g.clear(); g.fillStyle(0x4db6ac, 1); g.fillRect(0,0,64,48); g.fillStyle(0x00897b, 1); g.fillRect(0,0,64,12); g.generateTexture('shop_clothing', 64, 48);
-    g.clear(); g.fillStyle(0xffcc80, 1); g.fillRect(0,0,64,48); g.fillStyle(0xe65100, 1); g.fillRect(0,0,64,12); g.generateTexture('shop_book', 64, 48); 
 
-    g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,64,24); g.fillStyle(0x3e2723, 1); g.fillRect(0,20,64,4); g.fillRect(0,0,4,24); g.fillRect(60,0,4,24); g.generateTexture('park_bench', 64, 24);
 
     // A dog in profile: muzzle, ear, collar, four legs and a curled tail.
     g.clear();
@@ -3241,6 +3236,337 @@ export function generateTextures(scene) {
     g.fillCircle(30, 12, 5);
     fillRect(6, 33, 28, 2, 0xc9a86a); // ground line
     g.generateTexture('suite_art_arch', 40, 40);
+
+    // Daytime sidewalk. The existing 'pavement' slab is deliberately dark — it
+    // doubles as the road in the driving scenes — and tint can only darken, so
+    // the sunlit version has to be its own texture.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0xcfc9bd);
+    fillRect(0, 0, 32, 2, 0xdcd6ca); // slab catching the sun
+    fillRect(0, 15, 32, 2, 0xb6afa2); // joints
+    fillRect(0, 31, 32, 1, 0xb6afa2);
+    fillRect(0, 0, 2, 32, 0xb6afa2);
+    fillRect(16, 0, 2, 15, 0xb6afa2); // staggered courses
+    fillRect(8, 17, 2, 15, 0xb6afa2);
+    for (let i = 0; i < 22; i++) { // aggregate
+        const ax = (i * 13 + (i % 5) * 3) % 32, ay = (i * 9 + (i % 3) * 4) % 32;
+        drawPixel(ax, ay, i % 3 ? 0xc4bdb0 : 0xdad4c8);
+    }
+    drawPixel(23, 7, 0xa9a294);
+    drawPixel(6, 24, 0xa9a294);
+    g.generateTexture('sidewalk_slab', 32, 32);
+
+    // Plaza fountain — the open half of the square was a car park's worth of
+    // empty slabs, and a square this size would have something in the middle.
+    g.clear();
+    g.fillStyle(0x9b9384, 1); // outer basin
+    g.fillEllipse(36, 40, 70, 26);
+    g.fillStyle(0xb4ac9c, 1);
+    g.fillEllipse(36, 38, 70, 24);
+    g.fillStyle(0xc9c1b0, 1); // coping catching the sun
+    g.fillEllipse(36, 36, 66, 20);
+    g.fillStyle(0x3f7f9e, 1); // water
+    g.fillEllipse(36, 37, 56, 15);
+    g.fillStyle(0x59a3c4, 1);
+    g.fillEllipse(35, 36, 48, 11);
+    g.fillStyle(0x8fd0e6, 1);
+    g.fillEllipse(30, 34, 20, 5);
+    fillRect(32, 20, 8, 16, 0xb4ac9c); // pedestal
+    fillRect(32, 20, 2, 16, 0xc9c1b0);
+    g.fillStyle(0xb4ac9c, 1); // upper bowl
+    g.fillEllipse(36, 20, 34, 12);
+    g.fillStyle(0xc9c1b0, 1);
+    g.fillEllipse(36, 18, 32, 10);
+    g.fillStyle(0x59a3c4, 1);
+    g.fillEllipse(36, 18, 24, 6);
+    fillRect(34, 4, 4, 12, 0xa9a294); // spout
+    g.fillStyle(0xd8f0fa, 0.85); // the jet, and what falls back
+    g.fillEllipse(36, 3, 8, 6);
+    for (const [wx, wy] of [[26, 22], [46, 22], [24, 26], [48, 26], [23, 30], [49, 30]]) {
+        fillRect(wx, wy, 1, 5, 0xbfe6f4);
+    }
+    drawPixel(20, 36, 0xffffff); // sparkle on the water
+    drawPixel(50, 39, 0xffffff);
+    g.generateTexture('plaza_fountain', 72, 52);
+
+    // --- GASLAMP QUARTER ------------------------------------------------------
+    // The storefronts all share a shell — brick pier, sign band, striped awning
+    // with a scalloped hem, glass, stall riser — and differ in colour and in
+    // what is dressed in the window. Drawing them one at a time produced four
+    // flat rectangles the first time round.
+    const drawShopFront = (w, h, o, dressWindow) => {
+        g.clear();
+        fillRect(0, 0, w, h, o.brick);
+        fillRect(0, 0, w, 2, o.brickLit);
+        for (let by = 5; by < 20; by += 6) fillRect(2, by, w - 4, 1, o.brickDark);
+        fillRect(0, 0, 3, h, o.brickDark); // piers either side
+        fillRect(w - 3, 0, 3, h, o.brickDark);
+        fillRect(4, 4, w - 8, 14, o.sign); // sign band
+        fillRect(4, 4, w - 8, 1, o.signLit);
+        fillRect(4, 17, w - 8, 1, o.brickDark);
+        fillRect(3, 21, w - 6, 11, o.awning); // awning
+        for (let ax = 3; ax < w - 6; ax += 12) fillRect(ax, 21, 6, 11, o.awningAlt);
+        fillRect(3, 21, w - 6, 2, o.awningLit);
+        for (let ax = 3; ax < w - 6; ax += 6) { // scalloped hem
+            fillRect(ax, 32, 6, 2, ((ax / 6) | 0) % 2 ? o.awning : o.awningAlt);
+            fillRect(ax + 1, 34, 4, 1, ((ax / 6) | 0) % 2 ? o.awning : o.awningAlt);
+        }
+        fillRect(3, 36, w - 6, 2, o.brickDark); // shadow the awning throws
+        fillRect(5, 38, w - 10, h - 50, 0x1b2028); // glass
+        fillRect(6, 39, w - 12, h - 52, o.glass);
+        dressWindow(w, h);
+        g.fillStyle(0xffffff, 0.13); // raking reflection across the glass
+        for (let i = 0; i < 3; i++) g.fillRect(9 + i * 9, 39, 4, h - 52);
+        fillRect(w - 26, 39, 20, h - 52, o.door); // door in the right bay
+        fillRect(w - 24, 42, 16, h - 60, o.glass);
+        fillRect(w - 24, 42, 16, 2, 0x1b2028);
+        fillRect(w - 13, h - 21, 3, 4, 0xd4a017); // handle
+        fillRect(0, h - 10, w, 10, o.riser); // stall riser
+        fillRect(0, h - 10, w, 1, o.brickLit);
+    };
+
+    drawShopFront(96, 88, {
+        brick: 0x9c8f80, brickLit: 0xb5a898, brickDark: 0x6f6459, sign: 0x1f6f68, signLit: 0x2d8f86,
+        awning: 0x2aa198, awningAlt: 0xe8e2d6, awningLit: 0x53c2b9, glass: 0x2f4750, door: 0x1f6f68, riser: 0x6f6459
+    }, (w, h) => {
+        for (const [mx, dress] of [[20, 0xd76a7a], [38, 0xe8c46a], [56, 0x6a8fd7]]) { // mannequins
+            fillRect(mx, 46, 8, 12, dress);
+            fillRect(mx, 46, 8, 2, 0xffffff);
+            fillRect(mx + 2, 41, 4, 5, 0xe6cbb0); // head and shoulders
+            fillRect(mx + 3, 58, 2, 8, 0xe6cbb0);
+        }
+        fillRect(8, 42, w - 40, 2, 0xd4a017); // rail
+    });
+    g.generateTexture('shop_clothing', 96, 88);
+
+    drawShopFront(96, 88, {
+        brick: 0x8d8194, brickLit: 0xa79aae, brickDark: 0x5f5568, sign: 0x4a2f83, signLit: 0x6c47b8,
+        awning: 0x7e57c2, awningAlt: 0xe8e2d6, awningLit: 0xa17fe0, glass: 0x39304f, door: 0x4a2f83, riser: 0x5f5568
+    }, (w, h) => {
+        const shards = [[16, 58, 6, 16, 0xb39ddb], [26, 52, 7, 22, 0xce93d8], [37, 60, 5, 14, 0x80deea],
+            [46, 50, 8, 24, 0xf48fb1], [58, 57, 6, 17, 0xa5d6a7]];
+        shards.forEach(([sx, sy, sw, sh, col]) => {
+            fillRect(sx, sy, sw, sh, col);
+            fillRect(sx, sy, 2, sh, 0xffffff); // lit facet
+            fillRect(sx, sy, sw, 1, 0xffffff);
+            fillRect(sx + sw - 2, sy + 2, 2, sh - 2, 0x2a2138);
+        });
+        fillRect(12, 74, 56, 2, 0x2a2138); // the shelf they stand on
+    });
+    g.generateTexture('shop_crystal', 96, 88);
+
+    drawShopFront(96, 88, {
+        brick: 0xa08a6e, brickLit: 0xbaa286, brickDark: 0x715f48, sign: 0x8a4b1e, signLit: 0xb26a30,
+        awning: 0xc46a2a, awningAlt: 0xf0e0c0, awningLit: 0xe08a44, glass: 0x4a3a2a, door: 0x8a4b1e, riser: 0x715f48
+    }, (w, h) => {
+        const spines = [0x8b3a3a, 0x2f5d50, 0x39507e, 0x7a5c2e, 0x5d3a6b, 0x8a6b2c];
+        for (let sx = 9; sx < 64; sx += 4) { // books stood on the shelf
+            const hgt = 14 + ((sx * 5) % 7);
+            fillRect(sx, 60 - hgt, 3, hgt, spines[(sx / 4) % spines.length]);
+            fillRect(sx, 60 - hgt, 1, hgt, 0xd9d3c8);
+            fillRect(sx, 56 - hgt + 4, 3, 1, 0xd4a017);
+        }
+        fillRect(8, 60, 58, 2, 0x6b533a); // shelf
+        for (let sx = 12; sx < 60; sx += 9) fillRect(sx, 63, 8, 3, spines[(sx / 9) % spines.length]); // stacked flat
+        for (let sx = 12; sx < 60; sx += 9) fillRect(sx, 66, 8, 3, spines[(sx / 7) % spines.length]);
+    });
+    g.generateTexture('shop_book', 96, 88);
+
+    // Donut Bar: black tile, pink neon and a queue you can see through the glass.
+    drawShopFront(112, 92, {
+        brick: 0x2b2b31, brickLit: 0x45454e, brickDark: 0x17171b, sign: 0xd81b60, signLit: 0xf0518c,
+        awning: 0xec407a, awningAlt: 0x2b2b31, awningLit: 0xf47da2, glass: 0x3a2530, door: 0x17171b, riser: 0x17171b
+    }, (w, h) => {
+        for (let ry = 46; ry < 70; ry += 11) { // trays of donuts behind the counter
+            for (let rx = 10; rx < 74; rx += 11) {
+                const glaze = [0xf48fb1, 0xffe0b2, 0x8d6e63, 0xfff59d][(rx + ry) % 4];
+                g.fillStyle(glaze, 1);
+                g.fillCircle(rx + 4, ry + 4, 4);
+                g.fillStyle(0x3a2530, 1);
+                g.fillCircle(rx + 4, ry + 4, 1);
+                drawPixel(rx + 2, ry + 2, 0xffffff);
+            }
+            fillRect(8, ry + 9, 70, 1, 0x241820);
+        }
+        fillRect(8, 72, 70, 6, 0xd7c6a8); // counter
+        fillRect(8, 72, 70, 1, 0xefe2c8);
+    });
+    g.generateTexture('donut_bar_front', 112, 92);
+
+    // The donut wall everyone photographs: pink render, painted donuts, tag.
+    g.clear();
+    fillRect(0, 0, 104, 76, 0xf06292); // render
+    fillRect(0, 0, 104, 3, 0xf48fb1);
+    for (let sy = 6; sy < 76; sy += 9) for (let sx = (sy % 18 ? 0 : 5); sx < 104; sx += 14) drawPixel(sx, sy, 0xd94f7e); // stipple
+    fillRect(0, 70, 104, 6, 0xc2185b); // plinth
+    const wallDonuts = [[20, 24, 13], [54, 20, 15], [84, 30, 11], [34, 52, 10], [68, 54, 12]];
+    wallDonuts.forEach(([dx, dy, dr], i) => {
+        g.fillStyle(0xc98a4b, 1); // dough
+        g.fillCircle(dx, dy, dr);
+        g.fillStyle([0xfff59d, 0x80deea, 0xffffff, 0xce93d8, 0xa5d6a7][i], 1); // glaze
+        g.fillCircle(dx, dy - 1, dr - 2);
+        g.fillStyle(0xf06292, 1); // hole
+        g.fillCircle(dx, dy, Math.max(3, (dr / 3) | 0));
+        for (let s = 0; s < 7; s++) { // sprinkles
+            const a = s * 0.9 + i;
+            drawPixel(Math.round(dx + Math.cos(a) * (dr - 4)), Math.round(dy + Math.sin(a) * (dr - 4)),
+                [0xe53935, 0x1e88e5, 0xfdd835, 0x43a047][s % 4]);
+        }
+    });
+    fillRect(8, 64, 30, 2, 0xffffff); // painted tag line
+    fillRect(8, 62, 3, 4, 0xffffff);
+    fillRect(20, 60, 3, 6, 0xffffff);
+    fillRect(32, 61, 3, 5, 0xffffff);
+    g.generateTexture('donut_wall_mural', 104, 76);
+
+    // Downtown skyline for the horizon — towers, a couple of cranes, haze.
+    g.clear();
+    const towers = [[0, 30, 22, 34], [24, 16, 16, 48], [42, 36, 14, 28], [58, 8, 18, 56], [78, 26, 20, 38],
+        [100, 18, 15, 46], [117, 34, 18, 30], [137, 12, 16, 52], [155, 28, 20, 36], [177, 20, 23, 44]];
+    towers.forEach(([bx, by, bw, bh], i) => {
+        fillRect(bx, by, bw, bh, i % 2 ? 0x8fa6bd : 0x9db2c7);
+        fillRect(bx, by, bw, 2, 0xb3c5d6); // lit parapet
+        fillRect(bx + bw - 2, by + 2, 2, bh - 2, 0x7b91a8); // shaded flank
+        for (let wy = by + 5; wy < by + bh - 3; wy += 5) {
+            for (let wx = bx + 2; wx < bx + bw - 3; wx += 4) drawPixel(wx, wy, (wx + wy) % 3 ? 0x6f8499 : 0xcfe0ee);
+        }
+    });
+    fillRect(28, 6, 2, 12, 0x7b91a8); // crane
+    fillRect(22, 6, 16, 2, 0x7b91a8);
+    fillRect(160, 22, 2, 8, 0x7b91a8);
+    fillRect(156, 22, 14, 2, 0x7b91a8);
+    fillRect(0, 60, 200, 4, 0xaebfd0); // haze at the base
+    g.generateTexture('sd_skyline', 200, 64);
+
+    // Palm — San Diego is not San Diego without them.
+    g.clear();
+    fillRect(24, 30, 7, 66, 0x8d6e4f); // trunk
+    fillRect(24, 30, 2, 66, 0xa88a68); // lit side
+    for (let ty = 34; ty < 96; ty += 6) fillRect(24, ty, 7, 1, 0x6f553c); // ring scars
+    const fronds = [[-26, -6], [-20, -18], [-8, -24], [8, -24], [20, -18], [26, -6], [-16, 4], [16, 4]];
+    fronds.forEach(([ex, ey], i) => {
+        const cx = 27, cy = 30;
+        for (let t = 0; t <= 10; t++) { // the spine of the frond, sagging as it goes out
+            const px = Math.round(cx + (ex * t) / 10);
+            const py = Math.round(cy + (ey * t) / 10 + (t * t) / 9);
+            fillRect(px, py, 2, 2, i % 2 ? 0x2f6b34 : 0x3d8241);
+            if (t > 2) { // leaflets either side
+                drawPixel(px, py - 2, 0x4f9a53);
+                drawPixel(px, py + 2, 0x27562c);
+            }
+        }
+    });
+    g.fillStyle(0x8a6b2c, 1); // coconuts
+    g.fillCircle(22, 32, 3);
+    g.fillCircle(32, 33, 3);
+    g.generateTexture('palm_tree', 56, 100);
+
+    // Sidewalk planter with clipped hedge and flowers.
+    g.clear();
+    fillRect(0, 10, 44, 18, 0xa1887f); // box
+    fillRect(0, 10, 44, 2, 0xc0a89c);
+    fillRect(0, 24, 44, 4, 0x6d4c41);
+    for (let px = 3; px < 44; px += 7) fillRect(px, 13, 4, 10, 0x8d6e63); // panel reveals
+    g.fillStyle(0x2f6b34, 1); // hedge
+    g.fillEllipse(22, 8, 42, 14);
+    g.fillStyle(0x3d8241, 1);
+    g.fillEllipse(20, 6, 34, 10);
+    for (let i = 0; i < 9; i++) {
+        drawPixel(4 + i * 4, 4 + (i % 3), [0xe57373, 0xfff176, 0xf06292][i % 3]);
+        drawPixel(6 + i * 4, 8 - (i % 2), [0xffffff, 0xffb74d][i % 2]);
+    }
+    g.generateTexture('planter_box', 44, 28);
+
+    // Bike rack with a bike locked to it.
+    g.clear();
+    fillRect(2, 6, 3, 16, 0x546e7a); // hoop
+    fillRect(33, 6, 3, 16, 0x546e7a);
+    fillRect(2, 6, 34, 3, 0x546e7a);
+    fillRect(2, 6, 34, 1, 0x78909c);
+    g.lineStyle(2, 0x37474f, 1); // bike
+    g.strokeCircle(11, 17, 6);
+    g.strokeCircle(27, 17, 6);
+    fillRect(11, 11, 16, 2, 0xd94f4f); // frame
+    fillRect(15, 12, 2, 6, 0xd94f4f);
+    fillRect(22, 12, 2, 6, 0xd94f4f);
+    fillRect(9, 9, 5, 2, 0x2b2b33); // saddle
+    fillRect(25, 7, 2, 5, 0x2b2b33); // bars
+    fillRect(23, 6, 7, 2, 0x2b2b33);
+    g.generateTexture('bike_rack', 40, 26);
+
+    // Parking meter.
+    g.clear();
+    fillRect(4, 0, 8, 12, 0x455a64); // head
+    fillRect(4, 0, 8, 2, 0x62787f);
+    fillRect(5, 3, 6, 6, 0x1b2327); // display
+    fillRect(6, 4, 4, 2, 0x8bc34a);
+    fillRect(6, 12, 4, 14, 0x546e7a); // post
+    fillRect(6, 12, 1, 14, 0x78909c);
+    fillRect(3, 26, 10, 2, 0x37474f); // shoe
+    g.generateTexture('parking_meter', 16, 28);
+
+    // Pavement cafe: bistro table and two chairs, seen flat on.
+    g.clear();
+    for (const cx of [2, 30]) { // chairs
+        fillRect(cx, 6, 10, 3, 0x6d4c41);
+        fillRect(cx + 1, 9, 8, 9, 0x8d6e63);
+        fillRect(cx + 1, 9, 8, 1, 0xa1887f);
+        fillRect(cx + 1, 18, 2, 5, 0x5d4037);
+        fillRect(cx + 7, 18, 2, 5, 0x5d4037);
+    }
+    g.fillStyle(0xd7dbdd, 1); // table top
+    g.fillEllipse(22, 12, 22, 12);
+    g.fillStyle(0xeceff1, 1);
+    g.fillEllipse(21, 11, 16, 8);
+    fillRect(20, 17, 3, 7, 0x9aa5b1); // pedestal
+    fillRect(17, 24, 9, 2, 0x78909c);
+    fillRect(18, 6, 3, 6, 0x4a7c59); // a little vase
+    fillRect(17, 4, 5, 3, 0xe57373);
+    g.generateTexture('cafe_table_set', 44, 26);
+
+    // Slatted park bench on cast-iron ends — it was a plain brown bar.
+    g.clear();
+    for (let sy = 0; sy < 9; sy += 4) { // back slats
+        fillRect(6, sy, 52, 3, 0x8d6e4f);
+        fillRect(6, sy, 52, 1, 0xa88a68);
+    }
+    fillRect(4, 11, 56, 4, 0x8d6e4f); // seat
+    fillRect(4, 11, 56, 1, 0xa88a68);
+    fillRect(4, 15, 56, 3, 0x6f553c);
+    fillRect(2, 0, 4, 18, 0x37474f); // iron ends
+    fillRect(58, 0, 4, 18, 0x37474f);
+    fillRect(2, 0, 1, 18, 0x546e7a);
+    fillRect(58, 0, 1, 18, 0x546e7a);
+    fillRect(4, 18, 4, 6, 0x2b3439); // legs
+    fillRect(56, 18, 4, 6, 0x2b3439);
+    drawPixel(3, 4, 0x546e7a); // scrollwork
+    drawPixel(60, 4, 0x546e7a);
+    g.generateTexture('park_bench', 64, 24);
+
+    // Pigeon, for the crumbs under the bench.
+    g.clear();
+    g.fillStyle(0x78909c, 1);
+    g.fillEllipse(6, 6, 10, 7);
+    fillRect(2, 5, 4, 3, 0x546e7a); // folded wing
+    fillRect(8, 2, 4, 4, 0x90a4ae); // head
+    fillRect(11, 4, 2, 1, 0xf0a030); // beak
+    drawPixel(10, 3, 0x1b2327); // eye
+    drawPixel(9, 6, 0x4dd0a0); // neck sheen
+    fillRect(0, 5, 3, 2, 0x546e7a); // tail
+    fillRect(5, 9, 1, 2, 0xf0a030); // legs
+    fillRect(8, 9, 1, 2, 0xf0a030);
+    g.generateTexture('pigeon', 14, 12);
+
+    // Clipped lawn for the little dog run.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x4c8b3f);
+    for (let i = 0; i < 26; i++) {
+        const gx = (i * 11 + (i % 4) * 3) % 32, gy = (i * 7 + (i % 3) * 5) % 32;
+        drawPixel(gx, gy, i % 3 ? 0x5da04c : 0x3f7434);
+        drawPixel(gx + 1, gy + 1, 0x437a38);
+    }
+    for (let sy = 3; sy < 32; sy += 8) fillRect(0, sy, 32, 1, 0x559444); // mower stripes
+    g.generateTexture('dog_lawn', 32, 32);
 
     // --- CANTINA DRESSING ----------------------------------------------------
     // Papel picado: a run of cut-paper flags on a string.

@@ -9,37 +9,124 @@ export class DowntownScene extends Phaser.Scene {
     constructor() { super('DowntownScene'); }
     preload() { this.load.image('penny_custom', REMOTE_IMAGES.penny); }
     create() {
-        this.cameras.main.setBackgroundColor('#87CEEB'); 
-        for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) { 
-            if (y < 8) continue; 
-            if (y > 14) this.add.image(x*32+16, y*32+16, 'pavement'); 
-            else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0xcccccc); 
+        // --- sky ---------------------------------------------------------------
+        // Banded rather than one flat blue, so the horizon reads as further away.
+        this.cameras.main.setBackgroundColor('#4a9fd4');
+        [[0x3f92cc, 0, 96], [0x4b9bd1, 96, 34], [0x57a4d6, 130, 30], [0x63addb, 160, 26],
+        [0x74bbe1, 186, 22], [0x87c7e6, 208, 18], [0x9ed3e8, 226, 14], [0xb6dfec, 240, 10],
+        [0xd3e9ee, 250, 10]].forEach(([col, top, h]) => this.add.rectangle(400, top + h / 2, GAME_WIDTH, h, col));
+
+        this.add.circle(700, 80, 44, 0xfff3b0, 0.25);
+        this.add.circle(700, 80, 30, 0xfff8d0, 0.55);
+        this.add.circle(700, 80, 20, 0xfffdf0);
+
+        for (let i = 0; i < 5; i++) {
+            const c = this.add.container(90 + i * 165, 46 + (i % 3) * 26);
+            const puff = (dx, dy, w, h, a) => c.add(this.add.ellipse(dx, dy, w, h, 0xffffff, a));
+            puff(0, 4, 92, 26, 0.85); puff(-26, 0, 46, 26, 0.8); puff(22, -4, 54, 30, 0.9);
+            puff(-8, -10, 40, 22, 0.7); puff(6, 10, 70, 16, 0.5);
+            c.setScale(0.7 + (i % 3) * 0.22);
+            this.tweens.add({ targets: c, x: '+=110', duration: 26000 + i * 4000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         }
-        this.add.circle(700, 80, 40, 0xffff00).setAlpha(0.8); 
-        this.add.circle(700, 80, 60, 0xffff00, 0.2); 
-        const clouds = this.add.group();
-        for(let i=0; i<5; i++) {
-            let c = this.add.ellipse(100 + i*150, 50 + Math.random()*50, 100, 40, 0xffffff, 0.8);
-            this.tweens.add({targets: c, x: '+=100', duration: 10000 + Math.random()*5000, yoyo: true, repeat: -1});
+
+        // The skyline sits on the horizon, hazed back so it stays behind the street.
+        for (let sx = 0; sx < 5; sx++) {
+            this.add.image(sx * 200 + 100, 202, 'sd_skyline').setAlpha(0.6).setTint(0xd8e8f2);
         }
-        this.add.text(400, 30, "Downtown San Diego", { fontSize: '24px', color: '#000', backgroundColor: '#fff' }).setOrigin(0.5);
-        this.add.image(100, 290, 'shop_clothing'); this.add.text(80, 260, "Fashion", {fontSize: '12px', color: '#fff'});
-        this.add.image(300, 290, 'shop_crystal'); this.add.text(280, 260, "Crystals", {fontSize: '12px', color: '#fff'});
-        this.add.image(450, 290, 'shop_book'); this.add.text(420, 260, "Book Store", {fontSize: '12px', color: '#fff'});
-        this.bookZone = this.add.rectangle(450, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.bookZone, true);
-        this.add.image(600, 290, 'donut_shop'); this.add.text(580, 260, "DONUT BAR", {fontSize: '14px', color: '#fff', backgroundColor: '#ec407a', padding: {x: 5, y: 2}});
-        this.add.image(750, 290, 'graffiti_wall').setScale(0.8); 
+
+        // --- ground ------------------------------------------------------------
+        for (let x = 0; x < GAME_WIDTH / 32; x++) for (let y = 8; y < GAME_HEIGHT / 32; y++) {
+            this.add.image(x * 32 + 16, y * 32 + 16, 'sidewalk_slab').setTint(y < 13 ? 0xffffff : 0xeee9e0);
+        }
+        this.add.rectangle(400, 300, GAME_WIDTH, 6, 0xa39d90); // shopfront kerb
+        this.add.rectangle(400, 297, GAME_WIDTH, 2, 0xc8c2b4);
+        this.add.rectangle(400, 416, GAME_WIDTH, 3, 0xb6afa2); // expansion joint across the plaza
+
+        this.add.text(400, 30, "Downtown San Diego", {
+            fontSize: '24px', color: '#1d3141', fontStyle: 'bold',
+            backgroundColor: '#ffffffcc', padding: { x: 10, y: 4 }
+        }).setOrigin(0.5);
+
+        // --- the shopfronts ----------------------------------------------------
+        const shopSign = (x, y, label, colour) => this.add.text(x, y, label, {
+            fontSize: '11px', color: colour, fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        this.add.image(100, 256, 'shop_clothing');
+        shopSign(100, 220, "SEA & SALT", '#bff3ec');
+        this.add.image(300, 256, 'shop_crystal');
+        shopSign(300, 220, "MOONSTONE", '#e4d7ff');
+        this.add.image(450, 256, 'shop_book');
+        shopSign(450, 220, "BOOK STORE", '#ffe6c4');
+        this.add.image(600, 254, 'donut_bar_front');
+        shopSign(600, 218, "DONUT BAR", '#ffd9e6');
+        this.add.image(750, 262, 'donut_wall_mural');
+
+        // --- street furniture --------------------------------------------------
+        this.add.image(196, 246, 'palm_tree');
+        this.add.image(378, 246, 'palm_tree').setFlipX(true);
+        this.add.image(524, 250, 'palm_tree').setScale(0.9);
+        this.add.image(690, 244, 'palm_tree').setFlipX(true).setScale(1.05);
+
+        this.add.image(180, 440, 'streetlight').setScale(1.5);
+        this.add.image(700, 440, 'streetlight').setScale(1.5);
+        this.add.image(52, 328, 'planter_box');
+        this.add.image(240, 330, 'planter_box');
+        this.add.image(392, 330, 'planter_box');
+        this.add.image(688, 328, 'planter_box');
+        this.add.image(360, 380, 'bike_rack');
+        this.add.image(140, 318, 'parking_meter');
+        this.add.image(520, 318, 'parking_meter');
+        this.add.image(668, 384, 'cafe_table_set');
+        this.add.image(736, 384, 'cafe_table_set');
+        this.add.image(30, 384, 'trash_bin');
+        this.add.image(468, 382, 'fire_hydrant');
+
+        // --- the little dog run ------------------------------------------------
+        for (let gx = 478; gx < 622; gx += 32) for (let gy = 456; gy < 552; gy += 32) {
+            this.add.image(gx + 16, gy + 16, 'dog_lawn');
+        }
+        this.add.rectangle(550, 452, 152, 4, 0x6d4c41);
+        this.add.image(500, 500, 'fence_detailed');
+        this.add.image(600, 500, 'fence_detailed');
+        this.add.image(486, 470, 'bush_detailed').setScale(0.8);
+        this.add.image(614, 542, 'bush_detailed').setScale(0.8);
+
+        this.add.image(360, 498, 'plaza_fountain');
+        this.add.image(300, 546, 'planter_box').setScale(0.7);
+        this.add.image(420, 546, 'planter_box').setScale(0.7);
+
+        // --- the bench corner ---------------------------------------------------
         this.add.image(200, 500, 'park_bench');
-        [50, 200, 400, 550].forEach(x => this.add.image(x, 310, 'bush_detailed'));
-        this.add.image(180, 450, 'streetlight').setScale(1.5);
-        this.add.image(700, 450, 'streetlight').setScale(1.5); 
+        this.add.image(272, 496, 'planter_box').setScale(0.8);
+        this.add.image(132, 492, 'trash_bin').setScale(0.8);
+        this.pigeons = [
+            this.add.image(168, 540, 'pigeon'),
+            this.add.image(196, 552, 'pigeon').setFlipX(true),
+            this.add.image(232, 536, 'pigeon')
+        ];
+        this.pigeons.forEach((bird, i) => this.tweens.add({
+            targets: bird, x: '+=' + (i % 2 ? 14 : -14), duration: 1800 + i * 400,
+            yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+        }));
+
+        // A couple of people going about their morning, so the street is not ours
+        // alone — they walk the length of the plaza and turn round.
+        [[40, 372, 'civilian', 0x7b5e8c, 16000], [760, 402, 'civilian_f', 0x4a7c8c, 21000]].forEach(([sx, sy, key, tint, dur], i) => {
+            const walker = this.add.sprite(sx, sy, key).setTint(tint);
+            this.tweens.add({
+                targets: walker, x: i ? 120 : 700, duration: dur, yoyo: true, repeat: -1,
+                onYoyo: () => walker.setFlipX(!walker.flipX), onRepeat: () => walker.setFlipX(!walker.flipX)
+            });
+        });
+
+        // --- interaction zones (unchanged positions) ----------------------------
+        this.bookZone = this.add.rectangle(450, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.bookZone, true);
         this.clothingZone = this.add.rectangle(100, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.clothingZone, true);
         this.crystalZone = this.add.rectangle(300, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.crystalZone, true);
         this.donutZone = this.add.rectangle(600, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.donutZone, true);
-        this.wallZone = this.add.rectangle(750, 330, 80, 60, 0xffff00, 0); this.physics.add.existing(this.wallZone, true); 
+        this.wallZone = this.add.rectangle(750, 330, 80, 60, 0xffff00, 0); this.physics.add.existing(this.wallZone, true);
         this.benchZone = this.add.rectangle(200, 500, 80, 40, 0xffff00, 0); this.physics.add.existing(this.benchZone, true);
-        this.add.rectangle(550, 500, 150, 100, 0x2e7d32); 
-        this.add.image(500, 500, 'fence_detailed'); this.add.image(600, 500, 'fence_detailed');
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
         this.player = new Player(this, 50, 400); this.player.setTexture(outfit);
         this.yvy = this.physics.add.sprite(100, 400, 'yvy');
