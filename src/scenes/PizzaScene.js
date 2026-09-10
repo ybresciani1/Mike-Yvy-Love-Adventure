@@ -30,7 +30,7 @@ export class PizzaScene extends Phaser.Scene {
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' });
-        this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone) this.startFarewell(); });
+        this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone && !this.brawlArguing && !this.fighting) this.startFarewell(); });
         this.physics.add.overlap(this.player, this.fightZone, () => {
             if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.takePhotos();
         }); this.physics.add.overlap(this.player, this.drunks, () => {
@@ -59,33 +59,46 @@ export class PizzaScene extends Phaser.Scene {
         // It starts when they come up the street towards the shop rather than on
         // a timer, so it plays out in front of them on the way in.
         this.brawlStarted = false;
-        this.brawlTrigger = this.add.rectangle(300, 384, 90, 170, 0xffff00, 0);
+        this.brawlArguing = false;
+        this.brawlTrigger = this.add.rectangle(250, 384, 120, 190, 0xffff00, 0);
         this.physics.add.existing(this.brawlTrigger, true);
         this.physics.add.overlap(this.player, this.brawlTrigger, () => {
             if (this.brawlStarted) return;
             this.brawlStarted = true;
+            this.brawlArguing = true;
             this.girlWalksBy();
         });
     }
 
     /** She walks past, they both decide she was looking at them. */
     girlWalksBy() {
-        const girl = this.add.sprite(-20, 352, 'civilian_f').setTint(0xffc0dd);
-        this.tweens.add({ targets: girl, x: 860, duration: 11000, ease: 'Linear', onComplete: () => girl.destroy() });
+        const girl = this.add.sprite(180, 352, 'civilian_f').setTint(0xffc0dd);
+        this.tweens.add({ targets: girl, x: 860, duration: 8000, ease: 'Linear', onComplete: () => girl.destroy() });
         this.tweens.add({ targets: girl, y: 350, duration: 320, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
-        this.time.delayedCall(3400, () => {
+        this.time.delayedCall(1500, () => {
             [this.buffRed, this.buffGreen].forEach(b => this.tweens.add({ targets: b, angle: { from: -6, to: 6 }, duration: 260, yoyo: true, repeat: 3 }));
-            showDialogue("Buff Drunk: 'Bro. Bro. She looked at me.'", () => {
-                showDialogue("Other Buff Drunk: 'She looked at ME. I have the better traps.'", () => {
-                    showDialogue("Buff Drunk: 'SAY THAT AGAIN.'", () => this.startFight());
+            this.saySoon("Buff Drunk: 'Bro. Bro. She looked at me.'", () => {
+                this.saySoon("Other Buff Drunk: 'She looked at ME. I have the better traps.'", () => {
+                    this.saySoon("Buff Drunk: 'SAY THAT AGAIN.'", () => this.startFight());
                 });
             });
         });
+    }    /**
+     * showDialogue refuses to open a second box and drops the callback it was
+     * given, so a scheduled line that lands while another conversation is open
+     * takes the rest of its chain down with it. That is how the brawl went
+     * missing: they reached the shop first, the farewell opened a box, and the
+     * argument — and the startFight() hanging off the end of it — vanished.
+     * Anything fired from a timer rather than a keypress has to wait its turn.
+     */
+    saySoon(text, next) {
+        if (!showDialogue(text, next)) this.time.delayedCall(350, () => this.saySoon(text, next));
     }
 
     startFight() {
         this.fighting = true;
+        this.brawlArguing = false;
         this.instructionText.setText("Two guys are fighting! Get a picture (Space)");
 
         // First they trade visible punches, then it collapses into a dust cloud.
