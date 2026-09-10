@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { gameState } from '../state.js';
 import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
 import { showDialogue } from '../ui/dialogue.js';
+import { playSound } from '../audio/sfx.js';
 import { Player } from '../entities/Player.js';
 
 export class PizzaScene extends Phaser.Scene { 
@@ -21,9 +22,11 @@ export class PizzaScene extends Phaser.Scene {
         this.tweens.add({ targets: [d1, d2], x: '+=5', angle: { from: -5, to: 5 }, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
-        this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' }); 
-        this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone) this.startFarewell(); }); 
-        this.physics.add.overlap(this.player, this.drunks, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+        this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' });
+        this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone) this.startFarewell(); });
+        this.physics.add.overlap(this.player, this.fightZone, () => {
+            if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.takePhotos();
+        }); this.physics.add.overlap(this.player, this.drunks, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
             const lines = [
                 "Drunk Guy: 'I love you man... you're my best friend... wait, who are you? Does not matter! I still love you man!'" ,
                 "Drunk Guy: 'Is this the taco stand? No? It's pizza? Who puts pineapple on pizza anyway? Wait, do you guys have pineapple?'", 
@@ -38,8 +41,108 @@ export class PizzaScene extends Phaser.Scene {
         if (this.player.x > this.yvy.x + 50) this.yvy.body.setVelocityX(130); else if (this.player.x < this.yvy.x - 50) this.yvy.body.setVelocityX(-130); else this.yvy.body.setVelocityX(0); 
         if(this.player.y < this.yvy.y - 50) this.yvy.body.setVelocityY(-130); else if(this.player.y > this.yvy.y + 50) this.yvy.body.setVelocityY(130); else this.yvy.body.setVelocityY(0); 
         if (this.pSlice.visible) { this.pSlice.x = this.player.x + 10; this.pSlice.y = this.player.y; this.ySlice.x = this.yvy.x + 10; this.ySlice.y = this.yvy.y; } 
-        document.getElementById('interaction-hint').style.display = this.physics.overlap(this.player, this.drunks) ? 'block' : 'none';
-    } 
+        const canFilm = this.fighting && !this.photoTaken && this.physics.overlap(this.player, this.fightZone);
+        const touching = this.physics.overlap(this.player, this.drunks) || canFilm;
+        document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none';
+    }    /** Two more drunks loitering up the street, waiting for a reason. */
+    setUpBrawl() {
+        this.fighting = false;
+        this.photoTaken = false;
+        this.buffRed = this.add.sprite(348, 330, 'buff_red');
+        this.buffGreen = this.add.sprite(432, 330, 'buff_green').setFlipX(true);
+        [this.buffRed, this.buffGreen].forEach((b, i) =>
+            this.tweens.add({ targets: b, y: b.y - 2, duration: 900 + i * 140, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
+        );
+        this.fightZone = this.add.rectangle(390, 372, 170, 90, 0xffff00, 0);
+        this.physics.add.existing(this.fightZone, true);
+        this.time.delayedCall(2200, () => this.girlWalksBy());
+    }
+
+    /** She walks past, they both decide she was looking at them. */
+    girlWalksBy() {
+        const girl = this.add.sprite(-20, 352, 'civilian_f').setTint(0xffc0dd);
+        this.tweens.add({ targets: girl, x: 860, duration: 11000, ease: 'Linear', onComplete: () => girl.destroy() });
+        this.tweens.add({ targets: girl, y: 350, duration: 320, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+        this.time.delayedCall(3400, () => {
+            [this.buffRed, this.buffGreen].forEach(b => this.tweens.add({ targets: b, angle: { from: -6, to: 6 }, duration: 260, yoyo: true, repeat: 3 }));
+            showDialogue("Buff Drunk: 'Bro. Bro. She looked at me.'", () => {
+                showDialogue("Other Buff Drunk: 'She looked at ME. I have the better traps.'", () => {
+                    showDialogue("Buff Drunk: 'SAY THAT AGAIN.'", () => this.startFight());
+                });
+            });
+        });
+    }
+
+    startFight() {
+        this.fighting = true;
+        this.instructionText.setText("Two guys are fighting! Get a picture (Space)");
+
+        // First they trade visible punches, then it collapses into a dust cloud.
+        this.fightTimer = this.time.addEvent({ delay: 200, loop: true, callback: () => {
+            const swing = this.fightTimer.getRepeatCount() % 2 === 0;
+            this.buffRed.setTexture(swing ? 'buff_red_punch' : 'buff_red');
+            this.buffGreen.setTexture(swing ? 'buff_green' : 'buff_green_punch');
+            this.buffRed.x = 348 + Phaser.Math.Between(-3, 5);
+            this.buffGreen.x = 432 + Phaser.Math.Between(-5, 3);
+            this.popStar();
+            playSound('clink');
+        }});
+
+        this.time.delayedCall(2600, () => {
+            if (!this.fighting) return;
+            this.buffRed.setVisible(false);
+            this.buffGreen.setVisible(false);
+            this.fightCloud = this.add.sprite(390, 326, 'fight_cloud');
+            this.tweens.add({ targets: this.fightCloud, scaleX: 1.15, scaleY: 0.9, duration: 170, yoyo: true, repeat: -1 });
+        });
+
+        this.time.delayedCall(26000, () => this.endFight());
+    }
+
+    popStar() {
+        const star = this.add
+            .sprite(390 + Phaser.Math.Between(-40, 40), 322 + Phaser.Math.Between(-16, 16), 'pow_star')
+            .setScale(0.7);
+        this.tweens.add({ targets: star, scale: 1.3, alpha: 0, duration: 300, onComplete: () => star.destroy() });
+    }
+
+    /** Both of them end up flat on the pavement. */
+    endFight() {
+        if (!this.fighting) return;
+        this.fighting = false;
+        this.fightTimer.remove();
+        if (this.fightCloud) this.fightCloud.destroy();
+        this.buffRed.setVisible(true).setTexture('buff_red').setAngle(-90).setPosition(352, 344);
+        this.buffGreen.setVisible(true).setTexture('buff_green').setAngle(90).setPosition(430, 344);
+        this.instructionText.setText("Go inside the Pizza Shop");
+    }
+
+    /** Mike and Yvy do the sensible thing and film it from a safe distance. */
+    takePhotos() {
+        this.photoTaken = true;
+        const phoneMike = this.add.sprite(this.player.x + 11, this.player.y - 7, 'phone_cam').setScale(0.9);
+        const phoneYvy = this.add.sprite(this.yvy.x + 11, this.yvy.y - 7, 'phone_cam').setScale(0.9);
+        const flash = () => {
+            const f = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0xffffff, 0.45);
+            this.tweens.add({ targets: f, alpha: 0, duration: 220, onComplete: () => f.destroy() });
+            playSound('select');
+        };
+        showDialogue("Mike: 'Are you seeing this?'", () => {
+            flash();
+            showDialogue("Yvy: 'Already filming. Do NOT get involved.'", () => {
+                flash();
+                showDialogue("Mike: 'Wouldn't dream of it. Zoom in.'", () => {
+                    flash();
+                    showDialogue("They take photos from a safe distance while the squad of two sorts itself out.", () => {
+                        phoneMike.destroy();
+                        phoneYvy.destroy();
+                    });
+                });
+            });
+        });
+    }
+
     startFarewell() { 
         gameState.farewellDone = true; this.pSlice.setVisible(true); this.ySlice.setVisible(true); this.player.body.stop(); this.yvy.body.stop(); 
         const convo = [ "Mike: 'This pizza looks amazing.'", "Yvy: 'Best in San Diego.'", "Mike: 'I... I have to go soon. Work early tomorrow.'", "Yvy: 'Aww. What time?'", "Mike: 'Need to be up by 4 AM.'", "Yvy: 'Tell you what. I'll give you a wake-up call at 4 AM.'", "Mike: 'Really? You'd do that?'", "Yvy: 'Promise. Bye Mike!'", "Mike: 'Bye Yvy!'" ]; 

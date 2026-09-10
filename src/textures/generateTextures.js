@@ -2236,4 +2236,132 @@ export function generateTextures(scene) {
     fillRect(23, 10, 3, 9, 0x0b0b12); // other fist thrown up
     fillRect(22, 6, 4, 4, SKIN_SHADE);
     g.generateTexture('dj_2', 32, 32);
+    // --- BUFF DRUNKS ---------------------------------------------------------
+    // Wider shoulders and thicker arms than the standard build, with a smaller
+    // head so they read as gym-huge at 32px. Each has an idle and a swing.
+    const buffBody = ({ vest, vestShade, skin = SKIN, skinShade = SKIN_SHADE, shorts, shortsShade }) => {
+        fillRect(7, 14, 18, 11, vest); // barrel chest
+        fillRect(21, 14, 4, 11, vestShade);
+        fillRect(11, 14, 3, 11, skin); // vest straps leave the pecs bare
+        fillRect(18, 14, 3, 11, skinShade);
+        fillRect(7, 14, 18, 1, vestShade);
+        fillRect(11, 25, 10, 2, 0x2b2b2b); // belt
+        fillRect(11, 27, 4, 4, shorts); // legs
+        fillRect(17, 27, 4, 4, shortsShade);
+        fillRect(10, 31, 5, 1, 0x3e2723);
+        fillRect(17, 31, 5, 1, 0x2b1a14);
+    };
+
+    const buffHead = (hair, hairHi, hairShade, beard = null) => {
+        fillRect(12, 4, 9, 8, SKIN); // small head
+        fillRect(20, 4, 1, 8, SKIN_SHADE);
+        fillRect(11, 1, 11, 4, hair);
+        fillRect(11, 4, 2, 4, hair);
+        fillRect(20, 4, 2, 4, hairShade);
+        fillRect(12, 2, 4, 1, hairHi);
+        fillRect(13, 6, 3, 1, hairShade); // heavy brows
+        fillRect(17, 6, 3, 1, hairShade);
+        fillRect(13, 7, 2, 2, EYE_WHITE);
+        fillRect(17, 7, 2, 2, EYE_WHITE);
+        fillRect(14, 7, 1, 2, EYE);
+        fillRect(18, 7, 1, 2, EYE);
+        fillRect(14, 10, 5, 1, 0x8c4a3c); // grimace
+        if (beard !== null) {
+            fillRect(12, 9, 9, 3, beard);
+            fillRect(14, 10, 5, 1, 0x6b3328);
+        }
+        fillRect(13, 12, 7, 2, SKIN_SHADE); // thick neck
+    };
+
+    // Guy one: red vest, blond flat-top.
+    g.clear();
+    buffHead(0xd7b56d, 0xefd79a, 0xa8894f);
+    buffBody({ vest: 0xc0392b, vestShade: 0x922b21, shorts: 0x37474f, shortsShade: 0x2b373d });
+    fillRect(3, 14, 4, 9, SKIN); // slab arms
+    fillRect(25, 14, 4, 9, SKIN_SHADE);
+    fillRect(3, 23, 5, 4, SKIN); // fists
+    fillRect(24, 23, 5, 4, SKIN_SHADE);
+    fillRect(4, 16, 2, 3, 0xe8c49a); // bicep highlight
+    g.generateTexture('buff_red', 32, 32);
+
+    // Guy one, mid-swing: leaning in behind a straight right.
+    g.clear();
+    buffHead(0xd7b56d, 0xefd79a, 0xa8894f);
+    buffBody({ vest: 0xc0392b, vestShade: 0x922b21, shorts: 0x37474f, shortsShade: 0x2b373d });
+    fillRect(4, 18, 4, 7, SKIN); // rear arm cocked
+    fillRect(3, 24, 5, 4, SKIN);
+    fillRect(25, 15, 7, 4, SKIN_SHADE); // lead arm thrown out
+    fillRect(28, 13, 4, 5, SKIN_SHADE);
+    fillRect(21, 12, 4, 3, SKIN_SHADE); // shoulder into it
+    g.generateTexture('buff_red_punch', 32, 32);
+
+    // Guy two: green vest, dark hair and a beard.
+    g.clear();
+    buffHead(0x2b1e13, 0x4a3524, 0x1a1109, 0x2b1e13);
+    buffBody({ vest: 0x2e7d32, vestShade: 0x1b5e20, shorts: 0x4e342e, shortsShade: 0x3e2723 });
+    fillRect(3, 14, 4, 9, SKIN);
+    fillRect(25, 14, 4, 9, SKIN_SHADE);
+    fillRect(3, 23, 5, 4, SKIN);
+    fillRect(24, 23, 5, 4, SKIN_SHADE);
+    fillRect(26, 16, 2, 3, 0xc79a72);
+    fillRect(7, 17, 4, 2, 0x1b5e20); // tattoo band
+    g.generateTexture('buff_green', 32, 32);
+
+    // Guy two, mid-swing: haymaker from the other side.
+    g.clear();
+    buffHead(0x2b1e13, 0x4a3524, 0x1a1109, 0x2b1e13);
+    buffBody({ vest: 0x2e7d32, vestShade: 0x1b5e20, shorts: 0x4e342e, shortsShade: 0x3e2723 });
+    fillRect(0, 15, 7, 4, SKIN); // lead arm swung out left
+    fillRect(0, 13, 4, 5, SKIN);
+    fillRect(7, 12, 4, 3, SKIN); // shoulder drop
+    fillRect(24, 18, 4, 7, SKIN_SHADE);
+    fillRect(24, 24, 5, 4, SKIN_SHADE);
+    g.generateTexture('buff_green_punch', 32, 32);
+
+    // --- BRAWL EFFECTS -------------------------------------------------------
+    // The classic scuffle cloud, with a fist and a boot sticking out of it.
+    g.clear();
+    g.fillStyle(0xe8e8ee, 1);
+    g.fillCircle(16, 24, 12);
+    g.fillCircle(32, 20, 14);
+    g.fillCircle(48, 25, 11);
+    g.fillCircle(24, 14, 10);
+    g.fillCircle(40, 12, 9);
+    g.fillStyle(0xc9c9d6, 1); // shaded underside
+    g.fillCircle(18, 30, 8);
+    g.fillCircle(34, 31, 9);
+    g.fillCircle(47, 30, 6);
+    g.fillStyle(0xfafaff, 1); // lit tops
+    g.fillCircle(24, 10, 5);
+    g.fillCircle(40, 9, 4);
+    fillRect(4, 16, 5, 4, SKIN); // fist poking out
+    fillRect(2, 17, 3, 3, SKIN);
+    fillRect(52, 26, 6, 4, 0x3e2723); // boot poking out
+    fillRect(56, 24, 4, 3, 0x2b1a14);
+    fillRect(30, 4, 2, 5, 0xd7b56d); // a lock of hair flying
+    g.generateTexture('fight_cloud', 64, 40);
+
+    // Impact star.
+    g.clear();
+    g.fillStyle(0xffd166, 1);
+    g.beginPath();
+    g.moveTo(12, 0); g.lineTo(15, 8); g.lineTo(24, 7); g.lineTo(17, 13);
+    g.lineTo(21, 22); g.lineTo(12, 17); g.lineTo(4, 22); g.lineTo(7, 13);
+    g.lineTo(0, 7); g.lineTo(9, 8);
+    g.closePath(); g.fill();
+    g.fillStyle(0xfff3b0, 1);
+    g.fillCircle(12, 11, 4);
+    g.fillStyle(0xc0392b, 1);
+    g.fillCircle(12, 11, 2);
+    g.generateTexture('pow_star', 24, 24);
+
+    // Phone held up to film it.
+    g.clear();
+    fillRect(2, 0, 12, 20, 0x1b1b22);
+    fillRect(3, 2, 10, 15, 0x5dade2); // screen
+    fillRect(3, 2, 10, 3, 0x9fd6f0);
+    fillRect(5, 7, 6, 6, 0x1b3a4a); // what it is filming
+    fillRect(4, 18, 8, 1, 0x3b3b46);
+    drawPixel(12, 1, 0xffe082); // lens flash
+    g.generateTexture('phone_cam', 16, 20);
 }
