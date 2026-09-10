@@ -10,15 +10,18 @@ export class BarScene extends Phaser.Scene {
     create() { 
         this.cameras.main.setBackgroundColor('#2c3e50'); 
         for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<6; y++) this.add.image(x*32+16, y*32+16, 'bar_wall');
-        for (let x=0; x<GAME_WIDTH/32; x++) for (let y=6; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0xa8907f); 
-        
-        for(let x=200; x<600; x+=64) {
-            this.add.image(x+16, 60, 'bar_shelf');
-            this.add.image(x+16, 100, 'bar_shelf');
-        }
+        for (let x=0; x<GAME_WIDTH/32; x++) for (let y=6; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0xc09a72); for(let x=200; x<600; x+=64) {
+            this.add.image(x+16, 72, 'tequila_shelf');
+            this.add.image(x+16, 112, (x / 64) % 2 ? 'bar_shelf' : 'tequila_shelf');
+        }for (let x = 32; x < GAME_WIDTH; x += 64) this.add.image(x, 20, 'papel_picado');
+        for (let x = 32; x < GAME_WIDTH; x += 64) { if (x < 240 || x > 560) this.add.image(x, 44, 'string_lights'); }
+        this.add.text(400, 40, "THE CHINGÓN", {
+            fontSize: '18px', color: '#f5b700', fontStyle: 'bold',
+            shadow: { color: '#2b1a14', offsetX: 1, offsetY: 1, blur: 2, fill: true }
+        }).setOrigin(0.5);
+        for (let x = 200; x <= 600; x += 32) this.add.image(x, 150, 'talavera_tile').setTint(0xcfc4b0);
 
-        const barGroup = this.physics.add.staticGroup(); 
-        for(let x=200; x<=600; x+=32) {
+        const barGroup = this.physics.add.staticGroup(); for(let x=200; x<=600; x+=32) {
             barGroup.create(x, 200, 'bar_counter');
         }
         for(let x=232; x<=568; x+=64) {
@@ -26,11 +29,11 @@ export class BarScene extends Phaser.Scene {
         }
         // Backbar and room fittings.
         this.add.image(500, 175, 'bar_taps');
-        this.add.image(120, 74, 'neon_sign');
-        this.add.image(700, 70, 'dartboard');
+        this.add.image(112, 96, 'neon_agave');
+        this.add.image(700, 96, 'mural_panel');
         for (let x = 224; x <= 576; x += 88) this.add.image(x, 142, 'pendant_lamp');
-        this.add.image(660, 150, 'plant_snake');
-        this.add.image(70, 300, 'plant_fern');
+        this.add.image(668, 210, 'agave_plant');
+        this.add.image(70, 300, 'agave_plant');
 
         // Booths along the far wall, so the room isn't just a counter.
         [{ x: 690, y: 380 }, { x: 690, y: 480 }].forEach(p => {
@@ -42,13 +45,13 @@ export class BarScene extends Phaser.Scene {
         [{ x: 150, y: 430 }, { x: 260, y: 500 }].forEach(p => {
             this.add.image(p.x, p.y, 'conf_table').setTint(0x4a3226).setScale(0.65);
             this.add.image(p.x - 42, p.y, 'bar_stool');
-            this.add.image(p.x, p.y - 6, 'cocktail').setScale(0.6);
+            this.add.image(p.x, p.y - 6, 'margarita').setScale(0.7);
         });
 
         // Glassware left on the bar.
-        this.add.image(250, 188, 'cocktail').setScale(0.7);
+        this.add.image(250, 186, 'margarita').setScale(0.8);
         this.add.image(300, 190, 'beer').setScale(0.7);
-        this.add.image(560, 188, 'cocktail').setScale(0.7);
+        this.add.image(560, 186, 'margarita').setScale(0.8);
 
         this.add.sprite(400, 160, 'bartender');
         this.marine = this.physics.add.sprite(360, 230, 'marine'); 
@@ -62,7 +65,7 @@ export class BarScene extends Phaser.Scene {
         this.add.rectangle(400, 300, 800, 600, 0xff9a3c, 0.05).setBlendMode(Phaser.BlendModes.ADD);
         this.cursors = this.input.keyboard.createCursorKeys(); 
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
-        this.add.text(20, 20, "Space: Drink with Marine", { fontSize: '16px', color: '#fff' }); 
+        this.add.text(20, 556, "Space: Drink with Marine", { fontSize: '16px', color: '#fff' }); 
         this.squad = this.add.group(); 
         this.physics.add.overlap(this.player, this.marineZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.handleDrinking(); }); 
     } 

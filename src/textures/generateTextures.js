@@ -3057,4 +3057,169 @@ export function generateTextures(scene) {
     g.fillStyle(0x6f6558, 1);
     g.fillRect(9, 5, 18, 2);
     g.generateTexture('abstract_art', 48, 32);
+    // --- CANTINA DRESSING ----------------------------------------------------
+    // Papel picado: a run of cut-paper flags on a string.
+    g.clear();
+    fillRect(0, 0, 64, 1, 0xe8dcc8); // the string
+    const flagColors = [0xe94f37, 0xf5b700, 0x2a9d8f, 0xe76f9e, 0x5b8ed6];
+    for (let i = 0; i < 4; i++) {
+        const x = i * 16;
+        const c = flagColors[i % flagColors.length];
+        g.fillStyle(c, 1);
+        g.beginPath();
+        g.moveTo(x + 1, 1); g.lineTo(x + 15, 1); g.lineTo(x + 8, 22);
+        g.closePath(); g.fill();
+        // punched-out pattern
+        g.fillStyle(0x2b1a14, 1);
+        g.fillRect(x + 6, 5, 4, 3);
+        g.fillRect(x + 5, 10, 2, 2);
+        g.fillRect(x + 9, 10, 2, 2);
+        g.fillRect(x + 7, 14, 2, 3);
+    }
+    g.generateTexture('papel_picado', 64, 32);
+
+    // Talavera tile for the splashback behind the bar.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0xf2ede0);
+    fillRect(0, 0, 32, 1, 0xd8d0bd);
+    fillRect(0, 0, 1, 32, 0xd8d0bd);
+    fillRect(16, 0, 1, 32, 0xd8d0bd);
+    fillRect(0, 16, 32, 1, 0xd8d0bd);
+    for (const [ox, oy] of [[0, 0], [16, 0], [0, 16], [16, 16]]) {
+        g.fillStyle(0x2a5ca8, 1); // cobalt motif
+        g.beginPath();
+        g.moveTo(ox + 8, oy + 2); g.lineTo(ox + 14, oy + 8); g.lineTo(ox + 8, oy + 14); g.lineTo(ox + 2, oy + 8);
+        g.closePath(); g.fill();
+        g.fillStyle(0xf5b700, 1);
+        g.fillRect(ox + 7, oy + 7, 2, 2);
+        g.fillStyle(0x2a9d8f, 1);
+        drawPixel(ox + 4, oy + 4, 0x2a9d8f);
+        drawPixel(ox + 11, oy + 11, 0x2a9d8f);
+    }
+    g.generateTexture('talavera_tile', 32, 32);
+
+    // Potted agave.
+    g.clear();
+    fillRect(9, 22, 14, 10, 0xb5651d); // terracotta pot
+    fillRect(18, 22, 5, 10, 0x8f4e15);
+    fillRect(8, 20, 16, 3, 0xcd7f32);
+    fillRect(8, 20, 16, 1, 0xe09a4e);
+    const blade = (x, top, w, tilt) => {
+        for (let i = 0; i < 22 - top; i++) {
+            const bx = x + Math.round(tilt * i * 0.35);
+            fillRect(bx, top + i, w, 1, 0x6b9c62);
+        }
+    };
+    blade(15, 2, 3, 0);
+    blade(11, 6, 3, -0.8);
+    blade(19, 6, 3, 0.8);
+    blade(8, 12, 2, -1.1);
+    blade(22, 12, 2, 1.1);
+    g.fillStyle(0x8fbf83, 1); // lit edges
+    g.fillRect(15, 2, 1, 18);
+    g.fillRect(12, 7, 1, 10);
+    g.fillStyle(0xd8cf8a, 1); // pale spines
+    drawPixel(15, 2, 0xd8cf8a);
+    drawPixel(9, 12, 0xd8cf8a);
+    drawPixel(23, 12, 0xd8cf8a);
+    g.generateTexture('agave_plant', 32, 32);
+
+    // Neon agave sign.
+    g.clear();
+    fillRect(0, 0, 64, 32, 0x14121c);
+    g.fillStyle(0x2a9d8f, 0.22);
+    g.fillRect(2, 2, 60, 28);
+    g.fillStyle(0x3ddc97, 1); // neon blades
+    for (const [x1, y1, x2, y2] of [[32, 28, 32, 6], [32, 26, 22, 10], [32, 26, 42, 10], [32, 24, 16, 16], [32, 24, 48, 16]]) {
+        const steps = 14;
+        for (let i = 0; i <= steps; i++) {
+            const px = Math.round(x1 + ((x2 - x1) * i) / steps);
+            const py = Math.round(y1 + ((y2 - y1) * i) / steps);
+            g.fillRect(px, py, 2, 2);
+        }
+    }
+    g.fillStyle(0xb9ffe3, 1);
+    g.fillRect(31, 12, 2, 10);
+    g.fillStyle(0xf5b700, 1); // warm base glow
+    g.fillRect(26, 28, 12, 2);
+    g.generateTexture('neon_agave', 64, 32);
+
+    // Shelf of tequila and mezcal.
+    g.clear();
+    fillRect(0, 22, 32, 3, 0x4e342e); // shelf
+    fillRect(0, 22, 32, 1, 0x7b5a49);
+    fillRect(0, 25, 32, 1, 0x2b1a14);
+    const agaveBottles = [
+        { x: 2, h: 19, body: 0xe8e2c8, cap: 0x2a5ca8 },
+        { x: 8, h: 15, body: 0xd9a441, cap: 0x8c1713 },
+        { x: 13, h: 21, body: 0xc9d6c0, cap: 0x2a9d8f },
+        { x: 19, h: 16, body: 0xb87333, cap: 0xf5b700 },
+        { x: 25, h: 20, body: 0x8fbf83, cap: 0xe94f37 }
+    ];
+    for (const b of agaveBottles) {
+        const top = 22 - b.h;
+        fillRect(b.x, top + 4, 5, b.h - 4, b.body); // tall tapered bottle
+        fillRect(b.x + 1, top, 3, 5, b.body);
+        fillRect(b.x + 1, top - 1, 3, 1, b.cap);
+        fillRect(b.x, top + 4, 1, b.h - 4, 0xffffff); // glass highlight
+        fillRect(b.x, top + 9, 5, 3, 0xf7f3e8); // label
+        drawPixel(b.x + 2, top + 10, b.cap);
+    }
+    g.generateTexture('tequila_shelf', 32, 32);
+
+    // Margarita: salted rim and a lime wheel.
+    g.clear();
+    g.fillStyle(0xd7dbdd, 1); // coupe
+    g.beginPath(); g.moveTo(5, 8); g.lineTo(27, 8); g.lineTo(16, 20); g.closePath(); g.fill();
+    g.fillStyle(0xdff3c9, 1); // drink
+    g.beginPath(); g.moveTo(7, 10); g.lineTo(25, 10); g.lineTo(16, 19); g.closePath(); g.fill();
+    fillRect(5, 7, 22, 2, 0xf7f7f7); // salted rim
+    for (let i = 6; i < 27; i += 3) drawPixel(i, 6, 0xffffff);
+    fillRect(15, 20, 2, 7, 0xd7dbdd); // stem
+    fillRect(11, 27, 10, 2, 0xd7dbdd); // foot
+    g.fillStyle(0x7cb342, 1); // lime wheel on the rim
+    g.fillCircle(24, 7, 3);
+    g.fillStyle(0xc5e1a5, 1);
+    g.fillCircle(24, 7, 2);
+    drawPixel(24, 7, 0x7cb342);
+    g.generateTexture('margarita', 32, 32);
+
+    // Festoon lights.
+    g.clear();
+    fillRect(0, 3, 64, 1, 0x3b3b46);
+    for (let x = 6; x < 64; x += 12) {
+        fillRect(x, 4, 1, 2, 0x6b6b78);
+        g.fillStyle(0xffd166, 1);
+        g.fillCircle(x, 8, 3);
+        g.fillStyle(0xfff3c4, 1);
+        g.fillCircle(x - 1, 7, 1);
+        g.fillStyle(0xffd166, 0.25);
+        g.fillCircle(x, 8, 6);
+    }
+    g.generateTexture('string_lights', 64, 16);
+
+    // Painted mural panel: sun over agave hills.
+    g.clear();
+    fillRect(0, 0, 64, 48, 0xc25c3a); // stucco ground
+    fillRect(0, 0, 64, 2, 0xd97a52);
+    g.fillStyle(0xf5b700, 1); // sun
+    g.fillCircle(46, 14, 8);
+    g.fillStyle(0xf7d365, 1);
+    g.fillCircle(46, 14, 5);
+    for (let i = 0; i < 8; i++) { // rays
+        const a = (Math.PI / 4) * i;
+        g.fillStyle(0xf5b700, 1);
+        g.fillRect(46 + Math.round(Math.cos(a) * 11), 14 + Math.round(Math.sin(a) * 11), 2, 2);
+    }
+    g.fillStyle(0x7a3b2a, 1); // hills
+    g.beginPath(); g.moveTo(0, 40); g.lineTo(18, 24); g.lineTo(36, 40); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(28, 40); g.lineTo(46, 28); g.lineTo(64, 40); g.closePath(); g.fill();
+    g.fillStyle(0x6b9c62, 1); // agaves in the foreground
+    for (const ax of [10, 26, 52]) {
+        g.fillRect(ax, 34, 2, 10);
+        g.fillRect(ax - 3, 37, 2, 7);
+        g.fillRect(ax + 3, 37, 2, 7);
+    }
+    fillRect(0, 44, 64, 4, 0x8c3f26);
+    g.generateTexture('mural_panel', 64, 48);
 }
