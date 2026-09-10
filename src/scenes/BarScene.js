@@ -113,12 +113,21 @@ export class BarScene extends Phaser.Scene {
             // above the seat and their beers land on the counter in front.
             [296, 424].forEach((seatX, i) => {
                 const mate = this.physics.add.sprite(seatX, 620, 'marine');
-                const glass = this.add.sprite(seatX + 10, 630, 'beer').setScale(0.8);
                 this.squad.add(mate);
-                this.tweens.add({ targets: mate, y: 226, duration: 1400, delay: i * 250, ease: 'Sine.easeOut' });
                 this.tweens.add({
-                    targets: glass, x: seatX + 12, y: 196, duration: 1400, delay: i * 250, ease: 'Sine.easeOut',
-                    onComplete: () => { if (i === 1) showDialogue("Marine: 'Boys! This is Mike, the CTO!'"); }
+                    targets: mate, y: 226, duration: 2600, delay: i * 450, ease: 'Sine.easeOut',
+                    onComplete: () => {
+                        // They arrive empty-handed and get served once they are on
+                        // the stool: the bartender slides the glass down the bar.
+                        const glass = this.add.sprite(400, 196, 'beer').setScale(0.8);
+                        this.tweens.add({
+                            targets: glass, x: seatX + 12, duration: 460, ease: 'Quad.easeOut',
+                            onComplete: () => {
+                                playSound('clink');
+                                if (i === 1) showDialogue("Marine: 'Boys! This is Mike, the CTO!'");
+                            }
+                        });
+                    }
                 });
             }); 
         } 
