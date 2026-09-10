@@ -243,6 +243,11 @@ export class AirportScene extends Phaser.Scene {
      * whichever bit of the terminal Mike is standing in, runs the length of it
      * and is gone — looping him meant he snapped back to the same spot every
      * few seconds, which reads as a glitch rather than as a man in trouble.
+     *
+     * Nobody gets to skip the checkpoint, including him. If he starts out on
+     * the landside he has to stop, put the bag through and wait to be waved on,
+     * jogging on the spot the whole time. If Mike is already deep in the
+     * concourse the runner starts past it and simply keeps going.
      */
     sendTheLateRunner() {
         const startX = Math.max(-40, this.player.x - 460);
@@ -251,20 +256,43 @@ export class AirportScene extends Phaser.Scene {
         const cry = this.add.text(startX, 312, "WAIT!", {
             fontSize: '11px', color: '#c0392b', fontStyle: 'bold'
         }).setOrigin(0.5);
-        this.tweens.add({ targets: cry, alpha: 0.25, duration: 420, yoyo: true, repeat: -1 });
+        const flicker = this.tweens.add({ targets: cry, alpha: 0.25, duration: 420, yoyo: true, repeat: -1 });
         this.tweens.add({ targets: runner, y: 330, duration: 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.tweens.add({ targets: runner, angle: { from: -9, to: -3 }, duration: 240, yoyo: true, repeat: -1 });
 
-        const entry = { sprite: runner, bag, lastX: startX, cry };
+        const entry = { sprite: runner, bag, lastX: startX, cry, bagLift: 0 };
         this.wanderers.push(entry);
-        this.tweens.add({
-            targets: runner, x: 2470, duration: (2470 - startX) / 0.3, ease: 'Linear',
-            onComplete: () => {
-                this.wanderers.splice(this.wanderers.indexOf(entry), 1);
-                this.tweens.killTweensOf(runner);
-                this.tweens.killTweensOf(cry);
-                [runner, bag, cry].forEach(o => o.destroy());
-            }
+
+        const SPEED = 0.3; // px per ms, so the run reads the same length whatever the distance
+        const runTo = (toX, onDone) => this.tweens.add({
+            targets: runner, x: toX, duration: Math.abs(toX - runner.x) / SPEED, ease: 'Linear', onComplete: onDone
+        });
+        const leave = () => runTo(2470, () => {
+            this.wanderers.splice(this.wanderers.indexOf(entry), 1);
+            this.tweens.killTweensOf(runner);
+            this.tweens.killTweensOf(cry);
+            this.tweens.killTweensOf(entry);
+            [runner, bag, cry].forEach(o => o.destroy());
+        });
+
+        if (startX > 520) return leave(); // already through, nothing to queue for
+        runTo(548, () => {
+            cry.setText("ONE SECOND!");
+            flicker.restart();
+            playSound('select');
+            // The bag goes up onto the belt. It has to be lifted through the
+            // entry, because update() rewrites the bag's position every frame
+            // from its owner's and would flatten a tween on the sprite itself.
+            this.tweens.add({
+                targets: entry, bagLift: 16, duration: 320, yoyo: true, repeat: 1, ease: 'Sine.easeInOut'
+            });
+            const scan = this.add.rectangle(600, 300, 30, 96, 0x9fe8ff, 0.5);
+            this.tweens.add({ targets: scan, alpha: 0, duration: 420, yoyo: true, repeat: 1, onComplete: () => scan.destroy() });
+            this.time.delayedCall(1800, () => {
+                cry.setText("WAIT!");
+                playSound('select');
+                leave();
+            });
         });
     }
 
@@ -358,7 +386,7 @@ export class AirportScene extends Phaser.Scene {
             if (Math.abs(w.sprite.x - w.lastX) > 0.05) w.sprite.setFlipX(dir === 1);
             w.lastX = w.sprite.x;
             w.bag.x = Phaser.Math.Linear(w.bag.x, w.sprite.x + dir * 14, 0.25);
-            w.bag.y = w.sprite.y + 9 + Math.sin(this.time.now / 50) * 1.1;
+            w.bag.y = w.sprite.y + 9 + Math.sin(this.time.now / 50) * 1.1 - (w.bagLift || 0);
             if (w.cry) { w.cry.x = w.sprite.x; w.cry.y = w.sprite.y - 28; }
         });
         if (gameState.hasSuitcase) this.rollSuitcase(); 
