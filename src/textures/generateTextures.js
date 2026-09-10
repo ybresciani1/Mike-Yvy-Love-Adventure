@@ -301,14 +301,21 @@ export function generateTextures(scene) {
     g.fillStyle(0x600000, 1); g.fillCircle(16, 16, 8);
     g.generateTexture('theater_carpet', 32, 32);
 
+    // Upholstered seat: headrest, buttoned back, cushion and wooden arms.
     g.clear();
-    g.fillStyle(0xb71c1c, 1); 
-    g.fillRect(4, 8, 24, 20); 
-    g.fillStyle(0x7f0000, 1); 
-    g.fillRect(4, 28, 24, 4); 
-    g.fillStyle(0x3e2723, 1); 
-    g.fillRect(0, 16, 4, 16);
-    g.fillRect(28, 16, 4, 16);
+    fillRect(5, 6, 22, 22, 0xa8201a); // back
+    fillRect(5, 6, 22, 3, 0xc62828); // lit top of the headrest
+    fillRect(22, 6, 5, 22, 0x8c1713); // shaded side
+    fillRect(8, 11, 16, 12, 0xbb2a24); // centre panel
+    drawPixel(12, 15, 0x7a1310); // buttons
+    drawPixel(19, 15, 0x7a1310);
+    fillRect(5, 24, 22, 4, 0x8c1713); // seam above the cushion
+    fillRect(6, 28, 20, 4, 0x9c1c17); // cushion
+    fillRect(6, 28, 20, 1, 0xc62828);
+    fillRect(0, 14, 5, 18, 0x4e342e); // arms
+    fillRect(27, 14, 5, 18, 0x3e2723);
+    fillRect(0, 14, 5, 2, 0x6d4c41);
+    fillRect(27, 14, 5, 2, 0x54372c);
     g.generateTexture('theater_seat', 32, 32);
 
     g.clear();
@@ -696,7 +703,29 @@ export function generateTextures(scene) {
     g.fillStyle(0x5d4037, 1); g.fillCircle(16, 12, 4); // Meatball
     g.generateTexture('spaghetti', 32, 32);
     
-    g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(8,16,16,16); g.fillStyle(0xe74c3c, 1); g.fillRect(10,16,4,16); g.fillRect(18,16,4,16); g.fillStyle(0xf1c40f, 1); g.fillCircle(16,14,10); g.generateTexture('popcorn', 32, 32);
+    // Striped tub with a mound of popped kernels spilling over the rim.
+    g.clear();
+    g.fillStyle(0xfdfdfd, 1); // tapered tub
+    g.beginPath(); g.moveTo(7, 18); g.lineTo(25, 18); g.lineTo(22, 31); g.lineTo(10, 31); g.closePath(); g.fill();
+    g.fillStyle(0xd93b30, 1); // stripes
+    g.fillRect(11, 18, 3, 13);
+    g.fillRect(18, 18, 3, 13);
+    g.fillStyle(0xe8e8e8, 1); // shaded right side
+    g.beginPath(); g.moveTo(22, 18); g.lineTo(25, 18); g.lineTo(22, 31); g.lineTo(20, 31); g.closePath(); g.fill();
+    g.fillStyle(0xf4f6f7, 1); // rim
+    g.fillRect(6, 16, 20, 3);
+    g.fillRect(6, 16, 20, 1);
+    // kernels: a light body with a paler pop on top of each
+    const kernels = [[9, 11], [14, 8], [19, 10], [7, 14], [22, 13], [16, 12], [12, 14], [20, 15], [5, 16], [24, 16]];
+    for (const [kx, ky] of kernels) {
+        g.fillStyle(0xf1d9a0, 1);
+        g.fillRect(kx, ky, 4, 4);
+        g.fillStyle(0xfff6dd, 1);
+        g.fillRect(kx + 1, ky - 1, 3, 3);
+        g.fillStyle(0xe3c07e, 1);
+        g.fillRect(kx + 3, ky + 2, 1, 2);
+    }
+    g.generateTexture('popcorn', 32, 32);
     
     g.clear(); 
     g.fillStyle(0x8b4513, 1); g.fillEllipse(16, 16, 24, 18); // Main body
@@ -2432,4 +2461,30 @@ export function generateTextures(scene) {
     g.fillStyle(0xffffff, 1);
     g.fillCircle(34, 12, 6);
     g.generateTexture('cloud', 64, 40);
+    // Cinema soda: lidded cup with a straw.
+    g.clear();
+    g.fillStyle(0xfdfdfd, 1);
+    g.beginPath(); g.moveTo(2, 7); g.lineTo(14, 7); g.lineTo(12, 23); g.lineTo(4, 23); g.closePath(); g.fill();
+    fillRect(5, 7, 2, 16, 0xd93b30); // stripes
+    fillRect(9, 7, 2, 16, 0xd93b30);
+    fillRect(1, 4, 14, 4, 0xd7dbdd); // lid
+    fillRect(1, 4, 14, 1, 0xf4f6f7);
+    fillRect(9, 0, 2, 5, 0xe74c3c); // straw
+    fillRect(9, 0, 2, 1, 0xff8a80);
+    g.generateTexture('soda_cup', 16, 24);
+
+    // Illuminated EXIT sign.
+    g.clear();
+    fillRect(0, 0, 24, 14, 0x14201a);
+    fillRect(0, 0, 24, 1, 0x2b3b32);
+    g.fillStyle(0x00e676, 0.25);
+    g.fillRect(1, 1, 22, 12);
+    g.fillStyle(0x00e676, 1); // blocky EXIT
+    fillRect(3, 4, 1, 6, 0x00e676); fillRect(3, 4, 3, 1, 0x00e676); fillRect(3, 6, 2, 1, 0x00e676); fillRect(3, 9, 3, 1, 0x00e676);
+    fillRect(7, 4, 1, 1, 0x00e676); fillRect(8, 5, 1, 1, 0x00e676); fillRect(9, 6, 1, 2, 0x00e676); fillRect(8, 8, 1, 1, 0x00e676); fillRect(7, 9, 1, 1, 0x00e676); fillRect(11, 4, 1, 1, 0x00e676); fillRect(10, 5, 1, 1, 0x00e676); fillRect(10, 8, 1, 1, 0x00e676); fillRect(11, 9, 1, 1, 0x00e676);
+    fillRect(13, 4, 1, 6, 0x00e676);
+    fillRect(15, 4, 5, 1, 0x00e676); fillRect(17, 4, 1, 6, 0x00e676);
+    g.fillStyle(0x69f0ae, 0.5);
+    g.fillRect(2, 11, 20, 1);
+    g.generateTexture('exit_sign', 24, 14);
 }

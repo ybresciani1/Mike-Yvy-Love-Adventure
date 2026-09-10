@@ -44,7 +44,28 @@ export class MovieScene extends Phaser.Scene {
         this.lightFury.setMask(this.screenMask);
 
         this.nightLights = this.add.group();
-        for(let i=0; i<12; i++) { this.add.image(100 + i*50, 400, 'theater_seat'); this.add.image(100 + i*50, 480, 'theater_seat'); }
+        // Audience first, seats second: the seat backs then cover their laps, which
+                // is what makes them read as sitting rather than standing behind the row.
+                // The house lights are down, so everyone is tinted dark.
+                const AUDIENCE = [
+                    { x: 100, row: 0, f: false }, { x: 150, row: 0, f: true }, { x: 250, row: 0, f: true },
+                    { x: 300, row: 0, f: false }, { x: 450, row: 0, f: true }, { x: 500, row: 0, f: false },
+                    { x: 600, row: 0, f: true }, { x: 650, row: 0, f: false },
+                    { x: 100, row: 1, f: true }, { x: 150, row: 1, f: false }, { x: 250, row: 1, f: true },
+                    { x: 550, row: 1, f: false }, { x: 600, row: 1, f: true }
+                ];
+                AUDIENCE.forEach(seat => {
+                    const y = seat.row === 0 ? 386 : 466;
+                    const guest = this.add.sprite(seat.x, y, seat.f ? 'civilian_f' : 'civilian');
+                    guest.setTint(Phaser.Display.Color.RandomRGB(55, 120).color);
+                    if (Math.random() > 0.55) {
+                        this.add.image(seat.x + 17, y + 10, Math.random() > 0.5 ? 'soda_cup' : 'popcorn').setScale(0.55).setTint(0x9a9aa8);
+                    }
+                });
+                for(let i=0; i<12; i++) { this.add.image(100 + i*50, 400, 'theater_seat'); this.add.image(100 + i*50, 480, 'theater_seat'); }
+                this.add.image(24, 300, 'exit_sign').setScale(1.3); // exits either side of the house
+                this.add.image(776, 300, 'exit_sign').setScale(1.3);
+                for (let x = 60; x < 780; x += 90) this.add.circle(x, 545, 2, 0x4de08a, 0.55); // aisle lights
         this.add.rectangle(400, 600, 800, 40, 0x000000); 
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
         this.player = this.add.sprite(380, 480, outfit); this.yvy = this.add.sprite(420, 480, 'yvy'); this.popcorn = this.add.sprite(400, 490, 'popcorn').setScale(0.8);
