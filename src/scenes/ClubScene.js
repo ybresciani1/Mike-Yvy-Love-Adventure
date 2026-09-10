@@ -177,7 +177,14 @@ export class ClubScene extends Phaser.Scene {
                     }); 
                 }); 
             } 
-        } else { this.stopDancing(); } 
+        } else if (isDialogueOpen() && gameState.clubProgress >= 1) {
+            // He keeps busting moves while he talks — chatting Yvy up mid-dance.
+            // Progress stays tied to actually holding F, so the 'Dance first!'
+            // prompt can never dance on his behalf.
+            this.danceFrame();
+        } else {
+            this.stopDancing();
+        }
         if (gameState.clubProgress === 1) this.instructionText.setText("Talk to the girl (Space)"); 
         else if (gameState.clubProgress === 2) this.instructionText.setText("Go to the Bar (Space)"); 
         else if (gameState.clubProgress === 3) this.instructionText.setText("Dance again (Hold F)"); 
