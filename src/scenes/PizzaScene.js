@@ -56,7 +56,16 @@ export class PizzaScene extends Phaser.Scene {
         );
         this.fightZone = this.add.rectangle(390, 372, 170, 90, 0xffff00, 0);
         this.physics.add.existing(this.fightZone, true);
-        this.time.delayedCall(2200, () => this.girlWalksBy());
+        // It starts when they come up the street towards the shop rather than on
+        // a timer, so it plays out in front of them on the way in.
+        this.brawlStarted = false;
+        this.brawlTrigger = this.add.rectangle(300, 384, 90, 170, 0xffff00, 0);
+        this.physics.add.existing(this.brawlTrigger, true);
+        this.physics.add.overlap(this.player, this.brawlTrigger, () => {
+            if (this.brawlStarted) return;
+            this.brawlStarted = true;
+            this.girlWalksBy();
+        });
     }
 
     /** She walks past, they both decide she was looking at them. */
