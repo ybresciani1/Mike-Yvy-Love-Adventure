@@ -36,16 +36,31 @@ export class BarScene extends Phaser.Scene {
         this.add.image(70, 300, 'agave_plant');
 
         // Booths along the far wall, so the room isn't just a counter.
-        [{ x: 690, y: 380 }, { x: 690, y: 480 }].forEach(p => {
+        const seatGuest = (x, y, female) => {
+            const guest = this.add.sprite(x, y - 12, female ? 'civilian_f' : 'civilian');
+            guest.setTint(Phaser.Display.Color.RandomRGB(120, 235).color);
+            return guest;
+        };
+        [{ x: 690, y: 380 }, { x: 690, y: 480 }].forEach((p, i) => {
             this.add.image(p.x, p.y, 'conf_table').setTint(0x4a3226).setScale(0.65);
+            seatGuest(p.x - 42, p.y, i % 2 === 0);
+            seatGuest(p.x + 42, p.y, i % 2 === 1);
             this.add.image(p.x - 42, p.y, 'bar_stool');
             this.add.image(p.x + 42, p.y, 'bar_stool');
             this.add.image(p.x, p.y - 6, 'beer').setScale(0.6);
+            this.add.image(p.x + 14, p.y - 4, 'margarita').setScale(0.55);
         });
-        [{ x: 150, y: 430 }, { x: 260, y: 500 }].forEach(p => {
+        [{ x: 150, y: 430 }, { x: 260, y: 500 }].forEach((p, i) => {
             this.add.image(p.x, p.y, 'conf_table').setTint(0x4a3226).setScale(0.65);
+            seatGuest(p.x - 42, p.y, i % 2 === 0);
             this.add.image(p.x - 42, p.y, 'bar_stool');
             this.add.image(p.x, p.y - 6, 'margarita').setScale(0.7);
+        });
+        // A couple more drinkers along the counter itself.
+        [232, 552].forEach((x, i) => {
+            seatGuest(x, 240, i === 0);
+            this.add.image(x, 240, 'bar_stool');
+            this.add.image(x + 10, 196, 'beer').setScale(0.7);
         });
 
         // Glassware left on the bar.
@@ -93,12 +108,19 @@ export class BarScene extends Phaser.Scene {
         else if (gameState.drinksConsumed === 3) { showDialogue("Marine: 'Oh, nice to meet you! I'm a Marine! Waiting for my buddies.'", () => { showDialogue("Marine: 'You own a company? That's FIRE 🔥. Let me buy you a drink.'"); }); } 
         else if (gameState.drinksConsumed === 4) { showDialogue("Mike: 'Thanks! Let me get the next round!'", () => { playSound('clink'); showDialogue("They cheer and clink glasses."); }); } 
         else if (gameState.drinksConsumed === 5) { 
-            const m2 = this.physics.add.sprite(200, 600, 'marine'); 
-            const m3 = this.physics.add.sprite(600, 600, 'marine'); 
-            const b2 = this.add.sprite(210, 600, 'beer').setScale(0.8); 
-            const b3 = this.add.sprite(610, 600, 'beer').setScale(0.8); 
-            this.squad.add(m2); this.squad.add(m3); 
-            this.tweens.add({ targets: [m2, m3, b2, b3], y: 320, duration: 1500, onComplete: () => { showDialogue("Marine: 'Boys! This is Mike, the CTO!'"); }}); 
+            // They come in and take the free stools either side of him. Sitting is
+            // read from the stool top overlapping their legs, so they settle just
+            // above the seat and their beers land on the counter in front.
+            [296, 424].forEach((seatX, i) => {
+                const mate = this.physics.add.sprite(seatX, 620, 'marine');
+                const glass = this.add.sprite(seatX + 10, 630, 'beer').setScale(0.8);
+                this.squad.add(mate);
+                this.tweens.add({ targets: mate, y: 226, duration: 1400, delay: i * 250, ease: 'Sine.easeOut' });
+                this.tweens.add({
+                    targets: glass, x: seatX + 12, y: 196, duration: 1400, delay: i * 250, ease: 'Sine.easeOut',
+                    onComplete: () => { if (i === 1) showDialogue("Marine: 'Boys! This is Mike, the CTO!'"); }
+                });
+            }); 
         } 
         else if (gameState.drinksConsumed === 6) { showDialogue("Squad: 'Nice to meet you sir! ROUNDS ON US!'"); } 
         else if (gameState.drinksConsumed === 7) { showDialogue("The squad drinks heavily. 'Let's go meet some girls at the club!'"); } 
