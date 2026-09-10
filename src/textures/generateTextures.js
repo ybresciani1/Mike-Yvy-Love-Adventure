@@ -955,30 +955,28 @@ export function generateTextures(scene) {
     g.fillStyle(0xb3f0ff, 0.95); g.fillCircle(4, 4, 2);
     g.fillStyle(0xffffff, 1); g.fillRect(3, 3, 2, 2);
     g.generateTexture('blue_fire', 8, 8);
-    // Pickled jalapeno slice — the nacho kind, cut across the pepper: a green
-    // ring of flesh with a dark rind edge, a pale seed pocket in the middle and
-    // a couple of notches where the wall folds inwards.
+    // Pickled jalapeno slice — the nacho kind, cut across the pepper. A slice is
+    // a small thing next to a person, so it is drawn at 7px rather than shrunk
+    // down from a bigger sprite: dark rind, a wall lit from the top left, and a
+    // pale seed pocket. Laid out by hand — at this size every pixel is a
+    // quarter of the picture.
     g.clear();
-    g.fillStyle(0x2e4d12, 1); // dark rind, all the way round
-    g.fillCircle(6, 6, 5.5);
-    g.fillStyle(0x6f9128, 1); // wall of the pepper
-    g.fillCircle(6, 6, 4.5);
-    g.fillStyle(0x8fb63a, 1); // top-left of the wall catches the light
-    g.fillCircle(5, 5, 3.5);
-    g.fillStyle(0x54711c, 1); // brine shadow, curved with the ring rather than flat
-    g.fillCircle(7, 7, 3.6);
-    // The seed pocket is placed pixel by pixel — a circle this small comes out
-    // of the rasteriser lopsided, and the hole is what makes it read as a slice.
-    for (const [px, py] of [[5, 4], [6, 4], [4, 5], [5, 5], [6, 5], [4, 6], [5, 6], [6, 6], [5, 7], [6, 7]]) {
-        drawPixel(px, py, 0xe8ecc0);
-    }
-    drawPixel(7, 5, 0xc9d49a); // membrane on the shaded wall
-    drawPixel(7, 6, 0xc9d49a);
-    drawPixel(5, 5, 0xfbfae4); // two seeds
-    drawPixel(6, 6, 0xfbfae4);
-    drawPixel(2, 3, 0x8fb63a); // notches where the wall folds inwards
-    drawPixel(9, 8, 0x54711c);
-    g.generateTexture('jalapeno', 12, 12);
+    const jalapenoRows = [
+        '..ddd..',
+        '.dllwd.',
+        'dllmwsd',
+        'dlmpmsd',
+        'dwlmssd',
+        '.dwssd.',
+        '..ddd..'
+    ];
+    const jalapenoInk = { d: 0x2e4d12, l: 0x8fb63a, w: 0x6f9128, s: 0x54711c, m: 0xc9d49a, p: 0xf2f4d4 };
+    jalapenoRows.forEach((row, y) => {
+        [...row].forEach((ch, x) => {
+            if (ch !== '.') drawPixel(x, y, jalapenoInk[ch]);
+        });
+    });
+    g.generateTexture('jalapeno', 7, 7);
     // Ice breath: pale shards radiating from a frozen core.
     g.clear();
     g.fillStyle(0xccf2ff, 0.4); g.fillCircle(6, 6, 6);
