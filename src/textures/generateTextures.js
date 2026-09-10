@@ -955,17 +955,29 @@ export function generateTextures(scene) {
     g.fillStyle(0xb3f0ff, 0.95); g.fillCircle(4, 4, 2);
     g.fillStyle(0xffffff, 1); g.fillRect(3, 3, 2, 2);
     g.generateTexture('blue_fire', 8, 8);
-    // Jalapeño: tapered green body with a stem and a highlight.
-    // Jalapeno: slim and tapered, not a bell pepper.
+    // Pickled jalapeno slice — the nacho kind, cut across the pepper: a green
+    // ring of flesh with a dark rind edge, a pale seed pocket in the middle and
+    // a couple of notches where the wall folds inwards.
     g.clear();
-    fillRect(4, 3, 4, 5, 0x2f7d32); // body
-    fillRect(5, 8, 3, 2, 0x2f7d32); // taper
-    fillRect(5, 10, 2, 1, 0x2f7d32); // tip
-    fillRect(4, 3, 1, 6, 0x43a047); // lit edge
-    fillRect(7, 4, 1, 5, 0x1b5e20); // shaded edge
-    fillRect(5, 0, 2, 3, 0x6d4c41); // stem
-    fillRect(4, 2, 4, 1, 0x33691e); // cap
-    drawPixel(5, 5, 0x81c784);
+    g.fillStyle(0x2e4d12, 1); // dark rind, all the way round
+    g.fillCircle(6, 6, 5.5);
+    g.fillStyle(0x6f9128, 1); // wall of the pepper
+    g.fillCircle(6, 6, 4.5);
+    g.fillStyle(0x8fb63a, 1); // top-left of the wall catches the light
+    g.fillCircle(5, 5, 3.5);
+    g.fillStyle(0x54711c, 1); // brine shadow, curved with the ring rather than flat
+    g.fillCircle(7, 7, 3.6);
+    // The seed pocket is placed pixel by pixel — a circle this small comes out
+    // of the rasteriser lopsided, and the hole is what makes it read as a slice.
+    for (const [px, py] of [[5, 4], [6, 4], [4, 5], [5, 5], [6, 5], [4, 6], [5, 6], [6, 6], [5, 7], [6, 7]]) {
+        drawPixel(px, py, 0xe8ecc0);
+    }
+    drawPixel(7, 5, 0xc9d49a); // membrane on the shaded wall
+    drawPixel(7, 6, 0xc9d49a);
+    drawPixel(5, 5, 0xfbfae4); // two seeds
+    drawPixel(6, 6, 0xfbfae4);
+    drawPixel(2, 3, 0x8fb63a); // notches where the wall folds inwards
+    drawPixel(9, 8, 0x54711c);
     g.generateTexture('jalapeno', 12, 12);
     // Ice breath: pale shards radiating from a frozen core.
     g.clear();
