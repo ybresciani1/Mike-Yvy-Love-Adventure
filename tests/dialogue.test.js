@@ -15,13 +15,14 @@ const OVERLAY_HTML = `
 let showDialogue;
 let isDialogueOpen;
 let portraitFor;
+let resetDialogue;
 
 beforeEach(async () => {
     document.body.innerHTML = OVERLAY_HTML;
     vi.useFakeTimers();
     // Fresh module instance so the open/closed flag does not leak between tests.
     vi.resetModules();
-    ({ showDialogue, isDialogueOpen, portraitFor } = await import('../src/ui/dialogue.js'));
+    ({ showDialogue, isDialogueOpen, portraitFor, resetDialogue } = await import("../src/ui/dialogue.js"));
 });
 
 const pressSpace = () => document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' }));
@@ -110,5 +111,36 @@ describe('showDialogue', () => {
         showDialogue('Second');
         typeOut('First');
         expect(document.getElementById('dialogue-text').textContent).toBe('First');
+    });
+});
+
+describe('resetDialogue', () => {
+    // Leaving a scene mid-line used to strand the box open and fire the
+    // abandoned callback into the next scene — dialogue from the bar showing
+    // up over the restaurant.
+    it('closes an open line without running its callback', () => {
+        const next = vi.fn();
+        showDialogue('Marine: hello', next);
+        typeOut('Marine: hello');
+
+        resetDialogue();
+
+        expect(isDialogueOpen()).toBe(false);
+        expect(document.getElementById('dialogue-box').style.display).toBe('none');
+        pressSpace();
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('lets the next scene open its own dialogue afterwards', () => {
+        showDialogue('Marine: hello');
+        resetDialogue();
+
+        showDialogue('Host: right this way');
+        typeOut('Host: right this way');
+        expect(document.getElementById('dialogue-text').textContent).toBe('Host: right this way');
+    });
+
+    it('is safe when nothing is open', () => {
+        expect(() => resetDialogue()).not.toThrow();
     });
 });

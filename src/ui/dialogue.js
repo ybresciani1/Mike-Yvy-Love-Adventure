@@ -11,6 +11,13 @@ const PORTRAIT_PREFIXES = [
     { portrait: PORTRAITS.aiden, prefixes: ['Aiden:'] }
 ];
 
+// Warm the browser cache at boot so a face is ready the instant a line opens,
+// instead of the frame sitting empty while the photo downloads mid-sentence.
+for (const url of Object.values(PORTRAITS)) {
+    const preload = new Image();
+    preload.src = url;
+}
+
 export function portraitFor(text) {
     const match = PORTRAIT_PREFIXES.find(({ prefixes }) => prefixes.some(p => text.startsWith(p)));
     return match ? match.portrait : null;
@@ -18,6 +25,10 @@ export function portraitFor(text) {
 
 let dialogueOpen = false;
 let typeWriterEvent = null;
+// Tracked so it can be torn down from outside: the listener closes over the
+// caller's callback, and a listener left attached across a scene change fires
+// the old scene's next line over the new scene.
+let dismissListener = null;
 
 // Global input gate: the player cannot move while a dialogue box is open.
 export function isDialogueOpen() {
@@ -39,6 +50,11 @@ export function showDialogue(text, callback) {
     const portrait = portraitFor(text);
     if (portrait) {
         portraitFrame.style.display = 'block';
+        // index.html hides the <img> and colours the frame if a portrait ever
+        // fails to fetch, and that stuck: one flaky load meant no portrait for
+        // the rest of the session. Clear both before every line.
+        portraitImg.style.display = '';
+        portraitFrame.style.backgroundColor = '';
         portraitImg.src = portrait;
     } else {
         portraitFrame.style.display = 'none';
@@ -56,13 +72,31 @@ export function showDialogue(text, callback) {
             const listener = (e) => {
                 if (e.code === 'Space') {
                     document.removeEventListener('keydown', listener);
+                    dismissListener = null;
                     box.style.display = 'none';
                     dialogueOpen = false;
                     playSound('select');
                     if (callback) callback();
                 }
             };
+            dismissListener = listener;
             document.addEventListener('keydown', listener);
         }
     }, TYPEWRITER_INTERVAL_MS);
+}
+
+/**
+ * Abandon any open line without running its callback, and drop the pending
+ * key listener. Leaving a scene mid-dialogue would otherwise strand the box
+ * open (blocking every later line, since showDialogue refuses to open a
+ * second one) and fire the abandoned callback into whatever scene is next.
+ */
+export function resetDialogue() {
+    if (typeWriterEvent) clearInterval(typeWriterEvent);
+    typeWriterEvent = null;
+    if (dismissListener) document.removeEventListener('keydown', dismissListener);
+    dismissListener = null;
+    dialogueOpen = false;
+    const box = document.getElementById('dialogue-box');
+    if (box) box.style.display = 'none';
 }

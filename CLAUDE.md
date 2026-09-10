@@ -27,11 +27,13 @@ npx vitest run tests/dialogue.test.js
 npx vitest run -t "types the line out"
 ```
 
-In dev the game instance is exposed as `window.game`, so scenes can be jumped to from the browser console without replaying the story:
+In dev the game is exposed as `window.game`, plus a `gotoScene` helper for jumping straight to a scene without replaying the story:
 
 ```js
-game.scene.start('ThanksgivingScene')
+gotoScene('ThanksgivingScene')
 ```
+
+Use it rather than `game.scene.start(key)`. On the global SceneManager `start()` runs the target **alongside** whatever is already active, and two live scenes share one keyboard and one DOM dialogue box — the older scene's overlap handlers keep firing dialogue over the new scene (marine lines from `BarScene` appearing in the restaurant, say). `gotoScene` stops every running scene first. Normal play never hits this, because `this.scene.start()` inside a scene stops the caller.
 
 ## Architecture
 
