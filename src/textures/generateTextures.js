@@ -3511,6 +3511,27 @@ export function generateTextures(scene) {
     drawPixel(40, 17, 0xc9c9d2);
     g.generateTexture('police_bike', 44, 28);
 
+    // Airline ground staff — one sprite serving every desk and every gate, so
+    // the people behind the counters read as staff rather than as more of the
+    // randomly tinted crowd.
+    g.clear();
+    drawLongHair(6, 0x3a2a1e, 0x54402e);
+    drawFace(9, { brow: 0x3a2a1e });
+    fillRect(10, 15, 12, 13, 0x2a3a5c); // blazer
+    fillRect(10, 15, 12, 1, 0x3a4e78);
+    fillRect(10, 15, 3, 13, 0x1e2b45); // shaded side
+    fillRect(14, 15, 4, 8, 0xdfe4ea); // blouse in the vee of the lapels
+    fillRect(13, 15, 1, 9, 0x1e2b45);
+    fillRect(18, 15, 1, 9, 0x1e2b45);
+    fillRect(14, 16, 4, 2, 0xc0392b); // neck scarf
+    drawPixel(15, 18, 0xe05c4a);
+    fillRect(9, 19, 2, 7, SKIN); // arms
+    fillRect(21, 19, 2, 7, SKIN);
+    drawPixel(19, 20, 0xd4a017); // name badge
+    fillRect(11, 28, 4, 4, 0x22293a); // skirt and legs
+    fillRect(17, 28, 4, 4, 0x22293a);
+    g.generateTexture('airline_agent', 32, 32);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in

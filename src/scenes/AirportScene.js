@@ -23,9 +23,14 @@ export class AirportScene extends Phaser.Scene {
         this.tsa = this.physics.add.sprite(600, 260, 'tsa'); this.tsa.setImmovable(true);
         this.tsaZone = this.add.rectangle(580, 300, 50, 100, 0xffff00, 0); this.physics.add.existing(this.tsaZone, true);
         this.add.text(50, 50, "DEPARTURES", { fontSize: '24px', color: '#000', backgroundColor: '#fff' });
+        this.deskAgents = [this.add.sprite(200, 126, 'airline_agent'), this.add.sprite(402, 126, 'airline_agent')];
+        this.deskAgents.forEach((a, i) => this.tweens.add({
+            targets: a, y: 124, duration: 1500 + i * 300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+        }));
         this.add.image(200, 150, 'checkin_desk'); this.add.text(175, 120, "TICKETS", { fontSize: '12px', color: '#fff' });
         this.ticket = this.physics.add.sprite(200, 200, 'ticket');
         this.add.image(374, 150, 'checkin_desk'); this.add.image(430, 150, 'checkin_desk'); this.add.text(360, 120, "BAG CHECK-IN", { fontSize: '12px', color: '#fff' });
+        this.add.image(275, 150, 'luggage_cart'); // the belt end of the bag drop
         this.suitcase = this.physics.add.sprite(400, 200, 'suitcase');
         this.walkways = this.add.group();
         for (let x = 800; x < 2000; x += 32) { let w = this.add.sprite(x, 300, 'walkway'); this.physics.add.existing(w, true); this.walkways.add(w); }
@@ -39,7 +44,7 @@ export class AirportScene extends Phaser.Scene {
             [1700, 0xa08cb4, gate => this.gateTwelveA(gate)]
         ].forEach(([gx, tint, talk]) => {
             this.add.image(gx + 44, 146, 'host_stand'); // the podium doubles nicely as a gate desk
-            const agent = this.add.sprite(gx + 44, 122, 'civilian_f').setTint(tint);
+            const agent = this.add.sprite(gx + 44, 122, 'airline_agent').setTint(tint);
             this.tweens.add({ targets: agent, y: 120, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             const zone = this.add.rectangle(gx + 20, 140, 130, 90, 0xffff00, 0);
             this.physics.add.existing(zone, true);
@@ -63,9 +68,9 @@ export class AirportScene extends Phaser.Scene {
         // member does not move it to match, so every passenger answered with the
         // same line no matter which one you walked up to.
         this.peopleZones = [];
-        const addPerson = (x, y, key, tint, line, zoneH = 44) => {
+        const addPerson = (x, y, key, tint, line, zoneH = 44, zoneW = 46) => {
             const person = this.add.sprite(x, y, key).setTint(tint);
-            const zone = this.add.rectangle(x, y + 14, 46, zoneH, 0xffff00, 0);
+            const zone = this.add.rectangle(x, y + 14, zoneW, zoneH, 0xffff00, 0);
             this.physics.add.existing(zone, true);
             zone.setData('line', line);
             this.peopleZones.push(zone);
@@ -73,15 +78,33 @@ export class AirportScene extends Phaser.Scene {
         };
         // Seated: high enough that the seat back crosses their lap rather than
         // swallowing them whole — the seats are only 24px tall.
-        const seatPassenger = (x, key, tint, line) => addPerson(x, 188, key, tint, line, 52);
-        seatPassenger(830, 'civilian', 0x8c7ab0, "Passenger: 'Zzz... no, I said the aisle... the aisle... zzz.'");
-        seatPassenger(902, 'civilian_f', 0xb07a8c, "Passenger: 'No Mom, I already ate. Mom. MOM. I already ate.'");
-        seatPassenger(1230, 'civilian', 0x7a9cb0, "Nervous Flyer: 'It's safer than driving. Statistically. Statistically.'");
-        seatPassenger(1302, 'civilian_f', 0xb0a07a, "Passenger: 'Same book since March. Still on chapter two.'");
-        seatPassenger(1630, 'marine', 0xffffff, "Marine: 'Heading back to Pendleton. You?'");
-        seatPassenger(1702, 'civilian', 0xa08cb4, "Passenger: 'Gate changed three times. THREE.'");
-        seatPassenger(2130, 'civilian_f', 0x8ca0b4, "Passenger: 'You're on 12B too? Good. I thought I was in the wrong place.'");
-        [900, 1300, 1700, 2200].forEach(x => { this.add.image(x, 210, 'gate_seats'); this.add.image(x - 72, 210, 'gate_seats'); });
+        const seatPassenger = (x, key, tint, line) => {
+            const p = addPerson(x, 188, key, tint, line, 52, 30).setDepth(1);
+            this.tweens.add({
+                targets: p, y: 186, duration: 1800 + (x % 700),
+                yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+            });
+            return p;
+        };
+        seatPassenger(843, 'civilian', 0x8c7ab0, "Passenger: 'Zzz... no, I said the aisle... the aisle... zzz.'");
+        seatPassenger(915, 'civilian_f', 0xb07a8c, "Passenger: 'No Mom, I already ate. Mom. MOM. I already ate.'");
+        seatPassenger(1243, 'civilian', 0x7a9cb0, "Nervous Flyer: 'It's safer than driving. Statistically. Statistically.'");
+        seatPassenger(1315, 'civilian_f', 0xb0a07a, "Passenger: 'Same book since March. Still on chapter two.'");
+        seatPassenger(1643, 'marine', 0xffffff, "Marine: 'Heading back to Pendleton. You?'");
+        seatPassenger(1715, 'civilian', 0xa08cb4, "Passenger: 'Gate changed three times. THREE.'");
+        seatPassenger(2143, 'civilian_f', 0x8ca0b4, "Passenger: 'You're on 12B too? Good. I thought I was in the wrong place.'");
+        // The seats sit above everyone on them, so a body at the seated height has
+        // its lap crossed by the seat back instead of standing on top of it.
+        this.seatZones = [];
+        [900, 1300, 1700, 2200].forEach(x => {
+            [x, x - 72].forEach(bx => {
+                this.add.image(bx, 210, 'gate_seats').setDepth(2);
+                const spot = this.add.rectangle(bx - 17, 212, 30, 58, 0xffff00, 0);
+                this.physics.add.existing(spot, true);
+                spot.setData('seat', { x: bx - 17, y: 188 });
+                this.seatZones.push(spot);
+            });
+        });
         [{x: 262, y: 470}, {x: 1150, y: 150}, {x: 2050, y: 455}].forEach(p => this.add.image(p.x, p.y, 'luggage_cart'));
         [480, 1010, 1460, 1760, 2150].forEach(x => this.add.image(x, 124, 'trash_bin'));
         this.decor = this.physics.add.staticGroup();
@@ -112,6 +135,56 @@ export class AirportScene extends Phaser.Scene {
                 yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
             });
         });
+
+        // Two lines, one for each counter. Everybody in the bag line has a case
+        // at their feet; the ticket line does not, because they have not dropped
+        // anything yet — that is the whole reason they are in the other queue.
+        const queuePerson = (x, y, key, tint, line, withBag) => {
+            const person = addPerson(x, y, key, tint, line);
+            if (withBag) {
+                const bag = this.add.sprite(x - 13, y + 9, 'suitcase').setScale(0.85);
+                this.tweens.add({ targets: bag, y: y + 8, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            }
+            this.tweens.add({
+                targets: person, y: y - 3, duration: 1300 + (x % 400),
+                yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+            });
+            return person;
+        };
+        [
+            [148, 212, 'civilian', 0x8c9cb0, "Passenger: 'Is this the line for tickets? I have asked four people.'", false],
+            [144, 250, 'civilian_f', 0xb09c8c, "Passenger: 'I printed it at home and the machine still would not take it.'", false],
+            [152, 288, 'civilian', 0xa0b08c, "Passenger: 'Window seat. Window seat. I am not asking for much.'", false],
+            [404, 238, 'civilian_f', 0x8cb0a0, "Passenger: 'Fifty-one pounds. FIFTY-ONE. I have to open it right here.'", true],
+            [398, 276, 'civilian', 0xb08ca0, "Passenger: 'One bag each. That is what it said. One bag each.'", true],
+            [408, 314, 'civilian_f', 0x9c8cb0, "Passenger: 'If they lose this one again I am going to lie down on the belt.'", true]
+        ].forEach(([qx, qy, key, tint, line, bag]) => queuePerson(qx, qy, key, tint, line, bag));        // Wheeled luggage, going somewhere. The bag is placed each frame rather
+        // than tweened, because it has to swap to the other side when they turn.
+        this.wanderers = [];
+        [
+            [760, 2000, 372, 'civilian', 0x8c9cb0, 26000],
+            [2020, 900, 420, 'civilian_f', 0xb0a08c, 31000],
+            [860, 1900, 462, 'civilian', 0xa08cb4, 23000]
+        ].forEach(([x0, x1, wy, key, tint, dur]) => {
+            const sprite = this.add.sprite(x0, wy, key).setTint(tint);
+            const bag = this.add.sprite(x0 - 14, wy + 8, 'suitcase').setScale(0.85);
+            this.tweens.add({ targets: sprite, x: x1, duration: dur, yoyo: true, repeat: -1, ease: 'Linear' });
+            this.tweens.add({ targets: sprite, y: wy - 2, duration: 260, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            this.wanderers.push({ sprite, bag, lastX: x0 });
+        });
+
+        // One man who is going to miss it, sprinting the length of the terminal
+        // and then trudging back to do it again.
+        this.runner = this.add.sprite(700, 340, 'civilian').setTint(0xd48c8c);
+        this.runnerBag = this.add.sprite(686, 348, 'suitcase').setScale(0.85);
+        this.runnerCry = this.add.text(700, 312, "WAIT!", {
+            fontSize: '11px', color: '#c0392b', fontStyle: 'bold'
+        }).setOrigin(0.5);
+        this.tweens.add({ targets: this.runner, x: 2180, duration: 7000, ease: 'Linear', repeat: -1, repeatDelay: 5000 });
+        this.tweens.add({ targets: this.runner, y: 330, duration: 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.tweens.add({ targets: this.runner, angle: { from: -9, to: -3 }, duration: 240, yoyo: true, repeat: -1 });
+        this.wanderers.push({ sprite: this.runner, bag: this.runnerBag, lastX: 700, cry: this.runnerCry });
+
         this.player = new Player(this, 100, 300);
         this.player.setDepth(5);
         this.pullAngle = Math.PI; // parked behind him until he first moves
@@ -125,6 +198,11 @@ export class AirportScene extends Phaser.Scene {
         this.add.text(20, 550, "Task: Ticket -> Suitcase -> Security -> Starbucks -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
         this.peopleZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
+        }));
+        this.seated = null;
+        this.seatZones.forEach(spot => this.physics.add.overlap(this.player, spot, () => {
+            if (!Phaser.Input.Keyboard.JustDown(this.spaceKey) || dialogueBusy()) return;
+            if (this.seated) this.standUp(); else this.sitDown(spot.getData('seat'));
         }));
         this.wrongGates.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) zone.getData('talk')(zone);
@@ -168,7 +246,61 @@ export class AirportScene extends Phaser.Scene {
         bag.rotation = Phaser.Math.Linear(bag.rotation, lean * 0.45, 0.15);
 
         bag.setDepth(bag.y < this.player.y ? 4 : 6);
-    }    gateTen(zone) {
+    }    /**
+     * Mike drops into the seat: he slides across to it, settles with a squash on
+     * landing, and then just breathes. Depth 1 puts him under the seat backs, so
+     * the chair crosses his lap the same way it does for everyone else in the row.
+     *
+     * The slide has to be driven through body.reset() rather than by tweening
+     * x/y. He is an arcade-physics sprite, and the body writes its own position
+     * back onto the sprite every step, so a plain positional tween is silently
+     * undone — he sat down without ever moving. Disabling the body instead would
+     * work, but then the seat's overlap stops firing and he can never stand up.
+     */
+    sitDown(spot) {
+        this.seated = spot;
+        this.player.isLocked = true;
+        this.player.body.stop();
+        this.player.setDepth(1);
+        const fromX = this.player.x, fromY = this.player.y;
+        this.tweens.addCounter({
+            from: 0, to: 1, duration: 340, ease: 'Sine.easeOut',
+            onUpdate: tween => {
+                const k = tween.getValue();
+                this.player.body.reset(
+                    Phaser.Math.Linear(fromX, spot.x, k),
+                    Phaser.Math.Linear(fromY, spot.y, k)
+                );
+            }
+        });
+        // Scale is safe to tween — the body never touches it.
+        this.tweens.add({
+            targets: this.player, scaleY: 0.86, duration: 170, delay: 180, yoyo: true, ease: 'Quad.easeOut',
+            onComplete: () => {
+                if (!this.seated) return;
+                this.seatBreath = this.tweens.add({
+                    targets: this.player, scaleY: 0.97, duration: 1900,
+                    yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+                });
+            }
+        });
+    }
+
+    standUp() {
+        const spot = this.seated;
+        this.seated = null;
+        if (this.seatBreath) { this.seatBreath.remove(); this.seatBreath = null; }
+        this.tweens.killTweensOf(this.player);
+        this.player.setScale(1);
+        const fromY = this.player.y, toY = spot.y + 46;
+        this.tweens.addCounter({
+            from: 0, to: 1, duration: 300, ease: 'Sine.easeOut',
+            onUpdate: tween => this.player.body.reset(spot.x, Phaser.Math.Linear(fromY, toY, tween.getValue())),
+            onComplete: () => { this.player.setDepth(5); this.player.isLocked = false; }
+        });
+    }
+
+    gateTen(zone) {
         showDialogue("Gate Agent: 'Ten is boarding for Phoenix. Are you Phoenix?'", () => {
             showDialogue("Mike: 'San Diego.'", () => {
                 showDialogue("Gate Agent: 'Then keep walking. All the way down. 12B.'", () => {
@@ -199,11 +331,18 @@ export class AirportScene extends Phaser.Scene {
     }
 
     update() { 
-        this.player.update(this.cursors); 
+        this.player.update(this.cursors);        this.wanderers.forEach(w => {
+            const dir = w.sprite.x >= w.lastX ? -1 : 1; // the case trails whichever way they are going
+            if (Math.abs(w.sprite.x - w.lastX) > 0.05) w.sprite.setFlipX(dir === 1);
+            w.lastX = w.sprite.x;
+            w.bag.x = Phaser.Math.Linear(w.bag.x, w.sprite.x + dir * 14, 0.25);
+            w.bag.y = w.sprite.y + 9 + Math.sin(this.time.now / 50) * 1.1;
+            if (w.cry) { w.cry.x = w.sprite.x; w.cry.y = w.sprite.y - 28; }
+        });
         if (gameState.hasSuitcase) this.rollSuitcase(); 
         if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
         if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
-        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.wrongGates, ...this.peopleZones]); 
+        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.wrongGates, ...this.peopleZones, ...this.seatZones]); 
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
     }
 }
