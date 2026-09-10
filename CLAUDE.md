@@ -63,6 +63,24 @@ The dialogue box, `PRESS SPACE` interaction hint, airport scrolling banner, ward
 ### Procedural textures
 `generateTextures(scene)` draws all ~96 sprites pixel-by-pixel with a Phaser `Graphics` object and `generateTexture(key, w, h)`. It is only called in `TitleScene.preload` and `AirportScene.preload` — Phaser's TextureManager is game-global, so every later scene reuses those keys. **New art belongs in `generateTextures`, not in a per-scene preload.** The exceptions are the remote PNGs in `assets.js`, loaded by individual scene `preload()` methods.
 
+### Gotchas that build and test clean
+
+Scene files pack several statements onto one line. Appending a `//` comment to
+the end of such a line comments out the rest of the chain — most often the
+`this.physics.add.existing(zone, true)` that gives an interaction zone its
+body. It parses, it builds, `npm test` passes, and the zone silently never
+fires. Put the comment on its own line above.
+
+Dialogue fired from a **timer** must survive a busy box. `showDialogue` returns
+`false` and discards its callback if a box is already open, which kills the
+rest of the chain — see `PizzaScene.saySoon`, which retries. A swallowed
+keypress is harmless because the player presses again; a scheduled line has no
+second chance.
+
+Phaser tint multiplies, so it can only darken. A sprite that needs to be
+lighter than its texture needs a new texture (`sidewalk_slab` exists because
+`pavement` doubles as the road at night).
+
 ### Audio
 No audio files. `playSound(type)` builds one-shot oscillators for SFX. Each `play*Theme()` holds a melody array and schedules notes via a recursive `playNote(idx)` with `setTimeout`, pushing nodes onto the module-level `currentMusicNodes`; `stopMusic()` / `fadeOutMusic(duration)` tear that list down. **Scenes must call `stopMusic()` before starting a scene with a different theme**, otherwise themes overlap — this is done inline at transition points, not automatically. The AudioContext is created lazily on first sound, since browsers suspend one created before a user gesture.
 
