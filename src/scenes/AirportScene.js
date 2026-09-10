@@ -48,8 +48,9 @@ export class AirportScene extends Phaser.Scene {
         [{x: 262, y: 470}, {x: 1150, y: 150}, {x: 2050, y: 455}].forEach(p => this.add.image(p.x, p.y, 'luggage_cart'));
         [480, 1010, 1460, 1760, 2150].forEach(x => this.add.image(x, 124, 'trash_bin'));
         this.decor = this.physics.add.staticGroup();
-        [100, 550, 800, 1200, 1800, 2100].forEach(x => this.decor.create(x, 100, 'plant'));
-        [550, 900, 1800].forEach(x => this.decor.create(x, 500, 'plant'));
+        const PLANTS = ['plant', 'plant_fern', 'plant_snake', 'plant_flowers'];
+        [100, 550, 800, 1200, 1800, 2100].forEach((x, i) => this.decor.create(x, 100, PLANTS[i % PLANTS.length]));
+        [550, 900, 1800].forEach((x, i) => this.decor.create(x, 500, PLANTS[(i + 2) % PLANTS.length]));
         this.add.image(1000, 500, 'store_news'); this.add.text(970, 450, "NEWS", {fontSize: '14px', color: '#000'});
         this.add.image(1300, 500, 'store_food'); this.add.text(1260, 450, "BURGER QUEEN", {fontSize: '14px', color: '#000'});
         this.add.image(1600, 494, 'restroom_door'); this.add.text(1570, 450, "RESTROOMS", {fontSize: '14px', color: '#000'});

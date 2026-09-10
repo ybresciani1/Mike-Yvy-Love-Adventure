@@ -468,7 +468,20 @@ export function generateTextures(scene) {
     });
     g.generateTexture('doctor', 32, 32);
     
-    g.clear(); g.fillStyle(COLORS.floor, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x795548, 0.5); g.fillRect(0,30,32,2); g.generateTexture('floor_wood', 32, 32);
+    // Board floor: planks with staggered end joints and grain.
+    // Board floor: long planks with soft seams and grain. End joints are rare —
+    // one per tile — because a joint on every board reads as brickwork.
+    g.clear();
+    fillRect(0, 0, 32, 32, COLORS.floor);
+    for (let row = 0; row < 4; row++) {
+        const y = row * 8;
+        fillRect(0, y, 32, 1, 0x6f5142); // seam
+        fillRect(0, y + 1, 32, 1, 0x9a7b6b); // lit edge of the next board
+        fillRect(3 + row * 7, y + 4, 11, 1, 0x81614f); // grain
+        fillRect(20 - row * 3, y + 6, 6, 1, 0x81614f);
+    }
+    fillRect(19, 9, 1, 6, 0x6f5142); // the single end joint
+    g.generateTexture('floor_wood', 32, 32);
     // Polished terminal floor: large tiles, grout lines and a faint sheen.
     g.clear();
     fillRect(0, 0, 32, 32, 0xd6dbdd);
@@ -524,8 +537,34 @@ export function generateTextures(scene) {
     g.fillCircle(16, 14, 1);
     fillRect(12, 28, 9, 1, 0xd5dbdb);
     g.generateTexture('coffee', 32, 32);
-    g.clear(); g.fillStyle(COLORS.beer, 1); g.fillRect(10, 10, 12, 16); g.fillStyle(0xffffff, 1); g.fillRect(10, 10, 12, 4); g.generateTexture('beer', 32, 32);
-    g.clear(); g.fillStyle(COLORS.cocktail, 1); g.beginPath(); g.moveTo(10,10); g.lineTo(22,10); g.lineTo(16,20); g.closePath(); g.fill(); g.fillStyle(0xffffff, 1); g.fillRect(15,20,2,10); g.generateTexture('cocktail', 32, 32);
+    // Pint: amber body, foam head, bubbles and a glass highlight.
+    g.clear();
+    fillRect(10, 12, 12, 16, 0xd68910); // beer
+    fillRect(10, 12, 12, 3, 0xf5b041); // lighter near the head
+    fillRect(9, 8, 14, 5, 0xfdfefe); // foam
+    fillRect(9, 8, 14, 2, 0xffffff);
+    fillRect(10, 12, 2, 16, 0xf0c75e); // highlight down the glass
+    drawPixel(17, 18, 0xf7dc6f); // bubbles
+    drawPixel(15, 22, 0xf7dc6f);
+    drawPixel(19, 24, 0xf7dc6f);
+    fillRect(10, 27, 12, 2, 0xb9770e); // base of the liquid
+    fillRect(9, 29, 14, 2, 0xd7dbdd); // glass foot
+    g.generateTexture('beer', 32, 32);
+    // Martini: coupe of liquor, stem, foot and an olive on a stick.
+    g.clear();
+    g.fillStyle(0xd7dbdd, 1); // glass bowl
+    g.beginPath(); g.moveTo(8, 8); g.lineTo(24, 8); g.lineTo(16, 20); g.closePath(); g.fill();
+    g.fillStyle(COLORS.cocktail, 1); // drink
+    g.beginPath(); g.moveTo(10, 10); g.lineTo(22, 10); g.lineTo(16, 18); g.closePath(); g.fill();
+    fillRect(10, 10, 12, 1, 0xf5b7f0); // surface highlight
+    fillRect(15, 20, 2, 7, 0xd7dbdd); // stem
+    fillRect(11, 27, 10, 2, 0xd7dbdd); // foot
+    fillRect(11, 27, 10, 1, 0xf4f6f7);
+    fillRect(18, 4, 1, 7, 0xecf0f1); // cocktail stick
+    g.fillStyle(0x6b8e23, 1); // olive
+    g.fillCircle(18, 4, 2);
+    drawPixel(18, 4, 0xc0392b);
+    g.generateTexture('cocktail', 32, 32);
     g.clear(); g.fillStyle(COLORS.pizza_crust, 1); g.beginPath(); g.moveTo(16,32); g.lineTo(0,10); g.lineTo(32,10); g.closePath(); g.fill(); g.fillStyle(COLORS.pizza_sauce, 1); g.beginPath(); g.moveTo(16,28); g.lineTo(4,12); g.lineTo(28,12); g.closePath(); g.fill(); g.generateTexture('pizza_slice', 32, 32);
     g.clear(); g.fillStyle(COLORS.pizza_sauce, 1); g.fillCircle(16,16,16); g.fillStyle(COLORS.pizza_crust, 1); g.fillCircle(16,16,12); g.generateTexture('pizza_logo', 32, 32);
     g.clear(); g.fillStyle(COLORS.furniture, 1); g.fillRect(0,0,64,32); g.fillStyle(0x3e2723, 1); g.fillRect(5,5,54,10); g.generateTexture('dresser', 64, 32);
@@ -997,21 +1036,73 @@ export function generateTextures(scene) {
     g.fillRect(3, 12, 4, 2); g.fillRect(1, 8, 2, 5); g.fillRect(2, 6, 4, 2);
     g.generateTexture('generic_dog', 32, 32);
 
-    g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,32,32); g.fillStyle(0x3e2723, 1); g.fillRect(0,0,32,4); g.generateTexture('bar_counter', 32, 32);
-    g.clear(); g.fillStyle(0x8d6e63, 1); g.fillCircle(16, 10, 10); 
-    g.fillStyle(0x3e2723, 1); g.fillRect(14, 20, 4, 12); 
-    g.fillRect(8, 28, 16, 4); 
+    // Bar: polished top with a lip, panelled front and a brass foot rail.
+    g.clear();
+    fillRect(0, 0, 32, 5, 0x8d6e63); // top
+    fillRect(0, 0, 32, 2, 0xa9846f); // sheen
+    fillRect(0, 5, 32, 2, 0x4e342e); // lip shadow
+    fillRect(0, 7, 32, 19, 0x5d4037); // front
+    fillRect(0, 7, 1, 19, 0x4e342e);
+    fillRect(6, 10, 8, 13, 0x4e342e); // panels
+    fillRect(18, 10, 8, 13, 0x4e342e);
+    fillRect(7, 11, 6, 11, 0x63483c);
+    fillRect(19, 11, 6, 11, 0x63483c);
+    fillRect(0, 26, 32, 2, 0xd4a017); // brass foot rail
+    fillRect(0, 26, 32, 1, 0xf0c75e);
+    fillRect(0, 28, 32, 4, 0x3e2723); // kick
+    g.generateTexture('bar_counter', 32, 32);
+    // Stool: buttoned leather seat, chrome column and foot ring.
+    g.clear();
+    g.fillStyle(0x7b241c, 1); // seat
+    g.fillEllipse(16, 10, 20, 11);
+    g.fillStyle(0x9c3226, 1);
+    g.fillEllipse(16, 8, 16, 7);
+    g.fillStyle(0x5b1a14, 1);
+    g.fillRect(6, 12, 20, 3); // seat rim
+    drawPixel(16, 8, 0x5b1a14); // button
+    fillRect(14, 15, 4, 11, 0xaeb6b8); // column
+    fillRect(14, 15, 1, 11, 0xd7dbdd);
+    fillRect(9, 21, 14, 2, 0x9aa5b1); // foot ring
+    g.fillStyle(0x8a9699, 1); // base
+    g.fillEllipse(16, 29, 20, 5);
+    g.fillStyle(0x6c7679, 1);
+    g.fillRect(6, 30, 20, 2);
     g.generateTexture('bar_stool', 32, 32);
-    g.clear(); g.fillStyle(0x3e2723, 1); g.fillRect(0, 10, 32, 4); 
-    const bCols = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
-    for(let i=0; i<4; i++) {
-        g.fillStyle(bCols[i], 1); g.fillRect(2 + i*8, 0, 4, 10);
+    // Backbar: bottles of different heights on a lit timber shelf.
+    g.clear();
+    fillRect(0, 22, 32, 3, 0x4e342e); // shelf
+    fillRect(0, 22, 32, 1, 0x7b5a49);
+    fillRect(0, 25, 32, 1, 0x2b1a14); // shadow under the shelf
+    const bottles = [
+        { x: 2, h: 16, body: 0x2e7d32, cap: 0xd4a017 },
+        { x: 8, h: 20, body: 0x8b1a1a, cap: 0xecf0f1 },
+        { x: 14, h: 13, body: 0xd4a017, cap: 0x4e342e },
+        { x: 19, h: 18, body: 0x1a5276, cap: 0xd7dbdd },
+        { x: 25, h: 15, body: 0x6c3483, cap: 0xd4a017 }
+    ];
+    for (const b of bottles) {
+        const top = 22 - b.h;
+        fillRect(b.x, top + 3, 4, b.h - 3, b.body); // body
+        fillRect(b.x + 1, top, 2, 4, b.body); // neck
+        fillRect(b.x + 1, top - 1, 2, 1, b.cap); // cap
+        fillRect(b.x, top + 3, 1, b.h - 3, 0xffffff); // glass highlight
+        fillRect(b.x, top + 8, 4, 3, 0xf4f6f7); // label
     }
     g.generateTexture('bar_shelf', 32, 32);
-    g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,32,32);
-    g.fillStyle(0x795548, 1); 
-    g.fillRect(0,0,14,14); g.fillRect(16,0,16,14);
-    g.fillRect(0,16,6,14); g.fillRect(8,16,14,14); g.fillRect(24,16,8,14);
+    // Exposed brick: offset courses, mortar lines and slight tone variation.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x6b4235); // mortar
+    const brick = [0x8d5a45, 0x7d4e3b, 0x99644d, 0x84543f];
+    for (let row = 0; row < 4; row++) {
+        const y = row * 8;
+        const offset = row % 2 ? -8 : 0;
+        for (let i = 0; i < 3; i++) {
+            const x = offset + i * 16;
+            fillRect(Math.max(x, 0), y + 1, x < 0 ? 16 + x : Math.min(15, 32 - x), 6, brick[(row + i) % 4]);
+        }
+    }
+    fillRect(0, 1, 32, 1, 0x9c6b55); // top highlight on each course
+    fillRect(0, 17, 32, 1, 0x9c6b55);
     g.generateTexture('bar_wall', 32, 32);
 
     // --- FAMILY AND GUESTS ---------------------------------------------------
@@ -1407,4 +1498,141 @@ export function generateTextures(scene) {
     fillRect(3, 11, 10, 1, 0x8a9aa8); // band
     fillRect(2, 23, 12, 1, 0x2c3e50);
     g.generateTexture('trash_bin', 16, 24);
+    // --- BAR FITTINGS AND PLANT VARIETIES ------------------------------------
+    // Beer tap tower: three handles on a chrome column with a drip tray.
+    g.clear();
+    fillRect(12, 4, 8, 18, 0xaeb6b8); // column
+    fillRect(12, 4, 2, 18, 0xd7dbdd);
+    fillRect(11, 2, 10, 3, 0x8a9699); // cap
+    for (let i = 0; i < 3; i++) {
+        const x = 4 + i * 8;
+        fillRect(x, 10, 3, 6, 0x9aa5b1); // spout arm
+        fillRect(x, 8, 3, 3, [0x2e7d32, 0xc0392b, 0xd4a017][i]); // handle
+    }
+    fillRect(2, 22, 28, 3, 0x6c7679); // drip tray
+    fillRect(2, 22, 28, 1, 0x9aa5b1);
+    for (let i = 4; i < 30; i += 4) drawPixel(i, 23, 0x4a5257);
+    g.generateTexture('bar_taps', 32, 32);
+
+    // Neon sign: a glowing cocktail glass inside a tube border.
+    g.clear();
+    g.fillStyle(0x14121c, 1);
+    g.fillRect(0, 0, 64, 32);
+    g.fillStyle(0xff2d95, 0.25); // outer glow
+    g.fillRect(2, 2, 60, 28);
+    g.fillStyle(0xff2d95, 1); // tube border
+    g.fillRect(4, 4, 56, 2); g.fillRect(4, 26, 56, 2);
+    g.fillRect(4, 4, 2, 24); g.fillRect(58, 4, 2, 24);
+    g.fillStyle(0x00e5ff, 0.3); // glass glow
+    g.fillRect(20, 8, 24, 18);
+    g.fillStyle(0x00e5ff, 1); // martini glass in neon
+    g.beginPath(); g.moveTo(22, 10); g.lineTo(42, 10); g.lineTo(34, 19); g.lineTo(30, 19); g.closePath(); g.fill();
+    g.fillRect(31, 19, 2, 5);
+    g.fillRect(27, 23, 10, 2);
+    g.fillStyle(0xffffff, 0.85);
+    g.fillRect(24, 11, 14, 1);
+    g.generateTexture('neon_sign', 64, 32);
+
+    // Dartboard with two darts in the top scoring beds.
+    g.clear();
+    g.fillStyle(0x2b1a14, 1); g.fillCircle(12, 12, 12); // surround
+    g.fillStyle(0xf4f0d8, 1); g.fillCircle(12, 12, 10); // board
+    g.fillStyle(0x1c1c1c, 1);
+    for (let i = 0; i < 8; i++) {
+        const a = (Math.PI / 4) * i;
+        g.beginPath();
+        g.moveTo(12, 12);
+        g.lineTo(12 + Math.cos(a) * 10, 12 + Math.sin(a) * 10);
+        g.lineTo(12 + Math.cos(a + 0.39) * 10, 12 + Math.sin(a + 0.39) * 10);
+        g.closePath(); g.fill();
+    }
+    g.fillStyle(0x2e7d32, 1); g.fillCircle(12, 12, 4);
+    g.fillStyle(0xc0392b, 1); g.fillCircle(12, 12, 2);
+    g.fillStyle(0xecf0f1, 1); // darts
+    g.fillRect(14, 4, 5, 1); g.fillRect(17, 3, 2, 3);
+    g.fillRect(6, 7, 5, 1); g.fillRect(5, 6, 2, 3);
+    g.generateTexture('dartboard', 24, 24);
+
+    // Pendant lamp: flex, brass cone and the pool of light under it.
+    g.clear();
+    fillRect(7, 0, 2, 8, 0x2b2b2b); // flex
+    g.fillStyle(0xb8860b, 1); // shade
+    g.beginPath(); g.moveTo(8, 8); g.lineTo(1, 18); g.lineTo(15, 18); g.closePath(); g.fill();
+    g.fillStyle(0xd4a017, 1);
+    g.beginPath(); g.moveTo(8, 9); g.lineTo(4, 17); g.lineTo(9, 17); g.closePath(); g.fill();
+    fillRect(1, 18, 14, 1, 0x8a6508);
+    g.fillStyle(0xffe9a8, 1); // bulb
+    g.fillCircle(8, 19, 2);
+    g.fillStyle(0xffd76e, 0.35); // light pool
+    g.fillEllipse(8, 24, 16, 8);
+    g.fillStyle(0xffd76e, 0.18);
+    g.fillEllipse(8, 26, 14, 6);
+    g.generateTexture('pendant_lamp', 16, 28);
+
+    // Fern in a woven basket.
+    g.clear();
+    fillRect(9, 23, 14, 9, 0xa9762f); // basket
+    fillRect(20, 23, 3, 9, 0x8a5f24);
+    for (let i = 10; i < 23; i += 3) fillRect(i, 24, 2, 7, 0xc08a3e); // weave
+    fillRect(9, 22, 14, 2, 0xc9a05a); // rim
+    g.fillStyle(0x2e7d32, 1); // arching fronds
+    g.fillEllipse(16, 16, 8, 14);
+    g.fillEllipse(8, 15, 8, 11);
+    g.fillEllipse(24, 15, 8, 11);
+    g.fillEllipse(11, 8, 7, 9);
+    g.fillEllipse(21, 8, 7, 9);
+    g.fillStyle(0x43a047, 1);
+    g.fillEllipse(16, 12, 6, 10);
+    g.fillEllipse(10, 12, 5, 7);
+    g.fillEllipse(22, 12, 5, 7);
+    g.fillStyle(0x1b5e20, 1); // depth between fronds
+    fillRect(15, 18, 2, 5, 0x1b5e20);
+    g.fillStyle(0x81c784, 1); // new growth
+    g.fillEllipse(16, 5, 4, 5);
+    g.generateTexture('plant_fern', 32, 32);
+
+    // Snake plant: tall upright blades in a cylinder pot.
+    g.clear();
+    fillRect(10, 24, 12, 8, 0xcfd8dc); // pot
+    fillRect(18, 24, 4, 8, 0xb0bec5);
+    fillRect(10, 23, 12, 2, 0xeceff1); // rim
+    fillRect(11, 26, 10, 1, 0xb0bec5);
+    const blades = [
+        { x: 11, top: 6, w: 3 },
+        { x: 14, top: 2, w: 3 },
+        { x: 17, top: 5, w: 3 },
+        { x: 20, top: 9, w: 2 }
+    ];
+    for (const b of blades) {
+        fillRect(b.x, b.top, b.w, 24 - b.top, 0x2e7d32);
+        fillRect(b.x, b.top, 1, 24 - b.top, 0x66bb6a); // lit edge
+        fillRect(b.x + b.w - 1, b.top + 2, 1, 22 - b.top, 0x1b5e20);
+        fillRect(b.x, b.top, b.w, 2, 0xd4c04a); // yellow tip
+    }
+    g.generateTexture('plant_snake', 32, 32);
+
+    // Flowering pot: mounded foliage with blooms.
+    g.clear();
+    fillRect(10, 23, 12, 9, 0xb5651d); // pot
+    fillRect(18, 23, 4, 9, 0x8f4e15);
+    fillRect(9, 21, 14, 3, 0xcd7f32); // rim
+    fillRect(9, 21, 14, 1, 0xe09a4e);
+    g.fillStyle(0x2e7d32, 1); // foliage
+    g.fillEllipse(16, 15, 20, 14);
+    g.fillStyle(0x43a047, 1);
+    g.fillEllipse(12, 13, 11, 9);
+    g.fillEllipse(21, 14, 10, 8);
+    const blooms = [
+        { x: 9, y: 12, c: 0xe91e63 },
+        { x: 16, y: 8, c: 0xffeb3b },
+        { x: 23, y: 12, c: 0xe91e63 },
+        { x: 13, y: 17, c: 0xff7043 },
+        { x: 20, y: 18, c: 0xffeb3b }
+    ];
+    for (const b of blooms) {
+        g.fillStyle(b.c, 1);
+        g.fillCircle(b.x, b.y, 2);
+        drawPixel(b.x, b.y, 0xfff59d);
+    }
+    g.generateTexture('plant_flowers', 32, 32);
 }

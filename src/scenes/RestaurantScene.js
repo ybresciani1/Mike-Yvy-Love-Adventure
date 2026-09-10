@@ -11,7 +11,7 @@ export class RestaurantScene extends Phaser.Scene {
         for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood'); 
         this.add.image(100, 150, 'conf_table').setTint(0x5d4037).setScale(0.8); this.add.image(700, 150, 'conf_table').setTint(0x5d4037).setScale(0.8); this.add.image(100, 450, 'conf_table').setTint(0x5d4037).setScale(0.8); 
         [ {x: 80, y: 130}, {x: 120, y: 130}, {x: 680, y: 130}, {x: 720, y: 130}, {x: 80, y: 430} ].forEach((pos, i) => { let c = this.add.sprite(pos.x, pos.y, i % 2 ? 'civilian_f' : 'civilian'); c.setTint(Math.random() * 0xffffff); }); 
-        this.add.image(50, 50, 'plant'); this.add.image(750, 50, 'plant'); this.add.image(750, 550, 'plant'); this.add.text(400, 50, "GORDON BIERSCH BREWPUB", { fontSize: '24px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5); 
+        this.add.image(50, 50, 'plant_flowers'); this.add.image(750, 50, 'plant'); this.add.image(750, 550, 'plant_fern'); this.add.text(400, 50, "GORDON BIERSCH BREWPUB", { fontSize: '24px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5); 
         this.hostStand = this.physics.add.staticImage(200, 200, 'host_stand'); this.host = this.add.sprite(220, 190, 'host'); this.hostZone = this.add.rectangle(200, 250, 60, 60, 0xffff00, 0); this.physics.add.existing(this.hostZone, true); 
         this.table = this.add.image(600, 400, 'conf_table').setTint(0x5d4037); this.chairMike = this.add.image(580, 430, 'chair'); this.chairYvy = this.add.image(620, 430, 'chair'); 
         this.menu1 = this.add.image(580, 390, 'menu'); this.menu2 = this.add.image(620, 390, 'menu'); 

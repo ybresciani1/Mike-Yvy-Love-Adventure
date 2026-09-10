@@ -10,7 +10,7 @@ export class BarScene extends Phaser.Scene {
     create() { 
         this.cameras.main.setBackgroundColor('#2c3e50'); 
         for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<6; y++) this.add.image(x*32+16, y*32+16, 'bar_wall');
-        for (let x=0; x<GAME_WIDTH/32; x++) for (let y=6; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0x888888); 
+        for (let x=0; x<GAME_WIDTH/32; x++) for (let y=6; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0xa8907f); 
         
         for(let x=200; x<600; x+=64) {
             this.add.image(x+16, 60, 'bar_shelf');
@@ -24,6 +24,32 @@ export class BarScene extends Phaser.Scene {
         for(let x=232; x<=568; x+=64) {
             this.add.image(x, 240, 'bar_stool');
         }
+        // Backbar and room fittings.
+        this.add.image(500, 175, 'bar_taps');
+        this.add.image(120, 74, 'neon_sign');
+        this.add.image(700, 70, 'dartboard');
+        for (let x = 224; x <= 576; x += 88) this.add.image(x, 142, 'pendant_lamp');
+        this.add.image(660, 150, 'plant_snake');
+        this.add.image(70, 300, 'plant_fern');
+
+        // Booths along the far wall, so the room isn't just a counter.
+        [{ x: 690, y: 380 }, { x: 690, y: 480 }].forEach(p => {
+            this.add.image(p.x, p.y, 'conf_table').setTint(0x4a3226).setScale(0.65);
+            this.add.image(p.x - 42, p.y, 'bar_stool');
+            this.add.image(p.x + 42, p.y, 'bar_stool');
+            this.add.image(p.x, p.y - 6, 'beer').setScale(0.6);
+        });
+        [{ x: 150, y: 430 }, { x: 260, y: 500 }].forEach(p => {
+            this.add.image(p.x, p.y, 'conf_table').setTint(0x4a3226).setScale(0.65);
+            this.add.image(p.x - 42, p.y, 'bar_stool');
+            this.add.image(p.x, p.y - 6, 'cocktail').setScale(0.6);
+        });
+
+        // Glassware left on the bar.
+        this.add.image(250, 188, 'cocktail').setScale(0.7);
+        this.add.image(300, 190, 'beer').setScale(0.7);
+        this.add.image(560, 188, 'cocktail').setScale(0.7);
+
         this.add.sprite(400, 160, 'bartender');
         this.marine = this.physics.add.sprite(360, 230, 'marine'); 
         this.player = new Player(this, 280, 300); 
@@ -32,6 +58,8 @@ export class BarScene extends Phaser.Scene {
         this.mBeer = this.add.sprite(410, 190, 'beer').setScale(0.8); 
         this.marineZone = this.add.rectangle(360, 250, 60, 60, 0xffffff, 0); 
         this.physics.add.existing(this.marineZone, true); 
+        // Warm bar light over the whole room.
+        this.add.rectangle(400, 300, 800, 600, 0xff9a3c, 0.05).setBlendMode(Phaser.BlendModes.ADD);
         this.cursors = this.input.keyboard.createCursorKeys(); 
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.add.text(20, 20, "Space: Drink with Marine", { fontSize: '16px', color: '#fff' }); 
