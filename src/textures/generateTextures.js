@@ -1635,4 +1635,194 @@ export function generateTextures(scene) {
         drawPixel(b.x, b.y, 0xfff59d);
     }
     g.generateTexture('plant_flowers', 32, 32);
+    // --- MIKE'S DANCE POSES --------------------------------------------------
+    // Held-F dancing cycles these instead of flashing random tints. Same 32x32
+    // footprint and the same blue tee as 'mike', so only the limbs change.
+    const TEE = 0x3498db;
+    const TEE_SHADE = 0x2f86c4;
+    const JEANS = 0x34495e;
+    const JEANS_SHADE = 0x2c3e50;
+    const SHOE_L = 0xecf0f1;
+    const SHOE_R = 0xd5dbdb;
+
+    const danceHead = () => {
+        drawFace(5, { brow: HAIR_SHADE });
+        drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+        fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+    };
+
+    // Arms swung across to the right, hips counter-swung left.
+    g.clear();
+    danceHead();
+    fillRect(9, 17, 12, 9, TEE);
+    fillRect(19, 17, 2, 9, TEE_SHADE);
+    fillRect(12, 17, 6, 2, 0x2980b9); // collar
+    fillRect(21, 14, 6, 3, TEE); // lead arm out high
+    fillRect(26, 13, 3, 3, SKIN);
+    fillRect(11, 22, 10, 3, TEE_SHADE); // trailing arm across the body
+    fillRect(7, 22, 4, 3, SKIN);
+    fillRect(9, 26, 12, 1, 0x2c2c2c); // belt
+    fillRect(12, 27, 4, 4, JEANS);
+    fillRect(17, 27, 4, 4, JEANS_SHADE);
+    fillRect(11, 31, 5, 1, SHOE_L);
+    fillRect(17, 31, 5, 1, SHOE_R);
+    g.generateTexture('mike_dance_1', 32, 32);
+
+    // The mirror of it — the swing back the other way.
+    g.clear();
+    danceHead();
+    fillRect(11, 17, 12, 9, TEE);
+    fillRect(21, 17, 2, 9, TEE_SHADE);
+    fillRect(14, 17, 6, 2, 0x2980b9);
+    fillRect(5, 14, 6, 3, TEE); // lead arm out high, other side
+    fillRect(3, 13, 3, 3, SKIN);
+    fillRect(11, 22, 10, 3, TEE_SHADE);
+    fillRect(21, 22, 4, 3, SKIN);
+    fillRect(11, 26, 12, 1, 0x2c2c2c);
+    fillRect(12, 27, 4, 4, JEANS);
+    fillRect(17, 27, 4, 4, JEANS_SHADE);
+    fillRect(11, 31, 5, 1, SHOE_L);
+    fillRect(17, 31, 5, 1, SHOE_R);
+    g.generateTexture('mike_dance_2', 32, 32);
+
+    // One arm bent to the forehead, opposite leg kicked out.
+    // Arm bent over the brow in an L, opposite leg kicked out.
+    g.clear();
+    danceHead();
+    fillRect(10, 17, 12, 9, TEE);
+    fillRect(20, 17, 2, 9, TEE_SHADE);
+    fillRect(13, 17, 6, 2, 0x2980b9);
+    fillRect(22, 9, 3, 9, TEE); // upper arm straight up from the shoulder
+    fillRect(16, 6, 9, 3, TEE); // forearm folded back across the brow
+    fillRect(13, 6, 3, 3, SKIN); // hand resting on the forehead
+    fillRect(7, 18, 3, 7, TEE); // other arm hanging
+    fillRect(7, 25, 3, 3, SKIN);
+    fillRect(10, 26, 12, 1, 0x2c2c2c);
+    fillRect(12, 27, 4, 5, JEANS); // planted leg
+    fillRect(16, 26, 6, 3, JEANS_SHADE); // thigh swinging out
+    fillRect(21, 24, 5, 3, JEANS_SHADE); // shin kicked up
+    fillRect(25, 23, 5, 2, SHOE_R);
+    fillRect(11, 31, 5, 1, SHOE_L);
+    g.generateTexture('mike_dance_3', 32, 32);
+
+    // Both arms up in a V, feet apart and off the floor.
+    g.clear();
+    danceHead();
+    fillRect(10, 17, 12, 9, TEE);
+    fillRect(20, 17, 2, 9, TEE_SHADE);
+    fillRect(13, 17, 6, 2, 0x2980b9);
+    fillRect(6, 9, 3, 9, TEE); // arms up and out
+    fillRect(4, 6, 3, 3, SKIN);
+    fillRect(23, 9, 3, 9, TEE_SHADE);
+    fillRect(25, 6, 3, 3, SKIN);
+    fillRect(10, 26, 12, 1, 0x2c2c2c);
+    fillRect(9, 27, 4, 3, JEANS); // legs apart, airborne
+    fillRect(19, 27, 4, 3, JEANS_SHADE);
+    fillRect(8, 30, 5, 1, SHOE_L);
+    fillRect(19, 30, 5, 1, SHOE_R);
+    g.generateTexture('mike_dance_4', 32, 32);
+
+    // --- CLUB FITTINGS -------------------------------------------------------
+    // Lit glass dance-floor panel. Scenes tint these to chase colour on the beat.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0xffffff);
+    fillRect(0, 0, 32, 2, 0xd9d9d9); // panel edges
+    fillRect(0, 30, 32, 2, 0xbfbfbf);
+    fillRect(0, 0, 2, 32, 0xd9d9d9);
+    fillRect(30, 0, 2, 32, 0xbfbfbf);
+    fillRect(4, 4, 12, 12, 0xf2f2f2); // glass sheen
+    fillRect(18, 18, 9, 9, 0xe8e8e8);
+    g.generateTexture('dance_floor_tile', 32, 32);
+
+    // DJ booth: decks, mixer, laptop and a lit front panel.
+    g.clear();
+    fillRect(0, 12, 64, 28, 0x161622); // booth body
+    fillRect(0, 12, 64, 2, 0x2a2a40);
+    fillRect(2, 18, 60, 10, 0xff2d95); // lit front
+    fillRect(2, 18, 60, 2, 0xff7ac0);
+    for (let i = 4; i < 62; i += 6) fillRect(i, 21, 3, 5, 0x8e0f52); // grille slots
+    fillRect(0, 34, 64, 6, 0x0d0d16);
+    fillRect(4, 2, 18, 11, 0x2b2b3a); // left deck
+    fillRect(26, 4, 12, 9, 0x1f1f2b); // mixer
+    fillRect(42, 2, 18, 11, 0x2b2b3a); // right deck
+    g.fillStyle(0x0d0d14, 1);
+    g.fillCircle(13, 7, 4); g.fillCircle(51, 7, 4); // platters
+    g.fillStyle(0xd7dbdd, 1);
+    g.fillCircle(13, 7, 1); g.fillCircle(51, 7, 1);
+    fillRect(28, 6, 8, 1, 0x00e5ff); // mixer faders
+    fillRect(28, 9, 8, 1, 0x00e5ff);
+    drawPixel(31, 6, 0xffffff);
+    drawPixel(34, 9, 0xffffff);
+    g.generateTexture('dj_booth', 64, 40);
+
+    // PA stack: two woofers, a horn and a status LED.
+    g.clear();
+    fillRect(0, 0, 32, 64, 0x1b1b22);
+    fillRect(0, 0, 32, 2, 0x33333f);
+    fillRect(0, 62, 32, 2, 0x0d0d12);
+    fillRect(2, 2, 28, 60, 0x24242e);
+    g.fillStyle(0x12121a, 1); // woofers
+    g.fillCircle(16, 18, 11); g.fillCircle(16, 44, 11);
+    g.fillStyle(0x2f2f3d, 1);
+    g.fillCircle(16, 18, 7); g.fillCircle(16, 44, 7);
+    g.fillStyle(0x0a0a10, 1);
+    g.fillCircle(16, 18, 3); g.fillCircle(16, 44, 3);
+    fillRect(8, 4, 16, 6, 0x12121a); // horn
+    fillRect(10, 5, 12, 4, 0x2f2f3d);
+    drawPixel(28, 60, 0x00ff88); // power LED
+    g.generateTexture('speaker_stack', 32, 64);
+
+    // Mirror ball: facet grid with a highlight and a hanging stem.
+    g.clear();
+    fillRect(15, 0, 2, 5, 0x555561); // stem
+    g.fillStyle(0x8f9bb3, 1);
+    g.fillCircle(16, 18, 12);
+    g.fillStyle(0xb9c6de, 1);
+    g.fillCircle(13, 15, 8); // lit side
+    g.fillStyle(0x6b7690, 1);
+    for (let y = 7; y < 30; y += 4) fillRect(4, y, 24, 1, 0x6b7690); // facet lines
+    for (let x = 5; x < 29; x += 4) fillRect(x, 7, 1, 22, 0x6b7690);
+    g.fillStyle(0xffffff, 1); // specular hits
+    g.fillRect(10, 11, 3, 3);
+    g.fillRect(19, 21, 2, 2);
+    g.generateTexture('disco_ball', 32, 32);
+
+    // Neon-fronted bar panel.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x14141c);
+    fillRect(0, 0, 32, 3, 0x2b2b3a);
+    fillRect(0, 6, 32, 2, 0x00e5ff); // neon strip
+    fillRect(0, 6, 32, 1, 0x9ff6ff);
+    fillRect(0, 22, 32, 2, 0xff2d95);
+    fillRect(0, 22, 32, 1, 0xffa8d6);
+    for (let i = 2; i < 32; i += 8) fillRect(i, 11, 4, 9, 0x1d1d28); // panel seams
+    g.generateTexture('club_bar_front', 32, 32);
+
+    // Backlit spirits shelf.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x101018);
+    fillRect(0, 22, 32, 3, 0x2b2b3a); // shelf
+    fillRect(0, 22, 32, 1, 0x00e5ff); // underlight
+    const clubBottles = [
+        { x: 3, h: 15, c: 0x00e5ff },
+        { x: 9, h: 19, c: 0xff2d95 },
+        { x: 15, h: 13, c: 0xaeea00 },
+        { x: 20, h: 17, c: 0xffc400 },
+        { x: 26, h: 15, c: 0xb388ff }
+    ];
+    for (const b of clubBottles) {
+        const top = 22 - b.h;
+        fillRect(b.x, top + 3, 4, b.h - 3, b.c);
+        fillRect(b.x + 1, top, 2, 4, b.c);
+        fillRect(b.x, top + 3, 1, b.h - 3, 0xffffff);
+    }
+    g.generateTexture('club_shelf', 32, 32);
+
+    // Music note that floats off Mike while he dances.
+    g.clear();
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(3, 6, 2);
+    g.fillRect(4, 1, 1, 5);
+    g.fillRect(5, 1, 3, 1);
+    g.generateTexture('music_note', 8, 8);
 }
