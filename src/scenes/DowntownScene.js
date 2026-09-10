@@ -58,25 +58,25 @@ export class DowntownScene extends Phaser.Scene {
         shopSign(300, 220, "MOONSTONE", '#e4d7ff');
         this.add.image(450, 256, 'shop_book');
         shopSign(450, 220, "BOOK STORE", '#ffe6c4');
-        this.add.image(600, 254, 'donut_bar_front');
-        shopSign(600, 218, "DONUT BAR", '#ffd9e6');
-        this.add.image(750, 262, 'donut_wall_mural');
+        this.add.image(556, 254, 'donut_bar_front');
+        shopSign(556, 218, "DONUT BAR", '#ffd9e6');
+        this.add.image(718, 254, 'donut_wall_mural');
 
         // --- street furniture --------------------------------------------------
         this.add.image(196, 246, 'palm_tree');
         this.add.image(378, 246, 'palm_tree').setFlipX(true);
-        this.add.image(524, 250, 'palm_tree').setScale(0.9);
-        this.add.image(690, 244, 'palm_tree').setFlipX(true).setScale(1.05);
+        this.add.image(492, 250, 'palm_tree').setScale(0.9);
+        this.add.image(628, 244, 'palm_tree').setFlipX(true).setScale(1.05);
 
         this.add.image(180, 440, 'streetlight').setScale(1.5);
         this.add.image(700, 440, 'streetlight').setScale(1.5);
         this.add.image(52, 328, 'planter_box');
         this.add.image(240, 330, 'planter_box');
         this.add.image(392, 330, 'planter_box');
-        this.add.image(688, 328, 'planter_box');
+        this.add.image(636, 330, 'planter_box');
         this.add.image(360, 380, 'bike_rack');
         this.add.image(140, 318, 'parking_meter');
-        this.add.image(520, 318, 'parking_meter');
+        this.add.image(516, 318, 'parking_meter');
         this.add.image(668, 384, 'cafe_table_set');
         this.add.image(736, 384, 'cafe_table_set');
         this.add.image(30, 384, 'trash_bin');
@@ -124,8 +124,8 @@ export class DowntownScene extends Phaser.Scene {
         this.bookZone = this.add.rectangle(450, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.bookZone, true);
         this.clothingZone = this.add.rectangle(100, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.clothingZone, true);
         this.crystalZone = this.add.rectangle(300, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.crystalZone, true);
-        this.donutZone = this.add.rectangle(600, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.donutZone, true);
-        this.wallZone = this.add.rectangle(750, 330, 80, 60, 0xffff00, 0); this.physics.add.existing(this.wallZone, true);
+        this.donutZone = this.add.rectangle(556, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.donutZone, true);
+        this.wallZone = this.add.rectangle(718, 330, 90, 60, 0xffff00, 0); this.physics.add.existing(this.wallZone, true);
         this.benchZone = this.add.rectangle(200, 500, 80, 40, 0xffff00, 0); this.physics.add.existing(this.benchZone, true);
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
         this.player = new Player(this, 50, 400); this.player.setTexture(outfit);

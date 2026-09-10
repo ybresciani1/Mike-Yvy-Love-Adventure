@@ -3393,31 +3393,79 @@ export function generateTextures(scene) {
     });
     g.generateTexture('donut_bar_front', 112, 92);
 
-    // The donut wall everyone photographs: pink render, painted donuts, tag.
+    // The Donut Bar photo wall as it actually is: a white storefront with one
+    // big pink donut, glaze running off it, and a pair of spread angel wings
+    // you stand between. Not a pink wall covered in painted donuts.
     g.clear();
-    fillRect(0, 0, 104, 76, 0xf06292); // render
-    fillRect(0, 0, 104, 3, 0xf48fb1);
-    for (let sy = 6; sy < 76; sy += 9) for (let sx = (sy % 18 ? 0 : 5); sx < 104; sx += 14) drawPixel(sx, sy, 0xd94f7e); // stipple
-    fillRect(0, 70, 104, 6, 0xc2185b); // plinth
-    const wallDonuts = [[20, 24, 13], [54, 20, 15], [84, 30, 11], [34, 52, 10], [68, 54, 12]];
-    wallDonuts.forEach(([dx, dy, dr], i) => {
-        g.fillStyle(0xc98a4b, 1); // dough
-        g.fillCircle(dx, dy, dr);
-        g.fillStyle([0xfff59d, 0x80deea, 0xffffff, 0xce93d8, 0xa5d6a7][i], 1); // glaze
-        g.fillCircle(dx, dy - 1, dr - 2);
-        g.fillStyle(0xf06292, 1); // hole
-        g.fillCircle(dx, dy, Math.max(3, (dr / 3) | 0));
-        for (let s = 0; s < 7; s++) { // sprinkles
-            const a = s * 0.9 + i;
-            drawPixel(Math.round(dx + Math.cos(a) * (dr - 4)), Math.round(dy + Math.sin(a) * (dr - 4)),
-                [0xe53935, 0x1e88e5, 0xfdd835, 0x43a047][s % 4]);
+    fillRect(0, 0, 152, 92, 0xf7f5f1); // white shopfront
+    fillRect(0, 0, 152, 2, 0xffffff);
+    for (const px of [34, 76, 118]) fillRect(px, 6, 1, 70, 0xe4e0d9); // panel joints
+    fillRect(0, 78, 152, 14, 0x1c1c20); // dark base and threshold
+    fillRect(0, 78, 152, 1, 0x3a3a42);
+    fillRect(0, 0, 152, 5, 0xe8489a); // pink drip decal across the window head
+    for (let dx = 2; dx < 152; dx += 8) {
+        const drop = 4 + ((dx * 7) % 9);
+        fillRect(dx, 4, 5, drop, 0xe8489a);
+        g.fillStyle(0xe8489a, 1);
+        g.fillCircle(dx + 2, 4 + drop, 2);
+    }
+    fillRect(0, 0, 152, 2, 0xf47ab5);
+
+    // Angel wings. The shape that reads as a wing is an arched shoulder with
+    // primaries hanging off it — a plain fan of spokes from one point does not,
+    // and white feathers on a white shopfront need a grey edge to exist at all.
+    const wingFeather = (sx, sy, dir, ang, len, core) => {
+        for (let t = 0; t < len; t++) {
+            const px = Math.round(sx + dir * Math.cos(ang) * t * 0.78);
+            const py = Math.round(sy + Math.sin(ang) * t);
+            fillRect(px - 2, py - 2, 5, 5, 0xd2d7e0); // edge
+            fillRect(px - 1, py - 1, 3, 3, core); // core
         }
-    });
-    fillRect(8, 64, 30, 2, 0xffffff); // painted tag line
-    fillRect(8, 62, 3, 4, 0xffffff);
-    fillRect(20, 60, 3, 6, 0xffffff);
-    fillRect(32, 61, 3, 5, 0xffffff);
-    g.generateTexture('donut_wall_mural', 104, 76);
+    };
+    for (const dir of [-1, 1]) {
+        const rootX = 76 - dir * 4, rootY = 44;
+        const arc = [];
+        for (let k = 0; k <= 10; k++) { // the leading edge, sweeping up and out
+            const u = k / 10;
+            arc.push([rootX + dir * (7 + u * 56), rootY - 4 - 20 * Math.sin(u * Math.PI * 0.8)]);
+        }
+        arc.forEach(([sx, sy], k) => { // solid shoulder along that edge
+            fillRect(sx - 2, sy - 2, 5, 7 + (k < 5 ? 5 - k : 1), 0xc3c9d4);
+            fillRect(sx - 1, sy - 1, 3, 6 + (k < 5 ? 5 - k : 1), 0xffffff);
+        });
+        arc.forEach(([sx, sy], k) => { // primaries hanging from it, longest mid-wing
+            const u = k / 10;
+            const len = 12 + Math.round(26 * Math.sin(u * Math.PI * 0.95));
+            wingFeather(sx, sy + 4, dir, 0.86 - u * 0.56, len, k % 2 ? 0xffffff : 0xf4f6fa);
+        });
+    }
+
+    // The donut, sat in front of the wings.
+    g.fillStyle(0xc9337d, 1); // shaded underside of the glaze first
+    g.fillCircle(76, 45, 18);
+    g.fillStyle(0xe8489a, 1);
+    g.fillCircle(76, 44, 17);
+    g.fillStyle(0xf47ab5, 1); // lit top-left
+    g.fillCircle(71, 39, 10);
+    for (let dx = 62; dx <= 90; dx += 6) { // glaze running off the bottom
+        const drop = 4 + ((dx * 5) % 7);
+        fillRect(dx, 56, 4, drop, 0xe8489a);
+        g.fillStyle(0xe8489a, 1);
+        g.fillCircle(dx + 1, 56 + drop, 2);
+    }
+    g.fillStyle(0xc9337d, 1); // the hole shows the wall through it
+    g.fillCircle(76, 46, 6);
+    g.fillStyle(0xf7f5f1, 1);
+    g.fillCircle(76, 44, 6);
+    for (let s = 0; s < 14; s++) { // sprinkles
+        const ang = s * 0.9;
+        const rad = 10 + (s % 3) * 3;
+        drawPixel(Math.round(76 + Math.cos(ang) * rad), Math.round(44 + Math.sin(ang) * rad),
+            [0xffffff, 0xfdd835, 0x4fc3f7, 0x81c784][s % 4]);
+    }
+    fillRect(34, 82, 30, 2, 0xe8489a); // decals along the base
+    fillRect(88, 82, 22, 2, 0xffffff);
+    g.generateTexture('donut_wall_mural', 152, 92);
 
     // Downtown skyline for the horizon — towers, a couple of cranes, haze.
     g.clear();
