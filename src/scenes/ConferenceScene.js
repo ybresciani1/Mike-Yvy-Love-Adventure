@@ -11,8 +11,15 @@ export class ConferenceScene extends Phaser.Scene {
     create() { 
         this.cameras.main.setBackgroundColor('#f0f0f0'); playConferenceTheme(); 
         for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'expo_carpet'); 
-        this.table = this.physics.add.staticImage(400, 300, 'conf_table'); this.add.text(350, 260, "NOTION\nTHEORY", { fontSize: '14px', color: '#000', align: 'center', fontWeight: 'bold' }); 
-        this.vrHeadset = this.physics.add.sprite(400, 300, 'vr_headset'); this.heldVR = this.add.sprite(0,0,'vr_headset').setScale(0.8).setVisible(false); 
+        // Mike's own stand, dressed like the rest of the hall rather than left as a
+        // bare table: backdrop, header, banners and a demo counter.
+        this.add.image(400, 244, 'expo_booth').setTint(0xbcd6f5);
+        this.add.text(400, 224, "NOTION THEORY", { fontSize: '11px', color: '#12212e', fontStyle: 'bold' }).setOrigin(0.5);
+        this.add.text(400, 258, "SPATIAL COMPUTING", { fontSize: '8px', color: '#2c3e50' }).setOrigin(0.5);
+        this.add.image(318, 250, 'expo_banner').setTint(0xbcd6f5);
+        this.add.image(482, 250, 'expo_banner').setTint(0xbcd6f5);
+        this.table = this.physics.add.staticImage(400, 308, 'vr_demo_table'); 
+        this.vrHeadset = this.physics.add.sprite(400, 296, 'vr_headset'); this.heldVR = this.add.sprite(0,0,'vr_headset').setScale(0.8).setVisible(false); 
         this.booth1 = this.add.image(150, 92, 'expo_booth').setTint(0x8ec5e8); this.add.text(150, 70, "AI GEN", {fontSize: '11px', color: '#1b2631', fontStyle: 'bold'}).setOrigin(0.5); this.booth1Zone = this.add.rectangle(150, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth1Zone, true);
         this.booth2 = this.add.image(650, 92, 'expo_booth').setTint(0xf0a49c); this.add.text(650, 70, "WEB3", {fontSize: '11px', color: '#1b2631', fontStyle: 'bold'}).setOrigin(0.5); this.booth2Zone = this.add.rectangle(650, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth2Zone, true);
 // The rest of the hall: stands that are scenery, not interactions.

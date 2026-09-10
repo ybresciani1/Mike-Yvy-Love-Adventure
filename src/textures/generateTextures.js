@@ -3222,4 +3222,24 @@ export function generateTextures(scene) {
     }
     fillRect(0, 44, 64, 4, 0x8c3f26);
     g.generateTexture('mural_panel', 64, 48);
+
+    // Notion Theory demo counter: dark top with a lit edge, a headset stand and
+    // a laptop. The middle is left clear for the headset the player picks up.
+    g.clear();
+    fillRect(0, 8, 96, 24, 0x1f2733); // counter body
+    fillRect(0, 8, 96, 3, 0x33475b); // top surface
+    fillRect(0, 11, 96, 2, 0x00e5ff); // lit edge
+    fillRect(0, 13, 96, 2, 0x0a3a45); // glow spill
+    fillRect(0, 30, 96, 5, 0x121820); // kick shadow
+    for (let i = 6; i < 92; i += 14) fillRect(i, 18, 8, 10, 0x27313f); // panel seams
+    fillRect(14, 2, 4, 7, 0x5d6d7e); // headset stand
+    fillRect(8, 0, 16, 3, 0x8a9aa8);
+    fillRect(10, 3, 12, 2, 0x2b2b33);
+    fillRect(68, 1, 22, 8, 0x2b2b33); // laptop
+    fillRect(70, 2, 18, 5, 0x5dade2);
+    fillRect(70, 2, 18, 2, 0x9fd6f0);
+    fillRect(66, 9, 26, 2, 0x4a4a56);
+    fillRect(40, 3, 14, 5, 0xf4f6f7); // leaflets
+    fillRect(41, 4, 12, 1, 0x33475b);
+    g.generateTexture('vr_demo_table', 96, 40);
 }
