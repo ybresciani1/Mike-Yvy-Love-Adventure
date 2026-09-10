@@ -2202,4 +2202,38 @@ export function generateTextures(scene) {
     g.fillStyle(0xfffbe8, 1);
     g.fillCircle(18, 16, 3);
     g.generateTexture('moon', 48, 48);
+
+    // --- THE DJ --------------------------------------------------------------
+    // Two frames swapped on the beat: hands working the decks, then a fist up.
+    const djBase = () => {
+        drawFace(5, { brow: 0x1b1b1b });
+        drawShortHair(0x1f1f1f, 0x3b3b3b, 0x121212);
+        fillRect(8, 5, 3, 6, 0x2b2b34); // headphone cups
+        fillRect(21, 5, 3, 6, 0x2b2b34);
+        fillRect(8, 4, 3, 1, 0x5a5a68);
+        fillRect(21, 4, 3, 1, 0x5a5a68);
+        fillRect(9, 0, 14, 2, 0x2b2b34); // headband
+        fillRect(9, 0, 14, 1, 0x5a5a68);
+        fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+        fillRect(10, 17, 12, 9, 0x14141c); // black tee
+        fillRect(20, 17, 2, 9, 0x0b0b12);
+        fillRect(13, 17, 6, 2, 0x00e5ff); // luminous print
+        fillRect(14, 20, 4, 3, 0xff2d95);
+    };
+
+    g.clear();
+    djBase();
+    fillRect(6, 19, 4, 6, 0x14141c); // both arms down on the decks
+    fillRect(5, 24, 4, 3, SKIN);
+    fillRect(22, 19, 4, 6, 0x0b0b12);
+    fillRect(23, 24, 4, 3, SKIN_SHADE);
+    g.generateTexture('dj_1', 32, 32);
+
+    g.clear();
+    djBase();
+    fillRect(6, 19, 4, 6, 0x14141c); // one hand still cueing
+    fillRect(5, 24, 4, 3, SKIN);
+    fillRect(23, 10, 3, 9, 0x0b0b12); // other fist thrown up
+    fillRect(22, 6, 4, 4, SKIN_SHADE);
+    g.generateTexture('dj_2', 32, 32);
 }
