@@ -50,13 +50,21 @@ export class MorningScene extends Phaser.Scene {
         this.add.image(184, 408, 'coffee').setScale(0.7);
         this.add.image(636, 40, 'hotel_window_night'); this.add.image(268, 32, 'wall_art'); this.add.image(470, 32, 'wall_art'); 
         this.dresser = this.physics.add.staticImage(600, 100, 'dresser'); this.door = this.physics.add.staticImage(100, 100, 'door'); 
-        this.add.image(336, 300, 'nightstand'); this.add.image(464, 300, 'nightstand'); this.add.image(336, 288, 'lamp').setScale(0.8); this.add.image(464, 288, 'lamp').setScale(0.8); this.add.text(150, 200, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); this.phone = this.physics.add.staticImage(464, 318, 'hotel_phone'); this.player = new Player(this, 400, 302);
+        this.add.image(336, 300, 'nightstand'); this.add.image(464, 300, 'nightstand'); this.add.image(336, 288, 'lamp').setScale(0.8); this.add.image(464, 288, 'lamp').setScale(0.8); this.add.text(150, 200, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); this.phone = this.physics.add.staticImage(464, 318, 'hotel_phone'); this.player = new Player(this, 400, 278);
         this.physics.add.collider(this.player, walls);
         // It is 4am: he is in the bed, not standing beside it. He gets up the
         // moment the player moves him.
         this.asleep = true;
-        this.player.setAngle(-90);
-        this.zzz = this.add.text(436, 268, "Zzz...", { fontSize: '14px', color: '#efe6d6' });
+        // Head on the pillows, lying along the bed rather than across it. The
+        // duvet is laid over him afterwards so he reads as tucked in instead of
+        // stood on the mattress.
+        this.bedding = [
+            this.add.rectangle(400, 322, 78, 68, 0xf4f2ed),
+            this.add.rectangle(400, 289, 78, 3, 0xffffff),
+            this.add.rectangle(400, 299, 78, 16, 0x8e2f3f),
+            this.add.rectangle(400, 292, 78, 2, 0xa84152)
+        ];
+        this.zzz = this.add.text(424, 248, "Zzz...", { fontSize: '14px', color: '#efe6d6' });
         this.tweens.add({ targets: this.zzz, y: 260, alpha: 0.35, duration: 1300, yoyo: true, repeat: -1 }); this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.ringing = true; this.tweens.add({ targets: this.phone, scale: 1.5, duration: 200, yoyo: true, repeat: -1 }); 
         this.time.addEvent({ delay: 1000, callback: () => { if(this.ringing) playSound('select'); }, loop: true }); 
@@ -85,7 +93,7 @@ export class MorningScene extends Phaser.Scene {
     update() {
         if (this.asleep && (this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
             this.asleep = false;
-            this.player.setAngle(0);
+            this.bedding.forEach(piece => piece.destroy());
             this.zzz.destroy();
         }
         this.player.update(this.cursors); document.getElementById('interaction-hint').style.display = (this.physics.overlap(this.player, this.phone) || (gameState.callFinished && this.physics.overlap(this.player, this.dresserZone)) || (gameState.dressedForWork && this.physics.overlap(this.player, this.doorZone))) ? 'block' : 'none'; } 
