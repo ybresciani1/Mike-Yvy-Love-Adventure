@@ -67,7 +67,7 @@ export class AirportScene extends Phaser.Scene {
         this.pullAngle = Math.PI; // parked behind him until he first moves
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
         this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor);
-        this.heldSuitcase = this.add.sprite(0, 0, 'suitcase').setScale(0.5).setVisible(false);
+        this.heldSuitcase = this.add.sprite(0, 0, 'suitcase').setVisible(false);
         this.heldTicket = this.add.sprite(0, 0, 'ticket').setScale(0.5).setVisible(false);
         this.heldCoffee = this.add.sprite(0, 0, 'coffee').setScale(0.5).setVisible(false);
         this.cursors = this.input.keyboard.createCursorKeys();
