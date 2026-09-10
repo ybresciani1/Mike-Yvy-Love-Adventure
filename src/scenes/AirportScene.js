@@ -19,13 +19,13 @@ export class AirportScene extends Phaser.Scene {
         const walls = this.physics.add.staticGroup();
         for(let y=0; y<GAME_HEIGHT; y+=32) { if(y < 250 || y > 350) walls.create(600, y+16, null).setSize(32,32).setVisible(false); }
         this.securityBarrier = this.physics.add.staticSprite(600, 300, null).setSize(32, 100).setVisible(false);
-        this.gateVisual = this.add.rectangle(600, 300, 32, 100, 0xffff00, 0.3);
+        this.gateVisual = this.add.rectangle(600, 300, 32, 100, 0xffff00, 0.18);
         this.tsa = this.physics.add.sprite(600, 260, 'tsa'); this.tsa.setImmovable(true);
         this.tsaZone = this.add.rectangle(580, 300, 50, 100, 0xffff00, 0); this.physics.add.existing(this.tsaZone, true);
         this.add.text(50, 50, "DEPARTURES", { fontSize: '24px', color: '#000', backgroundColor: '#fff' });
-        this.add.rectangle(200, 150, 60, 40, 0x34495e); this.add.text(175, 120, "TICKETS", { fontSize: '12px', color: '#fff' });
+        this.add.image(200, 150, 'checkin_desk'); this.add.text(175, 120, "TICKETS", { fontSize: '12px', color: '#fff' });
         this.ticket = this.physics.add.sprite(200, 200, 'ticket');
-        this.add.rectangle(400, 150, 100, 40, 0x95a5a6); this.add.text(360, 120, "BAG CHECK-IN", { fontSize: '12px', color: '#fff' });
+        this.add.image(374, 150, 'checkin_desk'); this.add.image(430, 150, 'checkin_desk'); this.add.text(360, 120, "BAG CHECK-IN", { fontSize: '12px', color: '#fff' });
         this.suitcase = this.physics.add.sprite(400, 200, 'suitcase');
         this.walkways = this.add.group();
         for (let x = 800; x < 2000; x += 32) { let w = this.add.sprite(x, 300, 'walkway'); this.physics.add.existing(w, true); this.walkways.add(w); }
@@ -42,18 +42,23 @@ export class AirportScene extends Phaser.Scene {
         this.add.image(1400, 50, 'large_window'); this.add.image(1500, 50, 'large_window'); this.add.image(1600, 50, 'large_window');
         this.viewingZone = this.add.rectangle(1500, 100, 300, 50, 0xffff00, 0); this.physics.add.existing(this.viewingZone, true);
         this.add.image(300, 40, 'poster'); this.add.image(700, 40, 'poster'); this.add.image(1100, 40, 'poster'); this.add.image(2000, 40, 'poster');
+        this.add.image(330, 56, 'departure_board');
+        this.add.image(600, 300, 'security_arch');
+        [900, 1300, 1700, 2200].forEach(x => { this.add.image(x, 210, 'gate_seats'); this.add.image(x - 72, 210, 'gate_seats'); });
+        [{x: 262, y: 470}, {x: 1150, y: 150}, {x: 2050, y: 455}].forEach(p => this.add.image(p.x, p.y, 'luggage_cart'));
+        [480, 1010, 1460, 1760, 2150].forEach(x => this.add.image(x, 124, 'trash_bin'));
         this.decor = this.physics.add.staticGroup();
         [100, 550, 800, 1200, 1800, 2100].forEach(x => this.decor.create(x, 100, 'plant'));
         [550, 900, 1800].forEach(x => this.decor.create(x, 500, 'plant'));
         this.add.image(1000, 500, 'store_news'); this.add.text(970, 450, "NEWS", {fontSize: '14px', color: '#000'});
         this.add.image(1300, 500, 'store_food'); this.add.text(1260, 450, "BURGER QUEEN", {fontSize: '14px', color: '#000'});
-        this.add.rectangle(1600, 500, 60, 60, 0x3498db); this.add.text(1570, 450, "RESTROOMS", {fontSize: '14px', color: '#000'});
+        this.add.image(1600, 494, 'restroom_door'); this.add.text(1570, 450, "RESTROOMS", {fontSize: '14px', color: '#000'});
         this.newsZone = this.add.rectangle(1000, 500, 100, 60, 0xffff00, 0); this.physics.add.existing(this.newsZone, true);
         this.burgerZone = this.add.rectangle(1300, 500, 100, 60, 0xffff00, 0); this.physics.add.existing(this.burgerZone, true);
         this.restroomZone = this.add.rectangle(1600, 500, 60, 60, 0xffff00, 0); this.physics.add.existing(this.restroomZone, true);
-        this.starbucksZone = this.add.rectangle(1900, 500, 100, 60, 0x00704a).setAlpha(0.8); this.physics.add.existing(this.starbucksZone, true);
+        this.starbucksZone = this.add.rectangle(1900, 500, 100, 60, 0x00704a).setAlpha(0); this.add.image(1900, 494, 'coffee_kiosk'); this.physics.add.existing(this.starbucksZone, true);
         this.add.text(1860, 450, "STARBUCKS", { fontSize: '14px', color: '#fff', backgroundColor: '#00704a' });
-        this.add.sprite(1950, 520, 'marine').setTint(0x000000);
+        this.add.sprite(1955, 522, 'server');
         this.gateZone = this.add.rectangle(2200, 150, 50, 100, 0x00ff00, 0.3); this.physics.add.existing(this.gateZone, true);
         for(let i=0; i<10; i++) { let npc = this.add.sprite(700 + Math.random()*1500, 200 + Math.random()*200, i % 2 ? 'civilian_f' : 'civilian'); npc.setTint(Math.random() * 0xffffff); }
         this.player = new Player(this, 100, 300);

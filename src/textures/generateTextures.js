@@ -469,12 +469,61 @@ export function generateTextures(scene) {
     g.generateTexture('doctor', 32, 32);
     
     g.clear(); g.fillStyle(COLORS.floor, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x795548, 0.5); g.fillRect(0,30,32,2); g.generateTexture('floor_wood', 32, 32);
-    g.clear(); g.fillStyle(0xbdc3c7, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0xecf0f1, 0.3); g.fillRect(2,2,28,28); g.generateTexture('floor_tile', 32, 32);
+    // Polished terminal floor: large tiles, grout lines and a faint sheen.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0xd6dbdd);
+    fillRect(0, 0, 32, 1, 0xaeb6b8); // grout
+    fillRect(0, 0, 1, 32, 0xaeb6b8);
+    fillRect(2, 2, 12, 12, 0xe4e8ea); // quadrant sheen
+    fillRect(18, 18, 11, 11, 0xdde2e4);
+    drawPixel(24, 6, 0xc3cacd);
+    drawPixel(7, 22, 0xc3cacd);
+    g.generateTexture('floor_tile', 32, 32);
     g.clear(); g.fillStyle(0x424242, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x616161, 1); g.fillRect(2,2,28,28); g.generateTexture('pavement', 32, 32);
     g.clear(); g.fillStyle(0x2e7d32, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x1b5e20, 0.5); g.fillRect(0,30,32,2); g.generateTexture('grass', 32, 32);
-    g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(4, 8, 24, 16); g.generateTexture('suitcase', 32, 32);
-    g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(8, 10, 16, 12); g.fillStyle(0x000000, 1); g.fillRect(10, 12, 12, 2); g.generateTexture('ticket', 32, 32);
-    g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(10, 10, 12, 18); g.fillStyle(COLORS.starbucks, 1); g.fillRect(10, 15, 12, 4); g.generateTexture('coffee', 32, 32);
+    // Roller case: shell with straps, a telescoping handle and wheels.
+    g.clear();
+    fillRect(6, 9, 20, 17, 0x6d4c41); // shell
+    fillRect(22, 9, 4, 17, 0x543a31); // shadow side
+    fillRect(6, 9, 20, 1, 0x8d6e63);
+    fillRect(11, 9, 2, 17, 0x4e342e); // straps
+    fillRect(19, 9, 2, 17, 0x4e342e);
+    fillRect(6, 16, 20, 1, 0x4e342e); // centre seam
+    fillRect(14, 5, 2, 4, 0x9aa5b1); // handle
+    fillRect(14, 4, 6, 1, 0x9aa5b1);
+    fillRect(19, 5, 2, 4, 0x9aa5b1);
+    fillRect(8, 12, 3, 2, 0xf1c40f); // luggage tag
+    fillRect(7, 26, 4, 3, 0x2b2b2b); // wheels
+    fillRect(21, 26, 4, 3, 0x2b2b2b);
+    g.generateTexture('suitcase', 32, 32);
+    // Boarding pass: stub, perforation and a barcode.
+    g.clear();
+    fillRect(5, 11, 22, 11, 0xfdfefe);
+    fillRect(5, 11, 22, 1, 0xd5dbdb);
+    fillRect(5, 21, 22, 1, 0xc8cfd0);
+    fillRect(5, 11, 7, 11, 0x2980b9); // airline stub
+    fillRect(6, 13, 5, 1, 0xecf0f1);
+    fillRect(6, 15, 4, 1, 0xaed6f1);
+    fillRect(12, 11, 1, 11, 0xbdc3c7); // perforation
+    for (let i = 14; i < 26; i += 2) fillRect(i, 13, 1, 5, 0x2c3e50); // barcode
+    fillRect(14, 19, 9, 1, 0x7f8c8d);
+    g.generateTexture('ticket', 32, 32);
+    // Takeaway cup: domed lid, corrugated sleeve, green roundel.
+    g.clear();
+    fillRect(11, 12, 11, 16, 0xfdfefe); // cup
+    fillRect(19, 12, 3, 16, 0xe5e8e8); // shadow side
+    fillRect(10, 9, 13, 3, 0xf4f6f7); // lid
+    fillRect(10, 9, 13, 1, 0xffffff);
+    fillRect(14, 7, 5, 2, 0xe5e8e8); // sip lid rise
+    fillRect(10, 17, 13, 6, 0x9c6b4f); // sleeve
+    fillRect(10, 17, 13, 1, 0xb98263);
+    for (let i = 11; i < 23; i += 2) fillRect(i, 18, 1, 4, 0x8a5c43); // corrugation
+    g.fillStyle(COLORS.starbucks, 1); // roundel
+    g.fillCircle(16, 14, 3);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(16, 14, 1);
+    fillRect(12, 28, 9, 1, 0xd5dbdb);
+    g.generateTexture('coffee', 32, 32);
     g.clear(); g.fillStyle(COLORS.beer, 1); g.fillRect(10, 10, 12, 16); g.fillStyle(0xffffff, 1); g.fillRect(10, 10, 12, 4); g.generateTexture('beer', 32, 32);
     g.clear(); g.fillStyle(COLORS.cocktail, 1); g.beginPath(); g.moveTo(10,10); g.lineTo(22,10); g.lineTo(16,20); g.closePath(); g.fill(); g.fillStyle(0xffffff, 1); g.fillRect(15,20,2,10); g.generateTexture('cocktail', 32, 32);
     g.clear(); g.fillStyle(COLORS.pizza_crust, 1); g.beginPath(); g.moveTo(16,32); g.lineTo(0,10); g.lineTo(32,10); g.closePath(); g.fill(); g.fillStyle(COLORS.pizza_sauce, 1); g.beginPath(); g.moveTo(16,28); g.lineTo(4,12); g.lineTo(28,12); g.closePath(); g.fill(); g.generateTexture('pizza_slice', 32, 32);
@@ -783,12 +832,101 @@ export function generateTextures(scene) {
     g.fillStyle(0xffffff, 1); g.fillRect(30,0,4,64); g.fillRect(0,30,64,4);
     g.generateTexture('hospital_window', 64, 64);
 
-    g.clear(); g.fillStyle(0x95a5a6, 1); g.fillRect(0,0,32,32); g.fillStyle(0x7f8c8d, 1); g.beginPath(); g.moveTo(4,4); g.lineTo(16,16); g.lineTo(4,28); g.strokePath(); g.generateTexture('walkway', 32, 32);
-    g.clear(); g.fillStyle(0xe74c3c, 1); g.fillRect(0,0,64,48); g.fillStyle(0xc0392b, 1); g.fillRect(0,0,64,12); g.fillStyle(0xffcc00, 1); g.fillRect(16, 16, 32, 16); g.generateTexture('store_food', 64, 48);
-    g.clear(); g.fillStyle(0x3498db, 1); g.fillRect(0,0,64,48); g.fillStyle(0x2980b9, 1); g.fillRect(0,0,64,12); g.fillStyle(0xffffff, 1); g.fillRect(10,20,44,20); g.generateTexture('store_news', 64, 48);
+    // Moving walkway: treads running lengthways between metal comb edges.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x8a9699);
+    fillRect(0, 0, 32, 3, 0x6c7679); // comb edges
+    fillRect(0, 29, 32, 3, 0x6c7679);
+    for (let i = 0; i < 32; i += 4) fillRect(i, 4, 2, 24, 0x9fabae); // treads
+    for (let i = 0; i < 32; i += 4) fillRect(i + 2, 4, 1, 24, 0x778285);
+    g.fillStyle(0xf1c40f, 1); // direction chevron
+    g.beginPath(); g.moveTo(12, 10); g.lineTo(20, 16); g.lineTo(12, 22); g.lineTo(15, 16); g.closePath(); g.fill();
+    g.generateTexture('walkway', 32, 32);
+    // Burger Queen: red storefront, gold crown over the burger, menu boards.
+    g.clear();
+    fillRect(0, 6, 64, 42, 0xc0392b); // shopfront
+    fillRect(0, 0, 64, 7, 0x922b21); // fascia
+    fillRect(0, 6, 64, 1, 0xe74c3c);
+    fillRect(6, 12, 22, 16, 0x7b241c); // menu board
+    fillRect(8, 14, 18, 2, 0xf7dc6f);
+    fillRect(8, 18, 14, 1, 0xf4f6f7);
+    fillRect(8, 21, 16, 1, 0xf4f6f7);
+    fillRect(8, 24, 11, 1, 0xf4f6f7);
+    // burger sign
+    fillRect(36, 16, 22, 5, 0xd9a441); // top bun
+    fillRect(36, 15, 22, 2, 0xe6b95c);
+    fillRect(36, 21, 22, 3, 0x2e7d32); // lettuce
+    fillRect(36, 24, 22, 3, 0x8d4b2a); // patty
+    fillRect(36, 27, 22, 3, 0xd9a441); // bottom bun
+    for (let i = 38; i < 58; i += 5) drawPixel(i, 17, 0xf7e2a8); // sesame
+    g.fillStyle(0xf1c40f, 1); // crown above the burger
+    g.beginPath();
+    g.moveTo(38, 14); g.lineTo(40, 8); g.lineTo(44, 12); g.lineTo(47, 6);
+    g.lineTo(50, 12); g.lineTo(54, 8); g.lineTo(56, 14); g.closePath(); g.fill();
+    g.fillStyle(0xc0392b, 1);
+    g.fillRect(41, 11, 1, 1); g.fillRect(51, 11, 1, 1);
+    fillRect(0, 32, 64, 12, 0xe6b0aa); // counter front
+    fillRect(0, 32, 64, 2, 0xf2d7d5);
+    fillRect(0, 44, 64, 4, 0x7b241c);
+    g.generateTexture('store_food', 64, 48);
+    // Newsstand: awning, magazine racks with coloured spines, service counter.
+    g.clear();
+    fillRect(0, 6, 64, 42, 0x2e4a5c); // kiosk body
+    fillRect(0, 0, 64, 7, 0x1f3442); // fascia
+    for (let i = 0; i < 64; i += 8) fillRect(i, 7, 4, 3, 0xecf0f1); // striped awning
+    for (let i = 4; i < 64; i += 8) fillRect(i, 7, 4, 3, 0x2980b9);
+    fillRect(4, 14, 26, 20, 0xd7dbdd); // magazine rack
+    const spines = [0xe74c3c, 0xf1c40f, 0x27ae60, 0x8e44ad, 0x3498db, 0xe67e22];
+    spines.forEach((c, i) => {
+        fillRect(6 + i * 4, 16, 3, 7, c);
+        fillRect(6 + i * 4, 25, 3, 7, spines[(i + 3) % spines.length]);
+    });
+    fillRect(34, 14, 26, 12, 0x1b2f3a); // window
+    fillRect(36, 16, 22, 8, 0x5d8aa8);
+    fillRect(36, 16, 22, 2, 0x8fb8ce);
+    fillRect(34, 30, 26, 14, 0x8d6e63); // counter
+    fillRect(34, 30, 26, 2, 0xa1887f);
+    fillRect(40, 34, 6, 4, 0xf4f6f7); // newspapers on the counter
+    fillRect(48, 34, 6, 4, 0xecf0f1);
+    fillRect(0, 44, 64, 4, 0x16242d); // kick plate
+    g.generateTexture('store_news', 64, 48);
     
-    g.clear(); g.fillStyle(0xbdc3c7, 1); g.fillRect(0, 0, 32, 48); g.fillStyle(0x3498db, 1); g.fillRect(2, 2, 28, 20); g.fillStyle(0x2ecc71, 1); g.fillCircle(16, 12, 6); g.fillStyle(0x333333, 1); g.fillRect(4, 26, 24, 4); g.fillRect(4, 34, 16, 4); g.generateTexture('poster', 32, 48);
-    g.clear(); g.fillStyle(0x7f8c8d, 1); g.fillRect(0, 0, 100, 100); g.fillStyle(0x87ceeb, 0.4); g.fillRect(5, 5, 90, 90); g.generateTexture('large_window', 100, 100);
+    // Framed travel poster: sun over a headland with the sea below.
+    g.clear();
+    fillRect(0, 0, 32, 48, 0x4e342e); // frame
+    fillRect(2, 2, 28, 44, 0xf6d8a0); // sky
+    fillRect(2, 2, 28, 14, 0xf3b664);
+    g.fillStyle(0xf39c12, 1); // sun
+    g.fillCircle(22, 12, 6);
+    g.fillStyle(0x1a6985, 1); // sea
+    g.fillRect(2, 28, 28, 18);
+    g.fillStyle(0x2e86ab, 1);
+    g.fillRect(2, 28, 28, 4);
+    g.fillStyle(0x3d5a3a, 1); // headland
+    g.beginPath(); g.moveTo(2, 30); g.lineTo(12, 18); g.lineTo(22, 30); g.closePath(); g.fill();
+    fillRect(6, 34, 4, 1, 0x9fd6e8); // surf
+    fillRect(16, 38, 7, 1, 0x9fd6e8);
+    fillRect(4, 41, 24, 4, 0xf9f3e3); // caption strip
+    fillRect(6, 42, 20, 2, 0xc0392b);
+    g.generateTexture('poster', 32, 48);
+    // Terminal glazing: mullions, sky, distant tarmac and a reflection streak.
+    g.clear();
+    fillRect(0, 0, 100, 100, 0x6b7679); // frame
+    fillRect(4, 4, 92, 92, 0x86c5e0); // sky
+    fillRect(4, 4, 92, 30, 0x9ed4ea);
+    fillRect(4, 66, 92, 30, 0x7a8b90); // tarmac
+    fillRect(4, 66, 92, 2, 0x5f6d71);
+    fillRect(10, 78, 40, 2, 0xf1c40f); // runway markings
+    fillRect(58, 86, 30, 2, 0xf1c40f);
+    fillRect(4, 60, 92, 6, 0xb8c4c7); // distant terminal
+    fillRect(12, 54, 10, 6, 0xa4b1b5);
+    fillRect(60, 52, 14, 8, 0xa4b1b5);
+    g.fillStyle(0xffffff, 0.35); // reflection
+    g.fillRect(14, 8, 10, 80);
+    g.fillRect(30, 8, 4, 80);
+    fillRect(48, 4, 4, 92, 0x6b7679); // mullions
+    fillRect(4, 48, 92, 4, 0x6b7679);
+    g.generateTexture('large_window', 100, 100);
     // Airliner: nose cone, swept wings, tail fin, engine and cabin windows.
     g.clear();
     fillRect(6, 13, 22, 5, 0xf4f6f7); // fuselage
@@ -1140,4 +1278,133 @@ export function generateTextures(scene) {
         }
     });
     g.generateTexture('civilian_f', 32, 32);
+    // --- AIRPORT TERMINAL FURNITURE ------------------------------------------
+    // Check-in desk: counter, agent monitor, bag scale and queue signage.
+    g.clear();
+    fillRect(0, 10, 64, 22, 0x34495e); // counter body
+    fillRect(0, 10, 64, 3, 0x4a6076); // worktop
+    fillRect(0, 29, 64, 3, 0x22303d); // kick shadow
+    for (let i = 4; i < 64; i += 12) fillRect(i, 15, 8, 12, 0x2c3e50); // panel seams
+    fillRect(6, 2, 18, 9, 0x1b2631); // monitor
+    fillRect(8, 4, 14, 5, 0x5dade2);
+    fillRect(8, 4, 14, 1, 0xaeddf5);
+    fillRect(13, 11, 4, 2, 0x1b2631); // monitor stand
+    fillRect(40, 4, 20, 7, 0xecf0f1); // bag scale platform
+    fillRect(40, 4, 20, 2, 0xffffff);
+    fillRect(44, 11, 12, 2, 0x95a5a6);
+    fillRect(28, 0, 10, 12, 0x2980b9); // hanging sign
+    fillRect(30, 2, 6, 2, 0xecf0f1);
+    g.generateTexture('checkin_desk', 64, 32);
+
+    // Departures board: dark panel with flip rows and a status column.
+    g.clear();
+    fillRect(0, 0, 96, 56, 0x1b2631);
+    fillRect(0, 0, 96, 8, 0x2c3e50);
+    fillRect(4, 2, 30, 4, 0xf1c40f); // "DEPARTURES" bar
+    for (let r = 0; r < 6; r++) {
+        const y = 11 + r * 7;
+        fillRect(4, y, 24, 4, 0xd7dbdd); // destination
+        fillRect(32, y, 14, 4, 0x95a5a6); // flight no
+        fillRect(50, y, 16, 4, 0x95a5a6); // time
+        fillRect(70, y, 22, 4, r % 3 === 0 ? 0x27ae60 : 0xe67e22); // status
+        fillRect(0, y + 5, 96, 1, 0x141d26); // row divider
+    }
+    fillRect(0, 53, 96, 3, 0x0e1519);
+    g.generateTexture('departure_board', 96, 56);
+
+    // Gate seating: a run of linked chairs on a steel rail.
+    g.clear();
+    for (let i = 0; i < 4; i++) {
+        const x = i * 16;
+        fillRect(x + 1, 4, 14, 9, 0x2980b9); // seat back
+        fillRect(x + 1, 4, 14, 2, 0x5dade2);
+        fillRect(x + 1, 13, 14, 5, 0x22648f); // cushion
+        fillRect(x, 6, 2, 12, 0x7f8c8d); // arm rest
+    }
+    fillRect(62, 6, 2, 12, 0x7f8c8d);
+    fillRect(0, 18, 64, 3, 0x95a5a6); // rail
+    for (let i = 6; i < 64; i += 16) fillRect(i, 21, 3, 3, 0x6c7679); // legs
+    g.generateTexture('gate_seats', 64, 24);
+
+    // Security arch: metal detector with a status light and a scuffed base.
+    g.clear();
+    fillRect(2, 0, 10, 64, 0xd7dbdd); // uprights
+    fillRect(36, 0, 10, 64, 0xc3cacd);
+    fillRect(2, 0, 44, 10, 0xe5e8e8); // header
+    fillRect(2, 0, 44, 2, 0xf4f6f7);
+    fillRect(20, 3, 8, 4, 0x27ae60); // status light
+    fillRect(4, 12, 6, 40, 0xaeb6b8); // sensor strips
+    fillRect(38, 12, 6, 40, 0x9aa5b1);
+    fillRect(0, 58, 14, 6, 0x7f8c8d); // feet
+    fillRect(34, 58, 14, 6, 0x6c7679);
+    g.generateTexture('security_arch', 48, 64);
+
+    // Coffee kiosk: green fascia, cup sign, counter with a machine.
+    g.clear();
+    fillRect(0, 8, 64, 40, 0x0b6b4f); // body
+    fillRect(0, 0, 64, 9, COLORS.starbucks);
+    fillRect(0, 8, 64, 1, 0x138a68);
+    g.fillStyle(0xffffff, 1); // cup roundel on the fascia
+    g.fillCircle(12, 4, 3);
+    fillRect(20, 2, 30, 4, 0xd5f5e3);
+    fillRect(4, 14, 24, 18, 0x0e5c45); // menu panel
+    fillRect(6, 16, 20, 2, 0xf7dc6f);
+    fillRect(6, 20, 16, 1, 0xd5f5e3);
+    fillRect(6, 23, 18, 1, 0xd5f5e3);
+    fillRect(6, 26, 12, 1, 0xd5f5e3);
+    fillRect(34, 14, 26, 14, 0x8d6e63); // counter top
+    fillRect(34, 14, 26, 2, 0xa1887f);
+    fillRect(38, 6, 14, 9, 0x95a5a6); // espresso machine
+    fillRect(40, 8, 4, 4, 0x2c3e50);
+    fillRect(46, 8, 4, 4, 0x2c3e50);
+    fillRect(52, 18, 4, 6, 0xfdfefe); // cups stacked
+    fillRect(57, 18, 4, 6, 0xfdfefe);
+    fillRect(0, 44, 64, 4, 0x074231);
+    g.generateTexture('coffee_kiosk', 64, 48);
+
+    // Restroom door pair with pictograms.
+    g.clear();
+    fillRect(0, 0, 32, 48, 0x6d4c41); // frame
+    fillRect(2, 2, 13, 44, 0x3f6fa5); // men
+    fillRect(17, 2, 13, 44, 0x9b5aa5); // women
+    fillRect(2, 2, 13, 2, 0x5487bd);
+    fillRect(17, 2, 13, 2, 0xb277bb);
+    g.fillStyle(0xf4f6f7, 1);
+    g.fillCircle(8, 12, 2); // male pictogram
+    g.fillRect(6, 15, 5, 8);
+    g.fillRect(6, 23, 2, 7); g.fillRect(9, 23, 2, 7);
+    g.fillCircle(23, 12, 2); // female pictogram
+    g.beginPath(); g.moveTo(23, 15); g.lineTo(19, 26); g.lineTo(27, 26); g.closePath(); g.fill();
+    g.fillRect(21, 26, 2, 5); g.fillRect(24, 26, 2, 5);
+    fillRect(13, 22, 2, 3, 0xf1c40f); // handles
+    fillRect(17, 22, 2, 3, 0xf1c40f);
+    g.generateTexture('restroom_door', 32, 48);
+
+    // Luggage trolley stacked with cases.
+    g.clear();
+    fillRect(4, 20, 40, 4, 0x95a5a6); // deck
+    fillRect(4, 8, 3, 14, 0x7f8c8d); // upright
+    fillRect(4, 6, 16, 3, 0x7f8c8d); // handle
+    fillRect(10, 10, 16, 10, 0x6d4c41); // case
+    fillRect(10, 10, 16, 2, 0x8d6e63);
+    fillRect(16, 10, 2, 10, 0x4e342e);
+    fillRect(26, 13, 14, 7, 0x2c3e50); // second case
+    fillRect(26, 13, 14, 2, 0x3f5872);
+    fillRect(31, 13, 2, 7, 0x1b2631);
+    g.fillStyle(0x2b2b2b, 1); // wheels
+    g.fillCircle(11, 27, 4); g.fillCircle(38, 27, 4);
+    g.fillStyle(0x95a5a6, 1);
+    g.fillCircle(11, 27, 1); g.fillCircle(38, 27, 1);
+    g.generateTexture('luggage_cart', 48, 32);
+
+    // Terminal bin with a swing flap.
+    g.clear();
+    fillRect(2, 6, 12, 18, 0x5d6d7e); // body
+    fillRect(10, 6, 4, 18, 0x4a5765);
+    fillRect(1, 3, 14, 4, 0x34495e); // lid
+    fillRect(1, 3, 14, 1, 0x5d6d7e);
+    fillRect(5, 5, 6, 1, 0x22303d); // flap slot
+    fillRect(3, 11, 10, 1, 0x8a9aa8); // band
+    fillRect(2, 23, 12, 1, 0x2c3e50);
+    g.generateTexture('trash_bin', 16, 24);
 }
