@@ -32,6 +32,20 @@ export class AirportScene extends Phaser.Scene {
         [{x: 900, label: "GATE 10"}, {x: 1300, label: "GATE 11"}, {x: 1700, label: "GATE 12A"}, {x: 2200, label: "GATE 12B\n(TARGET)"}].forEach(g => {
             this.add.rectangle(g.x, 60, 60, 80, 0x555555); this.add.text(g.x-30, 80, g.label, { fontSize: '12px', color: '#fff', align: 'center' });
         });
+        this.wrongGates = [];
+        [
+            [900, 0xb07a8c, gate => this.gateTen(gate)],
+            [1300, 0x7a9cb0, gate => this.gateEleven(gate)],
+            [1700, 0xa08cb4, gate => this.gateTwelveA(gate)]
+        ].forEach(([gx, tint, talk]) => {
+            this.add.image(gx + 44, 146, 'host_stand'); // the podium doubles nicely as a gate desk
+            const agent = this.add.sprite(gx + 44, 122, 'civilian_f').setTint(tint);
+            this.tweens.add({ targets: agent, y: 120, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            const zone = this.add.rectangle(gx + 20, 140, 130, 90, 0xffff00, 0);
+            this.physics.add.existing(zone, true);
+            zone.setData('talk', talk);
+            this.wrongGates.push(zone);
+        });
         this.add.rectangle(1500, 50, 300, 100, 0x87ceeb); this.add.text(1500, 110, "OBSERVATION DECK", { fontSize: '12px', color: '#fff', backgroundColor: '#333' }).setOrigin(0.5);
         const planeMaskGraphics = this.make.graphics(); planeMaskGraphics.fillStyle(0xffffff); planeMaskGraphics.fillRect(1350, 0, 300, 100); const planeMask = planeMaskGraphics.createGeometryMask();
         this.time.addEvent({ delay: 2500, loop: true, callback: () => {
@@ -44,6 +58,29 @@ export class AirportScene extends Phaser.Scene {
         this.add.image(300, 40, 'poster'); this.add.image(700, 40, 'poster'); this.add.image(1100, 40, 'poster'); this.add.image(2000, 40, 'poster');
         this.add.image(330, 56, 'departure_board');
         this.add.image(600, 300, 'security_arch');
+        // Each passenger is a plain sprite plus an invisible zone, the way every
+        // other interaction in the game works. Sizing the body on a static group
+        // member does not move it to match, so every passenger answered with the
+        // same line no matter which one you walked up to.
+        this.peopleZones = [];
+        const addPerson = (x, y, key, tint, line, zoneH = 44) => {
+            const person = this.add.sprite(x, y, key).setTint(tint);
+            const zone = this.add.rectangle(x, y + 14, 46, zoneH, 0xffff00, 0);
+            this.physics.add.existing(zone, true);
+            zone.setData('line', line);
+            this.peopleZones.push(zone);
+            return person;
+        };
+        // Seated: high enough that the seat back crosses their lap rather than
+        // swallowing them whole — the seats are only 24px tall.
+        const seatPassenger = (x, key, tint, line) => addPerson(x, 188, key, tint, line, 52);
+        seatPassenger(830, 'civilian', 0x8c7ab0, "Passenger: 'Zzz... no, I said the aisle... the aisle... zzz.'");
+        seatPassenger(902, 'civilian_f', 0xb07a8c, "Passenger: 'No Mom, I already ate. Mom. MOM. I already ate.'");
+        seatPassenger(1230, 'civilian', 0x7a9cb0, "Nervous Flyer: 'It's safer than driving. Statistically. Statistically.'");
+        seatPassenger(1302, 'civilian_f', 0xb0a07a, "Passenger: 'Same book since March. Still on chapter two.'");
+        seatPassenger(1630, 'marine', 0xffffff, "Marine: 'Heading back to Pendleton. You?'");
+        seatPassenger(1702, 'civilian', 0xa08cb4, "Passenger: 'Gate changed three times. THREE.'");
+        seatPassenger(2130, 'civilian_f', 0x8ca0b4, "Passenger: 'You're on 12B too? Good. I thought I was in the wrong place.'");
         [900, 1300, 1700, 2200].forEach(x => { this.add.image(x, 210, 'gate_seats'); this.add.image(x - 72, 210, 'gate_seats'); });
         [{x: 262, y: 470}, {x: 1150, y: 150}, {x: 2050, y: 455}].forEach(p => this.add.image(p.x, p.y, 'luggage_cart'));
         [480, 1010, 1460, 1760, 2150].forEach(x => this.add.image(x, 124, 'trash_bin'));
@@ -61,7 +98,20 @@ export class AirportScene extends Phaser.Scene {
         this.add.text(1860, 450, "STARBUCKS", { fontSize: '14px', color: '#fff', backgroundColor: '#00704a' });
         this.add.sprite(1955, 522, 'server');
         this.gateZone = this.add.rectangle(2200, 150, 50, 100, 0x00ff00, 0.3); this.physics.add.existing(this.gateZone, true);
-        for(let i=0; i<10; i++) { let npc = this.add.sprite(700 + Math.random()*1500, 200 + Math.random()*200, i % 2 ? 'civilian_f' : 'civilian'); npc.setTint(Math.random() * 0xffffff); }
+        [
+            [1010, 452, 'civilian', 0x8c9cb0, "Passenger: 'They still print these? Who is buying these?'"],
+            [1306, 452, 'civilian_f', 0xb09c8c, "Passenger: 'Six dollars. For a hash brown. Six.'"],
+            [1560, 450, 'civilian', 0xa0b08c, "Passenger: 'Is this the line? Is anyone in this line?'"],
+            [1862, 520, 'civilian_f', 0x8cb0a0, "Passenger: 'Venti. No — grande. No. Venti. Sorry.'"],
+            [1190, 336, 'civilian', 0xb08ca0, "Passenger: 'Do you know if this one has power outlets?'"],
+            [760, 372, 'civilian_f', 0x9c8cb0, "Passenger: 'I have been at this airport since Tuesday.'"],
+            [2040, 360, 'civilian', 0x8cb0b0, "Passenger: 'Whatever you do, do not check a bag today.'"]        ].forEach(([px, py, key, tint, line]) => {
+            const person = addPerson(px, py, key, tint, line);
+            this.tweens.add({
+                targets: person, y: py - 2, duration: 1200 + (px % 500),
+                yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+            });
+        });
         this.player = new Player(this, 100, 300);
         this.player.setDepth(5);
         this.pullAngle = Math.PI; // parked behind him until he first moves
@@ -73,6 +123,12 @@ export class AirportScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.add.text(20, 550, "Task: Ticket -> Suitcase -> Security -> Starbucks -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
+        this.peopleZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
+        }));
+        this.wrongGates.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) zone.getData('talk')(zone);
+        }));
         this.physics.add.overlap(this.player, this.suitcase, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasSuitcase) { gameState.hasSuitcase = true; this.suitcase.destroy(); this.heldSuitcase.setVisible(true); playSound('select'); showDialogue("Mike grabbed his suitcase."); } });
         this.physics.add.overlap(this.player, this.ticket, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasTicket) { gameState.hasTicket = true; this.ticket.destroy(); this.heldTicket.setVisible(true); playSound('select'); showDialogue("Mike found the Boarding Pass."); } });
         this.physics.add.overlap(this.player, this.tsaZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.hasSuitcase && gameState.hasTicket) { if (!gameState.securityCleared) { gameState.securityCleared = true; showDialogue("TSA: 'You're clear. Have a safe flight.'"); this.securityBarrier.destroy(); this.gateVisual.fillColor = 0x00ff00; } } else { showDialogue("TSA: 'Ticket and luggage required.'"); } } });
@@ -112,6 +168,34 @@ export class AirportScene extends Phaser.Scene {
         bag.rotation = Phaser.Math.Linear(bag.rotation, lean * 0.45, 0.15);
 
         bag.setDepth(bag.y < this.player.y ? 4 : 6);
+    }    gateTen(zone) {
+        showDialogue("Gate Agent: 'Ten is boarding for Phoenix. Are you Phoenix?'", () => {
+            showDialogue("Mike: 'San Diego.'", () => {
+                showDialogue("Gate Agent: 'Then keep walking. All the way down. 12B.'", () => {
+                    zone.setData('talk', () => showDialogue("Gate Agent: 'Still Phoenix. Still not you.'"));
+                });
+            });
+        });
+    }
+
+    gateEleven(zone) {
+        showDialogue("Gate Agent: 'Eleven is delayed two hours.'", () => {
+            showDialogue("Mike: 'Any idea why?'", () => {
+                showDialogue("Gate Agent: 'None whatsoever. I only work here.'", () => {
+                    zone.setData('talk', () => showDialogue("Gate Agent: 'Three hours now. Do not ask.'"));
+                });
+            });
+        });
+    }
+
+    gateTwelveA(zone) {
+        showDialogue("Gate Agent: 'This is 12A. You want 12B?'", () => {
+            showDialogue("Mike: 'I was about to sit down here.'", () => {
+                showDialogue("Gate Agent: 'Everybody is about to sit down here. One more gate.'", () => {
+                    zone.setData('talk', () => showDialogue("Gate Agent: 'Still A. Still not B. Off you go.'"));
+                });
+            });
+        });
     }
 
     update() { 
@@ -119,7 +203,7 @@ export class AirportScene extends Phaser.Scene {
         if (gameState.hasSuitcase) this.rollSuitcase(); 
         if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
         if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
-        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone]); 
+        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.wrongGates, ...this.peopleZones]); 
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
     }
 }
