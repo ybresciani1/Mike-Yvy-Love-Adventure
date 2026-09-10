@@ -3467,6 +3467,50 @@ export function generateTextures(scene) {
     });
     g.generateTexture('night_shop_pizza', 160, 140);
 
+    // SDPD bike patrol — downtown at night is bicycles, not cruisers.
+    g.clear();
+    fillRect(11, 4, 10, 4, 0x1b2436); // cap
+    fillRect(11, 4, 10, 1, 0x2b3852);
+    fillRect(11, 8, 11, 2, 0x141b29); // peak
+    drawPixel(15, 5, 0xd4a017); // cap badge
+    drawFace(9, { brow: 0x3a2f28 });
+    fillRect(10, 15, 12, 12, 0x1f2a3f); // uniform shirt
+    fillRect(10, 15, 12, 1, 0x2f3d58);
+    fillRect(10, 15, 3, 12, 0x182131); // shaded side
+    fillRect(11, 17, 4, 3, 0xc9c9d2); // shoulder patch and badge
+    drawPixel(19, 18, 0xd4a017);
+    drawPixel(19, 19, 0xd4a017);
+    fillRect(9, 19, 2, 6, 0xe0b48c); // arms
+    fillRect(21, 19, 2, 6, 0xe0b48c);
+    fillRect(10, 26, 12, 3, 0x14181f); // duty belt
+    drawPixel(12, 27, 0xc9c9d2);
+    drawPixel(19, 27, 0x2b2b33);
+    fillRect(11, 29, 4, 3, 0x1b2436); // shorts, because bike patrol
+    fillRect(17, 29, 4, 3, 0x1b2436);
+    g.generateTexture('cop', 32, 32);
+
+    // The bicycle, drawn side on so it can ride in from off screen.
+    g.clear();
+    g.lineStyle(2, 0x1a1a20, 1); // wheels
+    g.strokeCircle(9, 17, 8);
+    g.strokeCircle(35, 17, 8);
+    g.lineStyle(1, 0x6b7280, 1);
+    g.strokeCircle(9, 17, 5);
+    g.strokeCircle(35, 17, 5);
+    fillRect(9, 9, 26, 2, 0x2c4a7a); // top tube
+    fillRect(13, 11, 2, 7, 0x2c4a7a); // seat tube
+    fillRect(22, 10, 2, 8, 0x2c4a7a); // down tube run
+    fillRect(9, 10, 2, 8, 0x2c4a7a);
+    fillRect(33, 8, 2, 10, 0x2c4a7a); // fork
+    fillRect(30, 6, 8, 2, 0x1a1a20); // bars
+    fillRect(10, 6, 7, 3, 0x1a1a20); // saddle
+    fillRect(12, 14, 4, 3, 0xc9c9d2); // pannier
+    fillRect(36, 4, 4, 4, 0xe53935); // the light on the bars
+    fillRect(36, 4, 2, 4, 0x1e88e5);
+    drawPixel(4, 17, 0xc9c9d2); // spoke glints
+    drawPixel(40, 17, 0xc9c9d2);
+    g.generateTexture('police_bike', 44, 28);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in

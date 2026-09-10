@@ -61,24 +61,30 @@ export class PizzaScene extends Phaser.Scene {
         if(this.player.y < this.yvy.y - 50) this.yvy.body.setVelocityY(-130); else if(this.player.y > this.yvy.y + 50) this.yvy.body.setVelocityY(130); else this.yvy.body.setVelocityY(0); 
         if (this.pSlice.visible) { this.pSlice.x = this.player.x + 10; this.pSlice.y = this.player.y; this.ySlice.x = this.yvy.x + 10; this.ySlice.y = this.yvy.y; } 
         const canFilm = this.fighting && !this.photoTaken && this.physics.overlap(this.player, this.fightZone);
-        const touching = this.physics.overlap(this.player, this.drunks) || canFilm;
+        const touching = this.physics.overlap(this.player, this.drunks) || (!this.fighting && this.physics.overlap(this.player, this.tacoZone)) || canFilm;
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none';
     }    /**
      * The street was empty apart from our two and the drunks. Late-night food
      * places have a queue outside and people eating on the kerb, and that is
      * most of what makes a street look busy.
      */
-    dressStreetLife() {
-        // The line at the taco window, shuffling forward and back.
-        const queue = [[104, 344, 'civilian', 0x8c7ab0], [98, 372, 'civilian_f', 0xb07a8c],
-            [106, 398, 'drunk', 0x7a9cb0], [96, 424, 'civilian', 0xb0a07a]];
-        queue.forEach(([qx, qy, key, tint], i) => {
-            const person = this.add.sprite(qx, qy, key).setTint(tint);
-            this.tweens.add({
-                targets: person, y: qy - 4, duration: 1400 + i * 210,
-                yoyo: true, repeat: -1, delay: i * 260, ease: 'Sine.easeInOut'
+    dressStreetLife() {        // Everyone out on the street is kept in one list, because when the
+        // fight starts they all abandon what they are doing to go and film it.
+        this.bystanders = [];
+        const join = (x, y, key, tint, idle) => {
+            const person = this.add.sprite(x, y, key).setTint(tint);
+            const bob = this.tweens.add({
+                targets: person, y: y - (idle ? 4 : 1), duration: 1100 + this.bystanders.length * 170,
+                yoyo: true, repeat: -1, delay: this.bystanders.length * 240, ease: 'Sine.easeInOut'
             });
-        });
+            this.bystanders.push({ sprite: person, homeX: x, homeY: y, bob, phone: null });
+            return person;
+        };
+
+        // The line at the taco window, shuffling forward and back.
+        this.tacoLine = [[104, 344, 'civilian', 0x8c7ab0], [98, 372, 'civilian_f', 0xb07a8c],
+            [106, 398, 'drunk', 0x7a9cb0], [96, 424, 'civilian', 0xb0a07a]]
+            .map(([qx, qy, key, tint]) => join(qx, qy, key, tint, true));
         this.add.sprite(120, 330, 'tacos').setScale(0.5); // an order going out of the window
 
         // People eating at the tables outside, which is the point of the queue.
@@ -90,17 +96,44 @@ export class PizzaScene extends Phaser.Scene {
             [560, 418, 'civilian_f', 0x8ca0b4, 'pizza_slice']
         ];
         this.add.image(520, 410, 'cafe_table_set');
-        this.add.image(722, 410, 'cafe_table_set');
-        diners.forEach(([dx, dy, key, tint, food], i) => {
-            const diner = this.add.sprite(dx, dy, key).setTint(tint);
+        this.add.image(722, 410, 'cafe_table_set');        diners.forEach(([dx, dy, key, tint, food], i) => {
+            const diner = join(dx, dy, key, tint, false);
             const plate = this.add.sprite(dx + (i % 2 ? 11 : -11), dy + 2, food)
                 .setScale(food === 'tacos' ? 0.45 : 0.55);
             this.tweens.add({ // lifting it to their mouth and back down
                 targets: plate, y: dy - 5, duration: 900 + i * 170,
                 yoyo: true, repeat: -1, delay: i * 340, ease: 'Sine.easeInOut'
             });
-            this.tweens.add({
-                targets: diner, y: dy - 1, duration: 1100 + i * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+            this.bystanders[this.bystanders.length - 1].plate = plate;
+            this.bystanders[this.bystanders.length - 1].plateHome = [plate.x, plate.y];
+            void diner;
+        });
+
+        // Talking to the queue.
+        this.tacoZone = this.add.rectangle(101, 384, 80, 130, 0xffff00, 0);
+        this.physics.add.existing(this.tacoZone, true);
+        this.askedTheQueue = false;
+        this.physics.add.overlap(this.player, this.tacoZone, () => {
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.askTheQueue();
+        });
+    }    /** Asking the poor soul at the back of the taco line how long he has been there. */
+    askTheQueue() {
+        if (this.fighting || this.brawlArguing) {
+            showDialogue("The whole line has abandoned its place to go and watch.");
+            return;
+        }
+        if (this.askedTheQueue) {
+            showDialogue("Guy in Line: 'Still here. Still waiting. Do not talk to me.'");
+            return;
+        }
+        this.askedTheQueue = true;
+        showDialogue("Mike: 'Hey — are you all waiting for this place?'", () => {
+            showDialogue("Guy in Line: 'Yeah. Forty minutes so far. They only got one guy on the grill.'", () => {
+                showDialogue("Guy in Line: 'But it's worth it. Trust me. It's worth it.'", () => {
+                    showDialogue("Mike: 'Want to check out the pizza place instead?'", () => {
+                        showDialogue("Yvy: 'Forty minutes for a taco? Yeah. Pizza. Let's go.'");
+                    });
+                });
             });
         });
     }
@@ -178,9 +211,125 @@ export class PizzaScene extends Phaser.Scene {
             this.buffGreen.setVisible(false);
             this.fightCloud = this.add.sprite(390, 326, 'fight_cloud');
             this.tweens.add({ targets: this.fightCloud, scaleX: 1.15, scaleY: 0.9, duration: 170, yoyo: true, repeat: -1 });
-        });
-
+        });        this.gatherCrowd();
         this.time.delayedCall(26000, () => this.endFight());
+    }
+
+    /**
+     * Nobody stands in a queue when there is a fight forty feet away. They
+     * abandon their spots, ring the brawl at a safe distance and film it, which
+     * is both what actually happens and what makes the street feel alive.
+     */
+    gatherCrowd() {
+        const ring = [
+            [292, 350], [318, 388], [268, 396], [482, 352],
+            [498, 392], [456, 400], [352, 404], [430, 406], [396, 412]
+        ];
+        this.bystanders.forEach((b, i) => {
+            const [wx, wy] = ring[i % ring.length];
+            this.tweens.killTweensOf(b.sprite);
+            if (b.plate) b.plate.setVisible(false); // the food gets left on the table
+            this.tweens.add({
+                targets: b.sprite, x: wx, y: wy,
+                duration: 900 + i * 130, delay: i * 160, ease: 'Sine.easeInOut',
+                onStart: () => b.sprite.setFlipX(wx > 390),
+                onComplete: () => {
+                    if (!this.fighting) return;
+                    // Phones up. Everyone films, nobody helps — yet.
+                    b.phone = this.add.sprite(b.sprite.x + (wx > 390 ? -11 : 11), b.sprite.y - 8, 'phone_cam').setScale(0.8);
+                    this.tweens.add({ targets: b.phone, y: b.phone.y - 2, duration: 700 + i * 90, yoyo: true, repeat: -1 });
+                    this.tweens.add({ targets: b.sprite, y: wy - 2, duration: 620 + i * 80, yoyo: true, repeat: -1 });
+                }
+            });
+        });
+    }
+
+    /** Phones down, everyone back to their taco. */
+    scatterCrowd() {
+        this.bystanders.forEach((b, i) => {
+            this.tweens.killTweensOf(b.sprite);
+            if (b.phone) { this.tweens.killTweensOf(b.phone); b.phone.destroy(); b.phone = null; }
+            this.tweens.add({
+                targets: b.sprite, x: b.homeX, y: b.homeY,
+                duration: 1100 + i * 120, delay: 400 + i * 150, ease: 'Sine.easeInOut',
+                onStart: () => b.sprite.setFlipX(false),
+                onComplete: () => {
+                    if (b.plate) {
+                        b.plate.setPosition(b.plateHome[0], b.plateHome[1]).setVisible(true);
+                    }
+                    // A fresh idle. The original was killed on the way out, and
+                    // a killed tween cannot be resumed.
+                    b.bob = this.tweens.add({
+                        targets: b.sprite, y: b.homeY - 3, duration: 1200 + i * 150,
+                        yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+                    });
+                }
+            });
+        });
+    }
+
+    /**
+     * One of them finally puts the phone away and gets the pair back on their
+     * feet, and then the bike patrol turns up to ask the obvious question.
+     */
+    helpThemUp() {
+        const helper = this.bystanders[2];
+        if (!helper) return this.policeArrive();
+        if (helper.phone) { this.tweens.killTweensOf(helper.phone); helper.phone.destroy(); helper.phone = null; }
+        this.tweens.killTweensOf(helper.sprite);
+        this.tweens.add({
+            targets: helper.sprite, x: 392, y: 366, duration: 900, ease: 'Sine.easeInOut',
+            onComplete: () => {
+                this.saySoon("Guy in Line: 'Alright, alright — up you get, big man.'", () => {
+                    [this.buffRed, this.buffGreen].forEach((b, i) => this.tweens.add({
+                        targets: b, angle: 0, y: 330, x: i ? 432 : 348, duration: 700, ease: 'Back.easeOut'
+                    }));
+                    this.saySoon("Buff Drunk: 'I'm good. I'm good. He's my brother.'", () => {
+                        this.saySoon("Other Buff Drunk: 'That's my BROTHER.'", () => this.policeArrive());
+                    });
+                });
+            }
+        });
+    }
+
+    /** The bike patrol, who have seen this exact thing four times tonight. */
+    policeArrive() {
+        const bike = this.add.image(880, 392, 'police_bike');
+        const cop = this.add.sprite(872, 372, 'cop');
+        const lights = [
+            this.add.rectangle(884, 360, 7, 5, 0xe53935),
+            this.add.rectangle(876, 360, 7, 5, 0x1e88e5)
+        ];
+        lights.forEach((light, i) => this.tweens.add({
+            targets: light, alpha: { from: 1, to: 0.15 }, duration: 260,
+            yoyo: true, repeat: -1, delay: i * 260
+        }));
+        const offset = [[-8, 0], [0, -20], [4, -32], [-4, -32]];
+        const parts = [bike, cop, lights[0], lights[1]];
+        playSound('select');
+        this.tweens.add({
+            targets: parts, x: (t, k, v, idx) => 505 + offset[idx][0],
+            duration: 2600, ease: 'Sine.easeOut',
+            onComplete: () => {
+                this.saySoon("Officer: 'Evening. Somebody want to tell me what happened here?'", () => {
+                    this.saySoon("Buff Drunk: 'Nothing happened, officer. We were hugging.'", () => {
+                        this.saySoon("Guy in Line: 'They were absolutely not hugging.'", () => {
+                            this.saySoon("Officer: 'Right. Go home, both of you. Slowly.'", () => {
+                                this.scatterCrowd();
+                                this.tweens.add({
+                                    targets: [this.buffRed, this.buffGreen], x: '-=180', alpha: 0,
+                                    duration: 4200, ease: 'Sine.easeIn'
+                                });
+                                this.time.delayedCall(3000, () => this.tweens.add({
+                                    targets: parts, x: '+=360', duration: 3400, ease: 'Sine.easeIn',
+                                    onComplete: () => parts.forEach(p => p.destroy())
+                                }));
+                            });
+                        });
+                    });
+                });
+            }
+        });
     }
 
     popStar() {
@@ -195,10 +344,10 @@ export class PizzaScene extends Phaser.Scene {
         if (!this.fighting) return;
         this.fighting = false;
         this.fightTimer.remove();
-        if (this.fightCloud) this.fightCloud.destroy();
-        this.buffRed.setVisible(true).setTexture('buff_red').setAngle(-90).setPosition(352, 344);
+        if (this.fightCloud) this.fightCloud.destroy();        this.buffRed.setVisible(true).setTexture('buff_red').setAngle(-90).setPosition(352, 344);
         this.buffGreen.setVisible(true).setTexture('buff_green').setAngle(90).setPosition(430, 344);
         this.instructionText.setText("Go inside the Pizza Shop");
+        this.time.delayedCall(900, () => this.helpThemUp());
     }
 
     /** Mike and Yvy do the sensible thing and film it from a safe distance. */
