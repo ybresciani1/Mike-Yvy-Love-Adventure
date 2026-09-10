@@ -10,13 +10,25 @@ export class ConferenceScene extends Phaser.Scene {
     constructor() { super('ConferenceScene'); } 
     create() { 
         this.cameras.main.setBackgroundColor('#f0f0f0'); playConferenceTheme(); 
-        for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0xeeeeee); 
+        for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'expo_carpet'); 
         this.table = this.physics.add.staticImage(400, 300, 'conf_table'); this.add.text(350, 260, "NOTION\nTHEORY", { fontSize: '14px', color: '#000', align: 'center', fontWeight: 'bold' }); 
         this.vrHeadset = this.physics.add.sprite(400, 300, 'vr_headset'); this.heldVR = this.add.sprite(0,0,'vr_headset').setScale(0.8).setVisible(false); 
-        this.booth1 = this.add.rectangle(150, 100, 80, 60, 0x3498db); this.add.text(120, 90, "AI GEN", {fontSize: '12px', color: '#fff', fontStyle: 'bold'}); this.booth1Zone = this.add.rectangle(150, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth1Zone, true);
-        this.booth2 = this.add.rectangle(650, 100, 80, 60, 0xe74c3c); this.add.text(620, 90, "WEB3", {fontSize: '12px', color: '#fff', fontStyle: 'bold'}); this.booth2Zone = this.add.rectangle(650, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth2Zone, true);
-        this.attendees = this.add.group(); 
-        [{x: 150, y: 150}, {x: 650, y: 150}, {x: 150, y: 500}, {x: 650, y: 500}].forEach((pos, i) => { let npc = this.physics.add.sprite(pos.x, pos.y, i % 2 ? 'civilian_f' : 'civilian'); npc.setTint(Math.random() * 0xffffff); npc.hasTriedDemo = false; this.attendees.add(npc); this.tweens.add({ targets: npc, x: npc.x + (Math.random() > 0.5 ? 50 : -50), y: npc.y + (Math.random() > 0.5 ? 50 : -50), duration: 2000 + Math.random() * 2000, ease: 'Sine.easeInOut', yoyo: true, repeat: -1 }); }); 
+        this.booth1 = this.add.image(150, 92, 'expo_booth').setTint(0x8ec5e8); this.add.text(150, 70, "AI GEN", {fontSize: '11px', color: '#1b2631', fontStyle: 'bold'}).setOrigin(0.5); this.booth1Zone = this.add.rectangle(150, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth1Zone, true);
+        this.booth2 = this.add.image(650, 92, 'expo_booth').setTint(0xf0a49c); this.add.text(650, 70, "WEB3", {fontSize: '11px', color: '#1b2631', fontStyle: 'bold'}).setOrigin(0.5); this.booth2Zone = this.add.rectangle(650, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth2Zone, true);
+// The rest of the hall: stands that are scenery, not interactions.
+                [
+                    { x: 150, y: 300, tint: 0xa8e6c0, label: 'CLOUD OPS' },
+                    { x: 650, y: 300, tint: 0xf6d6a8, label: 'ROBOTICS' },
+                    { x: 150, y: 500, tint: 0xc9bde8, label: 'FINTECH' },
+                    { x: 650, y: 500, tint: 0xf5c6dd, label: 'GAME DEV' }
+                ].forEach(b => {
+                    this.add.image(b.x, b.y, 'expo_booth').setTint(b.tint);
+                    this.add.text(b.x, b.y - 22, b.label, { fontSize: '11px', color: '#1b2631', fontStyle: 'bold' }).setOrigin(0.5);
+                });
+                [[60, 200], [740, 200], [60, 400], [740, 400]].forEach(([x, y]) => this.add.image(x, y, 'expo_banner'));
+                [[300, 180], [500, 180], [300, 430], [500, 430]].forEach(([x, y]) => this.add.image(x, y, 'expo_monitor'));
+                this.attendees = this.add.group(); 
+        [{x: 150, y: 150}, {x: 650, y: 150}, {x: 230, y: 360}, {x: 560, y: 250}, {x: 300, y: 520}, {x: 480, y: 120}, {x: 700, y: 400}, {x: 100, y: 400}].forEach((pos, i) => { let npc = this.physics.add.sprite(pos.x, pos.y, i % 2 ? 'civilian_f' : 'civilian'); npc.setTint(Phaser.Display.Color.RandomRGB(120, 255).color); npc.hasTriedDemo = false; this.attendees.add(npc); this.tweens.add({ targets: npc, x: npc.x + (Math.random() > 0.5 ? 50 : -50), y: npc.y + (Math.random() > 0.5 ? 50 : -50), duration: 2000 + Math.random() * 2000, ease: 'Sine.easeInOut', yoyo: true, repeat: -1 }); }); 
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit'; this.player = new Player(this, 100, 550); this.player.setTexture(outfit); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.add.text(20, 20, "Task: Pick up VR Headset -> Demo to 3 People", { fontSize: '16px', color: '#000', backgroundColor: '#fff' }); 

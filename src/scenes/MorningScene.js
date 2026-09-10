@@ -10,12 +10,16 @@ export class MorningScene extends Phaser.Scene {
     constructor() { super('MorningScene'); } 
     create() { 
         this.cameras.main.setBackgroundColor('#000'); 
-        for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood'); 
-        this.add.rectangle(400, 300, 64, 96, 0xffffff); this.add.rectangle(400, 280, 64, 20, 0x3498db); this.add.image(200, 300, 'couch'); 
+        for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) {
+                        if (y < 2) this.add.image(x*32+16, y*32+16, 'hotel_wall');
+                        else this.add.image(x*32+16, y*32+16, 'hotel_carpet');
+                    } 
+        this.add.image(400, 300, 'hotel_bed'); this.add.image(200, 300, 'couch');
+        this.add.image(636, 40, 'hotel_window_night'); this.add.image(268, 32, 'wall_art'); this.add.image(470, 32, 'wall_art'); 
         this.dresser = this.physics.add.staticImage(600, 100, 'dresser'); this.door = this.physics.add.staticImage(100, 100, 'door'); 
-        this.add.rectangle(350, 300, 20, 20, 0x5d4037); this.add.rectangle(450, 300, 20, 20, 0x5d4037); this.add.image(350, 290, 'lamp').setScale(0.8); this.add.image(450, 290, 'lamp').setScale(0.8); 
-        this.add.text(180, 260, "Hotel Room", { fontSize: '12px', color: '#000' }); 
-        this.phone = this.add.circle(450, 320, 8, 0xe74c3c); this.physics.add.existing(this.phone, true); 
+        this.add.image(350, 300, 'nightstand'); this.add.image(450, 300, 'nightstand'); this.add.image(350, 290, 'lamp').setScale(0.8); this.add.image(450, 290, 'lamp').setScale(0.8); 
+        this.add.text(180, 258, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); 
+        this.phone = this.physics.add.staticImage(450, 322, 'hotel_phone'); 
         this.player = new Player(this, 400, 300); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.ringing = true; this.tweens.add({ targets: this.phone, scale: 1.5, duration: 200, yoyo: true, repeat: -1 }); 

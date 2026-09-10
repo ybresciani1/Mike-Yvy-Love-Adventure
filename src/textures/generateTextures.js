@@ -632,8 +632,37 @@ export function generateTextures(scene) {
     g.fillRect(10, 17, 3, 1); g.fillRect(19, 16, 3, 1); g.fillRect(15, 23, 3, 1);
     g.generateTexture('pizza_slice', 32, 32);
     g.clear(); g.fillStyle(COLORS.pizza_sauce, 1); g.fillCircle(16,16,16); g.fillStyle(COLORS.pizza_crust, 1); g.fillCircle(16,16,12); g.generateTexture('pizza_logo', 32, 32);
-    g.clear(); g.fillStyle(COLORS.furniture, 1); g.fillRect(0,0,64,32); g.fillStyle(0x3e2723, 1); g.fillRect(5,5,54,10); g.generateTexture('dresser', 64, 32);
-    g.clear(); g.fillStyle(0x8d6e63, 1); g.fillRect(0,0,64,32); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,10,32); g.fillRect(54,0,10,32); g.fillRect(0,0,64,10); g.generateTexture('couch', 64, 32);
+    // Chest of drawers with a lipped top and brass handles.
+    g.clear();
+    fillRect(0, 0, 64, 5, 0x8d6e63); // top with an overhang
+    fillRect(0, 0, 64, 2, 0xa1887f);
+    fillRect(2, 5, 60, 25, COLORS.furniture);
+    fillRect(54, 5, 8, 25, 0x4a2f26); // shaded side
+    for (const y of [7, 15, 23]) {
+        fillRect(5, y, 46, 6, 0x6d4c41);
+        fillRect(5, y, 46, 1, 0x8d6e63);
+        fillRect(14, y + 2, 6, 2, 0xd4a017);
+        fillRect(36, y + 2, 6, 2, 0xd4a017);
+    }
+    fillRect(2, 30, 60, 2, 0x3e2723);
+    g.generateTexture('dresser', 64, 32);
+    // Sofa: back cushions, two seat cushions, rolled arms and feet.
+    g.clear();
+    fillRect(0, 2, 64, 12, 0x8d6e63); // back
+    fillRect(0, 2, 64, 2, 0xa1887f);
+    fillRect(2, 5, 28, 8, 0x9c7b6e); // back cushions
+    fillRect(34, 5, 28, 8, 0x9c7b6e);
+    fillRect(4, 14, 56, 11, 0x8d6e63); // seat
+    fillRect(4, 14, 27, 11, 0x96736a);
+    fillRect(33, 14, 27, 11, 0x96736a);
+    fillRect(4, 14, 56, 1, 0xa1887f);
+    fillRect(0, 4, 8, 22, 0x6d4c41); // arms
+    fillRect(56, 4, 8, 22, 0x5d4037);
+    fillRect(0, 4, 8, 2, 0x8d6e63);
+    fillRect(4, 25, 56, 3, 0x5d4037); // base rail
+    fillRect(6, 28, 5, 4, 0x3e2723); // feet
+    fillRect(53, 28, 5, 4, 0x3e2723);
+    g.generateTexture('couch', 64, 32);
     g.clear(); g.fillStyle(0x1b5e20, 1); g.fillRect(0,0,64,32); g.fillStyle(0x0a3d0a, 1); g.fillRect(0,0,10,32); g.fillRect(54,0,10,32); g.fillRect(0,0,64,10); g.generateTexture('couch_green', 64, 32); 
     g.clear(); g.fillStyle(0x111111, 1); g.fillRect(0,0,64,40); g.fillStyle(0x444444, 1); g.fillRect(2,2,60,36); g.generateTexture('tv', 64, 40); 
     // Lamp post: fluted column, curved arm and a lit head.
@@ -653,7 +682,24 @@ export function generateTextures(scene) {
     g.fillCircle(20, 17, 8);
     g.generateTexture('streetlight', 32, 32);
     g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(12, 16, 8, 16); g.fillStyle(COLORS.lamp_shade, 1); g.beginPath(); g.moveTo(6, 16); g.lineTo(26, 16); g.lineTo(22, 6); g.lineTo(10, 6); g.closePath(); g.fill(); g.generateTexture('lamp', 32, 32);
-    g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0, 0, 32, 48); g.fillStyle(0xffd700, 1); g.fillCircle(24, 24, 3); g.generateTexture('door', 32, 48);
+    // Hotel room door: panelled, with a lever handle, card reader and a number.
+    g.clear();
+    fillRect(0, 0, 32, 48, 0x4a2f26); // frame
+    fillRect(2, 1, 28, 46, 0x6d4c41); // leaf
+    fillRect(2, 1, 28, 2, 0x8d6e63);
+    fillRect(5, 6, 22, 15, 0x5d4037); // upper panel
+    fillRect(6, 7, 20, 13, 0x7b5a49);
+    fillRect(5, 26, 22, 15, 0x5d4037); // lower panel
+    fillRect(6, 27, 20, 13, 0x7b5a49);
+    fillRect(24, 22, 5, 2, 0xd4a017); // lever handle
+    fillRect(27, 21, 2, 4, 0xb8860b);
+    fillRect(6, 22, 9, 3, 0x2b2b33); // key-card reader
+    drawPixel(13, 23, 0x00e676);
+    fillRect(12, 3, 9, 3, 0xd4a017); // room number plate
+    drawPixel(14, 4, 0x4a2f26); drawPixel(16, 4, 0x4a2f26); drawPixel(18, 4, 0x4a2f26);
+    fillRect(1, 8, 2, 4, 0x9aa5b1); // hinges
+    fillRect(1, 36, 2, 4, 0x9aa5b1);
+    g.generateTexture('door', 32, 48);
     g.clear(); g.fillStyle(COLORS.vr_headset, 1); g.fillRect(4, 10, 24, 12); g.fillStyle(0x000000, 1); g.fillRect(0, 14, 32, 4); g.fillStyle(0x00e5ff, 1); g.fillCircle(8, 16, 2); g.fillCircle(24, 16, 2); g.generateTexture('vr_headset', 32, 32);
     g.clear(); g.fillStyle(0xffffff, 1); g.fillRect(0, 0, 96, 48); g.fillStyle(0xeeeeee, 1); g.fillRect(4, 4, 88, 40); g.generateTexture('conf_table', 96, 48);
     // Saloon in profile: sloped cabin, glazed windows, wheels with hubs.
@@ -2487,4 +2533,171 @@ export function generateTextures(scene) {
     g.fillStyle(0x69f0ae, 0.5);
     g.fillRect(2, 11, 20, 1);
     g.generateTexture('exit_sign', 24, 14);
+    // --- HOTEL ROOM ----------------------------------------------------------
+    // Bed seen from above: headboard, two pillows, turned-down duvet and a runner.
+    g.clear();
+    fillRect(2, 0, 60, 10, 0x5d4037); // headboard
+    fillRect(2, 0, 60, 3, 0x7b5a49);
+    fillRect(4, 8, 56, 2, 0x3e2723);
+    fillRect(6, 11, 22, 13, 0xfdfdfd); // pillows
+    fillRect(36, 11, 22, 13, 0xfdfdfd);
+    fillRect(6, 11, 22, 2, 0xffffff);
+    fillRect(6, 22, 22, 2, 0xe3e6e8);
+    fillRect(36, 22, 22, 2, 0xe3e6e8);
+    fillRect(4, 25, 56, 68, 0xf4f2ed); // duvet
+    fillRect(4, 25, 56, 3, 0xffffff); // turned-down edge
+    fillRect(52, 25, 8, 68, 0xe3e0d8); // shadowed side
+    fillRect(4, 44, 56, 12, 0x8e2f3f); // runner across the foot
+    fillRect(4, 44, 56, 2, 0xa84152);
+    fillRect(4, 90, 56, 3, 0xd8d4ca); // foot of the bed
+    fillRect(28, 25, 2, 19, 0xe8e5dd); // fold between the halves
+    g.generateTexture('hotel_bed', 64, 96);
+
+    // Bedside table with two drawers.
+    g.clear();
+    fillRect(1, 2, 22, 20, 0x6d4c41);
+    fillRect(1, 2, 22, 2, 0x8d6e63);
+    fillRect(18, 2, 5, 20, 0x54372c);
+    fillRect(3, 6, 14, 6, 0x5d4037); // drawers
+    fillRect(3, 14, 14, 6, 0x5d4037);
+    drawPixel(10, 9, 0xd4a017);
+    drawPixel(10, 17, 0xd4a017);
+    fillRect(2, 22, 3, 2, 0x3e2723); // legs
+    fillRect(19, 22, 3, 2, 0x3e2723);
+    g.generateTexture('nightstand', 24, 24);
+
+    // Desk phone.
+    g.clear();
+    fillRect(2, 6, 12, 8, 0x2b2b33);
+    fillRect(2, 6, 12, 1, 0x4a4a56);
+    fillRect(4, 9, 8, 4, 0x1b1b22); // keypad
+    for (let i = 5; i < 12; i += 3) { drawPixel(i, 10, 0x8a8a99); drawPixel(i, 12, 0x8a8a99); }
+    fillRect(1, 2, 14, 4, 0x3b3b46); // handset
+    fillRect(1, 2, 3, 4, 0x2b2b33);
+    fillRect(12, 2, 3, 4, 0x2b2b33);
+    drawPixel(14, 8, 0xe74c3c); // message light
+    g.generateTexture('hotel_phone', 16, 16);
+
+    // Patterned hotel carpet.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x6d4550);
+    fillRect(0, 0, 32, 1, 0x7d5260);
+    g.fillStyle(0x8a5a68, 1); // diamond motif
+    g.beginPath(); g.moveTo(16, 6); g.lineTo(26, 16); g.lineTo(16, 26); g.lineTo(6, 16); g.closePath(); g.fill();
+    g.fillStyle(0x5b3945, 1);
+    g.beginPath(); g.moveTo(16, 11); g.lineTo(21, 16); g.lineTo(16, 21); g.lineTo(11, 16); g.closePath(); g.fill();
+    drawPixel(3, 3, 0x8a5a68);
+    drawPixel(29, 29, 0x8a5a68);
+    drawPixel(29, 3, 0x5b3945);
+    drawPixel(3, 29, 0x5b3945);
+    g.generateTexture('hotel_carpet', 32, 32);
+
+    // Striped wallpaper with a chair rail along the bottom.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0xd9cdb8);
+    for (let i = 0; i < 32; i += 8) fillRect(i, 0, 3, 26, 0xcfc0a8);
+    for (let i = 4; i < 32; i += 8) drawPixel(i, 8, 0xbfae94);
+    fillRect(0, 26, 32, 3, 0x8d6e63); // rail
+    fillRect(0, 26, 32, 1, 0xa1887f);
+    fillRect(0, 29, 32, 3, 0xbfae94); // skirting
+    g.generateTexture('hotel_wall', 32, 32);
+
+    // Window over a city at night.
+    g.clear();
+    fillRect(0, 0, 64, 48, 0x4e342e); // frame
+    fillRect(3, 3, 58, 42, 0x0d1b2a); // night sky
+    fillRect(3, 3, 58, 14, 0x16273a);
+    for (let i = 0; i < 26; i++) {
+        const bx = 4 + ((i * 7 + (i % 3) * 3) % 55);
+        const by = 6 + ((i * 5) % 30);
+        drawPixel(bx, by, i % 4 === 0 ? 0xfff3b0 : 0x9fd6f0);
+    }
+    fillRect(6, 26, 12, 19, 0x101c28); // buildings
+    fillRect(22, 20, 14, 25, 0x152430);
+    fillRect(40, 30, 16, 15, 0x101c28);
+    for (let bx = 8; bx < 17; bx += 4) for (let by = 29; by < 43; by += 5) drawPixel(bx, by, 0xffe082);
+    for (let bx = 24; bx < 35; bx += 4) for (let by = 23; by < 43; by += 5) drawPixel(bx, by, 0xffd166);
+    for (let bx = 42; bx < 55; bx += 4) for (let by = 33; by < 43; by += 5) drawPixel(bx, by, 0xffe082);
+    fillRect(31, 3, 2, 42, 0x4e342e); // mullion
+    fillRect(3, 22, 58, 2, 0x4e342e);
+    fillRect(0, 0, 6, 48, 0x7b1e2b); // curtains
+    fillRect(58, 0, 6, 48, 0x7b1e2b);
+    fillRect(1, 0, 2, 48, 0x93303d);
+    fillRect(59, 0, 2, 48, 0x93303d);
+    g.generateTexture('hotel_window_night', 64, 48);
+
+    // Framed print for the wall.
+    g.clear();
+    fillRect(0, 0, 32, 24, 0xb08d3f); // gilt frame
+    fillRect(1, 1, 30, 22, 0x8a6f31);
+    fillRect(3, 3, 26, 18, 0xdfe9f2); // sky
+    fillRect(3, 13, 26, 8, 0x4f7a52); // hills
+    g.fillStyle(0x3d5f40, 1);
+    g.beginPath(); g.moveTo(3, 14); g.lineTo(12, 6); g.lineTo(21, 14); g.closePath(); g.fill();
+    g.fillStyle(0xf3c969, 1);
+    g.fillCircle(24, 8, 3);
+    g.generateTexture('wall_art', 32, 24);
+
+    // --- TECH EXPO -----------------------------------------------------------
+    // Booth: backdrop with a header panel, side pillars, counter and a screen.
+    // Drawn in neutral tones so scenes can tint each booth its own brand colour.
+    g.clear();
+    fillRect(4, 6, 88, 40, 0xe8ecef); // backdrop
+    fillRect(4, 6, 88, 3, 0xf7f9fa);
+    fillRect(4, 0, 88, 7, 0xb9c3cc); // header band
+    fillRect(4, 0, 88, 2, 0xd3dae0);
+    fillRect(0, 0, 6, 52, 0x9aa5b1); // pillars
+    fillRect(90, 0, 6, 52, 0x8a95a1);
+    fillRect(12, 12, 26, 20, 0x5d6d7e); // wall screen
+    fillRect(14, 14, 22, 16, 0x9fd6f0);
+    fillRect(14, 14, 22, 4, 0xc9e9fb);
+    fillRect(16, 22, 4, 6, 0x2980b9); // little bar chart on it
+    fillRect(22, 19, 4, 9, 0x2980b9);
+    fillRect(28, 24, 4, 4, 0x2980b9);
+    fillRect(46, 12, 40, 8, 0xcfd6dc); // strapline block
+    fillRect(46, 22, 30, 4, 0xcfd6dc);
+    fillRect(46, 28, 34, 4, 0xcfd6dc);
+    fillRect(6, 40, 84, 12, 0x7f8c8d); // counter
+    fillRect(6, 40, 84, 3, 0x9aa5b1);
+    fillRect(10, 44, 10, 5, 0xf4f6f7); // leaflets on the counter
+    fillRect(24, 44, 10, 5, 0xf4f6f7);
+    fillRect(70, 43, 8, 6, 0x5d6d7e); // a demo unit
+    g.generateTexture('expo_booth', 96, 52);
+
+    // Roll-up banner.
+    g.clear();
+    fillRect(4, 0, 24, 54, 0xf4f6f7);
+    fillRect(4, 0, 24, 2, 0xd7dbdd);
+    fillRect(4, 0, 3, 54, 0xe4e8ea);
+    fillRect(7, 6, 18, 10, 0x2980b9); // logo block
+    fillRect(9, 9, 6, 4, 0xf7f9fa);
+    fillRect(7, 20, 18, 3, 0xb9c3cc); // strapline bars
+    fillRect(7, 26, 14, 3, 0xb9c3cc);
+    fillRect(7, 32, 16, 3, 0xb9c3cc);
+    fillRect(7, 40, 10, 8, 0x27ae60); // QR-ish square
+    fillRect(9, 42, 3, 3, 0xf7f9fa);
+    fillRect(2, 54, 28, 4, 0x5d6d7e); // foot
+    fillRect(14, 52, 4, 4, 0x7f8c8d);
+    g.generateTexture('expo_banner', 32, 58);
+
+    // Monitor on a stand for the demo tables.
+    g.clear();
+    fillRect(2, 0, 28, 18, 0x2b2b33);
+    fillRect(4, 2, 24, 14, 0x1b4f72);
+    fillRect(4, 2, 24, 3, 0x2e86c1);
+    fillRect(6, 8, 6, 6, 0x5dade2); // ui blocks
+    fillRect(14, 6, 12, 3, 0x85c1e9);
+    fillRect(14, 11, 9, 3, 0x85c1e9);
+    fillRect(13, 18, 6, 4, 0x4a4a56); // stand
+    fillRect(9, 22, 14, 2, 0x5d6d7e);
+    g.generateTexture('expo_monitor', 32, 24);
+
+    // Expo hall carpet: flat weave with a subtle grid.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x39424b);
+    fillRect(0, 0, 32, 1, 0x454f59);
+    fillRect(0, 0, 1, 32, 0x454f59);
+    for (let i = 2; i < 32; i += 6) drawPixel(i, (i * 3) % 30 + 1, 0x4c5760);
+    for (let i = 4; i < 32; i += 6) drawPixel(i, (i * 5) % 28 + 2, 0x323a42);
+    g.generateTexture('expo_carpet', 32, 32);
 }
