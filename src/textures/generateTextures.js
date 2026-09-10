@@ -120,22 +120,54 @@ export function generateTextures(scene) {
     g.generateTexture('mike_casual', 32, 32);
 
     // --- YVY (long hair, pink dress) ---
-    const YVY_HAIR = 0x5d4037;
-    const YVY_HAIR_HI = 0x7b5a49;
-    const YVY_HAIR_SHADE = 0x3e2723;
+    const YVY_HAIR = 0x14141a; // black, with a blue sheen where the light hits
+    const YVY_HAIR_HI = 0x3c3c50;
+    const YVY_HAIR_SHADE = 0x08080c;
+
+    /**
+     * Yvy's face: a narrower head than the shared drawFace, with larger eyes,
+     * lashes, thinner arched brows and fuller lips.
+     */
+    const drawYvyFace = (y) => {
+        fillRect(11, y, 10, 11, SKIN);
+        fillRect(20, y, 1, 11, SKIN_SHADE); // cheek shadow
+        fillRect(12, y + 10, 8, 1, SKIN_SHADE); // narrow chin
+        fillRect(11, y + 1, 4, 1, 0x2b2b33); // brows, a clear row above the lashes
+        fillRect(17, y + 1, 4, 1, 0x2b2b33);
+        fillRect(11, y + 3, 4, 1, YVY_HAIR); // lash line
+        fillRect(17, y + 3, 4, 1, YVY_HAIR);
+        fillRect(11, y + 4, 4, 3, EYE_WHITE); // big eyes
+        fillRect(17, y + 4, 4, 3, EYE_WHITE);
+        fillRect(12, y + 4, 2, 3, 0x4a2f22); // irises
+        fillRect(18, y + 4, 2, 3, 0x4a2f22);
+        drawPixel(12, y + 4, 0xffffff); // catchlights
+        drawPixel(18, y + 4, 0xffffff);
+        drawPixel(15, y + 7, SKIN_SHADE); // small nose
+        fillRect(14, y + 8, 4, 1, 0xd6607a); // lips
+        fillRect(15, y + 9, 2, 1, 0xb84a63);
+        fillRect(11, y + 7, 2, 1, BLUSH);
+        fillRect(19, y + 7, 2, 1, BLUSH);
+    };
+
+    /** Long black hair with a side-swept fringe. */
+    const drawYvyHair = () => {
+        fillRect(9, 1, 14, 4, YVY_HAIR); // crown
+        fillRect(8, 4, 3, 15, YVY_HAIR); // falls past the shoulders
+        fillRect(21, 4, 3, 15, YVY_HAIR);
+        fillRect(10, 5, 4, 2, YVY_HAIR); // fringe swept to one side
+        fillRect(10, 2, 5, 1, YVY_HAIR_HI); // sheen
+        drawPixel(20, 3, YVY_HAIR_HI);
+        fillRect(8, 16, 3, 3, YVY_HAIR_SHADE); // tips
+        fillRect(21, 16, 3, 3, YVY_HAIR_SHADE);
+        fillRect(9, 4, 14, 1, YVY_HAIR_SHADE);
+    };
     g.clear();
-    drawFace(5, { brow: YVY_HAIR_SHADE, blush: true });
-    fillRect(9, 1, 14, 4, YVY_HAIR); // crown
-    fillRect(8, 4, 3, 15, YVY_HAIR); // long left fall
-    fillRect(21, 4, 3, 15, YVY_HAIR); // long right fall
-    fillRect(10, 2, 5, 1, YVY_HAIR_HI); // sheen
-    fillRect(8, 16, 3, 3, YVY_HAIR_SHADE); // tips
-    fillRect(21, 16, 3, 3, YVY_HAIR_SHADE);
-    fillRect(9, 4, 14, 1, YVY_HAIR_SHADE);
+    drawYvyFace(5);
+    drawYvyHair();
     fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
     fillRect(11, 17, 10, 8, 0xe91e63); // bodice
     fillRect(19, 17, 2, 8, 0xc2185b);
-    fillRect(12, 18, 1, 4, 0xf06292); // highlight
+    fillRect(12, 18, 1, 4, 0xf06292);
     fillRect(11, 17, 10, 1, 0xf8bbd0); // neckline
     fillRect(11, 24, 10, 1, 0xad1457); // waist
     fillRect(10, 25, 12, 4, 0xe91e63); // skirt
@@ -147,7 +179,7 @@ export function generateTextures(scene) {
     fillRect(21, 23, 2, 2, SKIN_SHADE);
     fillRect(12, 29, 3, 2, SKIN); // legs
     fillRect(17, 29, 3, 2, SKIN_SHADE);
-    fillRect(11, 31, 4, 1, 0x212121); // shoes
+    fillRect(11, 31, 4, 1, 0x212121); // heels
     fillRect(17, 31, 4, 1, 0x121212);
     g.generateTexture('yvy', 32, 32);
 
@@ -492,7 +524,19 @@ export function generateTextures(scene) {
     drawPixel(24, 6, 0xc3cacd);
     drawPixel(7, 22, 0xc3cacd);
     g.generateTexture('floor_tile', 32, 32);
-    g.clear(); g.fillStyle(0x424242, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x616161, 1); g.fillRect(2,2,28,28); g.generateTexture('pavement', 32, 32);
+    // Paving slabs with a kerb edge and a little wear.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x5b5b5b);
+    fillRect(0, 0, 32, 1, 0x6f6f6f); // slab joints
+    fillRect(0, 16, 32, 1, 0x4a4a4a);
+    fillRect(0, 0, 1, 32, 0x4a4a4a);
+    fillRect(16, 0, 1, 16, 0x4a4a4a); // staggered courses
+    fillRect(8, 16, 1, 16, 0x4a4a4a);
+    fillRect(4, 6, 5, 1, 0x6a6a6a); // scuffs
+    fillRect(21, 22, 6, 1, 0x545454);
+    drawPixel(26, 9, 0x6a6a6a);
+    drawPixel(12, 25, 0x505050);
+    g.generateTexture('pavement', 32, 32);
     g.clear(); g.fillStyle(0x2e7d32, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x1b5e20, 0.5); g.fillRect(0,30,32,2); g.generateTexture('grass', 32, 32);
     // Roller case: shell with straps, a telescoping handle and wheels.
     g.clear();
@@ -571,7 +615,22 @@ export function generateTextures(scene) {
     g.clear(); g.fillStyle(0x8d6e63, 1); g.fillRect(0,0,64,32); g.fillStyle(0x5d4037, 1); g.fillRect(0,0,10,32); g.fillRect(54,0,10,32); g.fillRect(0,0,64,10); g.generateTexture('couch', 64, 32);
     g.clear(); g.fillStyle(0x1b5e20, 1); g.fillRect(0,0,64,32); g.fillStyle(0x0a3d0a, 1); g.fillRect(0,0,10,32); g.fillRect(54,0,10,32); g.fillRect(0,0,64,10); g.generateTexture('couch_green', 64, 32); 
     g.clear(); g.fillStyle(0x111111, 1); g.fillRect(0,0,64,40); g.fillStyle(0x444444, 1); g.fillRect(2,2,60,36); g.generateTexture('tv', 64, 40); 
-    g.clear(); g.fillStyle(0x555555, 1); g.fillRect(14, 0, 4, 32); g.fillStyle(0xffff00, 0.8); g.fillCircle(16, 4, 6); g.generateTexture('streetlight', 32, 32);
+    // Lamp post: fluted column, curved arm and a lit head.
+    g.clear();
+    fillRect(14, 6, 4, 26, 0x4a4a52); // column
+    fillRect(14, 6, 1, 26, 0x6a6a74);
+    fillRect(12, 29, 8, 3, 0x3a3a42); // base
+    fillRect(14, 4, 7, 2, 0x4a4a52); // arm
+    fillRect(19, 5, 2, 3, 0x4a4a52);
+    g.fillStyle(0x3a3a42, 1); // lamp head
+    g.beginPath(); g.moveTo(16, 8); g.lineTo(24, 8); g.lineTo(22, 12); g.lineTo(18, 12); g.closePath(); g.fill();
+    g.fillStyle(0xfff3b0, 1);
+    g.fillRect(18, 11, 4, 2);
+    g.fillStyle(0xfff3b0, 0.35); // glow under the lamp
+    g.fillCircle(20, 14, 5);
+    g.fillStyle(0xfff3b0, 0.15);
+    g.fillCircle(20, 17, 8);
+    g.generateTexture('streetlight', 32, 32);
     g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(12, 16, 8, 16); g.fillStyle(COLORS.lamp_shade, 1); g.beginPath(); g.moveTo(6, 16); g.lineTo(26, 16); g.lineTo(22, 6); g.lineTo(10, 6); g.closePath(); g.fill(); g.generateTexture('lamp', 32, 32);
     g.clear(); g.fillStyle(0x5d4037, 1); g.fillRect(0, 0, 32, 48); g.fillStyle(0xffd700, 1); g.fillCircle(24, 24, 3); g.generateTexture('door', 32, 48);
     g.clear(); g.fillStyle(COLORS.vr_headset, 1); g.fillRect(4, 10, 24, 12); g.fillStyle(0x000000, 1); g.fillRect(0, 14, 32, 4); g.fillStyle(0x00e5ff, 1); g.fillCircle(8, 16, 2); g.fillCircle(24, 16, 2); g.generateTexture('vr_headset', 32, 32);
@@ -1969,4 +2028,178 @@ export function generateTextures(scene) {
     g.fillStyle(0xdff6ff, 1);
     g.fillCircle(12, 20, 2);
     g.generateTexture('par_can', 24, 24);
+    // --- YVY'S DANCE POSES ---------------------------------------------------
+    // Her own moves, distinct from Mike's and the squad's: hair flip, arms
+    // overhead, a hip pop and a twirl with the skirt flaring.
+    const DRESS = 0xe91e63;
+    const DRESS_SHADE = 0xc2185b;
+    const DRESS_HI = 0xf06292;
+    const DRESS_DARK = 0xad1457;
+
+    const yvyHead = () => {
+        drawYvyFace(5);
+        drawYvyHair();
+        fillRect(13, 15, 6, 2, SKIN_SHADE);
+    };
+
+    // Hair flip: one hand up through her hair, weight on the other hip.
+    g.clear();
+    yvyHead();
+    fillRect(12, 17, 10, 8, DRESS); // bodice, shifted with the hip
+    fillRect(20, 17, 2, 8, DRESS_SHADE);
+    fillRect(13, 18, 1, 4, DRESS_HI);
+    fillRect(12, 17, 10, 1, 0xf8bbd0);
+    fillRect(12, 24, 10, 1, DRESS_DARK);
+    fillRect(11, 25, 12, 4, DRESS); // skirt swung right
+    fillRect(20, 25, 3, 4, DRESS_SHADE);
+    fillRect(11, 28, 12, 1, DRESS_DARK);
+    fillRect(23, 12, 2, 6, SKIN); // arm raised to the hair
+    fillRect(22, 9, 3, 3, SKIN);
+    fillRect(10, 18, 2, 6, SKIN_SHADE); // other arm on the hip
+    fillRect(10, 23, 3, 2, SKIN_SHADE);
+    fillRect(13, 29, 3, 2, SKIN);
+    fillRect(18, 29, 3, 2, SKIN_SHADE);
+    fillRect(12, 31, 4, 1, 0x212121);
+    fillRect(18, 31, 4, 1, 0x121212);
+    g.generateTexture('yvy_dance_1', 32, 32);
+
+    // Both arms overhead, swaying the other way.
+    g.clear();
+    yvyHead();
+    fillRect(10, 17, 10, 8, DRESS);
+    fillRect(18, 17, 2, 8, DRESS_SHADE);
+    fillRect(11, 18, 1, 4, DRESS_HI);
+    fillRect(10, 17, 10, 1, 0xf8bbd0);
+    fillRect(10, 24, 10, 1, DRESS_DARK);
+    fillRect(9, 25, 12, 4, DRESS); // skirt swung left
+    fillRect(18, 25, 3, 4, DRESS_SHADE);
+    fillRect(9, 28, 12, 1, DRESS_DARK);
+    fillRect(7, 11, 2, 7, SKIN); // arms up
+    fillRect(6, 8, 3, 3, SKIN);
+    fillRect(21, 11, 2, 7, SKIN_SHADE);
+    fillRect(21, 8, 3, 3, SKIN_SHADE);
+    fillRect(11, 29, 3, 2, SKIN);
+    fillRect(16, 29, 3, 2, SKIN_SHADE);
+    fillRect(10, 31, 4, 1, 0x212121);
+    fillRect(16, 31, 4, 1, 0x121212);
+    g.generateTexture('yvy_dance_2', 32, 32);
+
+    // Hands on hips, hip popped, one knee bent.
+    g.clear();
+    yvyHead();
+    fillRect(11, 17, 10, 8, DRESS);
+    fillRect(19, 17, 2, 8, DRESS_SHADE);
+    fillRect(12, 18, 1, 4, DRESS_HI);
+    fillRect(11, 17, 10, 1, 0xf8bbd0);
+    fillRect(11, 24, 11, 1, DRESS_DARK);
+    fillRect(11, 25, 12, 4, DRESS); // skirt kicked out to one side
+    fillRect(20, 25, 3, 4, DRESS_SHADE);
+    fillRect(11, 28, 12, 1, DRESS_DARK);
+    fillRect(8, 18, 2, 5, SKIN); // elbows out, hands on hips
+    fillRect(8, 22, 4, 2, SKIN);
+    fillRect(22, 18, 2, 5, SKIN_SHADE);
+    fillRect(20, 22, 4, 2, SKIN_SHADE);
+    fillRect(13, 29, 3, 2, SKIN);
+    fillRect(18, 28, 3, 3, SKIN_SHADE); // bent knee
+    fillRect(12, 31, 4, 1, 0x212121);
+    fillRect(18, 31, 4, 1, 0x121212);
+    g.generateTexture('yvy_dance_3', 32, 32);
+
+    // Mid-twirl: arms out, hair and skirt flaring with the spin.
+    g.clear();
+    yvyHead();
+    fillRect(8, 3, 3, 9, YVY_HAIR); // hair thrown out by the turn
+    fillRect(21, 3, 4, 8, YVY_HAIR);
+    fillRect(24, 6, 2, 4, YVY_HAIR_SHADE);
+    fillRect(11, 17, 10, 8, DRESS);
+    fillRect(19, 17, 2, 8, DRESS_SHADE);
+    fillRect(12, 18, 1, 4, DRESS_HI);
+    fillRect(11, 17, 10, 1, 0xf8bbd0);
+    fillRect(11, 24, 10, 1, DRESS_DARK);
+    fillRect(7, 25, 18, 4, DRESS); // skirt flared wide
+    fillRect(20, 25, 5, 4, DRESS_SHADE);
+    fillRect(7, 28, 18, 1, DRESS_DARK);
+    fillRect(6, 19, 4, 2, SKIN); // arms out for the spin
+    fillRect(4, 18, 3, 2, SKIN);
+    fillRect(22, 19, 4, 2, SKIN_SHADE);
+    fillRect(25, 18, 3, 2, SKIN_SHADE);
+    fillRect(13, 29, 3, 2, SKIN);
+    fillRect(17, 29, 3, 2, SKIN_SHADE);
+    fillRect(12, 31, 4, 1, 0x212121);
+    fillRect(17, 31, 4, 1, 0x121212);
+    g.generateTexture('yvy_dance_4', 32, 32);
+
+    // --- LATE-NIGHT STREET ---------------------------------------------------
+    // Pizza storefront: awning, window with a counter behind it, and the door.
+    g.clear();
+    fillRect(0, 10, 96, 54, 0xb03028); // facade
+    fillRect(0, 10, 96, 2, 0xd2453c);
+    fillRect(0, 0, 96, 10, 0x7d1f19); // sign band
+    for (let i = 0; i < 96; i += 12) fillRect(i, 10, 6, 5, 0xf4f4f4); // striped awning
+    for (let i = 6; i < 96; i += 12) fillRect(i, 10, 6, 5, 0xc0392b);
+    fillRect(0, 15, 96, 1, 0x6b1712);
+    fillRect(6, 20, 52, 30, 0x2a1f1b); // window
+    fillRect(8, 22, 48, 26, 0xffd88a); // warm interior
+    fillRect(8, 22, 48, 3, 0xfff0c4);
+    fillRect(10, 38, 44, 10, 0x8d6e63); // counter behind the glass
+    fillRect(10, 38, 44, 2, 0xa1887f);
+    fillRect(14, 30, 10, 7, 0xd7a04a); // pizzas on display
+    fillRect(28, 30, 10, 7, 0xd7a04a);
+    fillRect(42, 30, 8, 7, 0xd7a04a);
+    fillRect(16, 32, 6, 3, 0xc0392b);
+    fillRect(30, 32, 6, 3, 0xc0392b);
+    fillRect(66, 20, 24, 44, 0x5d4037); // door
+    fillRect(68, 22, 20, 26, 0xffd88a);
+    fillRect(68, 22, 20, 2, 0xfff0c4);
+    fillRect(66, 20, 24, 2, 0x7b5a49);
+    fillRect(85, 40, 2, 5, 0xd4a017); // handle
+    fillRect(0, 60, 96, 4, 0x4a1410); // plinth
+    g.generateTexture('pizza_storefront', 96, 64);
+
+    // Neon slice sign that hangs over the pavement.
+    g.clear();
+    g.fillStyle(0xff2d95, 0.18);
+    g.fillRect(0, 0, 48, 24);
+    fillRect(1, 1, 46, 2, 0xff4d6d); // tube frame
+    fillRect(1, 21, 46, 2, 0xff4d6d);
+    fillRect(1, 1, 2, 22, 0xff4d6d);
+    fillRect(45, 1, 2, 22, 0xff4d6d);
+    g.fillStyle(0xffd166, 1); // slice
+    g.beginPath(); g.moveTo(14, 5); g.lineTo(26, 5); g.lineTo(20, 19); g.closePath(); g.fill();
+    g.fillStyle(0xff6b6b, 1);
+    g.fillCircle(18, 9, 1); g.fillCircle(22, 11, 1); g.fillCircle(19, 14, 1);
+    fillRect(30, 8, 12, 2, 0x00e5ff); // "open" bars
+    fillRect(30, 13, 8, 2, 0x00e5ff);
+    g.generateTexture('neon_pizza_sign', 48, 24);
+
+    // Fire hydrant.
+    g.clear();
+    fillRect(5, 6, 6, 15, 0xc0392b);
+    fillRect(9, 6, 2, 15, 0x922b21);
+    fillRect(4, 4, 8, 3, 0xe74c3c); // cap
+    fillRect(6, 2, 4, 2, 0xc0392b);
+    fillRect(2, 10, 3, 3, 0x922b21); // side ports
+    fillRect(11, 10, 3, 3, 0x922b21);
+    fillRect(4, 14, 8, 1, 0x7b241c);
+    fillRect(3, 21, 10, 3, 0x5d2018); // base
+    g.generateTexture('fire_hydrant', 16, 24);
+
+    // The moon: craters and a soft halo.
+    g.clear();
+    g.fillStyle(0xfff4c4, 0.10);
+    g.fillCircle(24, 24, 23);
+    g.fillStyle(0xfff4c4, 0.18);
+    g.fillCircle(24, 24, 19);
+    g.fillStyle(0xfdf1c0, 1);
+    g.fillCircle(24, 24, 15);
+    g.fillStyle(0xf2e2a8, 1);
+    g.fillCircle(20, 20, 4);
+    g.fillCircle(30, 27, 3);
+    g.fillCircle(22, 31, 2);
+    g.fillStyle(0xe8d492, 1);
+    g.fillCircle(20, 20, 2);
+    g.fillCircle(30, 27, 1);
+    g.fillStyle(0xfffbe8, 1);
+    g.fillCircle(18, 16, 3);
+    g.generateTexture('moon', 48, 48);
 }

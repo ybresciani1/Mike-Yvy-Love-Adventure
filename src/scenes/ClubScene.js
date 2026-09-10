@@ -8,6 +8,7 @@ import { Player } from '../entities/Player.js';
 // Held-F dancing cycles these poses; the floor chases these colours on the beat.
 const DANCE_POSES = ['mike_dance_1', 'mike_dance_2', 'mike_dance_3', 'mike_dance_4'];
 const MARINE_POSES = ['marine_dance_1', 'marine_dance_2', 'marine_dance_3'];
+const YVY_POSES = ['yvy_dance_1', 'yvy_dance_2', 'yvy_dance_3', 'yvy_dance_4'];
 const LIGHT_COLORS = [0xff2d95, 0x00e5ff, 0xaeea00, 0xffc400, 0xb388ff, 0xff7043];
 const FLOOR_COLORS = [0x8e1450, 0x0b6f7d, 0x4d7a1f, 0x8a5c00, 0x4b3579, 0x1b1b26];
 
@@ -119,6 +120,7 @@ export class ClubScene extends Phaser.Scene {
             this.beat = (this.beat + 1) % FLOOR_COLORS.length;            this.floorTiles.forEach(t => t.setTint(FLOOR_COLORS[(t.gridIndex + this.beat) % FLOOR_COLORS.length]));
             this.lightBeams.forEach((beam, i) => beam.setAlpha((i + this.beat) % 2 ? 0.5 : 0.16));
             this.marines.getChildren().forEach((m, i) => m.setTexture(MARINE_POSES[(this.beat + i) % MARINE_POSES.length]));
+            this.yvy.setTexture(YVY_POSES[this.beat % YVY_POSES.length]); // no notes — those stay Mike's
             [this.yvy, ...this.marines.getChildren(), ...this.civilians.getChildren()].forEach(spr => { 
                 spr.y += (Math.random() > 0.5 ? -4 : 4); 
                 if(Math.random() > 0.8) spr.x += (Math.random() > 0.5 ? -10 : 10); 

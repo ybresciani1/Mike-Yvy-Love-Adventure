@@ -11,9 +11,9 @@ export class PizzaScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('#101010'); 
         playLeFestinTheme();
         for(let i=0; i<50; i++) { let x = Math.random() * 450; let y = Math.random() * 250; this.add.rectangle(x, y, 2, 2, 0xffffff, Math.random() * 0.8 + 0.2); }
-        this.add.circle(100, 80, 40, 0xffffcc).setAlpha(0.9);
-        for (let x=0; x<GAME_WIDTH/32; x++) { for (let y=0; y<GAME_HEIGHT/32; y++) { if (y < 10 && x < 15) continue; if (y >= 10 && y < 14) this.add.image(x*32+16, y*32+16, 'pavement'); else if (x >= 15 && y < 10) this.add.image(x*32+16, y*32+16, 'floor_tile'); else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x222222); } }
-        this.add.rectangle(650, 150, 300, 200, 0xc62828); this.add.rectangle(650, 150, 280, 180, 0xffe0b2); this.add.text(560, 50, "PIZZA SHOP", { fontSize: '24px', fontWeight: 'bold' }); this.add.sprite(730, 60, 'pizza_logo'); this.add.rectangle(750, 150, 40, 150, 0x5d4037); this.add.rectangle(600, 200, 60, 60, 0x8d6e63); 
+        this.add.image(96, 80, 'moon');
+        for (let x=0; x<GAME_WIDTH/32; x++) { for (let y=0; y<GAME_HEIGHT/32; y++) { if (y < 10 && x < 15) continue; if (y >= 10 && y < 14) this.add.image(x*32+16, y*32+16, 'pavement'); else if (x >= 15 && y < 10) this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x3b3b4a); else this.add.image(x*32+16, y*32+16, 'floor_tile').setTint(0x222222); } }
+        this.add.rectangle(650, 150, 300, 200, 0x8c2a22); this.add.image(650, 150, 'pizza_storefront').setScale(2).setFlipX(true); this.add.image(744, 116, 'neon_pizza_sign').setScale(1.3); this.add.text(560, 50, "PIZZA SHOP", { fontSize: '24px', fontWeight: 'bold' }); this.add.sprite(730, 60, 'pizza_logo'); this.add.image(210, 366, 'trash_bin').setScale(1.5); this.add.image(430, 364, 'fire_hydrant'); this.add.image(700, 372, 'park_bench').setScale(0.8); 
         [100, 300, 500].forEach(x => { this.add.image(x, 340, 'streetlight').setScale(2); this.add.circle(x+4, 348, 40, 0xffff00, 0.2); }); 
         this.shopZone = this.add.rectangle(600, 200, 100, 100, 0xffff00, 0); this.physics.add.existing(this.shopZone, true); 
         this.player = new Player(this, 100, 400); this.yvy = this.physics.add.sprite(150, 400, 'yvy'); 
