@@ -3,7 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { stopMusic, playConferenceTheme } from '../audio/music.js';
-import { showDialogue } from '../ui/dialogue.js';
+import { showDialogue, isDialogueOpen } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 
 export class ConferenceScene extends Phaser.Scene { 
@@ -34,7 +34,7 @@ export class ConferenceScene extends Phaser.Scene {
         this.add.text(20, 20, "Task: Pick up VR Headset -> Demo to 3 People", { fontSize: '16px', color: '#000', backgroundColor: '#fff' }); 
         this.physics.add.overlap(this.player, this.vrHeadset, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !gameState.hasVR) { gameState.hasVR = true; this.vrHeadset.destroy(); this.heldVR.setVisible(true); playSound('select'); showDialogue("Mike picked up the VR Headset."); } }); 
         this.physics.add.overlap(this.player, this.attendees, (player, npc) => { 
-            if (gameState.hasVR && !npc.hasTriedDemo && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
+            if (gameState.hasVR && !npc.hasTriedDemo && !this.player.isLocked && !isDialogueOpen() && Phaser.Input.Keyboard.JustDown(this.spaceKey)) { 
                 npc.hasTriedDemo = true; 
                 playSound('vr_boop'); 
                 this.player.isLocked = true;
@@ -47,12 +47,16 @@ export class ConferenceScene extends Phaser.Scene {
                 const dialogueSet = demoDialogues[Math.min(gameState.demosGiven, 2)];
                 let i = 0;
                 const nextLine = () => {
-                    if (i < dialogueSet.length) {
-                        showDialogue(dialogueSet[i++], nextLine);
-                    } else {
+                    if (i >= dialogueSet.length) {
                         this.player.isLocked = false;
                         gameState.demosGiven++;
                         if (gameState.demosGiven >= 3) { this.startTextingSequence(); }
+                        return;
+                    }
+                    if (showDialogue(dialogueSet[i], nextLine)) {
+                        i++;
+                    } else {
+                        this.time.delayedCall(150, nextLine);
                     }
                 };
                 nextLine();

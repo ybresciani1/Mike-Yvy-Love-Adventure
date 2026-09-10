@@ -66,6 +66,7 @@ describe('showDialogue', () => {
 
         typeOut("Yvy: 'Hi!'");
         pressSpace();
+        vi.advanceTimersByTime(200); // clear the re-trigger guard
 
         showDialogue('The room falls quiet.');
         expect(frame.style.display).toBe('none');
@@ -142,5 +143,47 @@ describe('resetDialogue', () => {
 
     it('is safe when nothing is open', () => {
         expect(() => resetDialogue()).not.toThrow();
+    });
+});
+
+describe('re-trigger guard', () => {
+    // The press that closes a line is also seen by Phaser one frame later. An
+    // interaction the player is standing in would re-open its line immediately,
+    // and since an open line freezes the player, they could never walk away.
+    it('refuses a fresh line opened by the same press that closed the last one', () => {
+        showDialogue('Mike checked the AI Gen booth.');
+        typeOut('Mike checked the AI Gen booth.');
+        pressSpace();
+
+        const reopened = showDialogue('Mike checked the AI Gen booth.');
+
+        expect(reopened).toBe(false);
+        expect(isDialogueOpen()).toBe(false);
+        expect(document.getElementById('dialogue-box').style.display).toBe('none');
+    });
+
+    it('still lets a conversation continue to its next line', () => {
+        showDialogue('Mike: line one', () => showDialogue('Yvy: line two'));
+        typeOut('Mike: line one');
+        pressSpace();
+
+        expect(isDialogueOpen()).toBe(true);
+        typeOut('Yvy: line two');
+        expect(document.getElementById('dialogue-text').textContent).toBe('Yvy: line two');
+    });
+
+    it('allows a fresh line again once the press has settled', () => {
+        showDialogue('first');
+        typeOut('first');
+        pressSpace();
+        vi.advanceTimersByTime(200);
+
+        expect(showDialogue('second')).toBe(true);
+        expect(isDialogueOpen()).toBe(true);
+    });
+
+    it('reports refusal while another line is open', () => {
+        showDialogue('first');
+        expect(showDialogue('second')).toBe(false);
     });
 });

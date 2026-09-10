@@ -30,13 +30,28 @@ let typeWriterEvent = null;
 // the old scene's next line over the new scene.
 let dismissListener = null;
 
+// The key press that dismisses a line is seen by the DOM listener here and, one
+// frame later, by Phaser as a fresh JustDown. An interaction the player happens
+// to be standing inside would therefore re-open its line the instant it closed
+// — and because an open line freezes the player, they could never walk out of
+// the zone. Lines opened from a dismissal callback (a conversation continuing to
+// its next line) are exempt.
+const RETRIGGER_GUARD_MS = 120;
+let lastClosedAt = -Infinity;
+let inDismissCallback = false;
+
 // Global input gate: the player cannot move while a dialogue box is open.
 export function isDialogueOpen() {
     return dialogueOpen;
 }
 
+/**
+ * Show one line. Returns false when the line was refused: another line is
+ * already open, or the press that closed the previous one is still settling.
+ */
 export function showDialogue(text, callback) {
-    if (dialogueOpen) return;
+    if (dialogueOpen) return false;
+    if (!inDismissCallback && Date.now() - lastClosedAt < RETRIGGER_GUARD_MS) return false;
     dialogueOpen = true;
 
     const box = document.getElementById('dialogue-box');
@@ -75,14 +90,23 @@ export function showDialogue(text, callback) {
                     dismissListener = null;
                     box.style.display = 'none';
                     dialogueOpen = false;
+                    lastClosedAt = Date.now();
                     playSound('select');
-                    if (callback) callback();
+                    if (callback) {
+                        inDismissCallback = true;
+                        try {
+                            callback();
+                        } finally {
+                            inDismissCallback = false;
+                        }
+                    }
                 }
             };
             dismissListener = listener;
             document.addEventListener('keydown', listener);
         }
     }, TYPEWRITER_INTERVAL_MS);
+    return true;
 }
 
 /**
@@ -97,6 +121,7 @@ export function resetDialogue() {
     if (dismissListener) document.removeEventListener('keydown', dismissListener);
     dismissListener = null;
     dialogueOpen = false;
+    lastClosedAt = -Infinity;
     const box = document.getElementById('dialogue-box');
     if (box) box.style.display = 'none';
 }
