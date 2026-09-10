@@ -69,13 +69,46 @@ export class MovieScene extends Phaser.Scene {
         this.add.rectangle(400, 600, 800, 40, 0x000000); 
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
         this.player = this.add.sprite(380, 480, outfit); this.yvy = this.add.sprite(420, 480, 'yvy'); this.popcorn = this.add.sprite(400, 490, 'popcorn').setScale(0.8);
-        this.jalapeno = this.add.sprite(420, 470, 'jalapeno').setVisible(false);
+        this.jalapenos = [
+            this.add.sprite(372, 468, 'jalapeno').setVisible(false),
+            this.add.sprite(428, 468, 'jalapeno').setVisible(false)
+        ];
         this.zzz = this.add.text(440, 450, "Zzz...", { fontSize: '20px', color: '#fff' }).setVisible(false);
         this.patKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); this.stage = 0; 
         this.time.delayedCall(1000, () => {
-            showDialogue("Yvy: 'Wait! You have to try popcorn with jalapeños!'", () => { this.jalapeno.setVisible(true); this.tweens.add({targets: this.jalapeno, y: 480, duration: 500, yoyo: true, repeat: 2}); showDialogue("Mike tries it... 'Wow! Spicy but good!'", () => { this.jalapeno.setVisible(false); this.startMovie(); }); });
+            showDialogue("Yvy: 'Wait! You have to try popcorn with jalapeños!'", () => {
+                    this.shareJalapenos();
+                    showDialogue("Mike scoops one into the popcorn... 'Wow! Spicy but good!'", () => {
+                        showDialogue("Yvy: 'Told you. It's the only way to eat it.'", () => {
+                            this.jalapenos.forEach(p => p.setVisible(false));
+                            this.startMovie();
+                        });
+                    });
+                });
         });
     }    /**
+     * Both of them dip a pepper into the tub between them and eat it with a
+     * handful of popcorn — she does not get the only one.
+     */
+    shareJalapenos() {
+        [this.player, this.yvy].forEach((eater, i) => {
+            const pepper = this.jalapenos[i];
+            const restX = eater.x + (i ? 8 : -8);
+            pepper.setPosition(restX, 468).setVisible(true);
+            this.tweens.add({
+                targets: pepper,
+                x: this.popcorn.x + (i ? 5 : -5), // into the tub
+                y: this.popcorn.y - 4,
+                duration: 430,
+                delay: i * 190,
+                yoyo: true, // and back up to eat it
+                repeat: 2,
+                ease: 'Sine.easeInOut'
+            });
+        });
+    }
+
+    /**
      * The screen was a flat black rectangle. Give it a night sky, an aurora over
      * the Hidden World and a sea below the horizon, all clipped to the screen so
      * the film feels like it is actually playing.

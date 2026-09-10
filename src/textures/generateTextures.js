@@ -734,19 +734,65 @@ export function generateTextures(scene) {
     g.clear(); g.fillStyle(0x00ff00, 1); g.fillCircle(4,4,4); g.generateTexture('firework_green', 8, 8);
     g.clear(); g.fillStyle(0x0000ff, 1); g.fillCircle(4,4,4); g.generateTexture('firework_blue', 8, 8);
     
+    // Two filled tacos on a plate: folded shells, meat, lettuce, cheese, salsa
+    // and a lime wedge.
     g.clear();
-    g.fillStyle(0xf1c40f, 1); // Shell
-    g.beginPath(); g.moveTo(4, 24); g.lineTo(28, 24); g.lineTo(24, 12); g.lineTo(8, 12); g.closePath(); g.fill();
-    g.fillStyle(0x5d4037, 1); g.fillRect(8, 14, 16, 4); // Meat
-    g.fillStyle(0x2ecc71, 1); g.fillRect(10, 12, 12, 4); // Lettuce
-    g.fillStyle(0xe74c3c, 1); g.fillRect(12, 12, 4, 2); g.fillRect(18, 12, 4, 2); // Tomatoes
+    g.fillStyle(0xf4f6f7, 1); // plate
+    g.fillEllipse(16, 25, 30, 11);
+    g.fillStyle(0xe4e8ea, 1);
+    g.fillEllipse(16, 26, 24, 7);
+    for (const cx of [9, 22]) {
+        g.fillStyle(0xdca63c, 1); // shell
+        g.fillEllipse(cx, 20, 13, 15);
+        g.fillStyle(0xefc169, 1); // lit side of the fold
+        g.fillEllipse(cx - 2, 20, 5, 13);
+        g.fillStyle(0xb9821f, 1); // shadow inside the fold
+        g.fillRect(cx + 4, 14, 2, 11);
+        fillRect(cx - 5, 13, 10, 4, 0x6b4226); // seasoned meat
+        fillRect(cx - 5, 13, 10, 1, 0x8a5730);
+        fillRect(cx - 6, 11, 12, 2, 0x4caf50); // lettuce
+        drawPixel(cx - 4, 12, 0x81c784);
+        drawPixel(cx + 3, 12, 0x81c784);
+        drawPixel(cx - 3, 14, 0xf5c542); // cheese
+        drawPixel(cx + 1, 15, 0xf5c542);
+        drawPixel(cx + 4, 13, 0xf5c542);
+        drawPixel(cx - 1, 12, 0xd94f4f); // salsa
+        drawPixel(cx + 2, 11, 0xd94f4f);
+    }
+    g.fillStyle(0x9ccc65, 1); // lime wedge
+    g.fillEllipse(28, 22, 7, 5);
+    g.fillStyle(0xc5e1a5, 1);
+    g.fillEllipse(28, 22, 4, 3);
     g.generateTexture('tacos', 32, 32);
 
+    // Nest of spaghetti under sauce, with meatballs, basil and parmesan.
     g.clear();
-    g.fillStyle(0xecf0f1, 1); g.fillEllipse(16, 20, 24, 12); // Plate
-    g.fillStyle(0xf39c12, 1); g.fillEllipse(16, 18, 18, 8); // Pasta
-    g.fillStyle(0xe74c3c, 1); g.fillEllipse(16, 15, 12, 6); // Sauce
-    g.fillStyle(0x5d4037, 1); g.fillCircle(16, 12, 4); // Meatball
+    g.fillStyle(0xf4f6f7, 1); // plate and rim
+    g.fillEllipse(16, 20, 30, 18);
+    g.fillStyle(0xe4e8ea, 1);
+    g.fillEllipse(16, 21, 25, 14);
+    g.fillStyle(0xf0d68c, 1); // nest of pasta
+    g.fillEllipse(16, 19, 22, 12);
+    g.fillStyle(0xe3c169, 1); // strands
+    for (let i = 0; i < 5; i++) g.fillRect(6 + i * 4, 14 + (i % 2) * 2, 3, 9);
+    g.fillStyle(0xf7e4ac, 1);
+    g.fillRect(8, 16, 2, 7);
+    g.fillRect(19, 15, 2, 8);
+    g.fillStyle(0xb5322a, 1); // sauce
+    g.fillEllipse(16, 17, 16, 8);
+    g.fillStyle(0xd04236, 1);
+    g.fillEllipse(15, 16, 11, 5);
+    g.fillStyle(0x5a3221, 1); // meatballs
+    g.fillCircle(12, 16, 4);
+    g.fillCircle(21, 18, 3);
+    g.fillStyle(0x7a4a30, 1);
+    g.fillCircle(11, 15, 2);
+    g.fillCircle(20, 17, 1);
+    drawPixel(13, 20, 0x3f7d3f); // basil
+    drawPixel(18, 13, 0x3f7d3f);
+    drawPixel(9, 19, 0xfdfdfd); // parmesan
+    drawPixel(23, 15, 0xfdfdfd);
+    drawPixel(16, 22, 0xfdfdfd);
     g.generateTexture('spaghetti', 32, 32);
     
     // Striped tub with a mound of popped kernels spilling over the rim.
@@ -909,7 +955,18 @@ export function generateTextures(scene) {
     g.fillStyle(0xb3f0ff, 0.95); g.fillCircle(4, 4, 2);
     g.fillStyle(0xffffff, 1); g.fillRect(3, 3, 2, 2);
     g.generateTexture('blue_fire', 8, 8);
-    g.clear(); g.fillStyle(0x008000, 1); g.fillCircle(4,4,4); g.generateTexture('jalapeno', 8, 8);
+    // Jalapeño: tapered green body with a stem and a highlight.
+    // Jalapeno: slim and tapered, not a bell pepper.
+    g.clear();
+    fillRect(4, 3, 4, 5, 0x2f7d32); // body
+    fillRect(5, 8, 3, 2, 0x2f7d32); // taper
+    fillRect(5, 10, 2, 1, 0x2f7d32); // tip
+    fillRect(4, 3, 1, 6, 0x43a047); // lit edge
+    fillRect(7, 4, 1, 5, 0x1b5e20); // shaded edge
+    fillRect(5, 0, 2, 3, 0x6d4c41); // stem
+    fillRect(4, 2, 4, 1, 0x33691e); // cap
+    drawPixel(5, 5, 0x81c784);
+    g.generateTexture('jalapeno', 12, 12);
     // Ice breath: pale shards radiating from a frozen core.
     g.clear();
     g.fillStyle(0xccf2ff, 0.4); g.fillCircle(6, 6, 6);
