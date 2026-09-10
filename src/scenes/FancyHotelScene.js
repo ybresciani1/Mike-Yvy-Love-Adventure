@@ -16,7 +16,18 @@ export class FancyHotelScene extends Phaser.Scene {
         this.add.image(400, 80, 'chandelier').setScale(2); 
         this.add.rectangle(340, 440, 20, 20, 0x3e2723); this.add.image(340, 430, 'fancy_lamp');
         this.add.rectangle(460, 440, 20, 20, 0x3e2723); this.add.image(460, 430, 'fancy_lamp');
-        this.add.image(50, 50, 'plant_snake'); this.add.image(750, 50, 'plant_flowers'); this.add.image(50, 550, 'plant'); this.add.image(750, 550, 'plant');
+        // Balcony doors over the city, art and a mirrored console on the wall.
+                this.add.image(660, 200, 'balcony_doors').setScale(1.6);
+                this.add.image(160, 170, 'fancy_art').setScale(1.4);
+                this.add.image(300, 170, 'fancy_art').setScale(1.4);
+                this.add.image(160, 330, 'console_mirror');
+                this.add.image(160, 316, 'champagne_service').setScale(0.8);
+        
+                // Pothos trailing in the corners, and a chaise by the window.
+                this.add.image(60, 470, 'pothos').setScale(1.3);
+                this.add.image(748, 470, 'pothos').setScale(1.3);
+                this.add.image(60, 560, 'plant_snake');
+                this.add.image(680, 470, 'chaise');
         this.bed = this.add.image(400, 420, 'fancy_bed'); 
         this.couch = this.add.image(600, 500, 'couch').setTint(0xccaa00);
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';

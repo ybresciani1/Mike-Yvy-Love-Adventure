@@ -8,10 +8,43 @@ export class RestaurantScene extends Phaser.Scene {
     constructor() { super('RestaurantScene'); } 
     create() { 
         this.cameras.main.setBackgroundColor('#3e2723'); playLeFestinTheme();
-        for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood'); 
-        this.add.image(100, 150, 'conf_table').setTint(0x5d4037).setScale(0.8); this.add.image(700, 150, 'conf_table').setTint(0x5d4037).setScale(0.8); this.add.image(100, 450, 'conf_table').setTint(0x5d4037).setScale(0.8); 
-        [ {x: 80, y: 130}, {x: 120, y: 130}, {x: 680, y: 130}, {x: 720, y: 130}, {x: 80, y: 430} ].forEach((pos, i) => { let c = this.add.sprite(pos.x, pos.y, i % 2 ? 'civilian_f' : 'civilian'); c.setTint(Math.random() * 0xffffff); }); 
-        this.add.image(50, 50, 'plant_flowers'); this.add.image(750, 50, 'plant'); this.add.image(750, 550, 'plant_fern'); this.add.text(400, 50, "GORDON BIERSCH BREWPUB", { fontSize: '24px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5); 
+        for (let x = 0; x < GAME_WIDTH / 32; x++) {
+            for (let y = 0; y < GAME_HEIGHT / 32; y++) {
+                if (y < 3) this.add.image(x*32+16, y*32+16, 'bar_wall');
+                else this.add.image(x*32+16, y*32+16, 'floor_wood');
+            }
+        }
+
+        // The kitchen line, open to the room.
+        this.add.image(188, 62, 'kitchen_range');
+        this.add.image(96, 60, 'kitchen_pass');
+        this.add.sprite(72, 104, 'server').setTint(0xf0f0f0); // chefs working the pass
+        this.add.sprite(120, 104, 'server').setTint(0xe8dcc8);
+
+        // Brewery tanks behind glass on the other side.
+        [612, 654, 696, 738].forEach(x => this.add.image(x, 64, 'brew_tank'));
+        this.add.text(675, 108, "BREWERY", { fontSize: '10px', color: '#e8c96a', fontStyle: 'bold' }).setOrigin(0.5);
+
+        // Booth seating down the right wall, with diners in them.
+        [{ y: 250 }, { y: 340 }].forEach(b => {
+            this.add.image(742, b.y, 'booth_seat');
+            this.add.sprite(724, b.y - 4, 'civilian_f').setTint(Phaser.Display.Color.RandomRGB(140, 255).color);
+            this.add.sprite(760, b.y - 4, 'civilian').setTint(Phaser.Display.Color.RandomRGB(140, 255).color);
+        });
+
+        // Pictures and pothos on the walls.
+        this.add.image(24, 58, 'fancy_art').setScale(0.8);
+        this.add.image(778, 58, 'fancy_art').setScale(0.8);
+        this.add.image(36, 250, 'pothos');
+        this.add.image(36, 430, 'pothos');
+        this.add.image(400, 560, 'pothos'); [{ x: 130, y: 330 }, { x: 330, y: 200 }, { x: 330, y: 470 }, { x: 500, y: 330 }].forEach(t => {
+            this.add.image(t.x, t.y, 'conf_table').setTint(0x5d4037).setScale(0.7);
+            this.add.image(t.x - 26, t.y + 4, 'chair');
+            this.add.image(t.x + 26, t.y + 4, 'chair');
+            this.add.sprite(t.x - 26, t.y - 6, 'civilian_f').setTint(Phaser.Display.Color.RandomRGB(140, 255).color);
+            this.add.sprite(t.x + 26, t.y - 6, 'civilian').setTint(Phaser.Display.Color.RandomRGB(140, 255).color);
+            this.add.image(t.x, t.y - 6, 'cocktail').setScale(0.6);
+        }); this.add.image(560, 560, 'plant_fern'); this.add.image(120, 560, 'plant_flowers'); this.add.text(400, 50, "GORDON BIERSCH BREWPUB", { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5); 
         this.hostStand = this.physics.add.staticImage(200, 200, 'host_stand'); this.host = this.add.sprite(220, 190, 'host'); this.hostZone = this.add.rectangle(200, 250, 60, 60, 0xffff00, 0); this.physics.add.existing(this.hostZone, true); 
         this.table = this.add.image(600, 400, 'conf_table').setTint(0x5d4037); this.chairMike = this.add.image(580, 430, 'chair'); this.chairYvy = this.add.image(620, 430, 'chair'); 
         this.menu1 = this.add.image(580, 390, 'menu'); this.menu2 = this.add.image(620, 390, 'menu'); 

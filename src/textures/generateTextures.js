@@ -2808,4 +2808,207 @@ export function generateTextures(scene) {
     fillRect(30, 3, 8, 2, 0x90a4ae); // control panel
     drawPixel(36, 4, 0x00e676);
     g.generateTexture('ac_unit', 40, 16);
+    // --- PLANTS AND PICTURES -------------------------------------------------
+    // Pothos: trailing vines of heart-shaped, variegated leaves.
+    g.clear();
+    fillRect(10, 22, 12, 10, 0xd8d3c8); // pot
+    fillRect(18, 22, 4, 10, 0xbdb7ab);
+    fillRect(9, 20, 14, 3, 0xe8e3d8); // rim
+    fillRect(9, 20, 14, 1, 0xf4f0e6);
+    fillRect(11, 23, 10, 1, 0x4e342e); // soil
+    const vine = (x, y, dir) => {
+        for (let i = 0; i < 5; i++) {
+            const lx = x + dir * i * 2;
+            const ly = y + i * 3;
+            fillRect(lx, ly, 3, 3, i % 2 ? 0x2e7d32 : 0x43a047);
+            drawPixel(lx + 1, ly, 0xa5d6a7); // variegation
+        }
+    };
+    vine(6, 8, -0); // one vine straight down the left
+    vine(22, 8, 1); // one spilling right
+    g.fillStyle(0x2e7d32, 1); // the crown of leaves
+    g.fillEllipse(16, 12, 18, 12);
+    g.fillStyle(0x43a047, 1);
+    g.fillEllipse(12, 10, 9, 7);
+    g.fillEllipse(20, 13, 8, 6);
+    g.fillStyle(0xa5d6a7, 1);
+    drawPixel(11, 9, 0xa5d6a7);
+    drawPixel(19, 12, 0xa5d6a7);
+    drawPixel(16, 7, 0xa5d6a7);
+    fillRect(15, 16, 2, 5, 0x33691e); // stem into the pot
+    g.generateTexture('pothos', 32, 32);
+
+    // Gilt-framed picture for a smarter wall.
+    g.clear();
+    fillRect(0, 0, 32, 40, 0xc9a227); // ornate frame
+    fillRect(1, 1, 30, 38, 0x8a6f14);
+    fillRect(2, 2, 28, 36, 0xd9b93b);
+    fillRect(4, 4, 24, 32, 0x2b1a3d); // canvas
+    fillRect(4, 4, 24, 12, 0x3d2456);
+    g.fillStyle(0x6b4f8a, 1); // abstract hills
+    g.beginPath(); g.moveTo(4, 26); g.lineTo(14, 14); g.lineTo(24, 26); g.closePath(); g.fill();
+    g.fillStyle(0x8e6bb0, 1);
+    g.beginPath(); g.moveTo(14, 27); g.lineTo(22, 18); g.lineTo(28, 27); g.closePath(); g.fill();
+    g.fillStyle(0xf3d98b, 1); // moon
+    g.fillCircle(22, 11, 3);
+    fillRect(4, 28, 24, 8, 0x1c1029); // dark foreground
+    fillRect(6, 30, 20, 1, 0x4a3568);
+    g.generateTexture('fancy_art', 32, 40);
+
+    // --- BREWPUB KITCHEN -----------------------------------------------------
+    // Service pass: tiled surround, heat lamps and plated food waiting to go out.
+    g.clear();
+    fillRect(0, 0, 96, 48, 0xd7dbdd); // tiled wall
+    for (let x = 0; x < 96; x += 12) fillRect(x, 0, 1, 48, 0xbcc3c6);
+    for (let y = 0; y < 48; y += 12) fillRect(0, y, 96, 1, 0xbcc3c6);
+    fillRect(6, 6, 84, 30, 0x2b1a14); // the opening
+    fillRect(8, 8, 80, 26, 0x7a4a22); // warm kitchen light beyond
+    fillRect(8, 8, 80, 6, 0xb5701f);
+    fillRect(10, 10, 76, 2, 0xffb74d); // heat lamps
+    for (let x = 16; x < 84; x += 16) fillRect(x, 12, 6, 2, 0xffd08a);
+    fillRect(8, 28, 80, 8, 0xcfd6dc); // stainless ledge
+    fillRect(8, 28, 80, 2, 0xeceff1);
+    for (const px of [16, 36, 56, 74]) { // plated dishes
+        g.fillStyle(0xf4f6f7, 1);
+        g.fillCircle(px, 32, 5);
+        g.fillStyle(0xc0392b, 1);
+        g.fillCircle(px, 32, 2);
+    }
+    fillRect(0, 36, 96, 12, 0x8d6e63); // timber below the pass
+    fillRect(0, 36, 96, 2, 0xa1887f);
+    g.generateTexture('kitchen_pass', 96, 48);
+
+    // Range with an extractor hood, pots and a lick of flame.
+    g.clear();
+    fillRect(2, 0, 60, 10, 0xb0bec5); // hood
+    fillRect(2, 0, 60, 3, 0xcfd8dc);
+    fillRect(8, 10, 48, 3, 0x78909c);
+    fillRect(4, 20, 56, 18, 0x9aa5b1); // range body
+    fillRect(4, 20, 56, 3, 0xc3cacd);
+    fillRect(6, 26, 24, 10, 0x6c7679); // oven door
+    fillRect(32, 26, 24, 10, 0x6c7679);
+    fillRect(10, 30, 16, 2, 0xffb74d); // oven glow
+    fillRect(36, 30, 16, 2, 0xffb74d);
+    g.fillStyle(0x2b2b33, 1); // pots on the burners
+    g.fillEllipse(18, 18, 16, 7);
+    g.fillEllipse(44, 18, 14, 6);
+    g.fillStyle(0x4a4a56, 1);
+    g.fillEllipse(18, 16, 14, 5);
+    g.fillStyle(0xff8a3d, 1); // flame
+    g.beginPath(); g.moveTo(44, 14); g.lineTo(47, 8); g.lineTo(50, 14); g.closePath(); g.fill();
+    g.fillStyle(0xffd166, 1);
+    g.beginPath(); g.moveTo(46, 14); g.lineTo(47, 11); g.lineTo(48, 14); g.closePath(); g.fill();
+    g.generateTexture('kitchen_range', 64, 40);
+
+    // Copper brewing tank — it is a brewpub, after all.
+    g.clear();
+    fillRect(4, 8, 24, 48, 0xb87333); // vessel
+    fillRect(20, 8, 8, 48, 0x8c5424); // shaded side
+    fillRect(4, 8, 6, 48, 0xd9915a); // lit side
+    g.fillStyle(0xc9803c, 1); // domed top
+    g.fillEllipse(16, 8, 24, 8);
+    g.fillStyle(0xe0a56a, 1);
+    g.fillEllipse(14, 6, 14, 4);
+    fillRect(13, 0, 6, 4, 0x8c5424); // chimney
+    fillRect(4, 20, 24, 2, 0x7a4a22); // bands
+    fillRect(4, 38, 24, 2, 0x7a4a22);
+    fillRect(11, 44, 10, 7, 0x5d3a1a); // hatch
+    fillRect(12, 45, 8, 5, 0x8c5424);
+    g.fillStyle(0xd7dbdd, 1); // gauge
+    g.fillCircle(23, 30, 3);
+    drawPixel(23, 30, 0xc0392b);
+    fillRect(14, 56, 4, 5, 0x6c7679); // valve and stand
+    fillRect(6, 58, 20, 4, 0x4a5257);
+    g.generateTexture('brew_tank', 32, 64);
+
+    // High-backed booth bench.
+    g.clear();
+    fillRect(0, 0, 64, 18, 0x6b3f2a); // back
+    fillRect(0, 0, 64, 3, 0x855033);
+    fillRect(4, 4, 26, 12, 0x7a4830); // buttoned panels
+    fillRect(34, 4, 26, 12, 0x7a4830);
+    drawPixel(16, 10, 0x4e2b1c);
+    drawPixel(46, 10, 0x4e2b1c);
+    fillRect(0, 18, 64, 9, 0x7a4830); // seat
+    fillRect(0, 18, 64, 1, 0x9c6242);
+    fillRect(0, 27, 64, 5, 0x4e2b1c); // plinth
+    g.generateTexture('booth_seat', 64, 32);
+
+    // --- SUITE FURNISHINGS ---------------------------------------------------
+    // French doors onto a balcony, city lights beyond.
+    g.clear();
+    fillRect(0, 0, 64, 64, 0x4a3520); // frame
+    fillRect(3, 3, 58, 58, 0x0d1b2a); // night beyond
+    fillRect(3, 3, 58, 20, 0x16273a);
+    for (let i = 0; i < 22; i++) drawPixel(5 + ((i * 9 + (i % 4) * 3) % 54), 8 + ((i * 7) % 34), i % 3 ? 0xffe082 : 0x9fd6f0);
+    fillRect(6, 34, 14, 24, 0x101c28); // towers
+    fillRect(26, 28, 12, 30, 0x152430);
+    fillRect(44, 38, 14, 20, 0x101c28);
+    for (let bx = 8; bx < 18; bx += 4) for (let by = 37; by < 56; by += 5) drawPixel(bx, by, 0xffd166);
+    for (let bx = 28; bx < 37; bx += 4) for (let by = 31; by < 56; by += 5) drawPixel(bx, by, 0xffe082);
+    fillRect(31, 3, 3, 58, 0x4a3520); // centre mullion
+    fillRect(3, 30, 58, 2, 0x4a3520); // glazing bars
+    fillRect(17, 3, 2, 58, 0x3b2a19);
+    fillRect(46, 3, 2, 58, 0x3b2a19);
+    fillRect(28, 30, 2, 6, 0xd4a017); // handles
+    fillRect(35, 30, 2, 6, 0xd4a017);
+    fillRect(0, 0, 5, 64, 0x6b1f33); // drapes
+    fillRect(59, 0, 5, 64, 0x6b1f33);
+    fillRect(1, 0, 2, 64, 0x8a2b45);
+    fillRect(60, 0, 2, 64, 0x8a2b45);
+    g.generateTexture('balcony_doors', 64, 64);
+
+    // Console table with a round mirror above it.
+    g.clear();
+    g.fillStyle(0xc9a227, 1); // mirror frame
+    g.fillCircle(24, 14, 13);
+    g.fillStyle(0x8a6f14, 1);
+    g.fillCircle(24, 14, 11);
+    g.fillStyle(0x5b6d7e, 1); // glass
+    g.fillCircle(24, 14, 10);
+    g.fillStyle(0x7d90a1, 1);
+    g.fillCircle(20, 10, 5);
+    g.fillStyle(0xffffff, 0.35);
+    g.fillRect(17, 6, 3, 14);
+    fillRect(4, 28, 40, 5, 0x5d4037); // console top
+    fillRect(4, 28, 40, 2, 0x7b5a49);
+    fillRect(6, 33, 36, 4, 0x4e342e); // apron
+    fillRect(7, 37, 3, 10, 0x4e342e); // legs
+    fillRect(38, 37, 3, 10, 0x4e342e);
+    fillRect(18, 22, 3, 6, 0xd4a017); // a little vase on top
+    fillRect(16, 20, 7, 3, 0xe8c96a);
+    g.generateTexture('console_mirror', 48, 48);
+
+    // Champagne on ice with two flutes.
+    g.clear();
+    fillRect(4, 10, 14, 12, 0xc0c8cc); // bucket
+    fillRect(13, 10, 5, 12, 0x9aa5b1);
+    fillRect(3, 8, 16, 3, 0xd7dbdd);
+    fillRect(3, 8, 16, 1, 0xeceff1);
+    fillRect(6, 2, 5, 8, 0x2e5b2e); // bottle
+    fillRect(6, 2, 2, 8, 0x437a43);
+    fillRect(7, 0, 3, 3, 0xd4a017); // foil
+    fillRect(5, 11, 3, 2, 0xf4f6f7); // ice
+    fillRect(14, 12, 3, 2, 0xf4f6f7);
+    for (const fx of [20, 24]) { // flutes
+        fillRect(fx, 6, 3, 7, 0xe8f4f8);
+        fillRect(fx, 7, 3, 4, 0xf3e5ab);
+        fillRect(fx + 1, 13, 1, 6, 0xd7dbdd);
+        fillRect(fx - 1, 19, 5, 1, 0xd7dbdd);
+    }
+    g.generateTexture('champagne_service', 32, 24);
+
+    // Chaise longue.
+    g.clear();
+    fillRect(0, 6, 12, 18, 0x6b1f33); // raised end
+    fillRect(0, 6, 12, 3, 0x8a2b45);
+    fillRect(10, 12, 38, 12, 0x7d2440); // seat
+    fillRect(10, 12, 38, 2, 0x9c3050);
+    fillRect(10, 22, 38, 3, 0x5b1628); // shadow under the cushion
+    fillRect(14, 15, 14, 6, 0x8a2b45); // cushions
+    fillRect(30, 15, 14, 6, 0x8a2b45);
+    fillRect(4, 24, 4, 4, 0x3e2723); // feet
+    fillRect(40, 24, 4, 4, 0x3e2723);
+    fillRect(2, 9, 8, 2, 0xc9a227); // gilt trim
+    g.generateTexture('chaise', 48, 28);
 }
