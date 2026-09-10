@@ -58,8 +58,8 @@ export class BarScene extends Phaser.Scene {
         this.player = new Player(this, 280, 300); 
         this.physics.add.collider(this.player, barGroup); 
         this.pBeer = this.add.sprite(360, 300, 'beer').setScale(0.8).setVisible(false); 
-        this.mBeer = this.add.sprite(410, 190, 'beer').setScale(0.8); 
-        this.marineZone = this.add.rectangle(360, 250, 60, 60, 0xffffff, 0); 
+        this.mBeer = this.add.sprite(410, 190, 'beer').setScale(0.8).setVisible(false);
+        this.toastLift = 0; this.marineZone = this.add.rectangle(360, 250, 60, 60, 0xffffff, 0); 
         this.physics.add.existing(this.marineZone, true); 
         // Warm bar light over the whole room.
         this.add.rectangle(400, 300, 800, 600, 0xff9a3c, 0.05).setBlendMode(Phaser.BlendModes.ADD);
@@ -71,10 +71,19 @@ export class BarScene extends Phaser.Scene {
     } 
     handleDrinking() { 
         if(gameState.drinksConsumed >= 8) return; 
-        this.pBeer.setVisible(true); 
-        this.pBeer.x = this.player.x + 10; 
-        this.pBeer.y = this.player.y; 
-        this.cameras.main.shake(300, 0.015); 
+        this.pBeer.setVisible(true);
+        this.pBeer.x = this.player.x + 10;
+        this.pBeer.y = this.player.y;
+        this.mBeer.setVisible(true);
+        this.mBeer.x = this.marine.x + 10;
+        this.mBeer.y = this.marine.y;
+        // Raising is done through an offset both glasses read in update(), since
+        // update() rewrites their positions every frame and would undo a tween.
+        this.tweens.addCounter({
+            from: 0, to: 7, duration: 150, yoyo: true,
+            onUpdate: t => { this.toastLift = t.getValue(); },
+            onComplete: () => { this.toastLift = 0; }
+        }); this.cameras.main.shake(300, 0.015); 
         this.tweens.add({ targets: this.cameras.main, rotation: (Math.random() - 0.5) * 0.1, duration: 300, yoyo: true, repeat: -1 }); 
         playSound('clink'); 
         gameState.drinksConsumed++; 
@@ -97,7 +106,8 @@ export class BarScene extends Phaser.Scene {
     } 
     update() { 
         this.player.update(this.cursors); 
-        if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10; this.pBeer.y = this.player.y; } 
+        if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10; this.pBeer.y = this.player.y - this.toastLift; }
+        if (this.mBeer.visible) { this.mBeer.x = this.marine.x + 10; this.mBeer.y = this.marine.y - this.toastLift; } 
         const touching = this.physics.overlap(this.player, this.marineZone); 
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
     } 
