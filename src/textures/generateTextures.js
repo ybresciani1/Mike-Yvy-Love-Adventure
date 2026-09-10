@@ -2700,4 +2700,112 @@ export function generateTextures(scene) {
     for (let i = 2; i < 32; i += 6) drawPixel(i, (i * 3) % 30 + 1, 0x4c5760);
     for (let i = 4; i < 32; i += 6) drawPixel(i, (i * 5) % 28 + 2, 0x323a42);
     g.generateTexture('expo_carpet', 32, 32);
+    // --- BUSINESS-HOTEL FURNITURE --------------------------------------------
+    // Nothing here is meant to be smart: laminate, fabric and plastic.
+    // Work desk with a laptop, a notepad and a drawer.
+    g.clear();
+    fillRect(0, 4, 64, 6, 0x9c7b5c); // laminate top
+    fillRect(0, 4, 64, 2, 0xb08e6c);
+    fillRect(2, 10, 60, 14, 0x7b6047); // carcass
+    fillRect(54, 10, 8, 14, 0x634c38);
+    fillRect(6, 13, 24, 8, 0x634c38); // drawer
+    fillRect(14, 16, 8, 2, 0xc0a882);
+    fillRect(3, 24, 4, 6, 0x5a4432); // legs
+    fillRect(57, 24, 4, 6, 0x5a4432);
+    fillRect(34, 0, 18, 5, 0x3b3b46); // laptop screen
+    fillRect(36, 1, 14, 3, 0x5dade2);
+    fillRect(33, 5, 20, 2, 0x6b6b78); // keyboard deck
+    fillRect(10, 2, 10, 3, 0xf4f6f7); // notepad
+    fillRect(11, 3, 8, 1, 0xb9c3cc);
+    g.generateTexture('hotel_desk', 64, 30);
+
+    // Desk chair.
+    g.clear();
+    fillRect(4, 0, 16, 13, 0x4a5765); // back
+    fillRect(4, 0, 16, 2, 0x5d6d7e);
+    fillRect(5, 3, 14, 8, 0x556577);
+    fillRect(2, 13, 20, 6, 0x4a5765); // seat
+    fillRect(2, 13, 20, 1, 0x5d6d7e);
+    fillRect(10, 19, 4, 5, 0x8a9aa8); // column
+    fillRect(4, 24, 16, 2, 0x6c7679); // base
+    fillRect(3, 26, 3, 2, 0x2b2b33); // castors
+    fillRect(18, 26, 3, 2, 0x2b2b33);
+    g.generateTexture('desk_chair', 24, 28);
+
+    // Low credenza the television sits on.
+    g.clear();
+    fillRect(0, 2, 64, 18, 0x7b6047);
+    fillRect(0, 2, 64, 2, 0x9c7b5c);
+    fillRect(54, 2, 10, 18, 0x634c38);
+    fillRect(4, 7, 24, 9, 0x634c38); // doors
+    fillRect(32, 7, 24, 9, 0x634c38);
+    fillRect(14, 11, 6, 2, 0xc0a882);
+    fillRect(42, 11, 6, 2, 0xc0a882);
+    fillRect(2, 20, 60, 3, 0x5a4432);
+    g.generateTexture('tv_unit', 64, 24);
+
+    // Tub chair in the corner.
+    g.clear();
+    fillRect(3, 4, 26, 12, 0x6b7a5a); // back
+    fillRect(3, 4, 26, 2, 0x7d8d6a);
+    fillRect(0, 8, 5, 16, 0x5b6a4c); // arms
+    fillRect(27, 8, 5, 16, 0x4f5d42);
+    fillRect(5, 16, 22, 9, 0x768663); // seat cushion
+    fillRect(5, 16, 22, 1, 0x8a9a76);
+    fillRect(5, 25, 22, 3, 0x4f5d42);
+    fillRect(6, 28, 4, 4, 0x3e2723); // feet
+    fillRect(22, 28, 4, 4, 0x3e2723);
+    g.generateTexture('armchair', 32, 32);
+
+    // Standing lamp with a fabric shade.
+    g.clear();
+    fillRect(6, 8, 4, 26, 0x8a8a99); // stem
+    fillRect(6, 8, 1, 26, 0xb0b0bd);
+    g.fillStyle(0xe8d9a8, 1); // shade
+    g.beginPath(); g.moveTo(1, 8); g.lineTo(15, 8); g.lineTo(12, 0); g.lineTo(4, 0); g.closePath(); g.fill();
+    fillRect(1, 7, 14, 1, 0xc9b57e);
+    fillRect(4, 0, 8, 1, 0xf2e8c8);
+    fillRect(2, 34, 12, 3, 0x6c7679); // base
+    fillRect(2, 34, 12, 1, 0x9aa5b1);
+    g.fillStyle(0xffe9a8, 0.22); // pool of light
+    g.fillEllipse(8, 12, 22, 12);
+    g.generateTexture('floor_lamp', 16, 38);
+
+    // Folding luggage rack with a case on it.
+    g.clear();
+    fillRect(2, 10, 28, 3, 0x8d6e63); // webbing straps
+    fillRect(2, 15, 28, 3, 0x8d6e63);
+    fillRect(1, 9, 3, 15, 0x5d4037); // frame
+    fillRect(28, 9, 3, 15, 0x5d4037);
+    fillRect(4, 22, 24, 2, 0x4e342e);
+    fillRect(6, 2, 20, 9, 0x37474f); // case
+    fillRect(6, 2, 20, 2, 0x4a5765);
+    fillRect(21, 2, 5, 9, 0x2b373d);
+    fillRect(14, 0, 5, 2, 0x9aa5b1); // handle
+    fillRect(8, 5, 3, 2, 0xd4a017); // tag
+    g.generateTexture('luggage_rack', 32, 24);
+
+    // Mini fridge with the kettle and cups on top.
+    g.clear();
+    fillRect(1, 8, 22, 20, 0xe4e8ea); // fridge
+    fillRect(1, 8, 22, 2, 0xf4f6f7);
+    fillRect(18, 8, 5, 20, 0xcfd6dc);
+    fillRect(3, 12, 16, 13, 0xd7dbdd); // door
+    fillRect(16, 17, 2, 4, 0x9aa5b1); // handle
+    fillRect(4, 2, 9, 6, 0x2b2b33); // kettle
+    fillRect(5, 3, 6, 2, 0x4a4a56);
+    fillRect(12, 3, 2, 3, 0x2b2b33);
+    fillRect(15, 4, 4, 4, 0xf4f6f7); // cups
+    fillRect(19, 5, 3, 3, 0xf4f6f7);
+    g.generateTexture('mini_fridge', 24, 28);
+
+    // Through-wall air conditioner under the window.
+    g.clear();
+    fillRect(0, 2, 40, 14, 0xd7dbdd);
+    fillRect(0, 2, 40, 2, 0xeceff1);
+    fillRect(0, 14, 40, 2, 0xb0bec5);
+    for (let i = 3; i < 37; i += 3) fillRect(i, 6, 2, 7, 0xb0bec5); // vent slats
+    fillRect(30, 3, 8, 2, 0x90a4ae); // control panel
+    drawPixel(36, 4, 0x00e676);
+    g.generateTexture('ac_unit', 40, 16);
 }

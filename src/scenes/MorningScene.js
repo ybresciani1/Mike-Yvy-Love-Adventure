@@ -10,18 +10,48 @@ export class MorningScene extends Phaser.Scene {
     constructor() { super('MorningScene'); } 
     create() { 
         this.cameras.main.setBackgroundColor('#000'); 
-        for (let x = 0; x < GAME_WIDTH/32; x++) for (let y = 0; y < GAME_HEIGHT/32; y++) {
-                        if (y < 2) this.add.image(x*32+16, y*32+16, 'hotel_wall');
-                        else this.add.image(x*32+16, y*32+16, 'hotel_carpet');
-                    } 
-        this.add.image(400, 300, 'hotel_bed'); this.add.image(200, 300, 'couch');
+        const ROOM = { left: 96, right: 704, top: 64, bottom: 520 };
+        for (let x = 0; x < GAME_WIDTH / 32; x++) {
+            for (let y = 0; y < GAME_HEIGHT / 32; y++) {
+                const px = x * 32 + 16;
+                const py = y * 32 + 16;
+                const inside = px > ROOM.left && px < ROOM.right && py > ROOM.top && py < ROOM.bottom;
+                this.add.image(px, py, inside ? 'hotel_carpet' : 'hotel_wall');
+            }
+        }
+        // Walls, so the room has edges to bump into.
+        const walls = this.physics.add.staticGroup();
+        for (let y = 0; y < GAME_HEIGHT; y += 32) {
+            walls.create(ROOM.left - 16, y + 16, null).setSize(32, 32).setVisible(false);
+            walls.create(ROOM.right + 16, y + 16, null).setSize(32, 32).setVisible(false);
+        }
+        for (let x = ROOM.left; x < ROOM.right; x += 32) {
+            walls.create(x + 16, ROOM.top - 16, null).setSize(32, 32).setVisible(false);
+            walls.create(x + 16, ROOM.bottom + 16, null).setSize(32, 32).setVisible(false);
+        } this.add.image(400, 296, 'hotel_bed').setScale(1.3);
+        this.add.image(190, 470, 'couch');
+
+        // Along the right wall: desk, chair and the luggage rack.
+        this.add.image(648, 250, 'hotel_desk');
+        this.add.image(648, 296, 'desk_chair');
+        this.add.image(650, 400, 'luggage_rack');
+        this.add.image(660, 462, 'trash_bin').setScale(1.2);
+
+        // Left wall: television on its credenza, an armchair and a lamp.
+        this.add.image(170, 250, 'tv_unit');
+        this.add.image(170, 232, 'tv').setScale(0.9);
+        this.add.image(150, 370, 'armchair');
+        this.add.image(196, 366, 'floor_lamp');
+        this.add.image(140, 150, 'mini_fridge');
+
+        // A second print and the aircon under the window.
+        this.add.image(670, 82, 'ac_unit');
+        this.add.image(190, 414, 'conf_table').setTint(0x7b6047).setScale(0.5);
+        this.add.image(184, 408, 'coffee').setScale(0.7);
         this.add.image(636, 40, 'hotel_window_night'); this.add.image(268, 32, 'wall_art'); this.add.image(470, 32, 'wall_art'); 
         this.dresser = this.physics.add.staticImage(600, 100, 'dresser'); this.door = this.physics.add.staticImage(100, 100, 'door'); 
-        this.add.image(350, 300, 'nightstand'); this.add.image(450, 300, 'nightstand'); this.add.image(350, 290, 'lamp').setScale(0.8); this.add.image(450, 290, 'lamp').setScale(0.8); 
-        this.add.text(180, 258, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); 
-        this.phone = this.physics.add.staticImage(450, 322, 'hotel_phone'); 
-        this.player = new Player(this, 400, 300); 
-        this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
+        this.add.image(336, 300, 'nightstand'); this.add.image(464, 300, 'nightstand'); this.add.image(336, 288, 'lamp').setScale(0.8); this.add.image(464, 288, 'lamp').setScale(0.8); this.add.text(150, 200, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); this.phone = this.physics.add.staticImage(464, 318, 'hotel_phone'); this.player = new Player(this, 400, 430);
+        this.physics.add.collider(this.player, walls); this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.ringing = true; this.tweens.add({ targets: this.phone, scale: 1.5, duration: 200, yoyo: true, repeat: -1 }); 
         this.time.addEvent({ delay: 1000, callback: () => { if(this.ringing) playSound('select'); }, loop: true }); 
         this.add.text(350, 50, "4:00 AM", { fontSize: '40px', color: '#fff', backgroundColor: '#000' }); 
