@@ -1637,32 +1637,36 @@ export function generateTextures(scene) {
     // they are leaning against. One flat bench sprite can only ever be in front
     // of them or behind them, and either way they look like they are standing on
     // the furniture.
+    //
+    // Chairs are on a 16px pitch, so their centres are at 8, 24, 40 and 56 —
+    // anyone sat down has to line up with one of those or they end up straddling
+    // the armrest between two. The back is kept low: a seat whose backrest comes
+    // up past a passenger's shoulders dwarfs them.
     g.clear();
     for (let i = 0; i < 4; i++) {
         const x = i * 16;
-        fillRect(x + 2, 2, 13, 15, 0x2980b9); // backrest
+        fillRect(x + 2, 2, 13, 11, 0x2980b9); // backrest
         fillRect(x + 2, 2, 13, 2, 0x5dade2); // top edge in the light
-        fillRect(x + 13, 4, 2, 13, 0x22648f); // shaded side
-        fillRect(x + 2, 16, 13, 2, 0x1f5a80); // shadow where the back meets the seat
+        fillRect(x + 13, 4, 2, 9, 0x22648f); // shaded side
+        fillRect(x + 2, 12, 13, 2, 0x1f5a80); // shadow where the back meets the seat
     }
-    for (let i = 0; i < 4; i++) fillRect(i * 16, 4, 2, 16, 0x7f8c8d); // armrest posts
-    fillRect(62, 4, 2, 16, 0x7f8c8d);
+    for (let i = 0; i < 4; i++) fillRect(i * 16, 3, 2, 12, 0x7f8c8d); // armrest posts
+    fillRect(62, 3, 2, 12, 0x7f8c8d);
     fillRect(0, 0, 64, 2, 0x95a5a6); // top rail
-    g.generateTexture('gate_seats_back', 64, 22);
+    g.generateTexture('gate_seats_back', 64, 16);
 
     g.clear();
     for (let i = 0; i < 4; i++) {
         const x = i * 16;
-        fillRect(x + 2, 0, 13, 8, 0x2f86c0); // cushion
+        fillRect(x + 2, 0, 13, 6, 0x2f86c0); // cushion
         fillRect(x + 2, 0, 13, 2, 0x4ba3dc);
-        fillRect(x + 2, 7, 13, 2, 0x1f5a80); // underside of the cushion
+        fillRect(x + 2, 5, 13, 2, 0x1f5a80); // underside
     }
-    for (let i = 0; i < 4; i++) fillRect(i * 16, 0, 2, 10, 0x7f8c8d); // armrest fronts
-    fillRect(62, 0, 2, 10, 0x7f8c8d);
-    fillRect(0, 10, 64, 3, 0x95a5a6); // steel rail
-    fillRect(0, 12, 64, 1, 0x6c7679);
-    for (let i = 6; i < 64; i += 16) fillRect(i, 13, 3, 5, 0x6c7679); // legs
-    g.generateTexture('gate_seats_front', 64, 18);
+    for (let i = 0; i < 4; i++) fillRect(i * 16, 0, 2, 8, 0x7f8c8d); // armrest fronts
+    fillRect(62, 0, 2, 8, 0x7f8c8d);
+    fillRect(0, 8, 64, 2, 0x95a5a6); // steel rail
+    for (let i = 6; i < 64; i += 16) fillRect(i, 10, 3, 4, 0x6c7679); // legs
+    g.generateTexture('gate_seats_front', 64, 14);
 
     // Security arch: metal detector with a status light and a scuffed base.
     g.clear();
