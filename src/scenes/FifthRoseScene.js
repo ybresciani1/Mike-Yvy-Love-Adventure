@@ -124,7 +124,8 @@ export class FifthRoseScene extends Phaser.Scene {
             "Cousin: 'I run this building. I am responsible for this room.'",
             "Yvy: 'He has a bow tie. Show her the bow tie.'",
             "Mike turns slightly, so the packing tape catches the light.",
-            "Cousin: 'Is that TAPE?'  Mike: 'It's black tie. You said dress up.'",
+            "Cousin: 'Is that TAPE?'",
+            "Mike: 'It's black tie. You said dress up.'",
             "Cousin: 'I said dress UP. Not dress as a THEROPOD.'",
             "She is trying very hard to keep her manager face on. She is losing.",
             "Cousin: 'Right. Corner booth, out of the way, and I am buying. Go.'"

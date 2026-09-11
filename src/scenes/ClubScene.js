@@ -292,9 +292,11 @@ export class ClubScene extends Phaser.Scene {
     talkToDJ() {
         const LINES = [
             "DJ: 'YEAH? WHAT? I CAN'T HEAR YOU!'",
-            "Mike: 'GREAT SET!' ... DJ: 'THE WHAT? THE SUNSET?'",
+            "Mike: 'GREAT SET!'",
+            "DJ: 'THE WHAT? THE SUNSET?'",
             "DJ: 'NO REQUESTS! ...WHAT IS IT?'",
-            "Mike: 'NEVER MIND!' ... DJ: 'YEAH! EXACTLY!'",
+            "Mike: 'NEVER MIND!'",
+            "DJ: 'YEAH! EXACTLY!'",
             "The DJ gives him a thumbs up and goes back to the decks."
         ];
         showDialogue(LINES[Math.min(this.djLines++, LINES.length - 1)]);
