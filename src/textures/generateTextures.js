@@ -3674,6 +3674,22 @@ export function generateTextures(scene) {
     fillRect(17, 28, 4, 4, 0x22293a);
     g.generateTexture('airline_agent', 32, 32);
 
+    // The consequence of the liquor store, on the pavement.
+    g.clear();
+    g.fillStyle(0x6f7a24, 1);
+    g.fillEllipse(11, 7, 20, 9);
+    g.fillStyle(0x93a032, 1);
+    g.fillEllipse(10, 6, 16, 7);
+    g.fillStyle(0xb5c04a, 1);
+    g.fillEllipse(8, 5, 9, 4);
+    drawPixel(4, 4, 0xd4dc86); // the light catching it
+    drawPixel(14, 8, 0x6f7a24);
+    g.fillStyle(0x93a032, 1); // splashes
+    g.fillEllipse(19, 9, 5, 3);
+    g.fillEllipse(2, 9, 4, 2);
+    drawPixel(17, 4, 0x93a032);
+    g.generateTexture('sick_puddle', 22, 13);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in

@@ -48,6 +48,7 @@ export class PizzaScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' });
         this.dressStreetLife();
+        this.setUpStores();
         this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone && this.streetSettled) this.startFarewell(); });
         this.physics.add.overlap(this.player, this.fightZone, () => {
             if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.takePhotos();
@@ -61,7 +62,8 @@ export class PizzaScene extends Phaser.Scene {
         if(this.player.y < this.yvy.y - 50) this.yvy.body.setVelocityY(-130); else if(this.player.y > this.yvy.y + 50) this.yvy.body.setVelocityY(130); else this.yvy.body.setVelocityY(0); 
         if (this.pSlice.visible) { this.pSlice.x = this.player.x + 10; this.pSlice.y = this.player.y; this.ySlice.x = this.yvy.x + 10; this.ySlice.y = this.yvy.y; } 
         const canFilm = this.fighting && !this.photoTaken && this.physics.overlap(this.player, this.fightZone);
-        const touching = this.physics.overlap(this.player, this.drunks) || (!this.fighting && this.physics.overlap(this.player, this.tacoZone)) || canFilm;
+        const touching = this.physics.overlap(this.player, this.drunks) || (!this.fighting && this.physics.overlap(this.player, this.tacoZone)) || canFilm
+            || (this.streetSettled && this.physics.overlap(this.player, this.storeZones));
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none';
     }    /**
      * The street was empty apart from our two and the drunks. Late-night food
@@ -132,6 +134,117 @@ export class PizzaScene extends Phaser.Scene {
                 showDialogue("Guy in Line: 'But it's worth it. Trust me. It's worth it.'", () => {
                     showDialogue("Mike: 'Want to check out the pizza place instead?'", () => {
                         showDialogue("Yvy: 'Forty minutes for a taco? Yeah. Pizza. Let's go.'");
+                    });
+                });
+            });
+        });
+    }
+
+    /**
+     * The three shops either side of the taqueria. None of them answer until the
+     * street has settled — while there is a fight going on nobody is window
+     * shopping, and it keeps the whole block on one clock.
+     */
+    setUpStores() {
+        this.storeZones = [];
+        const shop = (x, handler) => {
+            const zone = this.add.rectangle(x, 344, 92, 46, 0xffff00, 0);
+            this.physics.add.existing(zone, true);
+            zone.setData('use', handler);
+            this.storeZones.push(zone);
+        };
+        shop(176, () => this.washAndFold());
+        shop(288, () => this.liquorStore());
+        shop(400, () => this.tattooShop());
+
+        this.storeZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+            // streetSettled is tested before JustDown so a closed shop does not
+            // eat the keypress that something else might want.
+            if (!this.streetSettled) return;
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) zone.getData('use')();
+        }));
+    }
+
+    washAndFold() {
+        if (this.laundryUsed) {
+            showDialogue("Through the glass, the machines are still going round.");
+            return;
+        }
+        this.laundryUsed = true;
+        showDialogue("Mike: 'Who does laundry at one in the morning?'", () => {
+            showDialogue("Yvy: 'Somebody who has nowhere else to be at one in the morning.'", () => {
+                showDialogue("Through the glass, one man is asleep on the bench with forty minutes left on the dryer.", () => {
+                    showDialogue("Yvy: 'Leave him. That's the best sleep he'll get all week.'");
+                });
+            });
+        });
+    }
+
+    /**
+     * The liquor store delivers, in the form of a man who has clearly been in
+     * there a while. He comes out sideways, goes down, is sick on the pavement
+     * and wanders off, all on a chain of timers.
+     */
+    liquorStore() {
+        if (this.liquorUsed) {
+            showDialogue("Mike: 'I'd give that bit of pavement a wide berth.'");
+            return;
+        }
+        this.liquorUsed = true;
+        const guy = this.add.sprite(316, 312, 'drunk').setTint(0xc0a88c).setDepth(4);
+        playSound('select');
+        this.tweens.add({ targets: guy, x: 300, y: 352, duration: 900, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: guy, angle: { from: -18, to: 22 }, duration: 420, yoyo: true, repeat: 2 });
+
+        this.saySoon("The door of the liquor store bangs open.", () => {
+            this.saySoon("Drunk Man: 'I'm FINE. I'm fine. Everyone relax.'", () => {
+                // He is not fine.
+                this.tweens.add({ targets: guy, angle: 74, x: 292, y: 372, duration: 520, ease: 'Bounce.easeOut' });
+                playSound('clink');
+                this.time.delayedCall(700, () => {
+                    const puddle = this.add.sprite(276, 380, 'sick_puddle').setDepth(3).setAlpha(0);
+                    this.tweens.add({ targets: puddle, alpha: 1, scaleX: 1.25, duration: 500 });
+                    for (let i = 0; i < 4; i++) {
+                        const fleck = this.add.rectangle(288, 372, 2, 2, 0x93a032).setDepth(4);
+                        this.tweens.add({
+                            targets: fleck, x: 276 - i * 3, y: 382, alpha: 0,
+                            duration: 420, delay: i * 70, onComplete: () => fleck.destroy()
+                        });
+                    }
+                    this.saySoon("Yvy: 'Oh no. Oh no no no.'", () => {
+                        this.saySoon("Mike: 'And that is why we are eating pizza and going home.'", () => {
+                            // Up, vaguely, and away down the street.
+                            this.tweens.add({ targets: guy, angle: -6, y: 362, duration: 600 });
+                            this.tweens.add({
+                                targets: guy, x: -40, duration: 9000, delay: 700, ease: 'Linear',
+                                onComplete: () => guy.destroy()
+                            });
+                            this.tweens.add({
+                                targets: guy, angle: { from: -12, to: 12 }, duration: 500,
+                                delay: 700, yoyo: true, repeat: -1
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+    tattooShop() {
+        if (this.tattooUsed) {
+            showDialogue("Yvy: 'I'm serious about the tattoo, by the way.'");
+            return;
+        }
+        this.tattooUsed = true;
+        showDialogue("Yvy: 'Ooh. Still open.'", () => {
+            showDialogue("Mike: 'Absolutely not. Not at this hour, not after tonight.'", () => {
+                showDialogue("Yvy: 'Not tonight. One day, though. Matching ones.'", () => {
+                    showDialogue("Mike: 'Matching what?'", () => {
+                        showDialogue("Yvy: 'I don't know yet. That's the point. We'd have to pick it together.'", () => {
+                            showDialogue("Mike: 'One day, then. When we know what it is.'", () => {
+                                showDialogue("Yvy: 'Deal.'");
+                            });
+                        });
                     });
                 });
             });
@@ -216,7 +329,7 @@ export class PizzaScene extends Phaser.Scene {
             this.fightCloud = this.add.sprite(390, 326, 'fight_cloud');
             this.tweens.add({ targets: this.fightCloud, scaleX: 1.15, scaleY: 0.9, duration: 170, yoyo: true, repeat: -1 });
         });        this.gatherCrowd();
-        this.time.delayedCall(26000, () => this.endFight());
+        this.time.delayedCall(24000, () => this.endFight());
     }
 
     /**
