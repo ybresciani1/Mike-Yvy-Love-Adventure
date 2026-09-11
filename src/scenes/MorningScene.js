@@ -39,16 +39,16 @@ export class MorningScene extends Phaser.Scene {
 
         // Left wall: television on its credenza, an armchair and a lamp.
         this.add.image(170, 250, 'tv_unit');
-        this.add.image(170, 232, 'tv').setScale(0.9);
+        this.tv = this.add.image(170, 232, 'tv').setScale(0.9);
         this.add.image(150, 370, 'armchair');
         this.add.image(196, 366, 'floor_lamp');
         this.add.image(140, 150, 'mini_fridge');
 
         // A second print and the aircon under the window.
-        this.add.image(670, 82, 'ac_unit');
+        this.ac = this.add.image(670, 82, 'ac_unit');
         this.add.image(190, 414, 'conf_table').setTint(0x7b6047).setScale(0.5);
-        this.add.image(184, 408, 'coffee').setScale(0.7);
-        this.add.image(636, 40, 'hotel_window_night'); this.add.image(268, 32, 'wall_art'); this.add.image(470, 32, 'wall_art'); 
+        this.coffee = this.add.image(184, 408, 'coffee').setScale(0.7);
+        this.curtains = this.add.image(636, 40, 'hotel_window_night'); this.add.image(268, 32, 'wall_art'); this.add.image(470, 32, 'wall_art'); 
         this.dresser = this.physics.add.staticImage(600, 100, 'dresser'); this.door = this.physics.add.staticImage(100, 100, 'door'); 
         this.add.image(336, 300, 'nightstand'); this.add.image(464, 300, 'nightstand'); this.add.image(336, 288, 'lamp').setScale(0.8); this.add.image(464, 288, 'lamp').setScale(0.8); this.add.text(150, 200, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); this.phone = this.physics.add.staticImage(464, 318, 'hotel_phone'); this.player = new Player(this, 400, 278);
         this.physics.add.collider(this.player, walls);
@@ -70,6 +70,7 @@ export class MorningScene extends Phaser.Scene {
         this.time.addEvent({ delay: 1000, callback: () => { if(this.ringing) playSound('select'); }, loop: true }); 
         this.add.text(350, 50, "4:00 AM", { fontSize: '40px', color: '#fff', backgroundColor: '#000' }); 
         this.instructionText = this.add.text(20, 20, "Answer Phone (Space)", { fontSize: '16px', color: '#fff' }); 
+        this.setUpRoom();
         this.dresserZone = this.add.rectangle(600, 120, 80, 80, 0xffff00, 0); this.physics.add.existing(this.dresserZone, true); 
         this.doorZone = this.add.rectangle(100, 100, 50, 60, 0x00ff00, 0); this.physics.add.existing(this.doorZone, true); 
         this.physics.add.overlap(this.player, this.phone, () => { 
@@ -90,11 +91,106 @@ export class MorningScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.doorZone, () => { if (gameState.dressedForWork && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { this.scene.start('ConferenceScene'); } }); 
         const closeWardrobe = () => { document.getElementById('wardrobe-modal').style.display = 'none'; this.player.isLocked = false; this.player.y += 40; gameState.dressedForWork = true; this.instructionText.setText("Go to Work (Use Door)"); showDialogue("Mike: 'This is the one. Looking sharp!'"); }; 
     } 
+    /**
+     * The room is a set of props he can actually use while he is waiting to get
+     * dressed. Each one keeps its own little bit of state, so the television is
+     * on or off rather than just printing a line at him, and the responses
+     * change to match.
+     */
+    setUpRoom() {
+        this.tvOn = false;
+        this.acOn = true;
+        this.coffeeLeft = 2;
+        this.roomZones = [];
+
+        const useable = (x, y, w, h, handler) => {
+            const zone = this.add.rectangle(x, y, w, h, 0xffff00, 0);
+            this.physics.add.existing(zone, true);
+            zone.setData('use', handler);
+            this.roomZones.push(zone);
+            return zone;
+        };
+
+        // The television. It has a picture when it is on, and the glow from it
+        // is what tells you across the room.
+        this.tvGlow = this.add.rectangle(170, 232, 26, 16, 0x9fd6f0, 0).setDepth(1);
+        useable(170, 262, 74, 66, () => {
+            this.tvOn = !this.tvOn;
+            playSound('select');
+            if (this.tvOn) {
+                this.tvGlow.setFillStyle(0x9fd6f0, 0.75);
+                this.tvFlicker = this.tweens.add({
+                    targets: this.tvGlow, alpha: 0.45, duration: 260, yoyo: true, repeat: -1
+                });
+                showDialogue("Local news at four in the morning. A man is very excited about a car dealership.");
+            } else {
+                if (this.tvFlicker) { this.tvFlicker.remove(); this.tvFlicker = null; }
+                this.tvGlow.setFillStyle(0x9fd6f0, 0).setAlpha(1);
+                showDialogue("Mike turns the television off. Much better.");
+            }
+        });
+
+        // The aircon, which every hotel room has set wrong.
+        this.acHum = this.add.text(670, 62, "~", { fontSize: '12px', color: '#bfe9ff' }).setOrigin(0.5);
+        this.tweens.add({ targets: this.acHum, y: 54, alpha: 0.2, duration: 1400, yoyo: true, repeat: -1 });
+        useable(670, 96, 70, 56, () => {
+            this.acOn = !this.acOn;
+            playSound('select');
+            this.acHum.setVisible(this.acOn);
+            showDialogue(this.acOn
+                ? "The aircon shudders back to life. It is set to sixteen degrees, because of course it is."
+                : "Mike turns the aircon off. The room goes quiet for the first time all night.");
+        });
+
+        // The coffee on the table by the armchair.
+        useable(186, 410, 66, 54, () => {
+            if (this.coffeeLeft <= 0) {
+                showDialogue("Mike: 'Gone. That was the whole pot.'");
+                return;
+            }
+            this.coffeeLeft--;
+            playSound('select');
+            if (this.coffeeLeft === 0) {
+                this.coffee.setVisible(false);
+                showDialogue("Mike finishes the coffee. Terrible. Necessary.");
+            } else {
+                this.coffee.setScale(0.55);
+                showDialogue("Mike: 'Free hotel coffee. Tastes like a filing cabinet.'");
+            }
+        });
+
+        // The window, the bed and the rest of the room, for flavour.
+        useable(636, 60, 90, 60, () => showDialogue(
+            "Still dark out. Somewhere under all that is a city he has known for two days."
+        ));
+        useable(400, 300, 120, 90, () => showDialogue(gameState.callFinished
+            ? "Mike: 'No. If I sit back down on that I am not getting up again.'"
+            : "The bed is still warm. The phone is still ringing."));
+        useable(648, 250, 76, 50, () => showDialogue(
+            "His laptop, shut, where he left it at one in the morning."
+        ));
+        useable(150, 372, 62, 60, () => showDialogue(
+            "Mike: 'Nobody has ever sat in one of these. Not once.'"
+        ));
+        useable(140, 152, 56, 56, () => showDialogue(
+            "Mike: 'Nine dollars for a bottle of water. I'll pass.'"
+        ));
+
+        this.roomZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) zone.getData('use')();
+        }));
+    }
+
     update() {
         if (this.asleep && (this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
             this.asleep = false;
             this.bedding.forEach(piece => piece.destroy());
             this.zzz.destroy();
         }
-        this.player.update(this.cursors); document.getElementById('interaction-hint').style.display = (this.physics.overlap(this.player, this.phone) || (gameState.callFinished && this.physics.overlap(this.player, this.dresserZone)) || (gameState.dressedForWork && this.physics.overlap(this.player, this.doorZone))) ? 'block' : 'none'; } 
+        this.player.update(this.cursors); document.getElementById('interaction-hint').style.display = (this.physics.overlap(this.player, this.phone)
+            || this.physics.overlap(this.player, this.roomZones)
+            || (gameState.callFinished && this.physics.overlap(this.player, this.dresserZone))
+            || (gameState.dressedForWork && this.physics.overlap(this.player, this.doorZone))) ? 'block' : 'none';
+    }
+
 }

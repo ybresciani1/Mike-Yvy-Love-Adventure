@@ -48,7 +48,7 @@ export class PizzaScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' });
         this.dressStreetLife();
-        this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone && !this.brawlArguing && !this.fighting) this.startFarewell(); });
+        this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone && this.streetSettled) this.startFarewell(); });
         this.physics.add.overlap(this.player, this.fightZone, () => {
             if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.takePhotos();
         }); this.physics.add.overlap(this.player, this.drunks, () => {
@@ -153,7 +153,11 @@ export class PizzaScene extends Phaser.Scene {
         // a timer, so it plays out in front of them on the way in.
         this.brawlStarted = false;
         this.brawlArguing = false;
-        this.brawlTrigger = this.add.rectangle(250, 384, 120, 190, 0xffff00, 0);
+        // The shop stays shut to them until the fight is finished, the police
+        // have gone and everybody is back on their own stool. Walking past a
+        // brawl to go and buy a slice is not what happened.
+        this.streetSettled = false;
+        this.brawlTrigger = this.add.rectangle(250, 450, 120, 320, 0xffff00, 0);
         this.physics.add.existing(this.brawlTrigger, true);
         this.physics.add.overlap(this.player, this.brawlTrigger, () => {
             if (this.brawlStarted) return;
@@ -246,6 +250,7 @@ export class PizzaScene extends Phaser.Scene {
 
     /** Phones down, everyone back to their taco. */
     scatterCrowd() {
+        let stillWalking = this.bystanders.length;
         this.bystanders.forEach((b, i) => {
             this.tweens.killTweensOf(b.sprite);
             if (b.phone) { this.tweens.killTweensOf(b.phone); b.phone.destroy(); b.phone = null; }
@@ -263,6 +268,11 @@ export class PizzaScene extends Phaser.Scene {
                         targets: b.sprite, y: b.homeY - 3, duration: 1200 + i * 150,
                         yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
                     });
+                    // The last one back is what opens the pizza shop.
+                    if (--stillWalking === 0) {
+                        this.streetSettled = true;
+                        this.instructionText.setText("Go inside the Pizza Shop");
+                    }
                 }
             });
         });
@@ -346,7 +356,7 @@ export class PizzaScene extends Phaser.Scene {
         this.fightTimer.remove();
         if (this.fightCloud) this.fightCloud.destroy();        this.buffRed.setVisible(true).setTexture('buff_red').setAngle(-90).setPosition(352, 344);
         this.buffGreen.setVisible(true).setTexture('buff_green').setAngle(90).setPosition(430, 344);
-        this.instructionText.setText("Go inside the Pizza Shop");
+        this.instructionText.setText("Hang on — the police are pulling up");
         this.time.delayedCall(900, () => this.helpThemUp());
     }
 
