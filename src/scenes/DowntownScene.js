@@ -121,6 +121,26 @@ export class DowntownScene extends Phaser.Scene {
         });
 
         // --- interaction zones (unchanged positions) ----------------------------
+        this.queueZones = [];
+        [
+            [596, 372, 'civilian', 0x8c9cb0, "In Line: 'Forty five minutes. I checked.'"],
+            [566, 372, 'civilian_f', 0xb09c8c, "In Line: 'The maple bacon. Get the maple bacon or don't bother.'"],
+            [536, 372, 'civilian', 0xa0b08c, "In Line: 'My wife sent me. I don't even like donuts.'"],
+            [506, 372, 'civilian_f', 0x9c8cb0, "In Line: 'If they're out of the pistachio one again I'm going to cry.'"]
+        ].forEach(([qx, qy, key, tint, line], i) => {
+            const person = this.add.sprite(qx, qy, key).setTint(tint);
+            this.tweens.add({
+                targets: person, y: qy - 3, duration: 1300 + i * 190,
+                yoyo: true, repeat: -1, delay: i * 240, ease: 'Sine.easeInOut'
+            });
+            // Kept well clear of the shop's own zone, so the queue cannot answer
+            // in place of the counter and stall the donut step.
+            const zone = this.add.rectangle(qx, qy, 26, 24, 0xffff00, 0);
+            this.physics.add.existing(zone, true);
+            zone.setData('line', line);
+            this.queueZones.push(zone);
+        });
+
         this.bookZone = this.add.rectangle(450, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.bookZone, true);
         this.clothingZone = this.add.rectangle(100, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.clothingZone, true);
         this.crystalZone = this.add.rectangle(300, 330, 60, 40, 0xffff00, 0); this.physics.add.existing(this.crystalZone, true);
@@ -129,17 +149,27 @@ export class DowntownScene extends Phaser.Scene {
         this.benchZone = this.add.rectangle(200, 500, 80, 40, 0xffff00, 0); this.physics.add.existing(this.benchZone, true);
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
         this.player = new Player(this, 50, 400); this.player.setTexture(outfit);
+        // Everything above the kerb is sky and shopfront. You could walk up into
+        // it and stand in the clouds.
+        this.skyline = this.add.rectangle(400, 150, GAME_WIDTH, 302, 0x000000, 0);
+        this.physics.add.existing(this.skyline, true);
+        this.physics.add.collider(this.player, this.skyline);
         this.yvy = this.physics.add.sprite(100, 400, 'yvy');
         this.stranger = this.physics.add.sprite(520, 500, 'civilian').setTint(0xaaaaaa);
         this.dog = this.add.sprite(550, 520, 'generic_dog');
-        this.dogZone = this.add.rectangle(550, 520, 100, 80, 0xffff00, 0); this.physics.add.existing(this.dogZone, true);
+        this.wanderDog();
+        // The zone is the whole pen rather than the dog, because he moves.
+        this.dogZone = this.add.rectangle(550, 504, 152, 108, 0xffff00, 0); this.physics.add.existing(this.dogZone, true); this.physics.add.existing(this.dogZone, true);
         this.pDonut = this.add.sprite(0,0,'donut_chocolate').setVisible(false); this.yDonut = this.add.sprite(0,0,'donut_strawberry').setVisible(false);
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.stage = 0; 
         this.add.text(20, 560, "Task: Donut Bar → Donut wall → Puppy → Bench", { fontSize: '16px', color: '#000', backgroundColor: '#fff', fontStyle: 'bold' });
-        this.physics.add.overlap(this.player, this.clothingZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Yvy: 'Ooh, cute top!'"); });
-        this.physics.add.overlap(this.player, this.crystalZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Yvy: 'Good energy in there.'"); });
-        this.physics.add.overlap(this.player, this.bookZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike: 'I love old book stores.'"); }); 
+        this.physics.add.overlap(this.player, this.clothingZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.seaAndSalt(); });
+        this.physics.add.overlap(this.player, this.crystalZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.moonstone(); });
+        this.physics.add.overlap(this.player, this.bookZone, () => { if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.bookStore(); });
+        this.queueZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+            if(Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
+        })); 
         this.physics.add.overlap(this.player, this.donutZone, () => { 
             if(this.stage === 0 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) {
                 this.stage = 1; showDialogue("Mike: 'Whoa, look at that line.'", () => { showDialogue("They wait patiently...", () => { showDialogue("Yvy: 'Strawberry and Cream for me!'", () => { showDialogue("Mike: 'Classic Chocolate for me.'", () => {
@@ -158,11 +188,84 @@ export class DowntownScene extends Phaser.Scene {
             }
         });
     }
+    /**
+     * A loose dog in a fenced run does not stand still. He picks a spot, trots
+     * to it, has a think, and picks another one — turning to face whichever way
+     * he is going.
+     */
+    wanderDog() {
+        const PEN = { left: 492, right: 608, top: 474, bottom: 540 };
+        const next = () => {
+            if (!this.dog || !this.dog.active) return;
+            const tx = Phaser.Math.Between(PEN.left, PEN.right);
+            const ty = Phaser.Math.Between(PEN.top, PEN.bottom);
+            this.dog.setFlipX(tx < this.dog.x);
+            const dist = Phaser.Math.Distance.Between(this.dog.x, this.dog.y, tx, ty);
+            this.tweens.add({
+                targets: this.dog, x: tx, y: ty,
+                duration: Math.max(420, dist * 9), ease: 'Sine.easeInOut',
+                onComplete: () => this.time.delayedCall(Phaser.Math.Between(300, 1300), next)
+            });
+        };
+        // A little trot up and down on the spot, running the whole time.
+        this.tweens.add({ targets: this.dog, y: '-=3', duration: 190, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        next();
+    }
+
+    seaAndSalt() {
+        if (this.sawClothes) {
+            showDialogue("Yvy: 'I'm thinking about that top. I'm still thinking about it.'");
+            return;
+        }
+        this.sawClothes = true;
+        showDialogue("Yvy: 'Ooh — stop. Look at that one in the window.'", () => {
+            showDialogue("Mike: 'The blue one?'", () => {
+                showDialogue("Yvy: 'The blue one. With the little buttons.'", () => {
+                    showDialogue("Mike: 'Do you want to go in?'", () => {
+                        showDialogue("Yvy: 'No. If I go in I buy it, and I have one suitcase.'");
+                    });
+                });
+            });
+        });
+    }
+
+    moonstone() {
+        if (this.sawCrystals) {
+            showDialogue("Yvy: 'Rose quartz. I'm just saying. Rose quartz.'");
+            return;
+        }
+        this.sawCrystals = true;
+        showDialogue("Yvy: 'Good energy in there. I can feel it from out here.'", () => {
+            showDialogue("Mike: 'You believe in that?'", () => {
+                showDialogue("Yvy: 'I believe it makes people slow down and think about what they want. That's enough.'", () => {
+                    showDialogue("Mike: '...That's a better answer than I was expecting.'", () => {
+                        showDialogue("Yvy: 'I get that a lot.'");
+                    });
+                });
+            });
+        });
+    }
+
+    bookStore() {
+        if (this.sawBooks) {
+            showDialogue("Mike: 'Still thinking about that shop.'");
+            return;
+        }
+        this.sawBooks = true;
+        showDialogue("Mike: 'I love old book stores. The smell of them.'", () => {
+            showDialogue("Yvy: 'Of course you do.'", () => {
+                showDialogue("Mike: 'What does that mean?'", () => {
+                    showDialogue("Yvy: 'It means you're exactly who I thought you were. That's a good thing.'");
+                });
+            });
+        });
+    }
+
     update() {
         this.player.update(this.cursors); const dist = Phaser.Math.Distance.Between(this.yvy.x, this.yvy.y, this.player.x, this.player.y); 
         if (dist > 60 && this.stage !== 5) this.physics.moveToObject(this.yvy, this.player, 120); else this.yvy.body.stop();
         if (this.pDonut.visible) { this.pDonut.x = this.player.x; this.pDonut.y = this.player.y - 10; }
         if (this.yDonut.visible) { this.yDonut.x = this.yvy.x; this.yDonut.y = this.yvy.y - 10; }
-        document.getElementById('interaction-hint').style.display = this.physics.overlap(this.player, [this.clothingZone, this.crystalZone, this.donutZone, this.wallZone, this.dogZone, this.benchZone, this.bookZone]) ? 'block' : 'none';
+        document.getElementById('interaction-hint').style.display = this.physics.overlap(this.player, [this.clothingZone, this.crystalZone, this.donutZone, this.wallZone, this.dogZone, this.benchZone, this.bookZone, ...this.queueZones]) ? 'block' : 'none';
     }
 }
