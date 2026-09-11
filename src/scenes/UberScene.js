@@ -70,7 +70,7 @@ export function buildNightDrive(scene, { caption, onArrive, tint = 0xffffff }) {
     }
 
     // The car, with its lights on the road ahead of it.
-    scene.headlights = scene.add.triangle(0, 0, 0, 0, 150, -34, 150, 34, 0xffe9b0, 0.13);
+    scene.headlights = scene.add.triangle(0, 0, 0, 0, 160, -18, 160, 48, 0xffe9b0, 0.11).setOrigin(0, 0);
     scene.car = scene.add.sprite(-120, 486, 'uber_car').setScale(2.2);
     scene.tweens.add({ targets: scene.car, y: 483, duration: 260, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
@@ -105,6 +105,8 @@ export function driveOn(scene) {
         if (lamp.x < -40) { lamp.x += 5 * 190; glow.x = lamp.x + 6; }
     });
 
-    scene.headlights.x = scene.car.x + 34;
-    scene.headlights.y = scene.car.y - 4;
+    // The lamp itself is at texture (58, 16) of a 64x40 car drawn at 2.2x,
+    // so the beam leaves from there rather than from the middle of the roof.
+    scene.headlights.x = scene.car.x + 57;
+    scene.headlights.y = scene.car.y - 9;
 }

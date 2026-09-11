@@ -53,10 +53,14 @@ export class PizzaScene extends Phaser.Scene {
         this.tweens.add({ targets: [d1, d2], x: '+=5', angle: { from: -5, to: 5 }, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
-        this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop", { fontSize: '16px', color: '#fff' });
+        this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop (Space)", { fontSize: '16px', color: '#fff' });
         this.dressStreetLife();
         this.setUpStores();
-        this.setUpBrawl(); this.physics.add.overlap(this.player, this.shopZone, () => { if (!gameState.farewellDone && this.streetSettled) this.startFarewell(); });
+        this.setUpBrawl();
+        this.physics.add.overlap(this.player, this.shopZone, () => {
+            if (!gameState.farewellDone && this.streetSettled
+                && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.startFarewell();
+        });
         this.physics.add.overlap(this.player, this.fightZone, () => {
             if (this.fighting && !this.photoTaken && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.takePhotos();
         }); this.physics.add.overlap(this.player, this.drunks, () => {
@@ -71,7 +75,8 @@ export class PizzaScene extends Phaser.Scene {
         if (this.pSlice.visible) { this.pSlice.x = this.player.x + 10; this.pSlice.y = this.player.y; this.ySlice.x = this.yvy.x + 10; this.ySlice.y = this.yvy.y; } 
         const canFilm = this.fighting && !this.photoTaken && this.physics.overlap(this.player, this.fightZone);
         const touching = this.physics.overlap(this.player, this.drunks) || (!this.fighting && this.physics.overlap(this.player, this.tacoZone)) || canFilm
-            || (this.streetSettled && this.physics.overlap(this.player, this.storeZones));
+            || (this.streetSettled && this.physics.overlap(this.player, this.storeZones))
+            || (this.streetSettled && !gameState.farewellDone && this.physics.overlap(this.player, this.shopZone));
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none';
     }    /**
      * The street was empty apart from our two and the drunks. Late-night food

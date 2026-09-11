@@ -35,7 +35,11 @@ export class FifthRoseScene extends Phaser.Scene {
         this.cousin = this.add.sprite(620, 360, 'civilian_f').setTint(0xd8c4a8).setDepth(5);
         this.add.rectangle(628, 362, 5, 7, 0xe8e2d6).setDepth(6);
         this.tweens.add({ targets: this.cousin, y: 356, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-        this.cousinZone = this.add.rectangle(620, 396, 110, 76, 0xffff00, 0);
+        // The whole corner of the room she is standing in. The old zone started
+        // at y=358, and a player walked up against the bar — which is where you
+        // stand to talk to someone working behind it — sits just above that, so
+        // you could be shoulder to shoulder with her and get no prompt.
+        this.cousinZone = this.add.rectangle(620, 400, 150, 140, 0xffff00, 0);
         this.physics.add.existing(this.cousinZone, true);
 
         this.cursors = this.input.keyboard.createCursorKeys();
