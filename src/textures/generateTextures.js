@@ -3690,6 +3690,129 @@ export function generateTextures(scene) {
     drawPixel(17, 4, 0x93a032);
     g.generateTexture('sick_puddle', 22, 13);
 
+    // --- 54TH STREET -----------------------------------------------------------
+    // Yvy's room. Teal sheets, and a four-year-old's worth of things on the floor.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0xe9e2d4); // painted wall
+    fillRect(0, 0, 32, 1, 0xf4efe4);
+    for (let i = 0; i < 5; i++) drawPixel((i * 13 + 3) % 32, (i * 9 + 5) % 32, 0xded6c6); // roller texture
+    // No rail in the tile: it would repeat down every row of the wall and
+    // ladder. The scene draws it once along the bottom edge instead.
+    g.generateTexture('bedroom_wall', 32, 32);
+
+    g.clear();
+    fillRect(2, 0, 60, 10, 0x8d6e4f); // pale wood headboard
+    fillRect(2, 0, 60, 3, 0xa88a68);
+    fillRect(4, 8, 56, 2, 0x6f553c);
+    fillRect(6, 11, 22, 13, 0xf6f4ee); // pillows
+    fillRect(36, 11, 22, 13, 0xf6f4ee);
+    fillRect(6, 11, 22, 2, 0xffffff);
+    fillRect(6, 22, 22, 2, 0xdcd8ce);
+    fillRect(36, 22, 22, 2, 0xdcd8ce);
+    fillRect(4, 25, 56, 68, 0x2f8f8a); // teal duvet
+    fillRect(4, 25, 56, 3, 0x4fb3ad); // turned-down edge
+    fillRect(52, 25, 8, 68, 0x25706c); // shadowed side
+    fillRect(4, 25, 3, 68, 0x3ea19b); // the side the window is on
+    for (let sy = 32; sy < 92; sy += 12) fillRect(7, sy, 46, 1, 0x28807b); // quilting
+    fillRect(4, 52, 56, 10, 0xe8c46a); // a mustard throw across the foot
+    fillRect(4, 52, 56, 2, 0xf2d68a);
+    fillRect(4, 90, 56, 3, 0x1f5f5c); // foot of the bed
+    fillRect(28, 25, 2, 27, 0x3ea19b);
+    g.generateTexture('bed_teal', 64, 96);
+
+    // Toy chest with the lid up and the contents visible.
+    g.clear();
+    fillRect(0, 8, 40, 20, 0xc98a4b); // body
+    fillRect(0, 8, 40, 2, 0xe0a462);
+    fillRect(0, 24, 40, 4, 0x9c6532);
+    fillRect(2, 12, 36, 3, 0x2f8f8a); // painted band
+    for (let bx = 4; bx < 36; bx += 7) fillRect(bx, 3, 5, 6, [0xd94f4f, 0x4f7fd9, 0xf2c14e, 0x5bbf6a][(bx / 7) % 4]); // toys poking out
+    fillRect(0, 0, 40, 4, 0x9c6532); // open lid, seen edge on
+    fillRect(0, 0, 40, 1, 0xc98a4b);
+    drawPixel(19, 20, 0xf2e3c0); // catch
+    g.generateTexture('toy_chest', 40, 30);
+
+    // Wooden blocks, spilled.
+    g.clear();
+    const blockCols = [0xd94f4f, 0x4f7fd9, 0xf2c14e, 0x5bbf6a, 0xb46fd9];
+    const blockShade = [0xa63838, 0x385da6, 0xc49a34, 0x44934f, 0x8a51a6];
+    [[0, 10], [8, 12], [16, 9], [4, 3], [13, 2], [19, 14]].forEach(([bx, by], i) => {
+        fillRect(bx, by, 7, 6, blockCols[i % blockCols.length]);
+        fillRect(bx, by, 7, 1, 0xffffff);
+        fillRect(bx, by + 5, 7, 1, blockShade[i % blockShade.length]);
+        drawPixel(bx + 3, by + 2, 0xf6f4ee); // the letter on the face
+    });
+    g.generateTexture('toy_blocks', 26, 20);
+
+    // A stuffed dinosaur, much loved.
+    g.clear();
+    g.fillStyle(0x5bbf6a, 1);
+    g.fillEllipse(11, 14, 16, 12); // body
+    g.fillCircle(6, 8, 5); // head
+    fillRect(14, 12, 8, 3, 0x4aa657); // tail
+    fillRect(19, 13, 3, 2, 0x4aa657);
+    for (let i = 0; i < 4; i++) fillRect(8 + i * 3, 7 + (i % 2), 2, 2, 0xf2c14e); // back plates
+    fillRect(4, 18, 4, 3, 0x4aa657); // feet
+    fillRect(12, 18, 4, 3, 0x4aa657);
+    drawPixel(4, 7, 0x1d1a17); // eye
+    drawPixel(3, 10, 0xe86f6f); // snout
+    g.generateTexture('toy_dino', 22, 22);
+
+    // Push-along car.
+    g.clear();
+    fillRect(2, 4, 18, 6, 0xd94f4f); // body
+    fillRect(2, 4, 18, 2, 0xe87a7a);
+    fillRect(6, 1, 9, 4, 0x8fd0e6); // cabin
+    fillRect(7, 2, 7, 2, 0xcfeaf5);
+    g.fillStyle(0x2b2b33, 1);
+    g.fillCircle(6, 11, 3);
+    g.fillCircle(16, 11, 3);
+    g.fillStyle(0x9aa5b1, 1);
+    g.fillCircle(6, 11, 1);
+    g.fillCircle(16, 11, 1);
+    g.generateTexture('toy_car', 22, 14);
+
+    // Penny's corner: two bowls on a wipe-clean mat.
+    g.clear();
+    fillRect(0, 6, 40, 13, 0x6f8fa8); // mat
+    fillRect(0, 6, 40, 2, 0x8aa8bf);
+    fillRect(0, 17, 40, 2, 0x57748a);
+    g.fillStyle(0xc7452f, 1); // food bowl
+    g.fillEllipse(11, 10, 16, 9);
+    g.fillStyle(0x9c3423, 1);
+    g.fillEllipse(11, 11, 13, 6);
+    g.fillStyle(0x8a5a30, 1); // kibble
+    g.fillEllipse(11, 10, 10, 4);
+    drawPixel(9, 9, 0xa9723f);
+    drawPixel(13, 10, 0xa9723f);
+    g.fillStyle(0x3f7fa8, 1); // water bowl
+    g.fillEllipse(29, 10, 16, 9);
+    g.fillStyle(0x2f6280, 1);
+    g.fillEllipse(29, 11, 13, 6);
+    g.fillStyle(0x7fc4e0, 1);
+    g.fillEllipse(29, 10, 10, 4);
+    drawPixel(26, 9, 0xd8f0fa);
+    g.generateTexture('dog_bowls', 40, 20);
+
+    // The rug everything happens on.
+    g.clear();
+    fillRect(0, 0, 72, 52, 0xdcc9a8);
+    fillRect(0, 0, 72, 3, 0xe8d9bd);
+    fillRect(0, 49, 72, 3, 0xc4ae8c);
+    fillRect(4, 4, 64, 44, 0x8fc4bf); // teal field, to match the bed
+    fillRect(4, 4, 64, 2, 0xa9d6d2);
+    fillRect(10, 10, 52, 32, 0xdcc9a8); // border bands
+    fillRect(16, 16, 40, 20, 0x8fc4bf);
+    for (let i = 0; i < 9; i++) { // little motifs
+        drawPixel(20 + i * 4, 20 + (i % 3) * 5, 0xe8a24e);
+        drawPixel(22 + i * 4, 30 - (i % 2) * 4, 0xd97f7f);
+    }
+    for (let fx = 2; fx < 72; fx += 5) { // fringe
+        fillRect(fx, 0, 2, 2, 0xc4ae8c);
+        fillRect(fx, 50, 2, 2, 0xc4ae8c);
+    }
+    g.generateTexture('kid_rug', 72, 52);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in
