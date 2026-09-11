@@ -11,7 +11,21 @@ export class BurialScene extends Phaser.Scene {
         for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'grass');
         const walls = this.physics.add.staticGroup();
         for(let x=0; x<GAME_WIDTH; x+=32) walls.create(x+16, 16, 'floor_wood').setTint(0x3e2723);
-        this.add.rectangle(600, 300, 64, 32, 0x3e2723);
+        // The fence line at the back, the tree she used to lie under, and the
+        // shape of a garden somebody's family actually uses.
+        for (let x = 16; x < GAME_WIDTH; x += 64) this.add.image(x, 60, 'fence_detailed');
+        this.add.image(120, 140, 'bush_detailed').setScale(1.4);
+        this.add.image(300, 126, 'bush_detailed').setScale(1.1);
+        this.add.image(690, 140, 'bush_detailed').setScale(1.3);
+        this.add.image(470, 118, 'plant_flowers').setScale(1.2);
+        this.add.image(560, 130, 'plant_flowers');
+        this.add.image(96, 470, 'park_bench').setScale(0.9);
+        this.add.image(740, 470, 'plant_snake');
+        this.add.image(360, 500, 'dog_bowls'); // her bowls, brought out and not put away
+        this.add.image(700, 240, 'toy_dino').setAngle(18);
+        this.add.image(600, 300, 'grave_plot');
+        this.add.image(600, 262, 'pet_stone');
+        this.add.image(648, 282, 'shovel').setAngle(16);
         this.yvy = this.add.sprite(200, 300, 'yvy');
         this.aiden = this.add.sprite(240, 310, 'aiden');
         this.penny = this.add.sprite(220, 320, 'penny_custom'); this.penny.setDisplaySize(20, 20);

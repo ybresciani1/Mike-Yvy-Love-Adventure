@@ -12,15 +12,47 @@ export class ThanksgivingScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('#d35400');
         for (let x=0; x<GAME_WIDTH/32; x++) for (let y=0; y<GAME_HEIGHT/32; y++) this.add.image(x*32+16, y*32+16, 'floor_wood').setTint(0xcc9966);
         playLeFestinTheme();
-        // --- CHANGED: NC to DC ---
-        this.add.text(400, 50, "Thanksgiving in DC", { fontSize: '24px', color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
+        // Thanksgiving is at Mike's family's, in North Carolina — the only part of
+        // the story that is not DC or San Diego.
+        this.add.text(400, 44, "Thanksgiving in North Carolina", { fontSize: '20px', color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
+        this.add.text(400, 68, "Both families, one table", { fontSize: '11px', color: '#ffdca8' }).setOrigin(0.5);
+        // The dining room around the table: papered wall, sideboard, wreath on the
+        // door, chairs pulled up on both sides.
+        for (let x = 0; x < GAME_WIDTH / 32; x++) {
+            for (let y = 0; y < 5; y++) this.add.image(x * 32 + 16, y * 32 + 16, 'bedroom_wall').setTint(0xe8c9a8);
+        }
+        this.add.rectangle(400, 158, GAME_WIDTH, 4, 0xb08a5c);
+        this.add.rectangle(400, 161, GAME_WIDTH, 3, 0x8a6a42);
+        this.add.image(120, 210, 'sideboard');
+        this.add.image(680, 210, 'sideboard');
+        this.add.image(400, 106, 'autumn_wreath');
+        this.add.image(232, 108, 'wall_art').setTint(0xf0d8b8);
+        this.add.image(568, 108, 'wall_art').setTint(0xf0d8b8);
+        this.add.image(60, 330, 'plant_flowers');
+        this.add.image(744, 330, 'pothos');
+
         this.add.image(400, 300, 'conf_table').setScale(1.5, 1);
+        for (const cx of [316, 400, 484]) {
+            this.add.image(cx, 250, 'dining_chair');
+            this.add.image(cx, 352, 'dining_chair').setFlipY(true);
+        }
+        this.add.image(268, 300, 'dining_chair').setAngle(90);
+        this.add.image(532, 300, 'dining_chair').setAngle(-90);
         let turkey = this.add.image(400, 280, 'turkey_custom');
         turkey.setDisplaySize(48, 48);
         this.add.image(350, 280, 'mashed_potatoes').setScale(0.8);
         this.add.image(450, 280, 'cranberry').setScale(0.8);
         this.add.image(380, 310, 'pie').setScale(0.8);
         this.add.image(420, 310, 'mashed_potatoes').setScale(0.8);
+        this.add.image(332, 316, 'cranberry').setScale(0.65);
+        this.add.image(462, 262, 'pie').setScale(0.7);
+        this.add.image(400, 330, 'turkey').setScale(0.55);
+        for (const px of [300, 340, 460, 500]) { // places laid
+            this.add.image(px, 272, 'menu').setScale(0.4).setTint(0xf4f0e4);
+            this.add.image(px, 328, 'menu').setScale(0.4).setTint(0xf4f0e4);
+        }
+        this.add.image(360, 268, 'coffee').setScale(0.55);
+        this.add.image(440, 268, 'coffee').setScale(0.55);
         
         // --- Characters ---
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';

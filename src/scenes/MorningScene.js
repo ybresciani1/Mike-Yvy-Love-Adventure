@@ -163,7 +163,7 @@ export class MorningScene extends Phaser.Scene {
         useable(636, 60, 90, 60, () => showDialogue(
             "Still dark out. Somewhere under all that is a city he has known for two days."
         ));
-        useable(400, 300, 120, 90, () => showDialogue(gameState.callFinished
+        useable(400, 296, 74, 96, () => showDialogue(gameState.callFinished
             ? "Mike: 'No. If I sit back down on that I am not getting up again.'"
             : "The bed is still warm. The phone is still ringing."));
         useable(648, 250, 76, 50, () => showDialogue(

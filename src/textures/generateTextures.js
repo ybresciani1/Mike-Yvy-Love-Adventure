@@ -3813,6 +3813,169 @@ export function generateTextures(scene) {
     }
     g.generateTexture('kid_rug', 72, 52);
 
+    // --- HOSPITAL ------------------------------------------------------------
+    // Curtain rail and privacy curtain, the thing every ward actually looks like.
+    g.clear();
+    fillRect(0, 0, 64, 3, 0xb0b8bd); // rail
+    fillRect(0, 0, 64, 1, 0xd2d8dc);
+    for (let i = 2; i < 64; i += 6) drawPixel(i, 3, 0x8a9297); // hooks
+    fillRect(0, 4, 64, 60, 0x9fc7c4); // curtain
+    for (let fx = 0; fx < 64; fx += 8) { // folds
+        fillRect(fx, 4, 3, 60, 0xb4d6d3);
+        fillRect(fx + 5, 4, 2, 60, 0x84aeab);
+    }
+    fillRect(0, 4, 64, 2, 0xc6e0de);
+    fillRect(0, 60, 64, 4, 0x84aeab); // weighted hem
+    g.generateTexture('ward_curtain', 64, 64);
+
+    // Trolley of supplies beside the bed.
+    g.clear();
+    fillRect(2, 6, 32, 4, 0xd7dbdd); // top shelf
+    fillRect(2, 6, 32, 1, 0xeceff1);
+    fillRect(4, 0, 7, 6, 0xe8f0f2); // kidney dish and bottles
+    fillRect(13, 1, 4, 5, 0x7fb3a8);
+    fillRect(19, 2, 3, 4, 0xd98f8f);
+    fillRect(24, 0, 6, 6, 0xf4f6f7);
+    fillRect(2, 18, 32, 4, 0xc9ced1); // lower shelf
+    fillRect(6, 14, 10, 4, 0xbfc8cc);
+    fillRect(20, 13, 8, 5, 0xa8b4ba);
+    fillRect(4, 10, 2, 14, 0x9aa5b1); // frame
+    fillRect(30, 10, 2, 14, 0x9aa5b1);
+    fillRect(4, 24, 3, 3, 0x546e7a); // castors
+    fillRect(29, 24, 3, 3, 0x546e7a);
+    g.generateTexture('med_trolley', 36, 28);
+
+    // Get-well balloon, because a four year old is having surgery.
+    g.clear();
+    g.fillStyle(0xd94f7e, 1);
+    g.fillEllipse(9, 10, 16, 19);
+    g.fillStyle(0xe87aa0, 1);
+    g.fillEllipse(7, 8, 9, 11);
+    g.fillStyle(0xf6c6d6, 1);
+    g.fillEllipse(6, 6, 4, 5);
+    fillRect(8, 19, 2, 2, 0xb03c66); // knot
+    for (let ty = 21; ty < 34; ty++) drawPixel(9 + Math.round(Math.sin(ty / 3) * 2), ty, 0xf0f0f0); // string
+    g.generateTexture('balloon', 20, 34);
+
+    // --- BACK GARDEN ----------------------------------------------------------
+    // The spot under the tree, with the earth turned over.
+    g.clear();
+    fillRect(0, 6, 40, 16, 0x5a4128); // turned soil
+    fillRect(0, 6, 40, 2, 0x6f5133);
+    for (let i = 0; i < 14; i++) drawPixel((i * 11 + 3) % 40, 8 + (i * 5) % 12, i % 2 ? 0x4a351f : 0x7a5b3a);
+    fillRect(2, 20, 36, 3, 0x3f2d1a); // shadow in the cut
+    fillRect(0, 0, 40, 7, 0x4c8b3f); // the grass lip around it
+    for (let i = 0; i < 8; i++) drawPixel(i * 5 + 2, 4 + (i % 3), 0x3f7434);
+    g.generateTexture('grave_plot', 40, 24);
+
+    // A small stone with her name cut into it.
+    g.clear();
+    fillRect(3, 4, 20, 22, 0x9aa0a4); // stone
+    fillRect(3, 4, 20, 2, 0xb8bec2);
+    fillRect(21, 6, 2, 20, 0x7d8286);
+    g.fillStyle(0x9aa0a4, 1);
+    g.fillEllipse(13, 5, 20, 8); // rounded top
+    g.fillStyle(0xb8bec2, 1);
+    g.fillEllipse(12, 4, 16, 5);
+    fillRect(7, 12, 12, 2, 0x6b7074); // the name, too small to read
+    fillRect(8, 16, 10, 1, 0x6b7074);
+    fillRect(9, 19, 8, 1, 0x6b7074);
+    fillRect(1, 26, 24, 3, 0x6f7a3f); // grass banked against the base
+    g.generateTexture('pet_stone', 26, 30);
+
+    // Shovel, left leaning where he finished.
+    g.clear();
+    fillRect(7, 0, 3, 26, 0x8d6e4f); // handle
+    fillRect(7, 0, 1, 26, 0xa88a68);
+    fillRect(5, 0, 7, 3, 0x6f553c); // grip
+    fillRect(4, 26, 9, 4, 0x9aa5b1); // collar
+    g.fillStyle(0xb0b8bd, 1); // blade
+    g.fillEllipse(8, 34, 14, 12);
+    fillRect(1, 28, 14, 6, 0xb0b8bd);
+    g.fillStyle(0x8a9297, 1);
+    g.fillEllipse(9, 35, 10, 8);
+    drawPixel(4, 36, 0x5a4128); // soil still on it
+    drawPixel(11, 33, 0x5a4128);
+    g.generateTexture('shovel', 17, 41);
+
+    // --- FIRST APARTMENT -------------------------------------------------------
+    // Moving boxes, taped and labelled in marker.
+    g.clear();
+    fillRect(0, 4, 30, 24, 0xc9a86a); // carton
+    fillRect(0, 4, 30, 2, 0xdcbd80);
+    fillRect(0, 26, 30, 2, 0xa8873f);
+    fillRect(13, 4, 4, 24, 0xb8955a); // the seam down the middle
+    fillRect(0, 8, 30, 3, 0xe8dcc0); // packing tape
+    fillRect(0, 8, 30, 1, 0xf4ecd8);
+    fillRect(5, 16, 20, 2, 0x3a3a44); // marker writing
+    fillRect(5, 20, 13, 2, 0x3a3a44);
+    fillRect(2, 0, 26, 4, 0xb8955a); // flaps folded over
+    g.generateTexture('moving_box', 30, 28);
+
+    // A lamp still in its box, and a rolled rug — the week you move in.
+    g.clear();
+    g.fillStyle(0xb58a4a, 1);
+    g.fillEllipse(8, 8, 15, 13); // rolled rug, end on
+    g.fillStyle(0x8fc4bf, 1);
+    g.fillEllipse(8, 8, 10, 9);
+    g.fillStyle(0xd97f7f, 1);
+    g.fillEllipse(8, 8, 5, 5);
+    fillRect(8, 2, 34, 12, 0xb58a4a); // the length of it
+    fillRect(8, 2, 34, 2, 0xcfa062);
+    fillRect(8, 12, 34, 2, 0x8f6c36);
+    for (let rx = 12; rx < 42; rx += 7) fillRect(rx, 5, 2, 6, 0x8fc4bf);
+    g.generateTexture('rolled_rug', 44, 17);
+
+    // --- THANKSGIVING ----------------------------------------------------------
+    // Dining chair, seen from the side of the table.
+    g.clear();
+    fillRect(3, 0, 18, 14, 0x7b4f2c); // back
+    fillRect(3, 0, 18, 2, 0x9c6a3f);
+    fillRect(5, 3, 14, 9, 0x8d5c35);
+    fillRect(5, 6, 14, 1, 0x6b4326);
+    fillRect(1, 14, 22, 5, 0x8d5c35); // seat
+    fillRect(1, 14, 22, 1, 0xa87043);
+    fillRect(2, 19, 3, 7, 0x6b4326); // legs
+    fillRect(19, 19, 3, 7, 0x6b4326);
+    g.generateTexture('dining_chair', 24, 26);
+
+    // Autumn wreath for the door.
+    g.clear();
+    g.lineStyle(5, 0x4f6b2f, 1);
+    g.strokeCircle(16, 16, 12);
+    g.lineStyle(2, 0x6b8a42, 1);
+    g.strokeCircle(16, 16, 13);
+    const leafCols = [0xc4622a, 0xd99a2b, 0x8a3b22, 0xb8862f];
+    for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        const lx = Math.round(16 + Math.cos(a) * 12);
+        const ly = Math.round(16 + Math.sin(a) * 12);
+        fillRect(lx - 1, ly - 1, 3, 3, leafCols[i % leafCols.length]);
+        drawPixel(lx, ly, 0xe8b45c);
+    }
+    fillRect(14, 1, 4, 4, 0xc4622a); // bow
+    fillRect(12, 2, 3, 2, 0xa84a1e);
+    fillRect(17, 2, 3, 2, 0xa84a1e);
+    g.generateTexture('autumn_wreath', 32, 32);
+
+    // Sideboard with the overflow dishes on it.
+    g.clear();
+    fillRect(0, 8, 56, 20, 0x7b4f2c); // carcass
+    fillRect(0, 8, 56, 2, 0x9c6a3f);
+    fillRect(0, 26, 56, 3, 0x5c3a20);
+    for (let dx = 3; dx < 54; dx += 18) { // doors
+        fillRect(dx, 12, 15, 13, 0x8d5c35);
+        fillRect(dx + 6, 17, 4, 2, 0xd4a017);
+    }
+    fillRect(0, 5, 56, 4, 0x9c6a3f); // top
+    fillRect(0, 5, 56, 1, 0xb87c4c);
+    fillRect(5, 0, 12, 5, 0xf4f6f7); // dishes waiting
+    fillRect(5, 0, 12, 2, 0xffffff);
+    fillRect(21, 1, 9, 4, 0xe8c46a);
+    fillRect(34, 0, 14, 5, 0xc7452f);
+    fillRect(34, 0, 14, 1, 0xdd6a52);
+    g.generateTexture('sideboard', 56, 30);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in
