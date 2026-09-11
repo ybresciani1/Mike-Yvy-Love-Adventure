@@ -67,6 +67,11 @@ export class ClubScene extends Phaser.Scene {
         this.add.image(480, 62, 'speaker_stack');
         this.add.image(400, 74, 'dj_booth');
         this.dj = this.add.sprite(400, 40, 'dj_1');
+        // He is up on the booth, so the zone reaches down to where the floor
+        // actually lets you stand.
+        this.djZone = this.add.rectangle(400, 108, 120, 96, 0xffff00, 0);
+        this.physics.add.existing(this.djZone, true);
+        this.djLines = 0;
         this.tweens.add({ targets: this.dj, y: 36, duration: 220, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.tweens.add({ targets: this.dj, angle: { from: -4, to: 4 }, duration: 440, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.discoBall = this.add.image(350, 132, 'disco_ball');
@@ -154,6 +159,7 @@ export class ClubScene extends Phaser.Scene {
             }); 
         }}); 
         this.physics.add.overlap(this.player, this.yvy, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleYvyInteraction(); }); 
+        this.physics.add.overlap(this.player, this.djZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.talkToDJ(); });
         this.physics.add.overlap(this.player, this.barZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleBarInteraction(); }); this.physics.add.overlap(this.player, this.marines, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Marine: 'Woo! Dance with us Mike!'"); }); 
     } 
     update() { 
@@ -194,7 +200,7 @@ export class ClubScene extends Phaser.Scene {
             if (dist > 60) this.physics.moveToObject(this.yvy, this.player, 120); 
             else this.yvy.body.stop(); 
         } 
-        const touching = this.physics.overlap(this.player, [this.yvy, this.barZone]) || this.physics.overlap(this.player, this.marines); document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
+        const touching = this.physics.overlap(this.player, [this.yvy, this.barZone, this.djZone]) || this.physics.overlap(this.player, this.marines); document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
     } 
     /** Step Mike through the dance poses while F is held. */
     danceFrame() {
@@ -282,6 +288,18 @@ export class ClubScene extends Phaser.Scene {
             }); 
         } 
     } 
+    /** Trying to have a conversation with somebody wearing headphones. */
+    talkToDJ() {
+        const LINES = [
+            "DJ: 'YEAH? WHAT? I CAN'T HEAR YOU!'",
+            "Mike: 'GREAT SET!' ... DJ: 'THE WHAT? THE SUNSET?'",
+            "DJ: 'NO REQUESTS! ...WHAT IS IT?'",
+            "Mike: 'NEVER MIND!' ... DJ: 'YEAH! EXACTLY!'",
+            "The DJ gives him a thumbs up and goes back to the decks."
+        ];
+        showDialogue(LINES[Math.min(this.djLines++, LINES.length - 1)]);
+    }
+
     handleBarInteraction() { 
         if (gameState.clubProgress === 2) { 
             playSound('clink'); 

@@ -7,6 +7,13 @@ import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { generateTextures } from '../textures/generateTextures.js';
 import { Player } from '../entities/Player.js';
 
+const WHEELED_LINES = [
+    "Passenger: 'Forty minutes to the gate. I looked it up. Forty.'",
+    "Passenger: 'If this thing loses a wheel I am leaving it right here.'",
+    "Passenger: 'Do not make eye contact with the man at gate eleven.'",
+    "Late Passenger: 'MOVE — sorry — MOVE —'"
+];
+
 export class AirportScene extends Phaser.Scene {
     constructor() { super('AirportScene'); }
     preload() { generateTextures(this); }
@@ -191,7 +198,7 @@ export class AirportScene extends Phaser.Scene {
             const bag = this.add.sprite(x0 - 14, wy + 8, 'suitcase').setScale(0.85);
             this.tweens.add({ targets: sprite, x: x1, duration: dur, yoyo: true, repeat: -1, ease: 'Linear' });
             this.tweens.add({ targets: sprite, y: wy - 2, duration: 260, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-            this.wanderers.push({ sprite, bag, lastX: x0 });
+            this.wanderers.push({ sprite, bag, lastX: x0, line: WHEELED_LINES[this.wanderers.length % WHEELED_LINES.length] });
         });
 
         // One man who is going to miss it, sprinting the length of the terminal
@@ -281,7 +288,7 @@ export class AirportScene extends Phaser.Scene {
         this.tweens.add({ targets: runner, y: 330, duration: 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.tweens.add({ targets: runner, angle: { from: -9, to: -3 }, duration: 240, yoyo: true, repeat: -1 });
 
-        const entry = { sprite: runner, bag, lastX: startX, cry, bagLift: 0 };
+        const entry = { sprite: runner, bag, lastX: startX, cry, bagLift: 0, line: WHEELED_LINES[3] };
         this.wanderers.push(entry);
 
         const SPEED = 0.3; // px per ms, so the run reads the same length whatever the distance
@@ -449,6 +456,16 @@ export class AirportScene extends Phaser.Scene {
         if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
         if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
         const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.gateDesks, ...this.peopleZones, ...this.seatZones]); 
-        document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
+        // The wheeled-bag passengers are moving targets, so they are caught by
+        // distance rather than by a zone. Scene update runs before the physics
+        // step, so this only claims the keypress when nothing stationary wants
+        // it — otherwise a zone behind a passing traveller would never fire.
+        const nearby = !touching && this.wanderers.find(w =>
+            w.sprite.active && Phaser.Math.Distance.Between(this.player.x, this.player.y, w.sprite.x, w.sprite.y) < 38
+        );
+        if (nearby && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) {
+            showDialogue(nearby.line);
+        }
+        document.getElementById('interaction-hint').style.display = (touching || nearby) ? 'block' : 'none'; 
     }
 }

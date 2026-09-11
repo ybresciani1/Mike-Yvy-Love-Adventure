@@ -152,9 +152,9 @@ export class BarScene extends Phaser.Scene {
         // Raising is done through an offset both glasses read in update(), since
         // update() rewrites their positions every frame and would undo a tween.
         this.tweens.addCounter({
-            from: 0, to: 7, duration: 150, yoyo: true,
-            onUpdate: t => { this.toastLift = t.getValue(); },
-            onComplete: () => { this.toastLift = 0; }
+            from: 0, to: 7, duration: 260, yoyo: true, hold: 140,
+            onUpdate: t => { this.toastLift = t.getValue(); this.drinkTilt = t.getValue() * 4.4; },
+            onComplete: () => { this.toastLift = 0; this.drinkTilt = 0; }
         }); this.cameras.main.shake(300, 0.015); 
         this.tweens.add({ targets: this.cameras.main, rotation: (Math.random() - 0.5) * 0.1, duration: 300, yoyo: true, repeat: -1 }); 
         playSound('clink'); 
@@ -214,8 +214,11 @@ export class BarScene extends Phaser.Scene {
     update() { 
         this.player.update(this.cursors); 
         if (!this.toastLocked) {
-            if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10; this.pBeer.y = this.player.y - this.toastLift; }
-            if (this.mBeer.visible) { this.mBeer.x = this.marine.x + 10; this.mBeer.y = this.marine.y - this.toastLift; }
+            // Both glasses sit to their owner's right, so tipping one towards a
+            // mouth is a lean to the left for both of them.
+            const tilt = this.drinkTilt || 0;
+            if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10 - tilt * 0.4; this.pBeer.y = this.player.y - this.toastLift; this.pBeer.setAngle(-tilt); }
+            if (this.mBeer.visible) { this.mBeer.x = this.marine.x + 10 - tilt * 0.4; this.mBeer.y = this.marine.y - this.toastLift; this.mBeer.setAngle(-tilt); }
         } 
         const touching = this.physics.overlap(this.player, this.marineZone)
             || (this.canChat() && this.physics.overlap(this.player, this.guestZones)); 
