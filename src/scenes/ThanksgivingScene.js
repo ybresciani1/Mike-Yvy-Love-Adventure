@@ -44,15 +44,14 @@ export class ThanksgivingScene extends Phaser.Scene {
         this.add.image(450, 280, 'cranberry').setScale(0.8);
         this.add.image(380, 310, 'pie').setScale(0.8);
         this.add.image(420, 310, 'mashed_potatoes').setScale(0.8);
-        this.add.image(332, 316, 'cranberry').setScale(0.65);
-        this.add.image(462, 262, 'pie').setScale(0.7);
-        this.add.image(400, 330, 'turkey').setScale(0.55);
-        for (const px of [300, 340, 460, 500]) { // places laid
-            this.add.image(px, 272, 'menu').setScale(0.4).setTint(0xf4f0e4);
-            this.add.image(px, 328, 'menu').setScale(0.4).setTint(0xf4f0e4);
+        // conf_table is 96x48 drawn at 1.5x1, so the cloth runs x 328..472 and
+        // y 276..324. Anything outside that is on the floor, which is where the
+        // first set of these ended up.
+        this.add.image(348, 314, 'cranberry').setScale(0.6);
+        this.add.image(452, 312, 'pie').setScale(0.6);
+        for (const [px, py] of [[342, 286], [342, 314], [458, 286], [458, 314], [400, 318]]) {
+            this.add.image(px, py, 'place_setting');
         }
-        this.add.image(360, 268, 'coffee').setScale(0.55);
-        this.add.image(440, 268, 'coffee').setScale(0.55);
         
         // --- Characters ---
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
@@ -73,7 +72,12 @@ export class ThanksgivingScene extends Phaser.Scene {
         this.jocelyn = this.physics.add.sprite(710, 260, 'jocelyn');
 
         // Cousin
-        this.cousin = this.physics.add.sprite(400, 500, 'aiden').setTint(0xcccc55); 
+        this.cousin = this.physics.add.sprite(400, 500, 'aiden').setTint(0xcccc55);
+        // Fidgeting on the spot until someone gives him an excuse. Scale is safe
+        // to tween on a physics sprite; position is not.
+        this.tweens.add({ targets: this.cousin, scaleY: 0.94, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.tagging = false;
+        this.cousinTarget = null; 
 
         // Followers
         this.yvy = this.physics.add.sprite(this.player.x - 30, this.player.y, 'yvy');
@@ -123,7 +127,7 @@ export class ThanksgivingScene extends Phaser.Scene {
                  showDialogue("Cousin: 'Bet you can't catch me!'", () => {
                      showDialogue("Aiden: 'I'm gonna get you!'", () => {
                          showDialogue("Aiden runs off to play tag with his cousin, giggling uncontrollably.", () => {
-                             this.tweens.add({targets: this.aiden, x: this.cousin.x + 40, duration: 500, yoyo: true, repeat: 2});
+                             this.startTag();
                              this.checkProgress();
                          });
                      });
@@ -132,18 +136,68 @@ export class ThanksgivingScene extends Phaser.Scene {
         });
     }
 
+    /** The cousin bolts; Aiden goes after him. */
+    startTag() {
+        this.tagging = true;
+        this.tweens.killTweensOf(this.cousin);
+        this.cousin.setScale(1);
+        this.nextTagSpot();
+    }
+
+    nextTagSpot() {
+        // Round the open floor below the table, well clear of everyone eating.
+        this.cousinTarget = new Phaser.Math.Vector2(
+            Phaser.Math.Between(140, 660),
+            Phaser.Math.Between(390, 540)
+        );
+        this.cousin.setFlipX(this.cousinTarget.x < this.cousin.x);
+        this.physics.moveTo(this.cousin, this.cousinTarget.x, this.cousinTarget.y, 170);
+    }
+
+    runTag() {
+        const strayed = this.cousin.x < 110 || this.cousin.x > 690 || this.cousin.y < 370 || this.cousin.y > 560;
+        if (strayed) {
+            // Belt and braces: moveTo sets a constant velocity and nothing else
+            // ever stops it, so a missed arrival would run him off the map.
+            this.cousin.body.stop();
+            this.cousin.x = Phaser.Math.Clamp(this.cousin.x, 120, 680);
+            this.cousin.y = Phaser.Math.Clamp(this.cousin.y, 380, 550);
+            this.cousinTarget = null;
+            this.nextTagSpot();
+            return;
+        }
+        if (this.cousinTarget && Phaser.Math.Distance.BetweenPoints(this.cousin, this.cousinTarget) < 14) {
+            this.cousin.body.stop();
+            this.cousinTarget = null;
+            this.time.delayedCall(Phaser.Math.Between(120, 500), () => { if (this.tagging) this.nextTagSpot(); });
+        }
+        // Aiden never quite catches him, which is the point of the game.
+        const gap = Phaser.Math.Distance.BetweenPoints(this.aiden, this.cousin);
+        if (gap > 34) {
+            this.aiden.setFlipX(this.cousin.x < this.aiden.x);
+            this.physics.moveToObject(this.aiden, this.cousin, 150);
+        } else {
+            this.aiden.body.stop();
+        }
+    }
+
     update() {
         this.player.update(this.cursors);
         
         // Follow Logic
+        // The kids carry on whether or not Mike is moving.
+        if (this.tagging) this.runTag();
+
         if (this.player.body.velocity.length() > 5) {
             this.physics.moveToObject(this.yvy, this.player, 140);
-            if (!this.talkedState.cousin) this.physics.moveToObject(this.aiden, this.player, 130); // Stop following if playing
+            if (!this.tagging && !this.talkedState.cousin) {
+                this.physics.moveToObject(this.aiden, this.player, 130);
+            }
         } else {
              const distYvy = Phaser.Math.Distance.BetweenPoints(this.player, this.yvy);
              if (distYvy < 60) this.yvy.body.stop();
              
-             if (!this.talkedState.cousin) {
+             if (!this.tagging && !this.talkedState.cousin) {
                 const distAiden = Phaser.Math.Distance.BetweenPoints(this.player, this.aiden);
                 if (distAiden < 60) this.aiden.body.stop();
              }

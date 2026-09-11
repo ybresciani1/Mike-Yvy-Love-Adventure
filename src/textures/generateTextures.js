@@ -3976,6 +3976,22 @@ export function generateTextures(scene) {
     fillRect(34, 0, 14, 1, 0xdd6a52);
     g.generateTexture('sideboard', 56, 30);
 
+    // A laid place: plate, fork, knife. Small enough to sit on the table
+    // without burying the food.
+    g.clear();
+    fillRect(2, 3, 1, 6, 0xb0b4b8); // fork
+    drawPixel(2, 2, 0xd2d6da);
+    fillRect(13, 3, 1, 6, 0xb0b4b8); // knife
+    drawPixel(13, 2, 0xd2d6da);
+    g.fillStyle(0xcfd3d6, 1); // plate rim
+    g.fillEllipse(8, 6, 11, 9);
+    g.fillStyle(0xf6f7f8, 1);
+    g.fillEllipse(8, 6, 9, 7);
+    g.fillStyle(0xe4e7e9, 1);
+    g.fillEllipse(8, 6, 5, 4);
+    drawPixel(6, 4, 0xffffff);
+    g.generateTexture('place_setting', 16, 12);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in
