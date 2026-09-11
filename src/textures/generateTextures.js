@@ -4042,90 +4042,89 @@ export function generateTextures(scene) {
     g.generateTexture('cyclist', 32, 30);
 
     // --- THE NIGHT IN THE DINOSAUR COSTUMES ------------------------------------
-    // A slim standing dinosaur, no tail, and nobody's face showing — the suit is
-    // the costume, not a person wearing a shell with a window in it. Read from
-    // the top: skull and jaw, neck, narrow chest, the famously short arms, two
-    // heavy legs.
-    const drawDinoSuit = ({ hide, lit, skin, shade, dark, extras = null }) => {
+    // Drawn at 44x54 rather than scaled up from a smaller sprite: an inflatable
+    // suit makes the wearer half again as big as everyone else, and a fractional
+    // setScale on pixel art gives you pixels of two different sizes.
+    //
+    // Both suits are the same brown. Yvy is told apart by the bow on the skull,
+    // not by the colour.
+    const drawDinoSuit = ({ extras = null } = {}) => {
         g.clear();
+        const skin = 0xb5773f, lit = 0xcf9152, shade = 0x8a5a2b, dark = 0x6b4520;
 
-        // Skull, with the snout out to the right and the jaw hanging open.
-        fillRect(10, 2, 12, 8, skin);
-        fillRect(10, 2, 12, 2, lit);
-        fillRect(20, 4, 10, 5, skin); // snout
-        fillRect(20, 4, 10, 2, lit);
-        fillRect(21, 10, 9, 3, shade); // lower jaw, dropped
-        fillRect(21, 9, 9, 1, 0x6b2f2f); // the dark of the mouth
-        for (let tx = 22; tx < 30; tx += 2) {
-            drawPixel(tx, 9, 0xf4f0e4); // upper teeth
-            drawPixel(tx + 1, 10, 0xf4f0e4); // lower
+        // Skull, with the snout out to the right and the jaw dropped open.
+        fillRect(12, 3, 17, 11, skin);
+        fillRect(12, 3, 17, 3, lit);
+        fillRect(27, 6, 13, 7, skin); // snout
+        fillRect(27, 6, 13, 2, lit);
+        fillRect(28, 14, 12, 4, shade); // lower jaw
+        fillRect(28, 13, 12, 1, 0x6b2f2f); // the dark of the mouth
+        for (let tx = 29; tx < 40; tx += 3) {
+            fillRect(tx, 12, 2, 2, 0xf4f0e4); // upper teeth
+            fillRect(tx + 1, 14, 2, 2, 0xf4f0e4); // lower
         }
-        fillRect(9, 5, 2, 5, shade); // back of the skull
-        fillRect(18, 3, 4, 1, shade); // brow ridge
-        drawPixel(19, 5, 0xf4f0e4);
-        drawPixel(19, 6, 0x1d1a17); // eye
-        drawPixel(27, 5, dark); // nostril
+        fillRect(10, 6, 3, 8, shade); // back of the skull
+        fillRect(23, 4, 6, 2, shade); // brow ridge
+        fillRect(24, 7, 3, 3, 0xf4f0e4); // eye
+        fillRect(25, 8, 2, 2, 0x1d1a17);
+        drawPixel(37, 8, dark); // nostril
 
-        fillRect(12, 12, 7, 5, skin); // neck
-        fillRect(12, 12, 2, 5, lit);
-        fillRect(18, 13, 1, 4, shade);
+        fillRect(15, 16, 10, 8, skin); // neck
+        fillRect(15, 16, 3, 8, lit);
+        fillRect(24, 17, 2, 7, shade);
 
-        // Chest and belly, slim.
-        fillRect(10, 17, 12, 14, skin);
-        fillRect(10, 17, 3, 14, lit);
-        fillRect(19, 18, 3, 13, shade);
-        for (let by = 21; by < 30; by += 3) fillRect(12, by, 7, 1, lit); // belly scutes
-        fillRect(10, 17, 12, 1, shade);
+        // Chest and belly.
+        fillRect(12, 24, 17, 19, skin);
+        fillRect(12, 24, 4, 19, lit);
+        fillRect(26, 25, 3, 18, shade);
+        fillRect(12, 24, 17, 2, shade);
+        for (let by = 29; by < 42; by += 4) fillRect(15, by, 11, 1, lit); // belly scutes
 
-        fillRect(7, 19, 4, 3, skin); // the arms, such as they are
-        fillRect(21, 19, 4, 3, shade);
-        drawPixel(6, 21, dark);
-        drawPixel(25, 21, dark);
+        fillRect(8, 27, 5, 4, skin); // the famously short arms
+        fillRect(28, 27, 5, 4, shade);
+        fillRect(6, 29, 2, 2, dark);
+        fillRect(33, 29, 2, 2, dark);
 
-        // Legs: thick at the thigh, narrow at the ankle.
-        fillRect(10, 31, 5, 5, skin);
-        fillRect(17, 31, 5, 5, shade);
-        fillRect(11, 36, 3, 2, dark);
-        fillRect(18, 36, 3, 2, dark);
-        fillRect(9, 38, 7, 2, dark); // feet
-        fillRect(16, 38, 7, 2, dark);
-        drawPixel(9, 39, 0xf4f0e4);
-        drawPixel(12, 39, 0xf4f0e4);
-        drawPixel(16, 39, 0xf4f0e4);
-        drawPixel(19, 39, 0xf4f0e4);
+        // Legs, heavy at the thigh.
+        fillRect(12, 43, 8, 7, skin);
+        fillRect(22, 43, 8, 7, shade);
+        fillRect(14, 50, 5, 2, dark);
+        fillRect(24, 50, 5, 2, dark);
+        fillRect(10, 51, 11, 3, dark); // feet
+        fillRect(22, 51, 11, 3, dark);
+        fillRect(10, 51, 11, 1, shade);
+        fillRect(22, 51, 11, 1, shade);
+        for (const cx of [10, 14, 18, 22, 26, 30]) drawPixel(cx, 53, 0xf4f0e4); // claws
 
-        if (hide) fillRect(10, 2, 12, 2, hide);
         if (extras !== null) extras();
     };
 
     drawDinoSuit({
-        skin: 0xb5773f, lit: 0xcf9152, shade: 0x8a5a2b, dark: 0x6b4520,
         extras: () => {
             // The bow tie, taped to the neck. Both the bow and the tape are drawn
-            // big enough to see at the size he is actually on screen.
-            fillRect(9, 15, 13, 2, 0xe4ded0); // the strip of packing tape
-            drawPixel(8, 15, 0xc4bdaa);
-            drawPixel(22, 16, 0xc4bdaa);
-            fillRect(10, 13, 4, 5, 0x1f2b3a); // left wing
-            fillRect(17, 13, 4, 5, 0x1f2b3a); // right wing
-            fillRect(14, 14, 3, 3, 0x101820); // knot
-            fillRect(10, 13, 4, 1, 0x3a4e68);
-            fillRect(17, 13, 4, 1, 0x3a4e68);
+            // large enough to read at the size he is on screen.
+            fillRect(11, 22, 21, 3, 0xe4ded0); // the strip of packing tape
+            fillRect(9, 22, 2, 2, 0xc4bdaa);
+            fillRect(32, 23, 2, 2, 0xc4bdaa);
+            fillRect(13, 18, 6, 8, 0x1f2b3a); // left wing
+            fillRect(24, 18, 6, 8, 0x1f2b3a); // right wing
+            fillRect(19, 20, 5, 4, 0x101820); // knot
+            fillRect(13, 18, 6, 2, 0x3a4e68);
+            fillRect(24, 18, 6, 2, 0x3a4e68);
         }
     });
-    g.generateTexture('mike_dino', 32, 40);
+    g.generateTexture('mike_dino', 44, 54);
 
     drawDinoSuit({
-        skin: 0x7fa050, lit: 0x99bb66, shade: 0x5f7a38, dark: 0x475c28,
         extras: () => {
-            fillRect(9, 1, 5, 4, 0xe0559a); // a bow stuck on the skull
-            fillRect(15, 1, 5, 4, 0xe0559a);
-            fillRect(13, 2, 3, 2, 0xb03c78);
-            drawPixel(10, 1, 0xf07ab0);
-            drawPixel(18, 1, 0xf07ab0);
+            fillRect(11, 1, 7, 6, 0xe0559a); // a bow stuck on the skull
+            fillRect(21, 1, 7, 6, 0xe0559a);
+            fillRect(18, 2, 4, 4, 0xb03c78);
+            fillRect(11, 1, 7, 2, 0xf07ab0);
+            fillRect(21, 1, 7, 2, 0xf07ab0);
         }
     });
-    g.generateTexture('yvy_dino', 32, 40);
+    g.generateTexture('yvy_dino', 44, 54);
 
     // --- FIFTH & ROSE ----------------------------------------------------------
     // The corner entrance: brick pier either side, a curved glass canopy on
