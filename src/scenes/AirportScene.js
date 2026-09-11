@@ -67,7 +67,11 @@ export class AirportScene extends Phaser.Scene {
         // other interaction in the game works. Sizing the body on a static group
         // member does not move it to match, so every passenger answered with the
         // same line no matter which one you walked up to.
-        const SEAT_Y = 197; // hips level with the cushions, legs behind the front
+        // Where a seated body goes. The sprites put the seat of the trousers at
+        // row 26 of 32, so the hip line sits at SEAT_Y + 10; the cushion's top
+        // surface is at 209. 199 puts one on the other — at 197 they perched two
+        // pixels above it, which is exactly the gap that reads as hovering.
+        const SEAT_Y = 199;
         this.peopleZones = [];
         const addPerson = (x, y, key, tint, line, zoneH = 44, zoneW = 46) => {
             const person = this.add.sprite(x, y, key).setTint(tint);
@@ -82,7 +86,7 @@ export class AirportScene extends Phaser.Scene {
         const seatPassenger = (x, key, tint, line) => {
             const p = addPerson(x, SEAT_Y, key, tint, line, 48, 20).setDepth(1);
             this.tweens.add({
-                targets: p, y: SEAT_Y - 2, duration: 1800 + (x % 700),
+                targets: p, y: SEAT_Y - 1, duration: 1800 + (x % 700),
                 yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
             });
             return p;
