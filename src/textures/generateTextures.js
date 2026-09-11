@@ -71,6 +71,39 @@ export function generateTextures(scene) {
         fillRect(22, 23, 3, 3, SKIN_SHADE);
     };
 
+    /**
+     * The seated lower body, from the belt line down. Sitting is not standing
+     * with the legs hidden: the thighs come forward towards the viewer and read
+     * wide and short, the knees turn the corner, and the shins drop to feet flat
+     * on the floor. That needs six rows more than a standing sprite has, which
+     * is why the seated textures are 32x38 rather than 32x32.
+     */
+    const drawSeatedLegs = (pants, pantsShade, shoe, shoeShade, { hips = 26, skirt = false } = {}) => {
+        const y = hips;
+        if (skirt) {
+            fillRect(9, y, 14, 5, pants); // skirt spread over the seat
+            fillRect(19, y, 4, 5, pantsShade);
+            fillRect(9, y + 4, 14, 1, pantsShade);
+        } else {
+            fillRect(9, y, 6, 5, pants); // thighs, foreshortened so they read wide
+            fillRect(16, y, 7, 5, pantsShade);
+            fillRect(9, y, 14, 1, pantsShade); // waistband shadow
+            fillRect(15, y, 1, 5, pantsShade); // the gap between them
+        }
+        fillRect(10, y + 5, 5, 2, pants); // knees
+        fillRect(17, y + 5, 5, 2, pantsShade);
+        if (skirt) {
+            fillRect(11, y + 7, 3, 4, SKIN); // bare shins
+            fillRect(18, y + 7, 3, 4, SKIN_SHADE);
+        } else {
+            fillRect(11, y + 7, 3, 4, pants); // shins
+            fillRect(18, y + 7, 3, 4, pantsShade);
+        }
+        fillRect(10, y + 11, 5, 2, shoe); // feet flat on the floor
+        fillRect(17, y + 11, 5, 2, shoeShade);
+        fillRect(10, y + 11, 5, 1, shoe);
+    };
+
     /** Legs and shoes, drawn from the belt line down to the bottom row. */
     const drawLegs = (pants, pantsShade, shoe, shoeShade) => {
         fillRect(11, 26, 4, 5, pants);
@@ -341,6 +374,7 @@ export function generateTextures(scene) {
         brim = null,
         skin = SKIN,
         blush = false,
+        seated = false,
         extras = null
     }) => {
         g.clear();
@@ -352,7 +386,8 @@ export function generateTextures(scene) {
             if (brim !== null) fillRect(8, 5, 16, 1, brim);
         }
         drawTorso(shirt, shirtShade, { skin });
-        drawLegs(pants, pantsShade, shoe, shoeShade);
+        if (seated) drawSeatedLegs(pants, pantsShade, shoe, shoeShade);
+        else drawLegs(pants, pantsShade, shoe, shoeShade);
         if (extras !== null) extras();
     };
 
@@ -1383,6 +1418,7 @@ export function generateTextures(scene) {
         skirt = true,
         hairFall = 20,
         bun = false,
+        seated = false,
         extras = null
     }) => {
         g.clear();
@@ -1408,18 +1444,22 @@ export function generateTextures(scene) {
         }
         fillRect(9, 23, 2, 2, SKIN); // hands
         fillRect(21, 23, 2, 2, SKIN_SHADE);
-        if (skirt) {
-            fillRect(10, 25, 12, 4, lower);
-            fillRect(19, 25, 3, 4, lowerShade);
-            fillRect(10, 28, 12, 1, lowerShade);
-            fillRect(12, 29, 3, 2, SKIN);
-            fillRect(17, 29, 3, 2, SKIN_SHADE);
+        if (seated) {
+            drawSeatedLegs(lower, lowerShade, shoe, shoeShade, { hips: 25, skirt });
         } else {
-            fillRect(11, 25, 4, 6, lower);
-            fillRect(17, 25, 4, 6, lowerShade);
+            if (skirt) {
+                fillRect(10, 25, 12, 4, lower);
+                fillRect(19, 25, 3, 4, lowerShade);
+                fillRect(10, 28, 12, 1, lowerShade);
+                fillRect(12, 29, 3, 2, SKIN);
+                fillRect(17, 29, 3, 2, SKIN_SHADE);
+            } else {
+                fillRect(11, 25, 4, 6, lower);
+                fillRect(17, 25, 4, 6, lowerShade);
+            }
+            fillRect(11, 31, 4, 1, shoe);
+            fillRect(17, 31, 4, 1, shoeShade);
         }
-        fillRect(11, 31, 4, 1, shoe);
-        fillRect(17, 31, 4, 1, shoeShade);
         if (extras !== null) extras();
     };
 
@@ -1598,6 +1638,86 @@ export function generateTextures(scene) {
         }
     });
     g.generateTexture('civilian_f', 32, 32);
+    // --- SEATED POSES --------------------------------------------------------
+    // Everyone who sits down in the gate seats needs one of these. They are the
+    // same head and torso as the standing sprite with a seated lower body under
+    // it, and they are six pixels taller so the shins and feet have somewhere to
+    // go — the whole point is that you can see the legs rather than tucking them
+    // out of sight behind the furniture.
+    g.clear();
+    drawFace(5, { brow: HAIR_SHADE });
+    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawTorso(0x3498db, 0x2f86c4, { hi: 0x5dade2 });
+    fillRect(13, 17, 6, 2, 0x2980b9); // collar
+    fillRect(10, 26, 12, 1, 0x2c2c2c); // belt
+    drawSeatedLegs(0x34495e, 0x2c3e50, 0xecf0f1, 0xd5dbdb);
+    g.generateTexture('mike_sit', 32, 38);
+
+    g.clear();
+    drawFace(5, { brow: HAIR_SHADE });
+    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawTorso(0x2c3e50, 0x22303d);
+    fillRect(14, 17, 4, 9, 0xf4f6f7); // shirt placket
+    fillRect(15, 18, 2, 7, 0xc0392b); // tie
+    fillRect(15, 25, 2, 1, 0x96281b);
+    fillRect(13, 17, 1, 4, 0x22303d); // lapels
+    fillRect(18, 17, 1, 4, 0x1a242f);
+    drawPixel(12, 20, 0xf1c40f); // pocket square
+    drawSeatedLegs(0x2c3e50, 0x22303d, 0x1b1b1b, 0x121212);
+    g.generateTexture('mike_suit_sit', 32, 38);
+
+    g.clear();
+    drawFace(5, { brow: HAIR_SHADE });
+    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawTorso(0x95a5a6, 0x7f8c8d, { hi: 0xbdc3c7 });
+    fillRect(15, 17, 2, 4, 0x7f8c8d); // placket
+    drawPixel(15, 18, 0xecf0f1);
+    drawPixel(15, 20, 0xecf0f1);
+    fillRect(10, 26, 12, 1, 0x5d4037); // belt
+    drawSeatedLegs(0x1a237e, 0x151c66, 0xf5f5f5, 0xdcdcdc);
+    g.generateTexture('mike_casual_sit', 32, 38);
+
+    drawNpc({
+        hair: 0x6d4c41, hairHi: 0x8d6e63, hairShade: 0x4e342e,
+        shirt: 0x9c27b0, shirtShade: 0x7b1fa2,
+        pants: 0x37474f, pantsShade: 0x2b373d,
+        seated: true,
+        extras: () => {
+            fillRect(11, 18, 1, 8, 0xba68c8); // strap across the chest
+            fillRect(19, 20, 3, 4, 0x5d4037); // shoulder bag
+        }
+    });
+    g.generateTexture('civilian_sit', 32, 38);
+
+    drawNpc({
+        hair: 0x3b2f1e, hairHi: 0x54402e, hairShade: 0x2b2214,
+        shirt: 0x3a5c32, shirtShade: 0x24471f,
+        pants: 0x24471f, pantsShade: 0x1e3a1a,
+        shoe: 0x1b1b1b, shoeShade: 0x111111,
+        hat: 0x1e3a1a, hatShade: 0x152b13, brim: 0x152b13,
+        seated: true,
+        extras: () => {
+            fillRect(7, 19, 3, 1, 0xf1c40f); // sleeve chevrons
+            fillRect(7, 21, 3, 1, 0xf1c40f);
+            fillRect(12, 18, 2, 1, 0xf1c40f); // collar insignia
+            fillRect(10, 26, 12, 1, 0x1b1b1b); // belt
+        }
+    });
+    g.generateTexture('marine_sit', 32, 38);
+
+    drawWoman({
+        hair: 0x4e342e, hairHi: 0x6d4c41, hairShade: 0x3e2723,
+        top: 0x26a69a, topShade: 0x00897b, topHi: 0x80cbc4,
+        lower: 0x455a64, lowerShade: 0x37474f,
+        hairFall: 18,
+        seated: true,
+        extras: () => {
+            fillRect(21, 4, 3, 8, 0x4e342e); // ponytail swept to one side
+            fillRect(22, 11, 2, 4, 0x3e2723);
+        }
+    });
+    g.generateTexture('civilian_f_sit', 32, 38);
+
     // --- AIRPORT TERMINAL FURNITURE ------------------------------------------
     // Check-in desk: counter, agent monitor, bag scale and queue signage.
     g.clear();
