@@ -67,6 +67,7 @@ export class AirportScene extends Phaser.Scene {
         // other interaction in the game works. Sizing the body on a static group
         // member does not move it to match, so every passenger answered with the
         // same line no matter which one you walked up to.
+        const SEAT_Y = 198; // hips level with the cushions, legs behind the front
         this.peopleZones = [];
         const addPerson = (x, y, key, tint, line, zoneH = 44, zoneW = 46) => {
             const person = this.add.sprite(x, y, key).setTint(tint);
@@ -79,9 +80,9 @@ export class AirportScene extends Phaser.Scene {
         // Seated: high enough that the seat back crosses their lap rather than
         // swallowing them whole — the seats are only 24px tall.
         const seatPassenger = (x, key, tint, line) => {
-            const p = addPerson(x, 188, key, tint, line, 52, 30).setDepth(1);
+            const p = addPerson(x, SEAT_Y, key, tint, line, 52, 30).setDepth(1);
             this.tweens.add({
-                targets: p, y: 186, duration: 1800 + (x % 700),
+                targets: p, y: SEAT_Y - 2, duration: 1800 + (x % 700),
                 yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
             });
             return p;
@@ -92,16 +93,19 @@ export class AirportScene extends Phaser.Scene {
         seatPassenger(1315, 'civilian_f', 0xb0a07a, "Passenger: 'Same book since March. Still on chapter two.'");
         seatPassenger(1643, 'marine', 0xffffff, "Marine: 'Heading back to Pendleton. You?'");
         seatPassenger(1715, 'civilian', 0xa08cb4, "Passenger: 'Gate changed three times. THREE.'");
-        seatPassenger(2143, 'civilian_f', 0x8ca0b4, "Passenger: 'You're on 12B too? Good. I thought I was in the wrong place.'");
+        seatPassenger(2105, 'civilian_f', 0x8ca0b4, "Passenger: 'You're on 12B too? Good. I thought I was in the wrong place.'");
         // The seats sit above everyone on them, so a body at the seated height has
         // its lap crossed by the seat back instead of standing on top of it.
+        // 12B's row is pulled back up the concourse — it used to sit directly
+        // across the mouth of the gate you are trying to walk into.
         this.seatZones = [];
-        [900, 1300, 1700, 2200].forEach(x => {
+        [900, 1300, 1700, 2090].forEach(x => {
             [x, x - 72].forEach(bx => {
-                this.add.image(bx, 210, 'gate_seats').setDepth(2);
+                this.add.image(bx, 201, 'gate_seats_back').setDepth(0);
+                this.add.image(bx, 219, 'gate_seats_front').setDepth(2);
                 const spot = this.add.rectangle(bx - 17, 212, 30, 58, 0xffff00, 0);
                 this.physics.add.existing(spot, true);
-                spot.setData('seat', { x: bx - 17, y: 188 });
+                spot.setData('seat', { x: bx - 17, y: SEAT_Y });
                 this.seatZones.push(spot);
             });
         });
