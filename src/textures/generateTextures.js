@@ -4041,6 +4041,220 @@ export function generateTextures(scene) {
     drawPixel(29, 11, 0xf2e3c0); // a light on the bars
     g.generateTexture('cyclist', 32, 30);
 
+    // --- THE NIGHT IN THE DINOSAUR COSTUMES ------------------------------------
+    // The inflatable T-Rex: a big round body with tiny arms, a heavy tail, and
+    // the wearer's face looking out of a window in its chest. That window is the
+    // whole joke, so it is drawn first and everything else is built around it.
+    const drawDinoSuit = (hide, { extras = null } = {}) => {
+        g.clear();
+        const skin = 0xb5773f, lit = 0xcf9152, shade = 0x8a5a2b, dark = 0x6b4520;
+
+        fillRect(2, 22, 12, 7, skin); // tail, sweeping out to the left
+        fillRect(0, 24, 4, 4, shade);
+        fillRect(2, 22, 12, 2, lit);
+
+        g.fillStyle(skin, 1); // body
+        g.fillEllipse(18, 26, 26, 24);
+        g.fillStyle(lit, 1);
+        g.fillEllipse(15, 23, 17, 15);
+        g.fillStyle(shade, 1);
+        g.fillEllipse(26, 30, 12, 14);
+        fillRect(8, 33, 20, 2, shade); // belly seam
+
+        fillRect(9, 19, 4, 3, skin); // the famously useless arms
+        fillRect(23, 19, 4, 3, shade);
+        drawPixel(8, 21, dark);
+        drawPixel(27, 21, dark);
+
+        // Head, tipped back with the jaw open.
+        g.fillStyle(skin, 1);
+        g.fillEllipse(19, 9, 20, 13);
+        g.fillStyle(lit, 1);
+        g.fillEllipse(17, 7, 13, 8);
+        fillRect(24, 6, 8, 5, skin); // snout
+        fillRect(24, 6, 8, 2, lit);
+        fillRect(24, 12, 7, 3, shade); // lower jaw, dropped open
+        fillRect(25, 11, 6, 1, 0x7a3a3a); // the inside of the mouth
+        for (let tx = 25; tx < 31; tx += 2) { // teeth
+            drawPixel(tx, 11, 0xf4f0e4);
+            drawPixel(tx + 1, 12, 0xf4f0e4);
+        }
+        drawPixel(22, 6, 0xf4f0e4); // eye
+        drawPixel(22, 7, 0x1d1a17);
+        fillRect(12, 4, 6, 2, shade); // the ridge down the back of the skull
+        fillRect(10, 14, 5, 2, shade);
+
+        // The wearer, visible through the chest panel.
+        fillRect(13, 20, 10, 9, 0x2a2018); // mesh window
+        fillRect(14, 21, 8, 7, SKIN);
+        fillRect(14, 21, 8, 1, 0x3a2a1e); // fringe of hair at the top
+        fillRect(15, 23, 2, 2, EYE_WHITE);
+        fillRect(19, 23, 2, 2, EYE_WHITE);
+        drawPixel(16, 23, EYE);
+        drawPixel(20, 23, EYE);
+        fillRect(16, 26, 4, 1, MOUTH);
+        if (hide) fillRect(14, 21, 8, 2, hide); // a hat or a fringe over the face
+
+        fillRect(11, 36, 6, 4, dark); // feet
+        fillRect(20, 36, 6, 4, dark);
+        fillRect(11, 36, 6, 1, shade);
+        fillRect(20, 36, 6, 1, shade);
+        drawPixel(11, 39, 0xf4f0e4); // claws
+        drawPixel(14, 39, 0xf4f0e4);
+        drawPixel(20, 39, 0xf4f0e4);
+        drawPixel(23, 39, 0xf4f0e4);
+
+        if (extras !== null) extras();
+    };
+
+    drawDinoSuit(null, {
+        extras: () => {
+            // The bow tie, taped on, because an inflatable dinosaur has nowhere
+            // to pin one. The tape is the point.
+            fillRect(14, 30, 8, 2, 0xdcd6c4); // a strip of packing tape
+            drawPixel(13, 30, 0xc4bdaa);
+            drawPixel(22, 31, 0xc4bdaa);
+            fillRect(15, 29, 3, 4, 0x22303d); // bow
+            fillRect(19, 29, 3, 4, 0x22303d);
+            fillRect(17, 30, 2, 2, 0x141c26); // knot
+            drawPixel(15, 29, 0x3a4e68);
+        }
+    });
+    g.generateTexture('mike_dino', 32, 40);
+
+    drawDinoSuit(0x2b2118, {
+        extras: () => {
+            fillRect(14, 20, 10, 2, 0x2b2118); // her hair falls over the window
+            drawPixel(13, 22, 0x2b2118);
+            drawPixel(23, 22, 0x2b2118);
+            fillRect(9, 6, 5, 4, 0xe0559a); // a bow stuck on the dinosaur's head
+            fillRect(15, 6, 5, 4, 0xe0559a);
+            fillRect(13, 7, 3, 2, 0xb03c78);
+            drawPixel(10, 6, 0xf07ab0);
+        }
+    });
+    g.generateTexture('yvy_dino', 32, 40);
+
+    // --- FIFTH & ROSE ----------------------------------------------------------
+    // The corner entrance: brick pier either side, a curved glass canopy on
+    // cables, the revolving door under it, and the rose roundel above.
+    g.clear();
+    fillRect(0, 0, 160, 120, 0xa89c86); // brick
+    for (let by = 4; by < 120; by += 7) fillRect(0, by, 160, 1, 0x8f8470);
+    for (let bx = 0; bx < 160; bx += 16) fillRect(bx, 0, 1, 120, 0x94896f);
+    fillRect(0, 0, 160, 3, 0xc4b89e);
+    fillRect(0, 96, 160, 24, 0xb8ad94); // pale stone base course
+    fillRect(0, 96, 160, 2, 0xd2c7ad);
+
+    fillRect(10, 6, 140, 40, 0x1d232b); // the tall curved window above
+    for (let wx = 14; wx < 148; wx += 22) fillRect(wx, 8, 18, 36, 0x35506b);
+    for (let wx = 14; wx < 148; wx += 22) fillRect(wx, 8, 18, 10, 0x4a6d8c);
+    for (let wx = 22; wx < 148; wx += 22) fillRect(wx, 6, 3, 40, 0x1d232b); // mullions
+    for (let i = 0; i < 14; i++) drawPixel(18 + i * 10, 20 + (i % 4) * 5, 0xdfe8f5); // the light inside
+
+    g.fillStyle(0xe8a0b4, 1); // the rose roundel over the door
+    g.fillCircle(80, 56, 11);
+    g.fillStyle(0xc4647e, 1);
+    g.fillCircle(80, 56, 8);
+    g.fillStyle(0xf2c4d2, 1);
+    g.fillCircle(78, 54, 4);
+    drawPixel(80, 56, 0x8a3d52);
+
+    // Canopy: a dark curved blade with glass under it, hung on tension cables.
+    fillRect(10, 62, 140, 5, 0x22262c);
+    fillRect(10, 62, 140, 2, 0x3a404a);
+    fillRect(6, 64, 148, 3, 0x2b3038);
+    for (let cx = 14; cx < 148; cx += 18) fillRect(cx, 67, 14, 2, 0x4a5560); // glass panes
+    fillRect(28, 48, 1, 15, 0x6b7480); // cables back to the wall
+    fillRect(132, 48, 1, 15, 0x6b7480);
+
+    fillRect(24, 70, 112, 50, 0x171b21); // the dark entrance recess
+    fillRect(28, 72, 104, 46, 0x2a3a4a); // glass
+    for (let i = 0; i < 10; i++) drawPixel(34 + i * 10, 80 + (i % 3) * 7, 0xffd9a8); // warmth inside
+    fillRect(78, 70, 4, 50, 0x22262c); // the revolving door's centre post
+    fillRect(48, 74, 3, 44, 0x2b3038); // and its wings
+    fillRect(110, 74, 3, 44, 0x2b3038);
+    fillRect(28, 70, 104, 3, 0x3a404a);
+    fillRect(24, 116, 112, 4, 0x2b3038);
+    fillRect(18, 84, 4, 20, 0xb0b8bd); // the patio heaters either side
+    fillRect(139, 84, 4, 20, 0xb0b8bd);
+    fillRect(17, 80, 6, 4, 0xd2d8dc);
+    fillRect(138, 80, 6, 4, 0xd2d8dc);
+    g.generateTexture('fifth_rose_front', 160, 120);
+
+    // --- THE SHOUT HOUSE -------------------------------------------------------
+    // Duelling pianos. You can hear it from the pavement.
+    g.clear();
+    fillRect(0, 0, 128, 110, 0x2b2119);
+    fillRect(0, 0, 128, 3, 0x453425);
+    for (let by = 6; by < 60; by += 8) fillRect(2, by, 124, 1, 0x1f1811);
+    fillRect(6, 8, 116, 26, 0x120d09); // sign board
+    fillRect(8, 10, 112, 22, 0x1d1510);
+    fillRect(10, 12, 108, 4, 0xf2c14e); // neon script, top and bottom rules
+    fillRect(10, 27, 108, 4, 0xf2c14e);
+    for (let nx = 14; nx < 114; nx += 9) fillRect(nx, 17, 5, 8, 0xffe08a); // the letters
+    for (let bx = 8; bx < 122; bx += 10) drawPixel(bx, 6, 0xffe9b0); // bulbs round the board
+
+    fillRect(6, 40, 116, 52, 0x0e0a07); // window
+    fillRect(8, 42, 112, 48, 0x3a2414);
+    for (let i = 0; i < 20; i++) { // the room glowing behind it
+        drawPixel(12 + (i * 13) % 104, 46 + (i * 7) % 40, i % 3 ? 0xd98f3c : 0xf2c14e);
+    }
+    // Two pianos, back to back, which is the whole idea of the place.
+    [[28, 72], [86, 72]].forEach(([px, py], i) => {
+        fillRect(px - 14, py, 28, 10, 0x140f0a);
+        fillRect(px - 14, py, 28, 2, 0x2b2119);
+        for (let kx = px - 12; kx < px + 12; kx += 3) fillRect(kx, py + 3, 2, 5, 0xf4f0e4);
+        for (let kx = px - 11; kx < px + 11; kx += 3) fillRect(kx, py + 3, 1, 3, 0x140f0a);
+        fillRect(px - 2 + (i ? 6 : -6), py - 12, 9, 12, 0x2b3a5c); // the player at it
+        fillRect(px + (i ? 5 : -7), py - 17, 6, 5, 0x8a6a4a);
+    });
+    fillRect(0, 92, 128, 18, 0x1a1410); // stall riser
+    fillRect(0, 92, 128, 2, 0x2b2119);
+    fillRect(96, 40, 26, 52, 0x0e0a07); // the door
+    fillRect(99, 43, 20, 46, 0x3a2414);
+    fillRect(108, 66, 3, 4, 0xd4a017);
+    g.generateTexture('shout_house_front', 128, 110);
+
+    // --- COIN OP ---------------------------------------------------------------
+    // An arcade bar: cabinets down one wall, and the light off the screens.
+    g.clear();
+    fillRect(0, 0, 128, 110, 0x191b2e);
+    fillRect(0, 0, 128, 3, 0x2c3050);
+    fillRect(6, 8, 116, 24, 0x0d0f1c); // sign box
+    fillRect(9, 11, 110, 18, 0x121529);
+    fillRect(12, 14, 104, 3, 0x3ad6f0); // cyan neon
+    fillRect(12, 25, 104, 3, 0xf03a9c); // magenta neon
+    for (let nx = 16; nx < 112; nx += 11) fillRect(nx, 18, 7, 6, 0x7af0ff);
+    g.fillStyle(0xf2c14e, 1); // a coin slot motif on the end
+    g.fillCircle(108, 21, 5);
+    fillRect(106, 19, 5, 1, 0x8a6a2a);
+
+    fillRect(6, 38, 116, 54, 0x0b0d18); // window
+    fillRect(8, 40, 112, 50, 0x1d2140);
+    // The cabinets, each with its own colour of screen.
+    const screens = [0x3ad6f0, 0xf03a9c, 0x7af06a, 0xf2c14e, 0xa06af0];
+    for (let i = 0; i < 5; i++) {
+        const cx = 14 + i * 21;
+        fillRect(cx, 50, 16, 40, 0x2b2f4e); // body
+        fillRect(cx, 50, 16, 2, 0x3d4268);
+        fillRect(cx + 2, 54, 12, 13, 0x0a0c14); // screen bezel
+        fillRect(cx + 3, 55, 10, 11, screens[i]);
+        for (let sy = 56; sy < 65; sy += 3) fillRect(cx + 3, sy, 10, 1, 0x0a0c14); // scanlines
+        fillRect(cx + 3, 70, 10, 3, 0x141828); // control panel
+        drawPixel(cx + 5, 71, 0xf03a9c);
+        drawPixel(cx + 8, 71, 0x3ad6f0);
+        drawPixel(cx + 11, 71, 0xf2c14e);
+        g.fillStyle(screens[i], 0.16); // the glow it throws
+        g.fillCircle(cx + 8, 60, 13);
+    }
+    fillRect(0, 92, 128, 18, 0x141628); // riser
+    fillRect(0, 92, 128, 2, 0x262a45);
+    fillRect(96, 38, 26, 54, 0x0b0d18); // door
+    fillRect(99, 41, 20, 48, 0x1d2140);
+    fillRect(108, 64, 3, 4, 0x7af0ff);
+    g.generateTexture('coin_op_front', 128, 110);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in

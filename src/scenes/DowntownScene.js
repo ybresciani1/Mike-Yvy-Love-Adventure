@@ -224,7 +224,7 @@ export class DowntownScene extends Phaser.Scene {
                 showDialogue("They sat down to enjoy the morning sun.", () => { showDialogue("Mike: 'I really like San Diego. And I really like being with you.'", () => { showDialogue("Yvy: 'Me too. What do you want out of life, Mike?'", () => { showDialogue("Mike: 'To build cool things. And to be happy with someone special.'", () => { showDialogue("Yvy: 'I also want to create things.. Create a better future for our world, and meet someone who has a vision to do the same... Someone special too..'", () => {
                     const heart = this.add.text(this.player.x + 10, this.player.y - 40, '❤️', { fontSize: '24px' });
                     this.tweens.add({ targets: heart, y: this.player.y - 80, alpha: 0, duration: 2000 });
-                    showDialogue("They sat in comfortable silence for a while.", () => { this.scene.start('TravelScene'); }); }); }); }); }); });
+                    showDialogue("They sat in comfortable silence for a while.", () => { this.scene.start('CostumeNightScene'); }); }); }); }); }); });
             }
         });
     }

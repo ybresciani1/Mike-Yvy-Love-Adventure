@@ -31,7 +31,7 @@ export function photoCount() {
 }
 
 /** Every photo the game can produce, so the album can show what was missed. */
-export const TOTAL_PHOTOS = 8;
+export const TOTAL_PHOTOS = 9;
 
 export function resetAlbum() {
     album.length = 0;

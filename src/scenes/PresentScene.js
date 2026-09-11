@@ -146,24 +146,29 @@ export class PresentScene extends Phaser.Scene {
         this.time.delayedCall(760, () => {
             playSound('page');
             const page = this.add.container(400, 300).setDepth(11).setAlpha(0);
-            page.add(this.add.rectangle(0, 0, 700, 440, 0x2a2038));
-            page.add(this.add.rectangle(0, 0, 688, 428, 0x3a2e48));
-            page.add(this.add.text(0, -190, "Their Photographs", {
+            page.add(this.add.rectangle(0, 0, 756, 424, 0x2a2038));
+            page.add(this.add.rectangle(0, 0, 744, 412, 0x3a2e48));
+            page.add(this.add.text(0, -184, "Their Photographs", {
                 fontSize: '22px', color: '#f6e7c8', fontStyle: 'bold'
             }).setOrigin(0.5));
-            page.add(this.add.text(0, -162, photoCount() + " of " + TOTAL_PHOTOS + " kept", {
+            page.add(this.add.text(0, -158, photoCount() + " of " + TOTAL_PHOTOS + " kept", {
                 fontSize: '12px', color: '#c0a888'
             }).setOrigin(0.5));
 
+            // Nine photographs do not divide into a four-wide grid, so they are
+            // laid out five over four, each row centred on the page.
             const photos = getAlbum();
-            for (let i = 0; i < TOTAL_PHOTOS; i++) {
-                const col = i % 4, row = Math.floor(i / 4);
-                const fx = -258 + col * 172;
-                const fy = -80 + row * 178;
-                page.add(this.buildFrame(fx, fy, photos[i]));
-            }
+            const ROWS = [5, 4];
+            let n = 0;
+            ROWS.forEach((count, row) => {
+                for (let col = 0; col < count; col++) {
+                    const fx = (col - (count - 1) / 2) * 144;
+                    const fy = -74 + row * 152;
+                    page.add(this.buildFrame(fx, fy, photos[n++]));
+                }
+            });
 
-            page.add(this.add.text(0, 196, "SPACE", {
+            page.add(this.add.text(0, 190, "SPACE", {
                 fontSize: '12px', color: '#8a7a94'
             }).setOrigin(0.5));
 
@@ -181,14 +186,14 @@ export class PresentScene extends Phaser.Scene {
     /** One polaroid: mount, window, the sprites of the moment, and a caption. */
     buildFrame(x, y, photo) {
         const frame = this.add.container(x, y);
-        frame.add(this.add.rectangle(0, 0, 150, 156, photo ? 0xf4efe2 : 0x33283f));
-        frame.add(this.add.rectangle(0, -32, 134, 82, photo ? 0x24303f : 0x2b2136));
+        frame.add(this.add.rectangle(0, 0, 136, 140, photo ? 0xf4efe2 : 0x33283f));
+        frame.add(this.add.rectangle(0, -28, 122, 72, photo ? 0x24303f : 0x2b2136));
 
         if (!photo) {
-            frame.add(this.add.text(0, -32, "?", {
+            frame.add(this.add.text(0, -28, "?", {
                 fontSize: '26px', color: '#4e4060', fontStyle: 'bold'
             }).setOrigin(0.5));
-            frame.add(this.add.text(0, 40, "not taken", {
+            frame.add(this.add.text(0, 36, "not taken", {
                 fontSize: '10px', color: '#4e4060'
             }).setOrigin(0.5));
             return frame;
@@ -200,7 +205,7 @@ export class PresentScene extends Phaser.Scene {
         // which is exactly what the first version did. The sprites are small
         // enough to sit inside the mount on their own.
         photo.sprites.forEach(s => {
-            const img = this.add.image(s.x, -32 + (s.y || 0), s.texture);
+            const img = this.add.image(s.x, -28 + (s.y || 0), s.texture);
             if (s.scale) img.setScale(s.scale);
             if (s.size) img.setDisplaySize(s.size[0], s.size[1]);
             if (s.flip) img.setFlipX(true);
@@ -208,12 +213,12 @@ export class PresentScene extends Phaser.Scene {
             frame.add(img);
         });
 
-        frame.add(this.add.text(0, 26, photo.title, {
+        frame.add(this.add.text(0, 22, photo.title, {
             fontSize: '11px', color: '#2b2038', fontStyle: 'bold',
-            wordWrap: { width: 138 }, align: 'center'
+            wordWrap: { width: 126 }, align: 'center'
         }).setOrigin(0.5));
-        frame.add(this.add.text(0, 54, photo.caption, {
-            fontSize: '9px', color: '#6b5a4a', wordWrap: { width: 138 }, align: 'center'
+        frame.add(this.add.text(0, 48, photo.caption, {
+            fontSize: '9px', color: '#6b5a4a', wordWrap: { width: 126 }, align: 'center'
         }).setOrigin(0.5));
         return frame;
     }
