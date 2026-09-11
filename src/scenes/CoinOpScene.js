@@ -4,6 +4,7 @@ import { playSound } from '../audio/sfx.js';
 import { fadeOutMusic } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 /**
  * Inside Coin-Op, where two men at the pinball machine offer to buy a drink for
@@ -25,17 +26,17 @@ export class CoinOpScene extends Phaser.Scene {
         this.physics.add.collider(this.player, this.backWall);
         this.physics.add.collider(this.yvy, this.backWall);
 
-        this.pinZone = this.add.rectangle(560, 432, 150, 96, 0xffff00, 0);
+        this.pinZone = this.add.rectangle(560, 436, 160, 100, 0xffff00, 0);
         this.physics.add.existing(this.pinZone, true);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.add.text(20, 560, "Try the pinball (Space)", {
+        this.add.text(20, 560, "Find the Jurassic Park table (Space)", {
             fontSize: '15px', color: '#9fe8ff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
         });
 
         this.physics.add.overlap(this.player, this.pinZone, () => {
-            if (!this.done && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.thePinballMen();
+            if (!this.done && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.thePinball();
         });
     }
 
@@ -87,22 +88,19 @@ export class CoinOpScene extends Phaser.Scene {
             this.add.image(cx, cy, 'arcade_cab').setScale(1.2)
                 .setTint([0xffffff, 0xffe0e8, 0xe0f0ff][i]).setDepth(2);
         });
-        this.pinball = this.add.image(560, 396, 'pinball_table').setScale(1.3).setDepth(2);
+        this.pinball = this.add.image(560, 392, 'jurassic_pinball').setScale(1.4).setDepth(2);
         this.tweens.add({ targets: this.pinball, alpha: 0.92, duration: 420, yoyo: true, repeat: -1 });
+        this.add.text(560, 348, "JURASSIC PARK", {
+            fontSize: '9px', color: '#f2c14e', fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(3);
 
-        // The two of them, mid-game, backs to the door.
-        this.men = [
-            this.add.sprite(528, 452, 'civilian').setTint(0x8c9cb0).setDepth(3),
-            this.add.sprite(592, 452, 'civilian').setTint(0xb09c8c).setDepth(3)
-        ];
-        this.men.forEach((m, i) => this.tweens.add({
-            targets: m, y: 449, duration: 320 + i * 90, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
-        }));
-
-        // Everyone else, having a normal Saturday.
+        // Everyone else, having a normal Saturday — until the dinosaurs get on
+        // the Jurassic Park table, at which point they all come over.
+        this.crowd = [];
         [[300, 330, 0x9c8cb0], [470, 326, 0xb0a08c], [160, 470, 0x8ca0b4],
-         [330, 500, 0xb08ca0], [690, 470, 0xa0b08c]].forEach(([gx, gy, tint], i) => {
-            const guest = this.add.sprite(gx, gy, i % 2 ? 'civilian_f' : 'civilian').setTint(tint).setDepth(1);
+         [330, 500, 0xb08ca0], [690, 470, 0xa0b08c], [240, 420, 0x9cb0a8]].forEach(([gx, gy, tint], i) => {
+            const guest = this.add.sprite(gx, gy, i % 2 ? 'civilian_f' : 'civilian').setTint(tint).setDepth(4);
+            this.crowd.push(guest);
             this.tweens.add({ targets: guest, y: gy - 3, duration: 1200 + i * 180, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         });
 
@@ -111,34 +109,80 @@ export class CoinOpScene extends Phaser.Scene {
         });
     }
 
-    thePinballMen() {
+    /**
+     * Two dinosaurs playing the Jurassic Park table is more than the room can
+     * ignore. Half of Coin-Op comes over with a phone out.
+     */
+    thePinball() {
         this.done = true;
         playSound('vr_boop');
-        this.men.forEach(m => this.tweens.add({ targets: m, angle: 0, x: m.x + (m.x < 560 ? 8 : -8), duration: 400 }));
+
+        // They step up to the table.
+        this.tweens.add({ targets: this.player, x: 532, y: 442, duration: 700, ease: 'Sine.easeOut' });
+        this.tweens.add({ targets: this.yvy, x: 596, y: 442, duration: 700, ease: 'Sine.easeOut' });
 
         const lines = [
-            "Mike: 'Oh, pinball. Pinball I can do in a dinosaur suit.'",
-            "The two men at the table turn round.",
-            "Guy at the Pinball: 'Hey — you two been here before?'",
-            "Guy at the Pinball: 'We're about to lose this ball anyway. Can we get you a drink?'",
-            "Mike: 'Oh — yeah, sure, that's really kind of you.'",
-            "Guy at the Pinball: '...'",
-            "His friend looks at him. He looks at his friend.",
-            "Guy at the Pinball: 'Oh MATE. I am so sorry, I thought—'",
-            "Mike: 'No, no, genuinely — best thing that's happened to me all year.'",
-            "Yvy has stopped making noise. Yvy is holding onto a cabinet.",
-            "They bought him the drink anyway. He still talks about it."
+            "Mike: 'It's the Jurassic Park table. It's the JURASSIC PARK TABLE.'",
+            "Yvy: 'I know.'",
+            "Mike: 'We are dressed as DINOSAURS.'",
+            "Yvy: 'I KNOW, Mike.'",
+            "He cannot reach the flippers. The arms do not go that far.",
+            "Yvy has to work the right flipper for him. They are, somehow, doing well."
         ];
         let i = 0;
         const next = () => {
-            if (i >= lines.length) {
-                fadeOutMusic(2);
-                this.time.delayedCall(1000, () => this.scene.start('TravelScene'));
-                return;
-            }
+            if (i >= lines.length) return this.everyonePhotographsThem();
             showDialogue(lines[i++], next);
         };
         next();
+    }
+
+    everyonePhotographsThem() {
+        // Whoever is nearest drifts over, phone first.
+        this.crowd.forEach((who, i) => {
+            const toX = 470 + (i % 4) * 42;
+            const toY = 500 + Math.floor(i / 4) * 26;
+            this.tweens.add({
+                targets: who, x: toX, y: toY, duration: 900 + i * 140, ease: 'Sine.easeInOut',
+                onComplete: () => {
+                    const phone = this.add.sprite(who.x + 10, who.y - 10, 'phone_cam').setScale(0.9).setDepth(6);
+                    this.tweens.add({ targets: phone, y: phone.y - 2, duration: 620 + i * 70, yoyo: true, repeat: -1 });
+                    playSound('shutter');
+                    const flash = this.add.rectangle(this.pinball.x, this.pinball.y, 130, 90, 0xffffff, 0.35).setDepth(9);
+                    this.tweens.add({ targets: flash, alpha: 0, duration: 320, onComplete: () => flash.destroy() });
+                }
+            });
+        });
+
+        this.time.delayedCall(2400, () => {
+            takePhoto({
+                key: 'coinop', title: 'Coin-Op',
+                caption: "Two dinosaurs on the Jurassic Park table. Everyone filmed it.",
+                sprites: [
+                    { texture: 'jurassic_pinball', x: 0, y: -6, scale: 0.9 },
+                    { texture: 'mike_dino', x: -26, y: 8, scale: 0.6 },
+                    { texture: 'yvy_dino', x: 26, y: 8, scale: 0.6 },
+                    { texture: 'phone_cam', x: -44, y: 16, scale: 0.8 },
+                    { texture: 'phone_cam', x: 44, y: 16, scale: 0.8 }
+                ]
+            });
+            const chain = [
+                "Half the room has a phone out.",
+                "Somebody: 'Mate. MATE. Look at the table they picked.'",
+                "Yvy: 'We are going to be on someone's story by midnight.'",
+                "Mike: 'Worth it. Look at the score.'"
+            ];
+            let j = 0;
+            const after = () => {
+                if (j >= chain.length) {
+                    fadeOutMusic(2);
+                    this.time.delayedCall(1000, () => this.scene.start('TravelScene'));
+                    return;
+                }
+                showDialogue(chain[j++], after);
+            };
+            after();
+        });
     }
 
     update() {

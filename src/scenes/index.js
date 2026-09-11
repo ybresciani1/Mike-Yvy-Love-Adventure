@@ -14,6 +14,7 @@ import { FancyHotelScene } from './FancyHotelScene.js';
 import { DowntownScene } from './DowntownScene.js';
 import { CostumeNightScene } from './CostumeNightScene.js';
 import { FifthRoseScene } from './FifthRoseScene.js';
+import { CoinOpWalkScene } from './CoinOpWalkScene.js';
 import { CoinOpScene } from './CoinOpScene.js';
 import { TravelScene } from './TravelScene.js';
 import { HouseScene } from './HouseScene.js';
@@ -45,6 +46,7 @@ export const SCENES = [
     DowntownScene,
     CostumeNightScene,
     FifthRoseScene,
+    CoinOpWalkScene,
     CoinOpScene,
     TravelScene,
     HouseScene,

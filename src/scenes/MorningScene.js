@@ -50,7 +50,7 @@ export class MorningScene extends Phaser.Scene {
         this.coffee = this.add.image(184, 408, 'coffee').setScale(0.7);
         this.curtains = this.add.image(636, 40, 'hotel_window_night'); this.add.image(268, 32, 'wall_art'); this.add.image(470, 32, 'wall_art'); 
         this.dresser = this.physics.add.staticImage(600, 100, 'dresser'); this.door = this.physics.add.staticImage(100, 100, 'door'); 
-        this.add.image(336, 300, 'nightstand'); this.add.image(464, 300, 'nightstand'); this.add.image(336, 288, 'lamp').setScale(0.8); this.add.image(464, 288, 'lamp').setScale(0.8); this.add.text(150, 200, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); this.phone = this.physics.add.staticImage(464, 318, 'hotel_phone'); this.player = new Player(this, 400, 278);
+        this.add.image(336, 300, 'nightstand'); this.add.image(464, 300, 'nightstand'); this.add.image(336, 288, 'lamp').setScale(0.8); this.add.image(464, 288, 'lamp').setScale(0.8); this.add.text(150, 200, "Hotel Room", { fontSize: '12px', color: '#f2e8d5' }); this.phone = this.physics.add.staticImage(464, 314, 'cellphone'); this.player = new Player(this, 400, 278);
         this.physics.add.collider(this.player, walls);
         // It is 4am: he is in the bed, not standing beside it. He gets up the
         // moment the player moves him.
@@ -66,17 +66,21 @@ export class MorningScene extends Phaser.Scene {
         ];
         this.zzz = this.add.text(424, 248, "Zzz...", { fontSize: '14px', color: '#efe6d6' });
         this.tweens.add({ targets: this.zzz, y: 260, alpha: 0.35, duration: 1300, yoyo: true, repeat: -1 }); this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
-        this.ringing = true; this.tweens.add({ targets: this.phone, scale: 1.5, duration: 200, yoyo: true, repeat: -1 }); 
+        this.ringing = true;
+        // A phone buzzing itself across a nightstand, rather than a handset
+        // jumping in the air.
+        this.tweens.add({ targets: this.phone, x: 467, angle: 7, duration: 90, yoyo: true, repeat: -1 });
+        this.tweens.add({ targets: this.phone, scale: 1.12, duration: 620, yoyo: true, repeat: -1 }); 
         this.time.addEvent({ delay: 1000, callback: () => { if(this.ringing) playSound('select'); }, loop: true }); 
         this.add.text(350, 50, "4:00 AM", { fontSize: '40px', color: '#fff', backgroundColor: '#000' }); 
-        this.instructionText = this.add.text(20, 20, "Answer Phone (Space)", { fontSize: '16px', color: '#fff' }); 
+        this.instructionText = this.add.text(20, 20, "Answer your phone (Space)", { fontSize: '16px', color: '#fff' }); 
         this.setUpRoom();
         this.dresserZone = this.add.rectangle(600, 120, 80, 80, 0xffff00, 0); this.physics.add.existing(this.dresserZone, true); 
         this.doorZone = this.add.rectangle(100, 100, 50, 60, 0x00ff00, 0); this.physics.add.existing(this.doorZone, true); 
         this.physics.add.overlap(this.player, this.phone, () => { 
             if (this.ringing && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { 
                 this.ringing = false; this.phone.destroy(); playRomanticTheme(); 
-                const seq = [ "Mike picks up the phone...", "Yvy: 'Good morning! It's 4 AM! Wake up!'", "Mike: 'You actually called!'", "Mike: 'I'm awake. Thank you, Yvy.'", "Mike: 'Bye Yvy-- I hope to see you soon!'", "*Click*", "Mike: 'Wow, she actually called... Best trip ever ❤️'", "Mike: 'Time to get ready for work.'" ]; 
+                const seq = [ "Mike gropes about on the nightstand and finds his phone...", "Yvy: 'Good morning! It's 4 AM! Wake up!'", "Mike: 'You actually called!'", "Mike: 'I'm awake. Thank you, Yvy.'", "Mike: 'Bye Yvy-- I hope to see you soon!'", "*Click*", "Mike: 'Wow, she actually called... Best trip ever ❤️'", "Mike: 'Time to get ready for work.'" ]; 
                 let i = 0; const next = () => { if (i > 0 && seq[i-1].includes("Bye Yvy.")) fadeOutMusic(2); if (i < seq.length) { showDialogue(seq[i++], next); } else { gameState.callFinished = true; this.instructionText.setText("Go to Dresser (Space)"); } }; next(); 
             } 
         }); 

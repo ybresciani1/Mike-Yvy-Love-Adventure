@@ -57,78 +57,7 @@ export class CostumeNightScene extends Phaser.Scene {
         });
     }
 
-    buildStreet() {
-        // Early evening: the sky has gone but the light has not quite.
-        [[0x1d2140, 0, 60], [0x2b2a54, 60, 44], [0x453462, 104, 38],
-         [0x6b4468, 142, 32], [0x9a5a60, 174, 26], [0xc47a56, 200, 22],
-         [0xd99a5c, 222, 18], [0xe8b877, 240, 16]]
-            .forEach(([col, top, h]) => this.add.rectangle(400, top + h / 2, GAME_WIDTH, h, col));
-        for (let i = 0; i < 40; i++) {
-            const sy = Math.random() * 140;
-            this.add.rectangle(Math.random() * GAME_WIDTH, sy, 2, 2, 0xffffff, 0.8 - sy / 190);
-        }
-        this.add.image(96, 74, 'moon').setAlpha(0.9);
-        for (let sx = 0; sx < 5; sx++) {
-            this.add.image(sx * 200 + 100, 226, 'night_skyline').setAlpha(0.5).setTint(0x9a8fb4);
-        }
-
-        // Pavement, dimmed for the hour.
-        for (let x = 0; x < GAME_WIDTH / 32; x++) {
-            for (let y = 8; y < GAME_HEIGHT / 32; y++) {
-                this.add.image(x * 32 + 16, y * 32 + 16, 'sidewalk_slab')
-                    .setTint(y < 13 ? 0x9a94a8 : 0x87829a);
-            }
-        }
-        this.add.rectangle(400, 300, GAME_WIDTH, 6, 0x6f6a80);
-        this.add.rectangle(400, 297, GAME_WIDTH, 2, 0x8f8aa0);
-        this.add.rectangle(400, 430, GAME_WIDTH, 3, 0x7b7690);
-
-        // The three places.
-        this.add.image(170, 240, 'fifth_rose_front');
-        this.add.image(400, 245, 'shout_house_front');
-        this.add.image(640, 245, 'coin_op_front');
-        this.add.text(400, 176, "THE SHOUT HOUSE", {
-            fontSize: '10px', color: '#3a2a10', fontStyle: 'bold'
-        }).setOrigin(0.5);
-        this.add.text(640, 176, "COIN-OP", {
-            fontSize: '10px', color: '#0d1020', fontStyle: 'bold'
-        }).setOrigin(0.5);
-        this.add.text(170, 258, "Fifth & Rose", {
-            fontSize: '11px', color: '#f2c4d2', fontStyle: 'italic'
-        }).setOrigin(0.5);
-
-        // Street furniture, and string lights across the whole block.
-        for (let x = 32; x < GAME_WIDTH; x += 64) this.add.image(x, 314, 'string_lights');
-        this.add.image(300, 250, 'palm_tree').setScale(0.9);
-        this.add.image(520, 250, 'palm_tree').setFlipX(true).setScale(0.9);
-        this.add.image(760, 252, 'palm_tree').setScale(0.85);
-        [90, 330, 570].forEach(x => this.add.image(x, 390, 'streetlight').setScale(1.5));
-        [90, 330, 570].forEach(x => this.add.circle(x + 5, 400, 42, 0xffe08a, 0.1));
-        this.add.image(250, 330, 'planter_box');
-        this.add.image(490, 330, 'planter_box');
-        this.add.image(716, 330, 'planter_box');
-        this.add.image(30, 380, 'trash_bin');
-        this.add.image(430, 392, 'bike_rack');
-        this.add.image(200, 470, 'cafe_table_set');
-        this.add.image(290, 470, 'cafe_table_set');
-
-        // A queue outside Coin-Op, and people out for the evening who have
-        // definitely noticed the dinosaurs.
-        this.onlookers = [];
-        [
-            [596, 372, 'civilian', 0x9c8cb0], [626, 372, 'civilian_f', 0xb09c8c],
-            [656, 372, 'civilian', 0xa0b08c], [686, 372, 'civilian_f', 0x8cb0a0],
-            [120, 388, 'civilian_f', 0xb08ca0], [360, 470, 'civilian', 0x8ca0b4],
-            [468, 448, 'civilian_f', 0xa8a0c0], [740, 430, 'civilian', 0xc0a898]
-        ].forEach(([px, py, key, tint], i) => {
-            const person = this.add.sprite(px, py, key).setTint(tint);
-            this.onlookers.push(person);
-            this.tweens.add({
-                targets: person, y: py - 3, duration: 1200 + i * 170,
-                yoyo: true, repeat: -1, delay: i * 190, ease: 'Sine.easeInOut'
-            });
-        });
-    }
+    buildStreet() { buildEveningStreet(this); }
 
     atFifthAndRose() {
         this.stage = 1;
@@ -197,4 +126,82 @@ export class CostumeNightScene extends Phaser.Scene {
         document.getElementById('interaction-hint').style.display =
             this.physics.overlap(this.player, zones) ? 'block' : 'none';
     }
+}
+
+/**
+ * The block of Fifth Avenue they spend the evening on. Exported because they
+ * walk it twice — once to get to Fifth & Rose, and again afterwards on the way
+ * to Coin-Op — and it should be recognisably the same street both times.
+ */
+export function buildEveningStreet(scene) {
+        // Early evening: the sky has gone but the light has not quite.
+        [[0x1d2140, 0, 60], [0x2b2a54, 60, 44], [0x453462, 104, 38],
+         [0x6b4468, 142, 32], [0x9a5a60, 174, 26], [0xc47a56, 200, 22],
+         [0xd99a5c, 222, 18], [0xe8b877, 240, 16]]
+            .forEach(([col, top, h]) => scene.add.rectangle(400, top + h / 2, GAME_WIDTH, h, col));
+        for (let i = 0; i < 40; i++) {
+            const sy = Math.random() * 140;
+            scene.add.rectangle(Math.random() * GAME_WIDTH, sy, 2, 2, 0xffffff, 0.8 - sy / 190);
+        }
+        scene.add.image(96, 74, 'moon').setAlpha(0.9);
+        for (let sx = 0; sx < 5; sx++) {
+            scene.add.image(sx * 200 + 100, 226, 'night_skyline').setAlpha(0.5).setTint(0x9a8fb4);
+        }
+
+        // Pavement, dimmed for the hour.
+        for (let x = 0; x < GAME_WIDTH / 32; x++) {
+            for (let y = 8; y < GAME_HEIGHT / 32; y++) {
+                scene.add.image(x * 32 + 16, y * 32 + 16, 'sidewalk_slab')
+                    .setTint(y < 13 ? 0x9a94a8 : 0x87829a);
+            }
+        }
+        scene.add.rectangle(400, 300, GAME_WIDTH, 6, 0x6f6a80);
+        scene.add.rectangle(400, 297, GAME_WIDTH, 2, 0x8f8aa0);
+        scene.add.rectangle(400, 430, GAME_WIDTH, 3, 0x7b7690);
+
+        // The three places.
+        scene.add.image(170, 240, 'fifth_rose_front');
+        scene.add.image(400, 245, 'shout_house_front');
+        scene.add.image(640, 245, 'coin_op_front');
+        scene.add.text(400, 176, "THE SHOUT HOUSE", {
+            fontSize: '10px', color: '#3a2a10', fontStyle: 'bold'
+        }).setOrigin(0.5);
+        scene.add.text(640, 176, "COIN-OP", {
+            fontSize: '10px', color: '#0d1020', fontStyle: 'bold'
+        }).setOrigin(0.5);
+        scene.add.text(170, 258, "Fifth & Rose", {
+            fontSize: '11px', color: '#f2c4d2', fontStyle: 'italic'
+        }).setOrigin(0.5);
+
+        // Street furniture, and string lights across the whole block.
+        for (let x = 32; x < GAME_WIDTH; x += 64) scene.add.image(x, 314, 'string_lights');
+        scene.add.image(300, 250, 'palm_tree').setScale(0.9);
+        scene.add.image(520, 250, 'palm_tree').setFlipX(true).setScale(0.9);
+        scene.add.image(760, 252, 'palm_tree').setScale(0.85);
+        [90, 330, 570].forEach(x => scene.add.image(x, 390, 'streetlight').setScale(1.5));
+        [90, 330, 570].forEach(x => scene.add.circle(x + 5, 400, 42, 0xffe08a, 0.1));
+        scene.add.image(250, 330, 'planter_box');
+        scene.add.image(490, 330, 'planter_box');
+        scene.add.image(716, 330, 'planter_box');
+        scene.add.image(30, 380, 'trash_bin');
+        scene.add.image(430, 392, 'bike_rack');
+        scene.add.image(200, 470, 'cafe_table_set');
+        scene.add.image(290, 470, 'cafe_table_set');
+
+        // A queue outside Coin-Op, and people out for the evening who have
+        // definitely noticed the dinosaurs.
+        scene.onlookers = [];
+        [
+            [596, 372, 'civilian', 0x9c8cb0], [626, 372, 'civilian_f', 0xb09c8c],
+            [656, 372, 'civilian', 0xa0b08c], [686, 372, 'civilian_f', 0x8cb0a0],
+            [120, 388, 'civilian_f', 0xb08ca0], [360, 470, 'civilian', 0x8ca0b4],
+            [468, 448, 'civilian_f', 0xa8a0c0], [740, 430, 'civilian', 0xc0a898]
+        ].forEach(([px, py, key, tint], i) => {
+            const person = scene.add.sprite(px, py, key).setTint(tint);
+            scene.onlookers.push(person);
+            scene.tweens.add({
+                targets: person, y: py - 3, duration: 1200 + i * 170,
+                yoyo: true, repeat: -1, delay: i * 190, ease: 'Sine.easeInOut'
+            });
+        });
 }

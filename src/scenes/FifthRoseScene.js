@@ -128,28 +128,54 @@ export class FifthRoseScene extends Phaser.Scene {
             "Mike: 'It's black tie. You said dress up.'",
             "Cousin: 'I said dress UP. Not dress as a THEROPOD.'",
             "She is trying very hard to keep her manager face on. She is losing.",
-            "Cousin: 'Right. Corner booth, out of the way, and I am buying. Go.'"
+            "Cousin: 'Right. Corner booth, out of the way, and I am buying. Go.'",
+            "Two of the house cocktails arrive, which is how she says she is glad they came.",
+            "Cousin: 'Hold them up. Both of you. I am not letting this go unrecorded.'",
+            "Mike: 'The arms don't reach. I physically cannot lift this to my face.'",
+            "Cousin: 'Hold. Them. Up.'"
         ];
         let i = 0;
         const next = () => {
-            if (i >= lines.length) {
-                takePhoto({
-                    key: 'dinos', title: 'Fifth & Rose',
-                    caption: "Her bar. His bow tie was packing tape.",
-                    sprites: [
-                        { texture: 'mike_dino', x: -18, y: 0, scale: 0.85 },
-                        { texture: 'yvy_dino', x: 2, y: 0, scale: 0.85 },
-                        { texture: 'civilian_f', x: 26, y: 4, tint: 0xd8c4a8 }
-                    ]
-                });
-                showDialogue("Mike: 'Right — Coin-Op next. I've been promised a pinball machine.'", () => {
-                    this.scene.start('CoinOpScene');
-                });
-                return;
-            }
+            if (i >= lines.length) return this.thePhotograph();
             showDialogue(lines[i++], next);
         };
         next();
+    }
+
+    /** Two dinosaurs, two cocktails held at arm's length, one flash. */
+    thePhotograph() {
+        const drinks = [
+            this.add.sprite(this.player.x + 22, this.player.y - 6, 'cocktail').setScale(0.9).setDepth(7),
+            this.add.sprite(this.yvy.x - 22, this.yvy.y - 6, 'margarita').setScale(0.9).setDepth(7)
+        ];
+        drinks.forEach((d, i) => this.tweens.add({
+            targets: d, y: d.y - 14, duration: 600, delay: i * 180, ease: 'Back.easeOut'
+        }));
+        // The cousin lifts her phone.
+        const phone = this.add.sprite(this.cousin.x, this.cousin.y - 16, 'phone_cam').setDepth(7);
+        this.tweens.add({ targets: phone, y: phone.y - 4, duration: 500, yoyo: true, repeat: -1 });
+
+        this.time.delayedCall(900, () => {
+            playSound('shutter');
+            const flash = this.add.rectangle(400, 300, 800, 600, 0xffffff, 0.6).setDepth(20);
+            this.tweens.add({ targets: flash, alpha: 0, duration: 380, onComplete: () => flash.destroy() });
+            takePhoto({
+                key: 'dinos', title: 'Fifth & Rose',
+                caption: "Her bar, her camera, and a bow tie made of packing tape.",
+                sprites: [
+                    { texture: 'mike_dino', x: -16, y: 2, scale: 0.7 },
+                    { texture: 'yvy_dino', x: 16, y: 2, scale: 0.7 },
+                    { texture: 'cocktail', x: -34, y: -4, scale: 0.8 },
+                    { texture: 'margarita', x: 34, y: -4, scale: 0.8 }
+                ]
+            });
+            showDialogue("Cousin: 'Perfect. That is going on the wall.'", () => {
+                [...drinks, phone].forEach(o => { this.tweens.killTweensOf(o); o.destroy(); });
+                showDialogue("Mike: 'Right — Coin-Op next. I've been promised a pinball machine.'", () => {
+                    this.scene.start('CoinOpWalkScene');
+                });
+            });
+        });
     }
 
     update() {

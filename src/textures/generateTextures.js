@@ -4433,6 +4433,67 @@ export function generateTextures(scene) {
     fillRect(33, 29, 3, 9, 0x3a3f47);
     g.generateTexture('pinball_table', 40, 38);
 
+    // The phone that goes off at four in the morning is a mobile on the
+    // nightstand, not the hotel's handset.
+    g.clear();
+    fillRect(3, 0, 12, 22, 0x1b1d24); // body
+    fillRect(3, 0, 12, 1, 0x363a45);
+    fillRect(3, 0, 2, 22, 0x2a2e38);
+    fillRect(4, 2, 10, 16, 0x2e6fb0); // the screen, lit because it is ringing
+    fillRect(4, 2, 10, 4, 0x4a92d8);
+    fillRect(6, 7, 6, 2, 0xdfe9f5); // a name on it
+    fillRect(6, 11, 6, 1, 0xbcd2e8);
+    g.fillStyle(0x9fd6f0, 1); // the little handset icon
+    g.fillCircle(9, 15, 2);
+    fillRect(7, 19, 4, 1, 0x4a4f5a); // speaker grille
+    drawPixel(9, 1, 0x4a4f5a);
+    g.generateTexture('cellphone', 18, 22);
+
+    // Yvy in the royal blue dress she wore to dinner.
+    g.clear();
+    drawLongHair(0x2b2118, 0x45362a, 0x1d1610, 20);
+    drawFace(5, { brow: 0x1d1610, blush: true });
+    fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+    fillRect(11, 17, 10, 8, 0x1a3fa8); // bodice
+    fillRect(19, 17, 2, 8, 0x12308a);
+    fillRect(12, 18, 1, 4, 0x3a68d8);
+    fillRect(11, 17, 10, 1, 0x5a86e8); // neckline
+    fillRect(11, 24, 10, 1, 0x0e2570); // waist
+    fillRect(10, 25, 12, 4, 0x1a3fa8); // skirt
+    fillRect(19, 25, 3, 4, 0x12308a);
+    fillRect(10, 28, 12, 1, 0x0e2570); // hem
+    fillRect(9, 17, 2, 6, SKIN); // bare arms
+    fillRect(21, 17, 2, 6, SKIN_SHADE);
+    fillRect(9, 23, 2, 2, SKIN);
+    fillRect(21, 23, 2, 2, SKIN_SHADE);
+    fillRect(12, 29, 3, 2, SKIN); // legs
+    fillRect(17, 29, 3, 2, SKIN_SHADE);
+    fillRect(11, 31, 4, 1, 0x212121); // heels
+    fillRect(17, 31, 4, 1, 0x121212);
+    drawPixel(16, 16, 0xdfe4ea); // a little pendant
+    g.generateTexture('yvy_dress', 32, 32);
+
+    // The Jurassic Park table, which is the one they end up on.
+    g.clear();
+    fillRect(6, 0, 28, 15, 0x14180f); // backbox
+    fillRect(8, 2, 24, 11, 0x1d2a14);
+    fillRect(9, 3, 22, 5, 0xc4452a); // the red-and-yellow gate motif
+    fillRect(9, 3, 22, 2, 0xe8703c);
+    fillRect(13, 9, 14, 3, 0xf2c14e);
+    drawPixel(15, 10, 0x14180f);
+    drawPixel(19, 10, 0x14180f);
+    drawPixel(23, 10, 0x14180f);
+    fillRect(2, 15, 36, 12, 0x2b2f43); // the table
+    fillRect(4, 16, 32, 9, 0x1f3a22); // green playfield
+    for (let i = 0; i < 6; i++) drawPixel(7 + i * 5, 18 + (i % 3) * 2, 0xf2c14e); // lamps
+    drawPixel(20, 19, 0xe8703c);
+    fillRect(10, 23, 5, 1, 0xd8d4cc); // flippers
+    fillRect(25, 23, 5, 1, 0xd8d4cc);
+    fillRect(2, 27, 36, 3, 0x14161f);
+    fillRect(4, 30, 3, 8, 0x3a3f47); // legs
+    fillRect(33, 30, 3, 8, 0x3a3f47);
+    g.generateTexture('jurassic_pinball', 40, 38);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in

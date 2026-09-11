@@ -49,7 +49,7 @@ export class RestaurantScene extends Phaser.Scene {
         this.table = this.add.image(600, 400, 'conf_table').setTint(0x5d4037); this.chairMike = this.add.image(580, 430, 'chair'); this.chairYvy = this.add.image(620, 430, 'chair'); 
         this.menu1 = this.add.image(580, 390, 'menu'); this.menu2 = this.add.image(620, 390, 'menu'); 
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit'; this.player = new Player(this, 50, 500); this.player.setTexture(outfit); 
-        this.server = this.add.sprite(800, 100, 'server'); this.yvy = this.add.sprite(50, 550, 'yvy').setVisible(false); this.spaghetti = this.add.sprite(580, 390, 'spaghetti').setVisible(false); this.tacos = this.add.sprite(620, 390, 'tacos').setVisible(false); 
+        this.server = this.add.sprite(800, 100, 'server'); this.yvy = this.add.sprite(50, 550, 'yvy_dress').setVisible(false); this.spaghetti = this.add.sprite(580, 390, 'spaghetti').setVisible(false); this.tacos = this.add.sprite(620, 390, 'tacos').setVisible(false); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); this.progress = 0; 
         this.tweens.add({ targets: this.player, x: 200, y: 280, duration: 1500 }); 
         this.physics.add.overlap(this.player, this.hostZone, () => { 
@@ -112,6 +112,44 @@ export class RestaurantScene extends Phaser.Scene {
         };
     }
 
-    serverReturns() { this.tweens.add({ targets: this.server, x: 600, y: 350, duration: 1500, onComplete: () => { this.tacos.setVisible(true); this.spaghetti.setVisible(true); this.menu1.setVisible(false); this.menu2.setVisible(false); showDialogue("Server: 'Here you go. Enjoy!'", () => { this.tweens.add({ targets: this.server, x: 800, y: 100, duration: 1500 }); showDialogue("*They eat delicious food*", () => { this.time.delayedCall(1000, () => { fadeOutMusic(2); this.time.delayedCall(2000, () => { showDialogue("Mike: 'Ready for the movie?'", () => { this.scene.start('MovieScene'); }); }); }); }); }); }}); } 
+    /**
+     * They eat it. Forks go up and down, and the plates empty as they do —
+     * "*They eat delicious food*" used to be followed by the two of them sitting
+     * perfectly still in front of full plates.
+     */
+    eatDinner() {
+        const diners = [
+            { who: this.player, plate: this.spaghetti },
+            { who: this.yvy, plate: this.tacos }
+        ];
+        diners.forEach(({ who, plate }, i) => {
+            // A fork, lifted and lowered. It is two pixels; it does not need to
+            // be anything more than that.
+            const fork = this.add.rectangle(who.x + 12, who.y - 2, 2, 7, 0xd2d6da).setDepth(6);
+            this.tweens.add({
+                targets: fork, y: who.y - 12, duration: 520, delay: i * 260,
+                yoyo: true, repeat: 6, ease: 'Sine.easeInOut',
+                onComplete: () => fork.destroy()
+            });
+            this.tweens.add({
+                targets: who, y: who.y - 2, duration: 540, delay: i * 260,
+                yoyo: true, repeat: 6, ease: 'Sine.easeInOut'
+            });
+            // The plate goes down with every mouthful rather than all at once.
+            this.tweens.add({
+                targets: plate, scale: 0.25, alpha: 0.35, duration: 7400,
+                ease: 'Steps.easeInOut', onComplete: () => plate.setVisible(false)
+            });
+        });
+
+        this.time.delayedCall(7800, () => {
+            showDialogue("Yvy: 'Okay. That was worth the wait.'", () => {
+                fadeOutMusic(2);
+                showDialogue("Mike: 'Ready for the movie?'", () => this.scene.start('MovieScene'));
+            });
+        });
+    }
+
+    serverReturns() { this.tweens.add({ targets: this.server, x: 600, y: 350, duration: 1500, onComplete: () => { this.tacos.setVisible(true); this.spaghetti.setVisible(true); this.menu1.setVisible(false); this.menu2.setVisible(false); showDialogue("Server: 'Here you go. Enjoy!'", () => { this.tweens.add({ targets: this.server, x: 800, y: 100, duration: 1500 }); showDialogue("*They eat delicious food*", () => this.eatDinner()); }); }}); } 
     update() { if (this.progress === 0) this.player.update(this.cursors); document.getElementById('interaction-hint').style.display = (this.progress === 0 && this.physics.overlap(this.player, this.hostZone)) ? 'block' : 'none'; } 
 }

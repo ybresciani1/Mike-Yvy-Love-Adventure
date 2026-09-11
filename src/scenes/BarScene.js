@@ -102,7 +102,8 @@ export class BarScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys(); 
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.add.text(20, 556, "Space: Drink with Marine", { fontSize: '16px', color: '#fff' }); 
-        this.squad = this.add.group(); 
+        this.squad = this.add.group();
+        this.squadGlasses = []; 
         this.physics.add.overlap(this.player, this.marineZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleDrinking(); });
         this.guestZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
             if (!this.canChat()) return;
@@ -112,6 +113,23 @@ export class BarScene extends Phaser.Scene {
     /** Small talk is only on the table until the first drink with the marine. */
     canChat() {
         return gameState.drinksConsumed === 0;
+    }
+
+    /**
+     * The squad drink along with him. Their glasses are plain sprites nothing
+     * else repositions, so they can be tweened directly.
+     */
+    sipSquad() {
+        if (!this.squadGlasses) return;
+        this.squadGlasses.forEach(({ glass, homeY }, i) => {
+            this.tweens.killTweensOf(glass);
+            glass.setAngle(0);
+            this.tweens.add({
+                targets: glass, y: homeY - 9, angle: -30, duration: 260,
+                delay: i * 120, yoyo: true, hold: 140, ease: 'Sine.easeOut',
+                onComplete: () => { glass.setAngle(0); glass.y = homeY; }
+            });
+        });
     }
 
     /**
@@ -155,7 +173,9 @@ export class BarScene extends Phaser.Scene {
             from: 0, to: 7, duration: 260, yoyo: true, hold: 140,
             onUpdate: t => { this.toastLift = t.getValue(); this.drinkTilt = t.getValue() * 4.4; },
             onComplete: () => { this.toastLift = 0; this.drinkTilt = 0; }
-        }); this.cameras.main.shake(300, 0.015); 
+        });
+        this.sipSquad();
+        this.cameras.main.shake(300, 0.015); 
         this.tweens.add({ targets: this.cameras.main, rotation: (Math.random() - 0.5) * 0.1, duration: 300, yoyo: true, repeat: -1 }); 
         playSound('clink'); 
         gameState.drinksConsumed++; 
@@ -185,7 +205,8 @@ export class BarScene extends Phaser.Scene {
                                 // on the bar in front of them.
                                 this.tweens.add({
                                     targets: glass, x: seatX + 10, y: 222, duration: 420,
-                                    delay: 260, ease: 'Sine.easeOut'
+                                    delay: 260, ease: 'Sine.easeOut',
+                                    onComplete: () => this.squadGlasses.push({ glass, homeY: 222 })
                                 });
                                 if (i === 1) showDialogue("Marine: 'Boys! This is Mike, the CTO!'");
                             }

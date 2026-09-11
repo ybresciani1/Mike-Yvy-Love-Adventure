@@ -155,10 +155,9 @@ export class PresentScene extends Phaser.Scene {
                 fontSize: '12px', color: '#c0a888'
             }).setOrigin(0.5));
 
-            // Nine photographs do not divide into a four-wide grid, so they are
-            // laid out five over four, each row centred on the page.
+            // Two rows of five, each centred on the page.
             const photos = getAlbum();
-            const ROWS = [5, 4];
+            const ROWS = [5, 5];
             let n = 0;
             ROWS.forEach((count, row) => {
                 for (let col = 0; col < count; col++) {
