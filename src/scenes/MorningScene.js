@@ -113,19 +113,38 @@ export class MorningScene extends Phaser.Scene {
 
         // The television. It has a picture when it is on, and the glow from it
         // is what tells you across the room.
-        this.tvGlow = this.add.rectangle(170, 232, 26, 16, 0x9fd6f0, 0).setDepth(1);
+        // The picture fills the whole screen. The first version lit a 26x16
+        // patch in the middle of a 58x32 screen, which read as a fault rather
+        // than as a television being on.
+        this.tvGlow = this.add.rectangle(170, 232, 54, 32, 0x9fd6f0, 0).setDepth(1);
+        this.tvBands = [];
+        for (let i = 0; i < 4; i++) {
+            this.tvBands.push(this.add.rectangle(170, 220 + i * 8, 54, 4, 0xdff2ff, 0).setDepth(2));
+        }
         useable(170, 262, 74, 66, () => {
             this.tvOn = !this.tvOn;
             playSound('select');
             if (this.tvOn) {
-                this.tvGlow.setFillStyle(0x9fd6f0, 0.75);
+                this.tvGlow.setFillStyle(0x9fd6f0, 0.8);
                 this.tvFlicker = this.tweens.add({
-                    targets: this.tvGlow, alpha: 0.45, duration: 260, yoyo: true, repeat: -1
+                    targets: this.tvGlow, alpha: 0.55, duration: 260, yoyo: true, repeat: -1
+                });
+                // Scan bands rolling down the picture.
+                this.tvBands.forEach((band, i) => {
+                    band.setFillStyle(0xdff2ff, 0.22);
+                    this.tweens.add({
+                        targets: band, y: 244, duration: 900, repeat: -1, delay: i * 225,
+                        onRepeat: () => { band.y = 216; }
+                    });
                 });
                 showDialogue("Local news at four in the morning. A man is very excited about a car dealership.");
             } else {
                 if (this.tvFlicker) { this.tvFlicker.remove(); this.tvFlicker = null; }
                 this.tvGlow.setFillStyle(0x9fd6f0, 0).setAlpha(1);
+                this.tvBands.forEach(band => {
+                    this.tweens.killTweensOf(band);
+                    band.setFillStyle(0xdff2ff, 0).setAlpha(1);
+                });
                 showDialogue("Mike turns the television off. Much better.");
             }
         });
@@ -138,7 +157,7 @@ export class MorningScene extends Phaser.Scene {
             playSound('select');
             this.acHum.setVisible(this.acOn);
             showDialogue(this.acOn
-                ? "The aircon shudders back to life. It is set to sixteen degrees, because of course it is."
+                ? "The aircon shudders back to life. Somebody left it on 67, because of course they did."
                 : "Mike turns the aircon off. The room goes quiet for the first time all night.");
         });
 

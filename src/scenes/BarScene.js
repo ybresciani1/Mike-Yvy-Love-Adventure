@@ -114,6 +114,28 @@ export class BarScene extends Phaser.Scene {
         return gameState.drinksConsumed === 0;
     }
 
+    /**
+     * The line said they clinked glasses and nothing on screen moved. Now the
+     * two glasses swing together, meet, and ring.
+     */
+    toast() {
+        const meetX = (this.player.x + this.marine.x) / 2;
+        [[this.pBeer, this.player], [this.mBeer, this.marine]].forEach(([glass, who]) => {
+            glass.setVisible(true);
+            this.tweens.add({
+                targets: glass, x: meetX, y: who.y - 16, duration: 380, ease: 'Sine.easeOut',
+                yoyo: true, hold: 160,
+                onYoyo: () => playSound('clink')
+            });
+        });
+        this.toastLocked = true;
+        this.cameras.main.flash(140, 255, 240, 190);
+        this.time.delayedCall(920, () => {
+            this.toastLocked = false;
+            showDialogue("They cheer and clink glasses.");
+        });
+    }
+
     handleDrinking() { 
         if(gameState.drinksConsumed >= 8) return; 
         this.pBeer.setVisible(true);
@@ -136,7 +158,7 @@ export class BarScene extends Phaser.Scene {
         if (gameState.drinksConsumed === 1) { showDialogue("Mike: 'Hi, I'm Mike from DC. Nice to meet you.'"); } 
         else if (gameState.drinksConsumed === 2) { showDialogue("Mike: 'I'm the CTO of Notion Theory, here for business.'"); } 
         else if (gameState.drinksConsumed === 3) { showDialogue("Marine: 'Oh, nice to meet you! I'm a Marine! Waiting for my buddies.'", () => { showDialogue("Marine: 'You own a company? That's FIRE 🔥. Let me buy you a drink.'"); }); } 
-        else if (gameState.drinksConsumed === 4) { showDialogue("Mike: 'Thanks! Let me get the next round!'", () => { playSound('clink'); showDialogue("They cheer and clink glasses."); }); } 
+        else if (gameState.drinksConsumed === 4) { showDialogue("Mike: 'Thanks! Let me get the next round!'", () => { this.toast(); }); } 
         else if (gameState.drinksConsumed === 5) { 
             // They come in and take the free stools either side of him. Sitting is
             // read from the stool top overlapping their legs, so they settle just
@@ -154,6 +176,12 @@ export class BarScene extends Phaser.Scene {
                             targets: glass, x: seatX + 12, duration: 460, ease: 'Quad.easeOut',
                             onComplete: () => {
                                 playSound('clink');
+                                // They pick it up rather than leaving it sitting
+                                // on the bar in front of them.
+                                this.tweens.add({
+                                    targets: glass, x: seatX + 10, y: 222, duration: 420,
+                                    delay: 260, ease: 'Sine.easeOut'
+                                });
                                 if (i === 1) showDialogue("Marine: 'Boys! This is Mike, the CTO!'");
                             }
                         });
@@ -180,8 +208,10 @@ export class BarScene extends Phaser.Scene {
     } 
     update() { 
         this.player.update(this.cursors); 
-        if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10; this.pBeer.y = this.player.y - this.toastLift; }
-        if (this.mBeer.visible) { this.mBeer.x = this.marine.x + 10; this.mBeer.y = this.marine.y - this.toastLift; } 
+        if (!this.toastLocked) {
+            if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10; this.pBeer.y = this.player.y - this.toastLift; }
+            if (this.mBeer.visible) { this.mBeer.x = this.marine.x + 10; this.mBeer.y = this.marine.y - this.toastLift; }
+        } 
         const touching = this.physics.overlap(this.player, this.marineZone)
             || (this.canChat() && this.physics.overlap(this.player, this.guestZones)); 
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
+import { GAME_WIDTH } from '../constants.js';
 import { playSound } from '../audio/sfx.js';
 import { showDialogue } from '../ui/dialogue.js';
 
@@ -7,116 +7,115 @@ export class TravelScene extends Phaser.Scene {
     constructor() { super('TravelScene'); }
 
     create() {
-        this.cameras.main.setBackgroundColor('#16324a');
-        this.buildMap();
+        this.cameras.main.setBackgroundColor('#4a9fd4');
+        this.buildSky();
 
-        this.plane = this.add.image(SD.x, SD.y, 'airliner').setScale(0.6).setDepth(6);
+        this.plane = this.add.image(880, 250, 'airliner').setScale(1.3).setDepth(4);
         this.legIndex = 0;
 
-        this.time.delayedCall(700, () => this.flyLeg());
+        // Contrails, from whichever way the plane happens to be pointing.
+        this.time.addEvent({
+            delay: 90, loop: true, callback: () => {
+                if (!this.flying) return;
+                const behind = this.plane.flipX ? 40 : -40;
+                [-10, 10].forEach(off => {
+                    const puff = this.add.circle(this.plane.x + behind, this.plane.y + off, 4, 0xffffff, 0.45).setDepth(3);
+                    this.tweens.add({
+                        targets: puff, x: '+=' + (this.plane.flipX ? 220 : -220), alpha: 0, scale: 2.4,
+                        duration: 2200, onComplete: () => puff.destroy()
+                    });
+                });
+            }
+        });
+
+        this.label = this.add.text(400, 150, "", {
+            fontSize: '26px', color: '#ffffff', fontStyle: 'bold',
+            stroke: '#1d4f6e', strokeThickness: 4
+        }).setOrigin(0.5).setDepth(5);
+
+        this.add.text(400, 188, "Three thousand miles, whenever they could manage it", {
+            fontSize: '13px', color: '#e8f6ff'
+        }).setOrigin(0.5).setDepth(5);
+
+        this.time.delayedCall(600, () => this.flyLeg());
     }
 
     /**
-     * Two dots joined by a straight white line is not a map. This one has an
-     * ocean, a coastline, state lines, the two cities marked and labelled, and a
-     * dotted great-circle arc between them for the plane to actually follow.
+     * The same sky as the first flight, so the crossings read as the same
+     * journey happening over and over rather than as a map screen. The plane
+     * still goes back and forth the way it used to.
      */
-    buildMap() {
-        // Ocean, and a grid of meridians over it.
-        this.add.rectangle(400, 300, GAME_WIDTH, GAME_HEIGHT, 0x16324a);
-        for (let x = 0; x < GAME_WIDTH; x += 64) {
-            this.add.rectangle(x, 300, 1, GAME_HEIGHT, 0x1f4260);
-        }
-        for (let y = 0; y < GAME_HEIGHT; y += 64) {
-            this.add.rectangle(400, y, GAME_WIDTH, 1, 0x1f4260);
-        }
+    buildSky() {
+        [[0x2c6fa8, 0, 60], [0x3b86bf, 60, 46], [0x4f9ed2, 106, 44],
+         [0x66b4de, 150, 42], [0x84c9e8, 192, 40], [0xa6dcef, 232, 38]]
+            .forEach(([col, top, h]) => this.add.rectangle(400, top + h / 2, GAME_WIDTH, h, col));
 
-        // The landmass: a slab with a ragged coast down each side, so it reads as
-        // a country rather than a rectangle.
-        const land = this.add.graphics();
-        land.fillStyle(0x3d5c3a, 1);
-        land.fillRect(120, 130, 570, 350);
-        land.fillStyle(0x4a6d44, 1);
-        land.fillRect(126, 136, 558, 338);
-        this.add.rectangle(405, 140, 560, 8, 0x5c8152); // the northern border
-        for (let i = 0; i < 26; i++) { // west coast, chewed
-            const cy = 132 + i * 14;
-            this.add.rectangle(120 + (i % 3) * 6, cy, 14, 14, 0x4a6d44);
-            this.add.rectangle(112 + (i % 4) * 5, cy, 8, 10, 0x2d4f66);
+        this.add.rectangle(400, 300, GAME_WIDTH, 60, 0xc9e3ef);
+        this.add.rectangle(400, 450, GAME_WIDTH, 240, 0x2f6f96);
+        this.add.rectangle(400, 336, GAME_WIDTH, 12, 0x8fc4d8);
+        for (let i = 0; i < 70; i++) {
+            this.add.rectangle(Math.random() * GAME_WIDTH, 350 + Math.random() * 240,
+                8 + Math.random() * 16, 2, 0x5a9ec0, 0.5);
         }
-        for (let i = 0; i < 26; i++) { // east coast
-            const cy = 132 + i * 14;
-            this.add.rectangle(688 - (i % 4) * 7, cy, 14, 14, 0x4a6d44);
-            this.add.rectangle(698 - (i % 3) * 6, cy, 8, 10, 0x2d4f66);
-        }
-        // A gulf taken out of the bottom.
-        this.add.rectangle(470, 470, 210, 60, 0x2d4f66);
-        this.add.rectangle(470, 446, 180, 20, 0x2d4f66);
+        this.add.circle(150, 120, 40, 0xfff3c4, 0.5);
+        this.add.circle(150, 120, 26, 0xfffbe4);
 
-        // Faint state lines.
-        const lines = this.add.graphics();
-        lines.lineStyle(1, 0x6f8f66, 0.45);
-        [200, 280, 360, 440, 520, 600].forEach(x => {
-            lines.beginPath(); lines.moveTo(x, 140); lines.lineTo(x, 430); lines.strokePath();
+        this.clouds = [];
+        [
+            { n: 4, y: [60, 200], s: [2.4, 3.2], a: 0.9, v: 1.9 },
+            { n: 5, y: [120, 300], s: [1.4, 2.0], a: 0.75, v: 1.1 },
+            { n: 6, y: [180, 330], s: [0.7, 1.1], a: 0.5, v: 0.5 }
+        ].forEach(layer => {
+            for (let i = 0; i < layer.n; i++) {
+                const cloud = this.add.image(
+                    Math.random() * 1200,
+                    layer.y[0] + Math.random() * (layer.y[1] - layer.y[0]),
+                    'cloud'
+                ).setScale(layer.s[0] + Math.random() * (layer.s[1] - layer.s[0]))
+                 .setAlpha(layer.a);
+                this.clouds.push({ cloud, v: layer.v });
+            }
         });
-        [220, 300, 380].forEach(y => {
-            lines.beginPath(); lines.moveTo(126, y); lines.lineTo(684, y); lines.strokePath();
-        });
-
-        // The route, dotted along a curve rather than ruled straight.
-        this.route = new Phaser.Curves.QuadraticBezier(
-            new Phaser.Math.Vector2(SD.x, SD.y),
-            new Phaser.Math.Vector2(400, 120),
-            new Phaser.Math.Vector2(DC.x, DC.y)
-        );
-        for (let i = 0; i <= 46; i++) {
-            const p = this.route.getPoint(i / 46);
-            this.add.circle(p.x, p.y, 2, 0xffffff, 0.55);
-        }
-
-        [SD, DC].forEach(city => {
-            this.add.circle(city.x, city.y, 9, city.colour, 0.25);
-            this.add.circle(city.x, city.y, 5, city.colour);
-            this.add.circle(city.x, city.y, 2, 0xffffff);
-            this.add.text(city.x, city.y + 22, city.label, {
-                fontSize: '16px', color: '#ffffff', fontStyle: 'bold',
-                backgroundColor: '#00000077', padding: { x: 5, y: 2 }
-            }).setOrigin(0.5);
-        });
-
-        this.add.text(400, 44, "Three thousand miles, most weekends", {
-            fontSize: '17px', color: '#dff0ff', fontStyle: 'bold'
-        }).setOrigin(0.5);
     }
 
-    /**
-     * One flight each way, with a line of narration when it lands. The plane
-     * follows the drawn arc and turns to face the way it is going, instead of
-     * sliding along a straight line facing sideways.
-     */
+    /** One crossing per line of narration, alternating direction. */
     flyLeg() {
         const legs = [
-            { back: false, line: "Mike and Yvy got to know each other more." },
-            { back: true, line: "Yvy was scared at first because Mike seemed too NICE..." },
-            { back: false, line: "But as time passed, she realized Mike was kind, safe, and truly genuine." }
+            { west: true, line: "Mike and Yvy got to know each other more." },
+            { west: false, line: "Yvy was scared at first because Mike seemed too NICE..." },
+            { west: true, line: "But as time passed, she realized Mike was kind, safe, and truly genuine." }
         ];
         if (this.legIndex >= legs.length) return this.scene.start('HouseScene');
         const leg = legs[this.legIndex++];
 
+        // Westbound is DC to SD, so the aeroplane crosses right to left.
+        this.plane.setFlipX(leg.west);
+        this.plane.setPosition(leg.west ? 900 : -100, 250);
+        this.label.setText(leg.west ? "SD  ◄———————————  DC" : "SD  ———————————►  DC");
+        this.cloudDrift = leg.west ? 1 : -1;
+
+        this.flying = true;
         playSound('whoosh');
-        this.tweens.addCounter({
-            from: 0, to: 1, duration: 2300, ease: 'Sine.easeInOut',
-            onUpdate: tween => {
-                const t = tween.getValue();
-                const at = this.route.getPoint(leg.back ? 1 - t : t);
-                const ahead = this.route.getPoint(Phaser.Math.Clamp((leg.back ? 1 - t : t) + (leg.back ? -0.02 : 0.02), 0, 1));
-                this.plane.setPosition(at.x, at.y);
-                this.plane.setRotation(Phaser.Math.Angle.BetweenPoints(at, ahead));
-            },
-            onComplete: () => showDialogue(leg.line, () => this.flyLeg())
+        this.bob = this.tweens.add({
+            targets: this.plane, y: 242, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+        });
+        this.tweens.add({
+            targets: this.plane, x: leg.west ? -100 : 900, duration: 4200, ease: 'Quad.easeInOut',
+            onComplete: () => {
+                this.flying = false;
+                this.bob.remove();
+                showDialogue(leg.line, () => this.flyLeg());
+            }
+        });
+    }
+
+    update() {
+        // The cloud layers run against the plane, so the sky reverses with it.
+        const dir = this.cloudDrift || 1;
+        this.clouds.forEach(({ cloud, v }) => {
+            cloud.x -= v * dir;
+            if (dir > 0 && cloud.x < -180) cloud.x = GAME_WIDTH + 180 + Math.random() * 200;
+            if (dir < 0 && cloud.x > GAME_WIDTH + 180) cloud.x = -180 - Math.random() * 200;
         });
     }
 }
-
-const SD = { x: 168, y: 352, label: 'SD', colour: 0x4fc3f7 };
-const DC = { x: 636, y: 246, label: 'DC', colour: 0xef5350 };

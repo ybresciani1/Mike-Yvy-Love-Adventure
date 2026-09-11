@@ -20,17 +20,28 @@ export class ConferenceScene extends Phaser.Scene {
         this.add.image(482, 250, 'expo_banner').setTint(0xbcd6f5);
         this.table = this.physics.add.staticImage(400, 308, 'vr_demo_table'); 
         this.vrHeadset = this.physics.add.sprite(400, 296, 'vr_headset'); this.heldVR = this.add.sprite(0,0,'vr_headset').setScale(0.8).setVisible(false); 
+        this.boothZones = [];
         this.booth1 = this.add.image(150, 92, 'expo_booth').setTint(0x8ec5e8); this.add.text(150, 70, "AI GEN", {fontSize: '11px', color: '#1b2631', fontStyle: 'bold'}).setOrigin(0.5); this.booth1Zone = this.add.rectangle(150, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth1Zone, true);
         this.booth2 = this.add.image(650, 92, 'expo_booth').setTint(0xf0a49c); this.add.text(650, 70, "WEB3", {fontSize: '11px', color: '#1b2631', fontStyle: 'bold'}).setOrigin(0.5); this.booth2Zone = this.add.rectangle(650, 100, 100, 80, 0, 0); this.physics.add.existing(this.booth2Zone, true);
 // The rest of the hall: stands that are scenery, not interactions.
                 [
-                    { x: 150, y: 300, tint: 0xa8e6c0, label: 'CLOUD OPS' },
-                    { x: 650, y: 300, tint: 0xf6d6a8, label: 'ROBOTICS' },
-                    { x: 150, y: 500, tint: 0xc9bde8, label: 'FINTECH' },
-                    { x: 650, y: 500, tint: 0xf5c6dd, label: 'GAME DEV' }
+                    { x: 150, y: 300, tint: 0xa8e6c0, label: 'CLOUD OPS',
+                      line: "Mike checked the Cloud Ops booth: 'Migrate, observe, repeat. We pay these people a fortune.'" },
+                    { x: 650, y: 300, tint: 0xf6d6a8, label: 'ROBOTICS',
+                      line: "Mike checked the Robotics booth: 'It picked up the cube. Everyone clapped. It cost more than my car.'" },
+                    { x: 150, y: 500, tint: 0xc9bde8, label: 'FINTECH',
+                      line: "Mike checked the Fintech booth: 'Four of them and not one will say what it does.'" },
+                    { x: 650, y: 500, tint: 0xf5c6dd, label: 'GAME DEV',
+                      line: "Mike checked the Game Dev booth: 'Now THIS is the good half of the floor.'" }
                 ].forEach(b => {
                     this.add.image(b.x, b.y, 'expo_booth').setTint(b.tint);
                     this.add.text(b.x, b.y - 22, b.label, { fontSize: '11px', color: '#1b2631', fontStyle: 'bold' }).setOrigin(0.5);
+                    // Four of the six booths were scenery. Mike is a CTO at a
+                    // trade show; he would have an opinion about all of them.
+                    const zone = this.add.rectangle(b.x, b.y + 8, 100, 80, 0, 0);
+                    this.physics.add.existing(zone, true);
+                    zone.setData('line', b.line);
+                    this.boothZones.push(zone);
                 });
                 [[60, 200], [740, 200], [60, 400], [740, 400]].forEach(([x, y]) => this.add.image(x, y, 'expo_banner'));
                 [[300, 180], [500, 180], [300, 430], [500, 430]].forEach(([x, y]) => this.add.image(x, y, 'expo_monitor'));
@@ -71,7 +82,10 @@ export class ConferenceScene extends Phaser.Scene {
         }); 
         this.physics.add.overlap(this.player, this.booth1Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike checked the AI Gen booth: 'Another LLM wrapper... Doesn't scale.'"); });
         this.physics.add.overlap(this.player, this.booth2Zone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike checked the Web3 booth: 'Crypto... I'm more focused on VR right now.'"); });
+        this.boothZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
+        }));
     } 
     startTextingSequence() { showDialogue("Mike: 'That went great! I should text Yvy.'", () => { playSound('msg_sent'); showDialogue("Mike sent: 'Demo went great! Dinner tonight?'", () => { this.time.delayedCall(1500, () => { playSound('msg_sent'); showDialogue("Yvy replied: 'YES OFC! ❤️'", () => { stopMusic(); this.scene.start('UberScene'); }); }); }); }); } 
-    update() { this.player.update(this.cursors); if (gameState.hasVR) { this.heldVR.x = this.player.x + 10; this.heldVR.y = this.player.y; } document.getElementById('interaction-hint').style.display = ((!gameState.hasVR && this.physics.overlap(this.player, this.vrHeadset)) || (gameState.hasVR && this.physics.overlap(this.player, this.attendees)) || this.physics.overlap(this.player, [this.booth1Zone, this.booth2Zone])) ? 'block' : 'none'; } 
+    update() { this.player.update(this.cursors); if (gameState.hasVR) { this.heldVR.x = this.player.x + 10; this.heldVR.y = this.player.y; } document.getElementById('interaction-hint').style.display = ((!gameState.hasVR && this.physics.overlap(this.player, this.vrHeadset)) || (gameState.hasVR && this.physics.overlap(this.player, this.attendees)) || this.physics.overlap(this.player, [this.booth1Zone, this.booth2Zone, ...this.boothZones])) ? 'block' : 'none'; } 
 }

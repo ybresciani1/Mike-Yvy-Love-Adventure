@@ -42,7 +42,13 @@ export class PizzaScene extends Phaser.Scene {
         this.skyline = this.add.rectangle(400, 158, GAME_WIDTH, 316, 0x000000, 0);
         this.physics.add.existing(this.skyline, true);
         this.physics.add.collider(this.player, this.skyline);
-        this.physics.add.collider(this.yvy, this.skyline); 
+        this.physics.add.collider(this.yvy, this.skyline);
+        // The kerb. Below y=448 is live road, and there is traffic on it.
+        this.kerb = this.add.rectangle(400, 530, GAME_WIDTH, 164, 0x000000, 0);
+        this.physics.add.existing(this.kerb, true);
+        this.physics.add.collider(this.player, this.kerb);
+        this.physics.add.collider(this.yvy, this.kerb);
+        this.buildTraffic(); 
         this.drunks = this.add.group(); let d1 = this.physics.add.sprite(205, 398, 'drunk'); d1.body.setImmovable(true); this.drunks.add(d1); let d2 = this.physics.add.sprite(268, 424, 'drunk'); d2.setFlipX(true); d2.body.setImmovable(true); this.drunks.add(d2);
         this.tweens.add({ targets: [d1, d2], x: '+=5', angle: { from: -5, to: 5 }, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
@@ -61,6 +67,7 @@ export class PizzaScene extends Phaser.Scene {
         this.player.update(this.cursors); 
         if (this.player.x > this.yvy.x + 50) this.yvy.body.setVelocityX(130); else if (this.player.x < this.yvy.x - 50) this.yvy.body.setVelocityX(-130); else this.yvy.body.setVelocityX(0); 
         if(this.player.y < this.yvy.y - 50) this.yvy.body.setVelocityY(-130); else if(this.player.y > this.yvy.y + 50) this.yvy.body.setVelocityY(130); else this.yvy.body.setVelocityY(0); 
+        this.driveTraffic();
         if (this.pSlice.visible) { this.pSlice.x = this.player.x + 10; this.pSlice.y = this.player.y; this.ySlice.x = this.yvy.x + 10; this.ySlice.y = this.yvy.y; } 
         const canFilm = this.fighting && !this.photoTaken && this.physics.overlap(this.player, this.fightZone);
         const touching = this.physics.overlap(this.player, this.drunks) || (!this.fighting && this.physics.overlap(this.player, this.tacoZone)) || canFilm
@@ -119,7 +126,39 @@ export class PizzaScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.tacoZone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.askTheQueue();
         });
-    }    /** Asking the poor soul at the back of the taco line how long he has been there. */
+    }    /**
+     * One-way traffic across the bottom of the street. Cars are recycled as they
+     * leave rather than spawned and destroyed, so the scene does not accumulate
+     * hundreds of sprites over a long brawl.
+     */
+    buildTraffic() {
+        const LANES = [488, 536, 584];
+        const PAINT = [0xb04a4a, 0x4a6fb0, 0xd8d8d8, 0x3f3f46, 0x6fa06f, 0xc9a34a];
+        this.traffic = [];
+        for (let i = 0; i < 7; i++) {
+            const lane = LANES[i % LANES.length];
+            const car = this.add.sprite(i * 150 + Math.random() * 90, lane, 'uber_car')
+                .setScale(1.5).setFlipX(true).setTint(PAINT[i % PAINT.length]).setDepth(2);
+            // Headlights lead, tail lights follow — they are all driving left.
+            const beam = this.add.triangle(0, 0, 0, 0, -52, -11, -52, 11, 0xffe9b0, 0.07).setDepth(1);
+            const tail = this.add.rectangle(0, 0, 4, 3, 0xff5544, 0.85).setDepth(3);
+            this.traffic.push({ car, beam, tail, speed: 1.6 + Math.random() * 1.4 });
+        }
+    }
+
+    driveTraffic() {
+        if (!this.traffic) return;
+        this.traffic.forEach(t => {
+            t.car.x -= t.speed;
+            if (t.car.x < -70) t.car.x = GAME_WIDTH + 70 + Math.random() * 160;
+            t.beam.x = t.car.x - 24;
+            t.beam.y = t.car.y + 4;
+            t.tail.x = t.car.x + 22;
+            t.tail.y = t.car.y + 2;
+        });
+    }
+
+    /** Asking the poor soul at the back of the taco line how long he has been there. */
     askTheQueue() {
         if (this.fighting || this.brawlArguing) {
             showDialogue("The whole line has abandoned its place to go and watch.");
@@ -339,7 +378,7 @@ export class PizzaScene extends Phaser.Scene {
             this.fightCloud = this.add.sprite(390, 326, 'fight_cloud');
             this.tweens.add({ targets: this.fightCloud, scaleX: 1.15, scaleY: 0.9, duration: 170, yoyo: true, repeat: -1 });
         });        this.gatherCrowd();
-        this.time.delayedCall(24000, () => this.endFight());
+        this.time.delayedCall(21000, () => this.endFight());
     }
 
     /**

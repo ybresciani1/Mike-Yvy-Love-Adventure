@@ -396,9 +396,11 @@ export class AirportScene extends Phaser.Scene {
             return;
         }
         showDialogue("Gate Agent: 'Flight 214 to San Diego. Boarding whenever you're ready.'", () => {
-            showDialogue("Mike: 'First time out there.'", () => {
-                showDialogue("Gate Agent: 'Oh, you'll love it. Nobody comes back the same.'", () => {
-                    zone.setData('talk', () => showDialogue("Gate Agent: 'Still boarding. Any time you like.'"));
+            showDialogue("Mike: 'Going back, actually. I used to live out there.'", () => {
+                showDialogue("Gate Agent: 'Ah, a homecoming. Business or pleasure?'", () => {
+                    showDialogue("Mike: 'Work meeting. Pleasure if I'm lucky.'", () => {
+                        zone.setData('talk', () => showDialogue("Gate Agent: 'Still boarding. Any time you like.'"));
+                    });
                 });
             });
         });

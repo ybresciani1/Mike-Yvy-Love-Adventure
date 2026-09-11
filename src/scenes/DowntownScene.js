@@ -101,15 +101,22 @@ export class DowntownScene extends Phaser.Scene {
         this.add.image(200, 500, 'park_bench');
         this.add.image(272, 496, 'planter_box').setScale(0.8);
         this.add.image(132, 492, 'trash_bin').setScale(0.8);
+        // Two of these will leave when anyone gets close. The third has eaten
+        // his way past the point of flight and knows it.
         this.pigeons = [
             this.add.image(168, 540, 'pigeon'),
-            this.add.image(196, 552, 'pigeon').setFlipX(true),
-            this.add.image(232, 536, 'pigeon')
+            this.add.image(232, 536, 'pigeon').setFlipX(true)
         ];
         this.pigeons.forEach((bird, i) => this.tweens.add({
             targets: bird, x: '+=' + (i % 2 ? 14 : -14), duration: 1800 + i * 400,
             yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
         }));
+        this.chunkyPigeon = this.add.image(198, 548, 'pigeon').setScale(1.7);
+        this.pigeonsScattered = false;
+        this.pigeonZone = this.add.rectangle(198, 548, 52, 40, 0xffff00, 0);
+        this.physics.add.existing(this.pigeonZone, true);
+        this.pigeonTrigger = this.add.rectangle(200, 516, 190, 96, 0xffff00, 0);
+        this.physics.add.existing(this.pigeonTrigger, true);
 
         // A couple of people going about their morning, so the street is not ours
         // alone — they walk the length of the plaza and turn round.
@@ -189,6 +196,28 @@ export class DowntownScene extends Phaser.Scene {
             });
             showDialogue("Mike: 'Smile!'", () => { showDialogue("They took a selfie at the famous Donut Wall."); }); } });
         this.physics.add.overlap(this.player, this.dogZone, () => { if(this.stage >= 3 && this.stage < 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { this.stage = 4; showDialogue("Mike: 'Can we pet your dog?'", () => { showDialogue("Stranger: 'Sure! He's friendly.'", () => { showDialogue("Yvy: 'Who's a good boy!' *Pets dog*", () => { this.tweens.add({targets: this.dog, y: '-=5', duration: 100, yoyo: true, repeat: 3}); }); }); }); } });
+        // Registered here, with the other overlaps, because this.player does not
+        // exist yet where the pigeons are placed — an overlap against undefined
+        // throws inside the physics step every frame and kills the whole loop.
+        this.physics.add.overlap(this.player, this.pigeonTrigger, () => this.scarePigeons());
+        this.physics.add.overlap(this.player, this.pigeonZone, () => {
+            if (!Phaser.Input.Keyboard.JustDown(this.spaceKey) || dialogueBusy()) return;
+            if (this.metThePigeon) {
+                showDialogue("He has not moved. He is not going to.");
+                return;
+            }
+            this.metThePigeon = true;
+            showDialogue("Yvy: 'His friends all left and he just... didn't.'", () => {
+                showDialogue("Mike: 'I don't think he can. Look at him.'", () => {
+                    this.tweens.add({ targets: this.chunkyPigeon, y: 542, duration: 160, yoyo: true, repeat: 1 });
+                    showDialogue("The pigeon attempts a hop. It is not a success.", () => {
+                        showDialogue("Yvy: 'He's perfect. I love him.'", () => {
+                            showDialogue("Mike: 'We are not taking him home.'");
+                        });
+                    });
+                });
+            });
+        });
         this.physics.add.overlap(this.player, this.benchZone, () => {
             if(this.stage >= 4 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) {
                 this.stage = 5; this.player.x = 180; this.player.y = 500; this.yvy.x = 220; this.yvy.y = 500; this.player.body.stop(); this.yvy.body.stop();
@@ -220,6 +249,54 @@ export class DowntownScene extends Phaser.Scene {
         };
         // A little trot up and down on the spot, running the whole time.
         this.tweens.add({ targets: this.dog, y: '-=3', duration: 190, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        next();
+    }
+
+    /**
+     * Walk up to the bench and the two ordinary pigeons go. The third tries,
+     * fails, and settles for waddling — and unlike the others he can be talked
+     * to, because he is not going anywhere.
+     */
+    scarePigeons() {
+        if (this.pigeonsScattered) return;
+        this.pigeonsScattered = true;
+        playSound('select');
+        this.pigeons.forEach((bird, i) => {
+            this.tweens.killTweensOf(bird);
+            this.tweens.add({
+                targets: bird, x: bird.x + (i ? 150 : -130), y: 300 - i * 40,
+                angle: i ? 22 : -22, alpha: 0, duration: 1300 + i * 180,
+                ease: 'Quad.easeIn', onComplete: () => bird.destroy()
+            });
+            // Wingbeats on the way out.
+            this.tweens.add({ targets: bird, scaleY: 0.6, duration: 110, yoyo: true, repeat: 8 });
+        });
+
+        // The big one gives it a go.
+        this.tweens.add({
+            targets: this.chunkyPigeon, y: 536, duration: 220, yoyo: true, repeat: 1,
+            ease: 'Quad.easeOut',
+            onComplete: () => this.waddle()
+        });
+        this.tweens.add({ targets: this.chunkyPigeon, scaleY: 1.5, duration: 130, yoyo: true, repeat: 3 });
+    }
+
+    waddle() {
+        const next = () => {
+            if (!this.chunkyPigeon || !this.chunkyPigeon.active) return;
+            const tx = Phaser.Math.Between(172, 226);
+            this.chunkyPigeon.setFlipX(tx < this.chunkyPigeon.x);
+            this.tweens.add({
+                targets: this.chunkyPigeon, x: tx,
+                duration: Math.abs(tx - this.chunkyPigeon.x) * 34 + 400, ease: 'Sine.easeInOut',
+                onComplete: () => this.time.delayedCall(Phaser.Math.Between(400, 1400), next)
+            });
+        };
+        // A heavy side-to-side roll, which is all the flight he has left.
+        this.tweens.add({
+            targets: this.chunkyPigeon, angle: { from: -7, to: 7 },
+            duration: 340, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+        });
         next();
     }
 
@@ -277,6 +354,6 @@ export class DowntownScene extends Phaser.Scene {
         if (dist > 60 && this.stage !== 5) this.physics.moveToObject(this.yvy, this.player, 120); else this.yvy.body.stop();
         if (this.pDonut.visible) { this.pDonut.x = this.player.x; this.pDonut.y = this.player.y - 10; }
         if (this.yDonut.visible) { this.yDonut.x = this.yvy.x; this.yDonut.y = this.yvy.y - 10; }
-        document.getElementById('interaction-hint').style.display = this.physics.overlap(this.player, [this.clothingZone, this.crystalZone, this.donutZone, this.wallZone, this.dogZone, this.benchZone, this.bookZone, ...this.queueZones]) ? 'block' : 'none';
+        document.getElementById('interaction-hint').style.display = this.physics.overlap(this.player, [this.clothingZone, this.crystalZone, this.donutZone, this.wallZone, this.dogZone, this.benchZone, this.bookZone, this.pigeonZone, ...this.queueZones]) ? 'block' : 'none';
     }
 }

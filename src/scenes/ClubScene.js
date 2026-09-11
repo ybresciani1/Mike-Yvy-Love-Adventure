@@ -260,10 +260,15 @@ export class ClubScene extends Phaser.Scene {
                         this.time.delayedCall(2500, () => { 
                             this.player.isLocked = false; 
                             showDialogue("Yvy: 'Haha yes! I actually cosplay too.'", () => { 
-                                showDialogue("Mike: 'Really? Me too. Let me see photos.'", () => { 
+                                showDialogue("Mike: 'Really? Me too. Let me see photos.'", () => {
+                                    const phone = this.add.sprite(this.yvy.x + 14, this.yvy.y - 6, 'phone_cam').setDepth(9);
+                                    const glow = this.add.rectangle(phone.x, phone.y - 2, 10, 12, 0xbfe9ff, 0.5).setDepth(10);
+                                    this.tweens.add({ targets: phone, y: phone.y - 3, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+                                    this.tweens.add({ targets: glow, y: phone.y - 5, alpha: 0.2, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' }); 
                                     showDialogue("Mike: 'NO WAY! Is that a T-Rex??'", () => { 
                                         showDialogue("Yvy: 'Yes! You have one too?'", () => { 
                                             showDialogue("Mike: 'I DO! Destiny! Drinks on me.'", () => { 
+                                                [phone, glow].forEach(o => { this.tweens.killTweensOf(o); o.destroy(); });
                                                 gameState.clubProgress = 2; 
                                                 this.isInteracting = false; 
                                             }); 
