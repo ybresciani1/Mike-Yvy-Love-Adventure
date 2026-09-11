@@ -15,7 +15,7 @@ export class BarScene extends Phaser.Scene {
             this.add.image(x+16, 112, (x / 64) % 2 ? 'bar_shelf' : 'tequila_shelf');
         }for (let x = 32; x < GAME_WIDTH; x += 64) this.add.image(x, 20, 'papel_picado');
         for (let x = 32; x < GAME_WIDTH; x += 64) { if (x < 240 || x > 560) this.add.image(x, 44, 'string_lights'); }
-        this.add.text(400, 40, "THE CHINGÓN", {
+        this.add.text(400, 40, "EL CHINGÓN", {
             fontSize: '18px', color: '#f5b700', fontStyle: 'bold',
             shadow: { color: '#2b1a14', offsetX: 1, offsetY: 1, blur: 2, fill: true }
         }).setOrigin(0.5);
@@ -41,7 +41,7 @@ export class BarScene extends Phaser.Scene {
         // talk any more, and the night has somewhere else to be.
         this.guestZones = [];
         const CHATTER = [
-            "Local: 'First time at the Chingon? Order the michelada. Trust me.'",
+            "Local: 'First time at El Chingón? Order the michelada. Trust me.'",
             "Woman at the Booth: 'He said he'd be here at eight. It's ten past nine.'",
             "Man at the Booth: 'I'm telling you, that's not how you pronounce it.'",
             "Regular: 'Tuesdays they do tacos til close. I'm here every Tuesday.'",
