@@ -4,6 +4,7 @@ import { REMOTE_IMAGES } from '../assets.js';
 import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 export class ThanksgivingScene extends Phaser.Scene {
     constructor() { super('ThanksgivingScene'); }
@@ -211,6 +212,17 @@ export class ThanksgivingScene extends Phaser.Scene {
         if (this.talkedState.yvyFamily && this.talkedState.mikeFamily && this.talkedState.cousin) {
             this.time.delayedCall(1000, () => {
                 fadeOutMusic(2);
+                takePhoto({
+                    key: 'thanksgiving', title: 'Thanksgiving, North Carolina',
+                    caption: "Both families at one table, and nobody fell out.",
+                    sprites: [
+                        { texture: 'yvy_dad', x: -32, y: 2 },
+                        { texture: 'mike_mom', x: -11, y: 2 },
+                        { texture: this.player.texture.key, x: 11, y: 2 },
+                        { texture: 'yvy', x: 32, y: 2 },
+                        { texture: 'turkey', x: 0, y: 18, scale: 0.7 }
+                    ]
+                });
                 showDialogue("Families blending together, sharing food and laughter.", () => {
                     this.scene.start('HomeScene');
                 });

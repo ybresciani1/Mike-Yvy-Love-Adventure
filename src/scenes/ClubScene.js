@@ -4,6 +4,7 @@ import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { showDialogue, isDialogueOpen, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 // Held-F dancing cycles these poses; the floor chases these colours on the beat.
 const DANCE_POSES = ['mike_dance_1', 'mike_dance_2', 'mike_dance_3', 'mike_dance_4'];
@@ -243,6 +244,15 @@ export class ClubScene extends Phaser.Scene {
             this.isInteracting = true;
             showDialogue("Mike: 'Hi! You have great energy.'", () => { 
                 showDialogue("Yvy: 'Thanks! I'm Yvy.'", () => { 
+                    takePhoto({
+                        key: 'club', title: 'The night they met',
+                        caption: "\"Yvy? That sounds like Eevee. That's my favourite Pokemon.\"",
+                        sprites: [
+                            { texture: 'mike_dance_1', x: -14, y: 0 },
+                            { texture: 'yvy_dance_1', x: 14, y: 0 },
+                            { texture: 'disco_ball', x: 0, y: -26, scale: 0.7 }
+                        ]
+                    });
                     showDialogue("Mike: 'Yvy? That sounds like Eevee... That's my favorite Pokemon!'", () => { 
                         this.player.isLocked = true; 
                         this.instructionText.setText("Dancing..."); 

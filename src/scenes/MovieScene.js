@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { stopMusic, playDreamworksTheme, playBattleTheme } from '../audio/music.js';
 import { showDialogue } from '../ui/dialogue.js';
 import { playSound } from '../audio/sfx.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 export class MovieScene extends Phaser.Scene {
     constructor() { super('MovieScene'); }
@@ -79,6 +80,17 @@ export class MovieScene extends Phaser.Scene {
             showDialogue("Yvy: 'Wait! You have to try popcorn with jalapeños!'", () => {
                     this.shareJalapenos();
                     showDialogue("Mike scoops one into the popcorn... 'Wow! Spicy but good!'", () => {
+                        takePhoto({
+                            key: 'movie', title: 'How to Train Your Dragon 3',
+                            caption: "Jalapenos in the popcorn. She was right.",
+                            sprites: [
+                                { texture: this.player.texture.key, x: -14, y: 2 },
+                                { texture: 'yvy', x: 14, y: 2 },
+                                { texture: 'popcorn', x: 0, y: 10, scale: 0.8 },
+                                { texture: 'jalapeno', x: -24, y: 6 },
+                                { texture: 'jalapeno', x: 24, y: 6 }
+                            ]
+                        });
                         showDialogue("Yvy: 'Told you. It's the only way to eat it.'", () => {
                             this.jalapenos.forEach(p => p.setVisible(false));
                             this.startMovie();

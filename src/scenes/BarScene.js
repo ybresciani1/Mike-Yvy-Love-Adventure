@@ -4,6 +4,7 @@ import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 export class BarScene extends Phaser.Scene { 
     constructor() { super('BarScene'); } 
@@ -160,7 +161,20 @@ export class BarScene extends Phaser.Scene {
                 });
             }); 
         } 
-        else if (gameState.drinksConsumed === 6) { showDialogue("Squad: 'Nice to meet you sir! ROUNDS ON US!'"); } 
+        else if (gameState.drinksConsumed === 6) {
+            takePhoto({
+                key: 'bar', title: 'El Chingón',
+                caption: "The night a stranger bought him a drink for having a company.",
+                sprites: [
+                    { texture: 'marine', x: -26, y: 4 },
+                    { texture: this.player.texture.key, x: 0, y: 2 },
+                    { texture: 'marine', x: 26, y: 4, flip: true },
+                    { texture: 'beer', x: -12, y: -10, scale: 0.7 },
+                    { texture: 'beer', x: 12, y: -10, scale: 0.7 }
+                ]
+            });
+            showDialogue("Squad: 'Nice to meet you sir! ROUNDS ON US!'");
+        } 
         else if (gameState.drinksConsumed === 7) { showDialogue("The squad drinks heavily. 'Let's go meet some girls at the club!'"); } 
         else if (gameState.drinksConsumed === 8) { showDialogue("Mike: 'Yeaaah... *hic*... let'sh go meEEtttsh gurrlss *hic*...'", () => { this.cameras.main.fade(1000, 0, 0, 0, false, (camera, progress) => { if (progress === 1) this.scene.start('ClubScene'); }); }); } 
     } 

@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { REMOTE_IMAGES } from '../assets.js';
 import { showDialogue } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 export class HouseScene extends Phaser.Scene {
     constructor() { super('HouseScene'); }
@@ -65,6 +66,16 @@ export class HouseScene extends Phaser.Scene {
                 this.tweens.add({ targets: this.player, x: 500, duration: 2000 });
                 this.tweens.add({ targets: this.yvy, x: 550, duration: 2000, onComplete: () => {
                     showDialogue("Her son, Aiden (he was 4). And her best friend, Penny.", () => {
+                        takePhoto({
+                            key: 'house', title: '54th Street',
+                            caption: "Aiden was four. Penny was already family.",
+                            sprites: [
+                                { texture: this.player.texture.key, x: -24, y: 0 },
+                                { texture: 'yvy', x: -4, y: 0 },
+                                { texture: 'aiden', x: 16, y: 6, scale: 0.85 },
+                                { texture: 'toy_dino', x: 32, y: 14 }
+                            ]
+                        });
                         showDialogue("Mike became part of their family.", () => {
                             this.scene.start('SurgeryScene');
                         });

@@ -5,6 +5,7 @@ import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { playSound } from '../audio/sfx.js';
 import { Player } from '../entities/Player.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 const DRUNK_LINES = [
     "Drunk Guy: 'I love you man... you're my best friend... wait, who are you? Does not matter! I still love you man!'",
@@ -485,6 +486,16 @@ export class PizzaScene extends Phaser.Scene {
     /** Mike and Yvy do the sensible thing and film it from a safe distance. */
     takePhotos() {
         this.photoTaken = true;
+        takePhoto({
+            key: 'brawl', title: 'Gaslamp, 1am',
+            caption: "Two men who loved each other very much, briefly.",
+            sprites: [
+                { texture: 'buff_red_punch', x: -20, y: 2 },
+                { texture: 'buff_green_punch', x: 20, y: 2, flip: true },
+                { texture: 'fight_cloud', x: 0, y: -4, scale: 0.8 },
+                { texture: 'pow_star', x: 0, y: -18, scale: 0.6 }
+            ]
+        });
         const phoneMike = this.add.sprite(this.player.x + 11, this.player.y - 7, 'phone_cam').setScale(0.9);
         const phoneYvy = this.add.sprite(this.yvy.x + 11, this.yvy.y - 7, 'phone_cam').setScale(0.9);
         const flash = () => {

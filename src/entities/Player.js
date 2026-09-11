@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { isDialogueOpen } from '../ui/dialogue.js';
+import { playSound } from '../audio/sfx.js';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
@@ -11,6 +12,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.body.setOffset(8, 16);
         this.speed = 150;
         this.isLocked = false;
+        this.lastStep = 0;
     }
     update(cursors) {
         this.setVelocity(0);
@@ -20,6 +22,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         else if (cursors.right.isDown) { this.setVelocityX(this.speed); this.setFlipX(false); moved = true; }
         if (cursors.up.isDown) { this.setVelocityY(-this.speed); moved = true; }
         else if (cursors.down.isDown) { this.setVelocityY(this.speed); moved = true; }
-        if (moved) this.y += Math.sin(this.scene.time.now / 100) * 0.5;
+        if (moved) {
+            this.y += Math.sin(this.scene.time.now / 100) * 0.5;
+            // One footfall per stride rather than one per frame.
+            if (this.scene.time.now - this.lastStep > 250) {
+                this.lastStep = this.scene.time.now;
+                playSound('step');
+            }
+        }
     }
 }

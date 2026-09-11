@@ -26,7 +26,11 @@ export class TitleScene extends Phaser.Scene {
         
         this.add.text(400, 340, "Calling Uber...", { fontSize: '16px', color: '#fff', backgroundColor: '#333', padding: {x:5, y:2} }).setOrigin(0.5);
 
-        this.add.text(400, 500, "CLICK TO START", { fontSize: '24px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.8);
+        // Most of this game is optional, and nothing else tells you that.
+        this.add.text(400, 452, "Look around — most things here will talk back.", { fontSize: '15px', color: '#8fd0e6', fontFamily: 'Courier New' }).setOrigin(0.5);
+        this.add.text(400, 474, "Arrow keys to move, SPACE to talk.", { fontSize: '13px', color: '#6f9cb0', fontFamily: 'Courier New' }).setOrigin(0.5);
+
+        this.add.text(400, 520, "CLICK TO START", { fontSize: '24px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.8);
 
         this.input.on('pointerdown', () => this.startGame());
         this.input.keyboard.on('keydown-SPACE', () => this.startGame());
