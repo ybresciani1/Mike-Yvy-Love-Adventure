@@ -36,9 +36,29 @@ export class BarScene extends Phaser.Scene {
         this.add.image(70, 300, 'agave_plant');
 
         // Booths along the far wall, so the room isn't just a counter.
+        // The room can be talked to, but only until he falls in with the marine.
+        // After the first drink he is not wandering round the bar making small
+        // talk any more, and the night has somewhere else to be.
+        this.guestZones = [];
+        const CHATTER = [
+            "Local: 'First time at the Chingon? Order the michelada. Trust me.'",
+            "Woman at the Booth: 'He said he'd be here at eight. It's ten past nine.'",
+            "Man at the Booth: 'I'm telling you, that's not how you pronounce it.'",
+            "Regular: 'Tuesdays they do tacos til close. I'm here every Tuesday.'",
+            "Tourist: 'Is the whole city like this? We flew in this morning.'",
+            "Guy at the Bar: 'Gaslamp on a Friday. Hold onto your wallet, brother.'",
+            "Woman at the Bar: 'My sister's getting married on the beach tomorrow. Pray for me.'",
+            "Old Timer: 'Forty years in this town. Never seen it this busy.'"
+        ];
+        let chatter = 0;
         const seatGuest = (x, y, female) => {
             const guest = this.add.sprite(x, y - 12, female ? 'civilian_f' : 'civilian');
             guest.setTint(Phaser.Display.Color.RandomRGB(120, 235).color);
+            const zone = this.add.rectangle(x, y - 4, 42, 52, 0xffff00, 0);
+            this.physics.add.existing(zone, true);
+            zone.setData('line', CHATTER[chatter % CHATTER.length]);
+            chatter++;
+            this.guestZones.push(zone);
             return guest;
         };
         [{ x: 690, y: 380 }, { x: 690, y: 480 }].forEach((p, i) => {
@@ -82,8 +102,17 @@ export class BarScene extends Phaser.Scene {
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.add.text(20, 556, "Space: Drink with Marine", { fontSize: '16px', color: '#fff' }); 
         this.squad = this.add.group(); 
-        this.physics.add.overlap(this.player, this.marineZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleDrinking(); }); 
+        this.physics.add.overlap(this.player, this.marineZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.handleDrinking(); });
+        this.guestZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+            if (!this.canChat()) return;
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
+        })); 
     } 
+    /** Small talk is only on the table until the first drink with the marine. */
+    canChat() {
+        return gameState.drinksConsumed === 0;
+    }
+
     handleDrinking() { 
         if(gameState.drinksConsumed >= 8) return; 
         this.pBeer.setVisible(true);
@@ -139,7 +168,8 @@ export class BarScene extends Phaser.Scene {
         this.player.update(this.cursors); 
         if (this.pBeer.visible) { this.pBeer.x = this.player.x + 10; this.pBeer.y = this.player.y - this.toastLift; }
         if (this.mBeer.visible) { this.mBeer.x = this.marine.x + 10; this.mBeer.y = this.marine.y - this.toastLift; } 
-        const touching = this.physics.overlap(this.player, this.marineZone); 
+        const touching = this.physics.overlap(this.player, this.marineZone)
+            || (this.canChat() && this.physics.overlap(this.player, this.guestZones)); 
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
     } 
 }
