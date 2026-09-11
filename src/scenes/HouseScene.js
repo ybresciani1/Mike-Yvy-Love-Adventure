@@ -72,8 +72,9 @@ export class HouseScene extends Phaser.Scene {
                             sprites: [
                                 { texture: this.player.texture.key, x: -24, y: 0 },
                                 { texture: 'yvy', x: -4, y: 0 },
-                                { texture: 'aiden', x: 16, y: 6, scale: 0.85 },
-                                { texture: 'toy_dino', x: 32, y: 14 }
+                                { texture: 'aiden', x: 14, y: 6, scale: 0.85 },
+                                { texture: 'penny_custom', x: 34, y: 16, size: [22, 22] },
+                                { texture: 'toy_dino', x: -42, y: 16 }
                             ]
                         });
                         showDialogue("Mike became part of their family.", () => {

@@ -120,12 +120,17 @@ export class BarScene extends Phaser.Scene {
      */
     toast() {
         const meetX = (this.player.x + this.marine.x) / 2;
-        [[this.pBeer, this.player], [this.mBeer, this.marine]].forEach(([glass, who]) => {
+        const meetY = Math.min(this.player.y, this.marine.y) - 16;
+        // Each glass leans towards the other one. Bringing them together without
+        // the tilt just looked like two glasses sliding past each other.
+        const lean = this.player.x < this.marine.x ? 1 : -1;
+        [[this.pBeer, lean], [this.mBeer, -lean]].forEach(([glass, dir]) => {
             glass.setVisible(true);
             this.tweens.add({
-                targets: glass, x: meetX, y: who.y - 16, duration: 380, ease: 'Sine.easeOut',
-                yoyo: true, hold: 160,
-                onYoyo: () => playSound('clink')
+                targets: glass, x: meetX + dir * -5, y: meetY, angle: dir * 32,
+                duration: 380, ease: 'Sine.easeOut', yoyo: true, hold: 220,
+                onYoyo: () => playSound('clink'),
+                onComplete: () => glass.setAngle(0)
             });
         });
         this.toastLocked = true;

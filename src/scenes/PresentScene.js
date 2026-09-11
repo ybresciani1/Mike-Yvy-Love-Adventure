@@ -3,10 +3,16 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { playBlueTheme } from '../audio/music.js';
 import { playSound } from '../audio/sfx.js';
 import { showDialogue } from '../ui/dialogue.js';
+import { REMOTE_IMAGES } from '../assets.js';
 import { getAlbum, photoCount, TOTAL_PHOTOS } from '../ui/scrapbook.js';
 
 export class PresentScene extends Phaser.Scene {
     constructor() { super('PresentScene'); }
+
+    // Penny appears in one of the photographs, and she is a remote image rather
+    // than a generated texture — so this scene has to be able to load her too,
+    // not rely on an earlier scene having done it.
+    preload() { this.load.image('penny_custom', REMOTE_IMAGES.penny); }
 
     create() {
         this.cameras.main.setBackgroundColor('#1b2a49');
@@ -196,6 +202,7 @@ export class PresentScene extends Phaser.Scene {
         photo.sprites.forEach(s => {
             const img = this.add.image(s.x, -32 + (s.y || 0), s.texture);
             if (s.scale) img.setScale(s.scale);
+            if (s.size) img.setDisplaySize(s.size[0], s.size[1]);
             if (s.flip) img.setFlipX(true);
             if (s.tint) img.setTint(s.tint);
             frame.add(img);

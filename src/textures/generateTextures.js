@@ -4016,6 +4016,31 @@ export function generateTextures(scene) {
     });
     g.generateTexture('night_skyline', 200, 96);
 
+    // Somebody on a bike, side on, for the lane between the kerb and the cars.
+    g.clear();
+    g.lineStyle(2, 0x2b2b33, 1); // wheels
+    g.strokeCircle(7, 22, 6);
+    g.strokeCircle(27, 22, 6);
+    g.lineStyle(1, 0x6f7680, 1);
+    g.strokeCircle(7, 22, 3);
+    g.strokeCircle(27, 22, 3);
+    fillRect(9, 15, 16, 2, 0x3aa0c4); // frame
+    fillRect(13, 16, 2, 7, 0x3aa0c4);
+    fillRect(21, 16, 2, 7, 0x3aa0c4);
+    fillRect(24, 12, 2, 8, 0x3aa0c4);
+    fillRect(22, 11, 7, 2, 0x2b2b33); // bars
+    fillRect(8, 12, 6, 2, 0x2b2b33); // saddle
+    fillRect(14, 4, 8, 9, 0xd94f4f); // rider's back
+    fillRect(14, 4, 8, 2, 0xe87a7a);
+    fillRect(20, 6, 5, 2, 0xe6cbb0); // arm out to the bars
+    fillRect(16, 0, 6, 5, 0xe6cbb0); // head
+    fillRect(15, 0, 8, 2, 0x2b3a5c); // helmet
+    drawPixel(22, 2, 0x1d1a17);
+    fillRect(14, 13, 4, 5, 0x2b3a5c); // legs, one up one down
+    fillRect(18, 15, 4, 6, 0x24314d);
+    drawPixel(29, 11, 0xf2e3c0); // a light on the bars
+    g.generateTexture('cyclist', 32, 30);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in

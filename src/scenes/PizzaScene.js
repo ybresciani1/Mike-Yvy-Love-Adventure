@@ -132,17 +132,32 @@ export class PizzaScene extends Phaser.Scene {
      * hundreds of sprites over a long brawl.
      */
     buildTraffic() {
-        const LANES = [488, 536, 584];
+        // A quiet street at one in the morning: two lanes, three cars between
+        // them, and long gaps so only one or two are ever in shot.
+        const LANES = [516, 566];
         const PAINT = [0xb04a4a, 0x4a6fb0, 0xd8d8d8, 0x3f3f46, 0x6fa06f, 0xc9a34a];
         this.traffic = [];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 3; i++) {
             const lane = LANES[i % LANES.length];
-            const car = this.add.sprite(i * 150 + Math.random() * 90, lane, 'uber_car')
+            const car = this.add.sprite(i * 420 + Math.random() * 200, lane, 'uber_car')
                 .setScale(1.5).setFlipX(true).setTint(PAINT[i % PAINT.length]).setDepth(2);
-            // Headlights lead, tail lights follow — they are all driving left.
-            const beam = this.add.triangle(0, 0, 0, 0, -52, -11, -52, 11, 0xffe9b0, 0.07).setDepth(1);
+            // Tail lights only. A headlight cone drawn as a flat triangle reads
+            // as a grey wedge lying in the road rather than as light.
             const tail = this.add.rectangle(0, 0, 4, 3, 0xff5544, 0.85).setDepth(3);
-            this.traffic.push({ car, beam, tail, speed: 1.6 + Math.random() * 1.4 });
+            this.traffic.push({ car, tail, speed: 0.7 + Math.random() * 0.5 });
+        }
+
+        // The bike lane runs between the kerb and the traffic — on the riders'
+        // right, since everything here is heading west.
+        this.add.rectangle(400, 474, GAME_WIDTH, 2, 0xe8dcc8, 0.35);
+        for (let dx = 8; dx < GAME_WIDTH; dx += 40) {
+            this.add.rectangle(dx, 492, 18, 2, 0xe8dcc8, 0.22);
+        }
+        this.bikes = [];
+        for (let i = 0; i < 3; i++) {
+            const rider = this.add.sprite(i * 300 + Math.random() * 160, 484, 'cyclist')
+                .setFlipX(true).setTint([0xffffff, 0xbfd8e0, 0xe0c8a8][i]).setDepth(2);
+            this.bikes.push({ rider, speed: 0.9 + Math.random() * 0.4, bob: Math.random() * 6 });
         }
     }
 
@@ -150,11 +165,17 @@ export class PizzaScene extends Phaser.Scene {
         if (!this.traffic) return;
         this.traffic.forEach(t => {
             t.car.x -= t.speed;
-            if (t.car.x < -70) t.car.x = GAME_WIDTH + 70 + Math.random() * 160;
-            t.beam.x = t.car.x - 24;
-            t.beam.y = t.car.y + 4;
+            // Long respawn gap, so the street never fills up with cars.
+            if (t.car.x < -70) t.car.x = GAME_WIDTH + 180 + Math.random() * 620;
             t.tail.x = t.car.x + 22;
             t.tail.y = t.car.y + 2;
+        });
+        if (!this.bikes) return;
+        this.bikes.forEach(b => {
+            b.rider.x -= b.speed;
+            b.bob += 0.14;
+            b.rider.y = 484 + Math.sin(b.bob) * 1.4; // the shove of pedalling
+            if (b.rider.x < -40) b.rider.x = GAME_WIDTH + 60 + Math.random() * 420;
         });
     }
 
