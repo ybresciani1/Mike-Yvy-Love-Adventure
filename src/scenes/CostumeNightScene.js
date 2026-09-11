@@ -1,10 +1,9 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { playSound } from '../audio/sfx.js';
-import { playLeFestinTheme, fadeOutMusic } from '../audio/music.js';
+import { playLeFestinTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
-import { takePhoto } from '../ui/scrapbook.js';
 
 /**
  * The night they went out downtown in inflatable dinosaur costumes: Mike's
@@ -41,8 +40,9 @@ export class CostumeNightScene extends Phaser.Scene {
         this.physics.add.existing(this.shoutZone, true);
         this.coinZone = this.add.rectangle(640, 336, 124, 56, 0xffff00, 0);
         this.physics.add.existing(this.coinZone, true);
+        this.coinLooked = false;
 
-        this.instructionText = this.add.text(20, 20, "Task: Fifth & Rose → Coin-Op", {
+        this.instructionText = this.add.text(20, 20, "Task: get to Fifth & Rose", {
             fontSize: '15px', color: '#fff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
         });
 
@@ -53,7 +53,7 @@ export class CostumeNightScene extends Phaser.Scene {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.atShoutHouse();
         });
         this.physics.add.overlap(this.player, this.coinZone, () => {
-            if (this.stage === 1 && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.atCoinOp();
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.pastCoinOp();
         });
     }
 
@@ -133,31 +133,14 @@ export class CostumeNightScene extends Phaser.Scene {
     atFifthAndRose() {
         this.stage = 1;
         playSound('door');
-        const cousin = this.add.sprite(170, 322, 'civilian').setTint(0xc9a87a).setDepth(5);
-        this.tweens.add({ targets: cousin, y: 366, duration: 900, ease: 'Sine.easeOut' });
-        this.tweens.add({ targets: cousin, angle: { from: -4, to: 4 }, duration: 600, yoyo: true, repeat: -1, delay: 900 });
-
-        const chain = [
+        this.say([
             "Yvy: 'You are about to walk into a cocktail bar dressed as a T-Rex.'",
             "Mike: 'I am about to walk into a cocktail bar dressed as a T-Rex WITH A BOW TIE.'",
             "The bow tie is held on with packing tape. There was nothing else in the flat.",
-            "Cousin: 'MIKE. You absolute—' He hugs an inflatable dinosaur.",
-            "Cousin: 'Is that a bow tie?'  Mike: 'It's black tie. Read the room.'",
-            "Yvy: 'The revolving door took us four minutes.'",
-            "Cousin: 'I watched the whole thing through the window. Best night of my life.'"
-        ];
-        this.say(chain, () => {
-            takePhoto({
-                key: 'dinos', title: 'Fifth & Rose',
-                caption: "Black tie. The tie was packing tape.",
-                sprites: [
-                    { texture: 'mike_dino', x: -16, y: 0, scale: 0.9 },
-                    { texture: 'yvy_dino', x: 16, y: 0, scale: 0.9 },
-                    { texture: 'civilian', x: 40, y: 6, scale: 0.8, tint: 0xc9a87a }
-                ]
-            });
-            this.instructionText.setText("Task: Coin-Op, down the block");
-        });
+            "Yvy: 'Your cousin runs this place.'",
+            "Mike: 'My cousin runs this place. She'll love it.'",
+            "The revolving door takes them four minutes."
+        ], () => this.scene.start('FifthRoseScene'));
     }
 
     atShoutHouse() {
@@ -175,23 +158,19 @@ export class CostumeNightScene extends Phaser.Scene {
         ]);
     }
 
-    atCoinOp() {
-        this.stage = 2;
+    /** They walk past it on the way, and come back to it later. */
+    pastCoinOp() {
+        if (this.coinLooked) {
+            showDialogue("Mike: 'After. I promise. Cousin first.'");
+            return;
+        }
+        this.coinLooked = true;
         playSound('vr_boop');
         this.say([
-            "Mike: 'An arcade bar. NOW we're talking. This I can do in a dinosaur suit.'",
-            "Two men at the pinball machine turn round.",
-            "Guy at the Pinball: 'Hey — can we get you two a drink?'",
-            "Mike: 'Oh — sure, yeah, that's really nice of you.'",
-            "Guy at the Pinball: '...'",
-            "Guy at the Pinball: 'Oh mate. Oh, I am SO sorry.'",
-            "Mike: 'No no no, honestly — this is the best thing that's happened all year.'",
-            "Yvy cannot breathe. Yvy has not been able to breathe for some time.",
-            "They bought him the drink anyway."
-        ], () => {
-            fadeOutMusic(2);
-            this.time.delayedCall(1200, () => this.scene.start('TravelScene'));
-        });
+            "Coin-Op. Cabinets down both walls and a marquee over the door.",
+            "Mike: 'We are coming back here. That is not a request.'",
+            "Yvy: 'Cousin first.'"
+        ]);
     }
 
     /** Plays a list of lines in order, then calls done. */
@@ -213,9 +192,8 @@ export class CostumeNightScene extends Phaser.Scene {
         else this.yvy.body.stop();
         this.yvy.setFlipX(this.player.x < this.yvy.x);
 
-        const zones = [this.shoutZone];
+        const zones = [this.shoutZone, this.coinZone];
         if (this.stage === 0) zones.push(this.roseZone);
-        if (this.stage === 1) zones.push(this.coinZone);
         document.getElementById('interaction-hint').style.display =
             this.physics.overlap(this.player, zones) ? 'block' : 'none';
     }

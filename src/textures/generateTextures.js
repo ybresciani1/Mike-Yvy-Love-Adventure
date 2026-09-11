@@ -4042,95 +4042,87 @@ export function generateTextures(scene) {
     g.generateTexture('cyclist', 32, 30);
 
     // --- THE NIGHT IN THE DINOSAUR COSTUMES ------------------------------------
-    // The inflatable T-Rex: a big round body with tiny arms, a heavy tail, and
-    // the wearer's face looking out of a window in its chest. That window is the
-    // whole joke, so it is drawn first and everything else is built around it.
-    const drawDinoSuit = (hide, { extras = null } = {}) => {
+    // A slim standing dinosaur, no tail, and nobody's face showing — the suit is
+    // the costume, not a person wearing a shell with a window in it. Read from
+    // the top: skull and jaw, neck, narrow chest, the famously short arms, two
+    // heavy legs.
+    const drawDinoSuit = ({ hide, lit, skin, shade, dark, extras = null }) => {
         g.clear();
-        const skin = 0xb5773f, lit = 0xcf9152, shade = 0x8a5a2b, dark = 0x6b4520;
 
-        fillRect(2, 22, 12, 7, skin); // tail, sweeping out to the left
-        fillRect(0, 24, 4, 4, shade);
-        fillRect(2, 22, 12, 2, lit);
-
-        g.fillStyle(skin, 1); // body
-        g.fillEllipse(18, 26, 26, 24);
-        g.fillStyle(lit, 1);
-        g.fillEllipse(15, 23, 17, 15);
-        g.fillStyle(shade, 1);
-        g.fillEllipse(26, 30, 12, 14);
-        fillRect(8, 33, 20, 2, shade); // belly seam
-
-        fillRect(9, 19, 4, 3, skin); // the famously useless arms
-        fillRect(23, 19, 4, 3, shade);
-        drawPixel(8, 21, dark);
-        drawPixel(27, 21, dark);
-
-        // Head, tipped back with the jaw open.
-        g.fillStyle(skin, 1);
-        g.fillEllipse(19, 9, 20, 13);
-        g.fillStyle(lit, 1);
-        g.fillEllipse(17, 7, 13, 8);
-        fillRect(24, 6, 8, 5, skin); // snout
-        fillRect(24, 6, 8, 2, lit);
-        fillRect(24, 12, 7, 3, shade); // lower jaw, dropped open
-        fillRect(25, 11, 6, 1, 0x7a3a3a); // the inside of the mouth
-        for (let tx = 25; tx < 31; tx += 2) { // teeth
-            drawPixel(tx, 11, 0xf4f0e4);
-            drawPixel(tx + 1, 12, 0xf4f0e4);
+        // Skull, with the snout out to the right and the jaw hanging open.
+        fillRect(10, 2, 12, 8, skin);
+        fillRect(10, 2, 12, 2, lit);
+        fillRect(20, 4, 10, 5, skin); // snout
+        fillRect(20, 4, 10, 2, lit);
+        fillRect(21, 10, 9, 3, shade); // lower jaw, dropped
+        fillRect(21, 9, 9, 1, 0x6b2f2f); // the dark of the mouth
+        for (let tx = 22; tx < 30; tx += 2) {
+            drawPixel(tx, 9, 0xf4f0e4); // upper teeth
+            drawPixel(tx + 1, 10, 0xf4f0e4); // lower
         }
-        drawPixel(22, 6, 0xf4f0e4); // eye
-        drawPixel(22, 7, 0x1d1a17);
-        fillRect(12, 4, 6, 2, shade); // the ridge down the back of the skull
-        fillRect(10, 14, 5, 2, shade);
+        fillRect(9, 5, 2, 5, shade); // back of the skull
+        fillRect(18, 3, 4, 1, shade); // brow ridge
+        drawPixel(19, 5, 0xf4f0e4);
+        drawPixel(19, 6, 0x1d1a17); // eye
+        drawPixel(27, 5, dark); // nostril
 
-        // The wearer, visible through the chest panel.
-        fillRect(13, 20, 10, 9, 0x2a2018); // mesh window
-        fillRect(14, 21, 8, 7, SKIN);
-        fillRect(14, 21, 8, 1, 0x3a2a1e); // fringe of hair at the top
-        fillRect(15, 23, 2, 2, EYE_WHITE);
-        fillRect(19, 23, 2, 2, EYE_WHITE);
-        drawPixel(16, 23, EYE);
-        drawPixel(20, 23, EYE);
-        fillRect(16, 26, 4, 1, MOUTH);
-        if (hide) fillRect(14, 21, 8, 2, hide); // a hat or a fringe over the face
+        fillRect(12, 12, 7, 5, skin); // neck
+        fillRect(12, 12, 2, 5, lit);
+        fillRect(18, 13, 1, 4, shade);
 
-        fillRect(11, 36, 6, 4, dark); // feet
-        fillRect(20, 36, 6, 4, dark);
-        fillRect(11, 36, 6, 1, shade);
-        fillRect(20, 36, 6, 1, shade);
-        drawPixel(11, 39, 0xf4f0e4); // claws
-        drawPixel(14, 39, 0xf4f0e4);
-        drawPixel(20, 39, 0xf4f0e4);
-        drawPixel(23, 39, 0xf4f0e4);
+        // Chest and belly, slim.
+        fillRect(10, 17, 12, 14, skin);
+        fillRect(10, 17, 3, 14, lit);
+        fillRect(19, 18, 3, 13, shade);
+        for (let by = 21; by < 30; by += 3) fillRect(12, by, 7, 1, lit); // belly scutes
+        fillRect(10, 17, 12, 1, shade);
 
+        fillRect(7, 19, 4, 3, skin); // the arms, such as they are
+        fillRect(21, 19, 4, 3, shade);
+        drawPixel(6, 21, dark);
+        drawPixel(25, 21, dark);
+
+        // Legs: thick at the thigh, narrow at the ankle.
+        fillRect(10, 31, 5, 5, skin);
+        fillRect(17, 31, 5, 5, shade);
+        fillRect(11, 36, 3, 2, dark);
+        fillRect(18, 36, 3, 2, dark);
+        fillRect(9, 38, 7, 2, dark); // feet
+        fillRect(16, 38, 7, 2, dark);
+        drawPixel(9, 39, 0xf4f0e4);
+        drawPixel(12, 39, 0xf4f0e4);
+        drawPixel(16, 39, 0xf4f0e4);
+        drawPixel(19, 39, 0xf4f0e4);
+
+        if (hide) fillRect(10, 2, 12, 2, hide);
         if (extras !== null) extras();
     };
 
-    drawDinoSuit(null, {
+    drawDinoSuit({
+        skin: 0xb5773f, lit: 0xcf9152, shade: 0x8a5a2b, dark: 0x6b4520,
         extras: () => {
-            // The bow tie, taped on, because an inflatable dinosaur has nowhere
-            // to pin one. The tape is the point.
-            fillRect(14, 30, 8, 2, 0xdcd6c4); // a strip of packing tape
-            drawPixel(13, 30, 0xc4bdaa);
-            drawPixel(22, 31, 0xc4bdaa);
-            fillRect(15, 29, 3, 4, 0x22303d); // bow
-            fillRect(19, 29, 3, 4, 0x22303d);
-            fillRect(17, 30, 2, 2, 0x141c26); // knot
-            drawPixel(15, 29, 0x3a4e68);
+            // The bow tie, taped to the neck. Both the bow and the tape are drawn
+            // big enough to see at the size he is actually on screen.
+            fillRect(9, 15, 13, 2, 0xe4ded0); // the strip of packing tape
+            drawPixel(8, 15, 0xc4bdaa);
+            drawPixel(22, 16, 0xc4bdaa);
+            fillRect(10, 13, 4, 5, 0x1f2b3a); // left wing
+            fillRect(17, 13, 4, 5, 0x1f2b3a); // right wing
+            fillRect(14, 14, 3, 3, 0x101820); // knot
+            fillRect(10, 13, 4, 1, 0x3a4e68);
+            fillRect(17, 13, 4, 1, 0x3a4e68);
         }
     });
     g.generateTexture('mike_dino', 32, 40);
 
-    drawDinoSuit(0x2b2118, {
+    drawDinoSuit({
+        skin: 0x7fa050, lit: 0x99bb66, shade: 0x5f7a38, dark: 0x475c28,
         extras: () => {
-            fillRect(14, 20, 10, 2, 0x2b2118); // her hair falls over the window
-            drawPixel(13, 22, 0x2b2118);
-            drawPixel(23, 22, 0x2b2118);
-            fillRect(9, 6, 5, 4, 0xe0559a); // a bow stuck on the dinosaur's head
-            fillRect(15, 6, 5, 4, 0xe0559a);
-            fillRect(13, 7, 3, 2, 0xb03c78);
-            drawPixel(10, 6, 0xf07ab0);
+            fillRect(9, 1, 5, 4, 0xe0559a); // a bow stuck on the skull
+            fillRect(15, 1, 5, 4, 0xe0559a);
+            fillRect(13, 2, 3, 2, 0xb03c78);
+            drawPixel(10, 1, 0xf07ab0);
+            drawPixel(18, 1, 0xf07ab0);
         }
     });
     g.generateTexture('yvy_dino', 32, 40);
@@ -4150,7 +4142,7 @@ export function generateTextures(scene) {
     for (let wx = 14; wx < 148; wx += 22) fillRect(wx, 8, 18, 36, 0x35506b);
     for (let wx = 14; wx < 148; wx += 22) fillRect(wx, 8, 18, 10, 0x4a6d8c);
     for (let wx = 22; wx < 148; wx += 22) fillRect(wx, 6, 3, 40, 0x1d232b); // mullions
-    for (let i = 0; i < 14; i++) drawPixel(18 + i * 10, 20 + (i % 4) * 5, 0xdfe8f5); // the light inside
+    for (let i = 0; i < 14; i++) drawPixel(18 + i * 10, 20 + (i % 4) * 5, 0xdfe8f5);
 
     g.fillStyle(0xe8a0b4, 1); // the rose roundel over the door
     g.fillCircle(80, 56, 11);
@@ -4160,23 +4152,22 @@ export function generateTextures(scene) {
     g.fillCircle(78, 54, 4);
     drawPixel(80, 56, 0x8a3d52);
 
-    // Canopy: a dark curved blade with glass under it, hung on tension cables.
-    fillRect(10, 62, 140, 5, 0x22262c);
+    fillRect(10, 62, 140, 5, 0x22262c); // the curved canopy
     fillRect(10, 62, 140, 2, 0x3a404a);
     fillRect(6, 64, 148, 3, 0x2b3038);
-    for (let cx = 14; cx < 148; cx += 18) fillRect(cx, 67, 14, 2, 0x4a5560); // glass panes
-    fillRect(28, 48, 1, 15, 0x6b7480); // cables back to the wall
+    for (let cx = 14; cx < 148; cx += 18) fillRect(cx, 67, 14, 2, 0x4a5560);
+    fillRect(28, 48, 1, 15, 0x6b7480); // tension cables
     fillRect(132, 48, 1, 15, 0x6b7480);
 
-    fillRect(24, 70, 112, 50, 0x171b21); // the dark entrance recess
-    fillRect(28, 72, 104, 46, 0x2a3a4a); // glass
-    for (let i = 0; i < 10; i++) drawPixel(34 + i * 10, 80 + (i % 3) * 7, 0xffd9a8); // warmth inside
-    fillRect(78, 70, 4, 50, 0x22262c); // the revolving door's centre post
-    fillRect(48, 74, 3, 44, 0x2b3038); // and its wings
+    fillRect(24, 70, 112, 50, 0x171b21); // the entrance recess
+    fillRect(28, 72, 104, 46, 0x2a3a4a);
+    for (let i = 0; i < 10; i++) drawPixel(34 + i * 10, 80 + (i % 3) * 7, 0xffd9a8);
+    fillRect(78, 70, 4, 50, 0x22262c); // the revolving door
+    fillRect(48, 74, 3, 44, 0x2b3038);
     fillRect(110, 74, 3, 44, 0x2b3038);
     fillRect(28, 70, 104, 3, 0x3a404a);
     fillRect(24, 116, 112, 4, 0x2b3038);
-    fillRect(18, 84, 4, 20, 0xb0b8bd); // the patio heaters either side
+    fillRect(18, 84, 4, 20, 0xb0b8bd); // patio heaters
     fillRect(139, 84, 4, 20, 0xb0b8bd);
     fillRect(17, 80, 6, 4, 0xd2d8dc);
     fillRect(138, 80, 6, 4, 0xd2d8dc);
@@ -4188,72 +4179,260 @@ export function generateTextures(scene) {
     fillRect(0, 0, 128, 110, 0x2b2119);
     fillRect(0, 0, 128, 3, 0x453425);
     for (let by = 6; by < 60; by += 8) fillRect(2, by, 124, 1, 0x1f1811);
-    fillRect(6, 8, 116, 26, 0x120d09); // sign board
+    fillRect(6, 8, 116, 26, 0x120d09);
     fillRect(8, 10, 112, 22, 0x1d1510);
-    fillRect(10, 12, 108, 4, 0xf2c14e); // neon script, top and bottom rules
+    fillRect(10, 12, 108, 4, 0xf2c14e);
     fillRect(10, 27, 108, 4, 0xf2c14e);
-    for (let nx = 14; nx < 114; nx += 9) fillRect(nx, 17, 5, 8, 0xffe08a); // the letters
-    for (let bx = 8; bx < 122; bx += 10) drawPixel(bx, 6, 0xffe9b0); // bulbs round the board
+    for (let nx = 14; nx < 114; nx += 9) fillRect(nx, 17, 5, 8, 0xffe08a);
+    for (let bx = 8; bx < 122; bx += 10) drawPixel(bx, 6, 0xffe9b0);
 
-    fillRect(6, 40, 116, 52, 0x0e0a07); // window
+    fillRect(6, 40, 116, 52, 0x0e0a07);
     fillRect(8, 42, 112, 48, 0x3a2414);
-    for (let i = 0; i < 20; i++) { // the room glowing behind it
+    for (let i = 0; i < 20; i++) {
         drawPixel(12 + (i * 13) % 104, 46 + (i * 7) % 40, i % 3 ? 0xd98f3c : 0xf2c14e);
     }
-    // Two pianos, back to back, which is the whole idea of the place.
-    [[28, 72], [86, 72]].forEach(([px, py], i) => {
+    [[28, 72], [86, 72]].forEach(([px, py], i) => { // two pianos, back to back
         fillRect(px - 14, py, 28, 10, 0x140f0a);
         fillRect(px - 14, py, 28, 2, 0x2b2119);
         for (let kx = px - 12; kx < px + 12; kx += 3) fillRect(kx, py + 3, 2, 5, 0xf4f0e4);
         for (let kx = px - 11; kx < px + 11; kx += 3) fillRect(kx, py + 3, 1, 3, 0x140f0a);
-        fillRect(px - 2 + (i ? 6 : -6), py - 12, 9, 12, 0x2b3a5c); // the player at it
+        fillRect(px - 2 + (i ? 6 : -6), py - 12, 9, 12, 0x2b3a5c);
         fillRect(px + (i ? 5 : -7), py - 17, 6, 5, 0x8a6a4a);
     });
-    fillRect(0, 92, 128, 18, 0x1a1410); // stall riser
+    fillRect(0, 92, 128, 18, 0x1a1410);
     fillRect(0, 92, 128, 2, 0x2b2119);
-    fillRect(96, 40, 26, 52, 0x0e0a07); // the door
+    fillRect(96, 40, 26, 52, 0x0e0a07);
     fillRect(99, 43, 20, 46, 0x3a2414);
     fillRect(108, 66, 3, 4, 0xd4a017);
     g.generateTexture('shout_house_front', 128, 110);
 
-    // --- COIN OP ---------------------------------------------------------------
-    // An arcade bar: cabinets down one wall, and the light off the screens.
+    // --- COIN-OP ---------------------------------------------------------------
+    // The Gaslamp corner: red brick pier up the middle, black awnings either
+    // side of it, the round enamel sign on the pier, festoon bulbs under the
+    // awning, and the cabinets going in the windows.
     g.clear();
-    fillRect(0, 0, 128, 110, 0x191b2e);
-    fillRect(0, 0, 128, 3, 0x2c3050);
-    fillRect(6, 8, 116, 24, 0x0d0f1c); // sign box
-    fillRect(9, 11, 110, 18, 0x121529);
-    fillRect(12, 14, 104, 3, 0x3ad6f0); // cyan neon
-    fillRect(12, 25, 104, 3, 0xf03a9c); // magenta neon
-    for (let nx = 16; nx < 112; nx += 11) fillRect(nx, 18, 7, 6, 0x7af0ff);
-    g.fillStyle(0xf2c14e, 1); // a coin slot motif on the end
-    g.fillCircle(108, 21, 5);
-    fillRect(106, 19, 5, 1, 0x8a6a2a);
+    fillRect(0, 0, 150, 120, 0x1b1d24); // the dark upper storey
+    fillRect(0, 0, 150, 3, 0x2e323d);
+    fillRect(0, 6, 150, 22, 0x14161c); // steel-framed window above
+    for (let wx = 6; wx < 146; wx += 18) fillRect(wx, 8, 14, 18, 0x232833);
+    for (let wx = 4; wx < 148; wx += 18) fillRect(wx, 6, 2, 22, 0x3a404d);
 
-    fillRect(6, 38, 116, 54, 0x0b0d18); // window
-    fillRect(8, 40, 112, 50, 0x1d2140);
-    // The cabinets, each with its own colour of screen.
-    const screens = [0x3ad6f0, 0xf03a9c, 0x7af06a, 0xf2c14e, 0xa06af0];
-    for (let i = 0; i < 5; i++) {
-        const cx = 14 + i * 21;
-        fillRect(cx, 50, 16, 40, 0x2b2f4e); // body
-        fillRect(cx, 50, 16, 2, 0x3d4268);
-        fillRect(cx + 2, 54, 12, 13, 0x0a0c14); // screen bezel
-        fillRect(cx + 3, 55, 10, 11, screens[i]);
-        for (let sy = 56; sy < 65; sy += 3) fillRect(cx + 3, sy, 10, 1, 0x0a0c14); // scanlines
-        fillRect(cx + 3, 70, 10, 3, 0x141828); // control panel
-        drawPixel(cx + 5, 71, 0xf03a9c);
-        drawPixel(cx + 8, 71, 0x3ad6f0);
-        drawPixel(cx + 11, 71, 0xf2c14e);
-        g.fillStyle(screens[i], 0.16); // the glow it throws
-        g.fillCircle(cx + 8, 60, 13);
+    fillRect(0, 28, 62, 14, 0x121419); // the awnings, one to each face
+    fillRect(88, 28, 62, 14, 0x121419);
+    fillRect(0, 28, 62, 2, 0x2a2e38);
+    fillRect(88, 28, 62, 2, 0x2a2e38);
+    fillRect(0, 40, 62, 3, 0x0a0b0e); // their shadowed hems
+    fillRect(88, 40, 62, 3, 0x0a0b0e);
+    fillRect(6, 22, 2, 8, 0x2a2e38); // gooseneck lamps on the brickwork
+    fillRect(4, 20, 7, 3, 0x3a404d);
+    fillRect(140, 22, 2, 8, 0x2a2e38);
+    fillRect(138, 20, 7, 3, 0x3a404d);
+
+    fillRect(62, 0, 26, 120, 0x8c3f32); // the brick pier
+    for (let by = 3; by < 120; by += 6) fillRect(62, by, 26, 1, 0x6f2f24);
+    for (let by = 0; by < 120; by += 12) { fillRect(74, by, 1, 6, 0x6f2f24); fillRect(68, by + 6, 1, 6, 0x6f2f24); }
+    fillRect(62, 0, 2, 120, 0xa04f3e);
+
+    g.fillStyle(0x1a1c22, 1); // the round sign, bolted to the pier
+    g.fillCircle(75, 40, 21);
+    g.fillStyle(0xe8e4da, 1);
+    g.fillCircle(75, 40, 19);
+    g.fillStyle(0x2b2e36, 1);
+    g.fillCircle(75, 40, 17);
+    g.fillStyle(0xe8e4da, 1);
+    g.fillCircle(75, 40, 15);
+    fillRect(63, 37, 24, 6, 0x2b2e36); // COIN-OP across the middle
+    for (let lx = 65; lx < 86; lx += 4) fillRect(lx, 38, 3, 4, 0xe8e4da);
+    fillRect(66, 31, 18, 2, 0x2b2e36); // GAME above
+    fillRect(66, 47, 18, 2, 0x2b2e36); // ROOM below
+    fillRect(70, 55, 10, 4, 0x14161c); // the bracket it hangs on
+
+    // Festoon bulbs strung under each awning.
+    for (let bx = 6; bx < 60; bx += 9) { drawPixel(bx, 45, 0x3a404d); fillRect(bx - 1, 46, 3, 3, 0xffe9b0); }
+    for (let bx = 92; bx < 146; bx += 9) { drawPixel(bx, 45, 0x3a404d); fillRect(bx - 1, 46, 3, 3, 0xffe9b0); }
+
+    // Windows: cabinets, screens, and the neon behind them.
+    [[4, 56], [92, 56]].forEach(([wx]) => {
+        fillRect(wx, 52, 54, 46, 0x0b0d12);
+        fillRect(wx + 2, 54, 50, 42, 0x1d2030);
+        const screens = [0x3ad6f0, 0xf03a9c, 0x7af06a, 0xf2c14e];
+        for (let i = 0; i < 4; i++) {
+            const cx = wx + 5 + i * 12;
+            fillRect(cx, 62, 9, 34, 0x2b2f43);
+            fillRect(cx, 62, 9, 2, 0x3d4258);
+            fillRect(cx + 1, 65, 7, 9, 0x0a0c14);
+            fillRect(cx + 2, 66, 5, 7, screens[(i + wx) % 4]);
+            fillRect(cx + 1, 78, 7, 2, 0x141828);
+            g.fillStyle(screens[(i + wx) % 4], 0.15);
+            g.fillCircle(cx + 4, 70, 10);
+        }
+        fillRect(wx + 4, 56, 46, 3, 0xf03a9c); // a neon strip along the top
+        fillRect(wx + 4, 56, 46, 1, 0xff8ac6);
+    });
+
+    // The rail and stools out on the pavement.
+    fillRect(0, 104, 150, 2, 0x2a2e38);
+    for (let rx = 4; rx < 150; rx += 16) fillRect(rx, 104, 2, 12, 0x2a2e38);
+    [18, 44, 104, 130].forEach(sx => {
+        fillRect(sx - 6, 98, 12, 3, 0xd8d4cc); // white stool tops
+        fillRect(sx - 1, 101, 2, 12, 0xb8b4ac);
+        fillRect(sx - 5, 113, 10, 2, 0xb8b4ac);
+    });
+    fillRect(0, 116, 150, 4, 0x14161c);
+    g.generateTexture('coin_op_front', 150, 120);
+
+    // --- INSIDE FIFTH & ROSE ---------------------------------------------------
+    // The thing everyone remembers about the room: hundreds of plates held in a
+    // black steel grid above the bar, lit from behind.
+    g.clear();
+    fillRect(0, 0, 64, 48, 0x0f1114);
+    for (let gy = 0; gy < 48; gy += 16) {
+        for (let gx = 0; gx < 64; gx += 16) {
+            g.fillStyle(0x6f6a5c, 1); // the plate
+            g.fillCircle(gx + 8, gy + 8, 6);
+            g.fillStyle(0x8f8a78, 1);
+            g.fillCircle(gx + 7, gy + 7, 5);
+            g.fillStyle(0xb0a892, 1);
+            g.fillCircle(gx + 7, gy + 7, 3);
+            g.fillStyle(0x6f6a5c, 1);
+            g.fillCircle(gx + 7, gy + 7, 1);
+            drawPixel(gx + 5, gy + 5, 0xd2c9ae); // the light catching the rim
+        }
     }
-    fillRect(0, 92, 128, 18, 0x141628); // riser
-    fillRect(0, 92, 128, 2, 0x262a45);
-    fillRect(96, 38, 26, 54, 0x0b0d18); // door
-    fillRect(99, 41, 20, 48, 0x1d2140);
-    fillRect(108, 64, 3, 4, 0x7af0ff);
-    g.generateTexture('coin_op_front', 128, 110);
+    for (let gx = 0; gx <= 64; gx += 16) fillRect(gx, 0, 2, 48, 0x1d2026); // the steel grid
+    for (let gy = 0; gy <= 48; gy += 16) fillRect(0, gy, 64, 2, 0x1d2026);
+    fillRect(0, 0, 64, 1, 0x343842);
+    g.generateTexture('plate_wall', 64, 48);
+
+    // Backbar: lit shelves, bottles, and the mirror behind them.
+    g.clear();
+    fillRect(0, 0, 64, 56, 0x14161b);
+    fillRect(2, 2, 60, 52, 0x1d2129);
+    for (let sy = 4; sy < 52; sy += 16) {
+        fillRect(3, sy + 12, 58, 2, 0x3a4049); // shelf
+        fillRect(3, sy + 11, 58, 1, 0xe8b45c); // strip light under it
+        for (let bx = 5; bx < 60; bx += 4) {
+            const tone = [0x8a5a2b, 0x2f5d3a, 0x6b3a52, 0xc9a34a, 0x3a4a6b][(bx + sy) % 5];
+            fillRect(bx, sy + 3, 3, 9, tone);
+            fillRect(bx, sy + 3, 1, 9, 0xd8cfae);
+            drawPixel(bx + 1, sy + 1, 0x2a2018); // neck
+            drawPixel(bx + 1, sy + 2, tone);
+        }
+    }
+    fillRect(0, 0, 64, 2, 0x343842);
+    g.generateTexture('rose_backbar', 64, 56);
+
+    // The bar itself: black marble, warm light spilling out from under the lip.
+    g.clear();
+    fillRect(0, 0, 64, 9, 0x23262c); // marble top
+    fillRect(0, 0, 64, 2, 0x3a3f47);
+    drawPixel(11, 4, 0x565c66); // veining
+    drawPixel(12, 3, 0x565c66);
+    drawPixel(39, 5, 0x565c66);
+    drawPixel(52, 3, 0x565c66);
+    fillRect(0, 9, 64, 2, 0x14161a);
+    fillRect(0, 9, 64, 11, 0x7a5f3a); // the oak front, in a dark room
+    fillRect(0, 9, 64, 2, 0x967548);
+    for (let px = 4; px < 64; px += 16) fillRect(px, 12, 10, 6, 0x6b5231); // panel reveals
+    fillRect(0, 20, 64, 4, 0xe8b45c); // the light under the lip
+    fillRect(0, 21, 64, 2, 0xffd98a);
+    g.generateTexture('rose_bar', 64, 24);
+
+    // Quilted black leather stool with a low back.
+    g.clear();
+    fillRect(1, 0, 14, 10, 0x1f2126); // back
+    fillRect(1, 0, 14, 2, 0x33363d);
+    for (let qy = 2; qy < 9; qy += 3) fillRect(2, qy, 12, 1, 0x14161a);
+    for (let qx = 4; qx < 14; qx += 4) fillRect(qx, 1, 1, 8, 0x14161a);
+    fillRect(0, 10, 16, 5, 0x26292f); // seat
+    fillRect(0, 10, 16, 1, 0x3a3e46);
+    fillRect(0, 14, 16, 2, 0x14161a);
+    fillRect(7, 16, 2, 9, 0x4a4f58); // frame
+    fillRect(3, 25, 10, 2, 0x3a3e46);
+    fillRect(2, 20, 12, 2, 0x3a3e46); // footrail
+    g.generateTexture('leather_stool', 16, 28);
+
+    // Dark hexagonal floor tile.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x24272d);
+    for (let hy = 0; hy < 32; hy += 8) {
+        const off = (hy / 8) % 2 ? 6 : 0;
+        for (let hx = -6; hx < 32; hx += 12) {
+            fillRect(hx + off + 2, hy + 1, 8, 6, 0x2b2f36);
+            fillRect(hx + off + 3, hy + 1, 6, 1, 0x343942);
+            drawPixel(hx + off + 2, hy + 6, 0x1c1f24);
+        }
+    }
+    g.generateTexture('hex_floor', 32, 32);
+
+    // --- INSIDE COIN-OP --------------------------------------------------------
+    // The marquee over the door, with the letters pushed into the board.
+    g.clear();
+    fillRect(0, 0, 96, 40, 0x141118);
+    fillRect(2, 2, 92, 36, 0x1d1a22);
+    fillRect(6, 4, 84, 10, 0x0e0c12); // COIN-OP in bulbs
+    for (let lx = 10; lx < 88; lx += 6) fillRect(lx, 6, 4, 6, 0xf2c14e);
+    fillRect(6, 16, 84, 20, 0xe8e4da); // the white letterboard
+    fillRect(6, 16, 84, 2, 0xf6f4ee);
+    for (let r = 0; r < 2; r++) { // the letters, too small to read
+        for (let lx = 10; lx < 86; lx += 5) {
+            if ((lx + r * 7) % 17 < 12) fillRect(lx, 20 + r * 8, 3, 5, 0x1d1a22);
+        }
+    }
+    for (let bx = 4; bx < 94; bx += 8) drawPixel(bx, 1, 0xffe9b0); // bulbs round the frame
+    g.generateTexture('coin_marquee', 96, 40);
+
+    // The rainbow chevrons painted down the floor.
+    g.clear();
+    fillRect(0, 0, 48, 32, 0x2a2d34);
+    // One clean chevron per tile. The first version mirrored the slope about the
+    // middle of the tile, so tiling it produced a zigzag that swamped the room.
+    const bands = [0xa8474b, 0xb36a38, 0xb99a47, 0x4f9159, 0x3a7c96, 0x6a4a96];
+    bands.forEach((col, i) => {
+        for (let y = 0; y < 32; y++) {
+            const x = (i * 8 + y / 4) % 48;
+            fillRect(Math.round(x), y, 7, 1, col);
+            if (x > 41) fillRect(Math.round(x) - 48, y, 7, 1, col);
+        }
+    });
+    g.generateTexture('rainbow_floor', 48, 32);
+
+    // One arcade cabinet, seen head on.
+    g.clear();
+    fillRect(1, 0, 18, 6, 0x1d2030); // marquee
+    fillRect(2, 1, 16, 4, 0xf2c14e);
+    fillRect(0, 6, 20, 40, 0x2b2f43); // body
+    fillRect(0, 6, 3, 40, 0x3d4258);
+    fillRect(17, 6, 3, 40, 0x1d2130);
+    fillRect(3, 9, 14, 13, 0x0a0c14); // bezel
+    fillRect(4, 10, 12, 11, 0x3ad6f0); // screen
+    for (let sy = 11; sy < 21; sy += 3) fillRect(4, sy, 12, 1, 0x0a0c14);
+    fillRect(3, 25, 14, 5, 0x141828); // control panel
+    g.fillStyle(0xd94f4f, 1);
+    g.fillCircle(7, 27, 2);
+    drawPixel(11, 27, 0xf2c14e);
+    drawPixel(13, 27, 0x5bbf6a);
+    drawPixel(11, 28, 0x3aa0c4);
+    fillRect(3, 32, 14, 12, 0x1d2130); // the coin door
+    fillRect(8, 36, 4, 2, 0xc9a34a);
+    g.generateTexture('arcade_cab', 20, 46);
+
+    // Pinball, on its legs, lit from inside.
+    g.clear();
+    fillRect(6, 0, 28, 14, 0x1d2030); // backbox
+    fillRect(8, 2, 24, 10, 0xf03a9c);
+    fillRect(8, 2, 24, 3, 0xff8ac6);
+    drawPixel(14, 7, 0xffe9b0);
+    drawPixel(24, 8, 0xffe9b0);
+    fillRect(2, 14, 36, 12, 0x2b2f43); // the table, in perspective
+    fillRect(4, 15, 32, 9, 0x1a3a5c);
+    for (let i = 0; i < 7; i++) drawPixel(7 + i * 4, 17 + (i % 3) * 2, 0xf2c14e); // bumpers and lanes
+    fillRect(10, 22, 5, 1, 0xd8d4cc); // flippers
+    fillRect(25, 22, 5, 1, 0xd8d4cc);
+    fillRect(2, 26, 36, 3, 0x14161f); // lockdown bar
+    fillRect(4, 29, 3, 9, 0x3a3f47); // legs
+    fillRect(33, 29, 3, 9, 0x3a3f47);
+    g.generateTexture('pinball_table', 40, 38);
 
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning

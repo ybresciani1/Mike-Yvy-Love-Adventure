@@ -13,6 +13,8 @@ import { DriveToHotelScene } from './DriveToHotelScene.js';
 import { FancyHotelScene } from './FancyHotelScene.js';
 import { DowntownScene } from './DowntownScene.js';
 import { CostumeNightScene } from './CostumeNightScene.js';
+import { FifthRoseScene } from './FifthRoseScene.js';
+import { CoinOpScene } from './CoinOpScene.js';
 import { TravelScene } from './TravelScene.js';
 import { HouseScene } from './HouseScene.js';
 import { SurgeryScene } from './SurgeryScene.js';
@@ -42,6 +44,8 @@ export const SCENES = [
     FancyHotelScene,
     DowntownScene,
     CostumeNightScene,
+    FifthRoseScene,
+    CoinOpScene,
     TravelScene,
     HouseScene,
     SurgeryScene,
