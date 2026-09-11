@@ -3992,6 +3992,30 @@ export function generateTextures(scene) {
     drawPixel(6, 4, 0xffffff);
     g.generateTexture('place_setting', 16, 12);
 
+    // Downtown after dark, for the New Year and for the drive across town. The
+    // daytime sd_skyline cannot just be tinted for this: tint only darkens, and
+    // what makes a night skyline is the windows being brighter than the sky.
+    g.clear();
+    const nightTowers = [[0, 40, 26, 56], [28, 22, 20, 74], [50, 52, 16, 44], [68, 10, 22, 86],
+        [92, 34, 18, 62], [112, 20, 24, 76], [138, 46, 16, 50], [156, 14, 20, 82], [178, 36, 22, 60]];
+    nightTowers.forEach(([bx, by, bw, bh], i) => {
+        fillRect(bx, by, bw, bh, i % 2 ? 0x161d2e : 0x1b2436);
+        fillRect(bx, by, bw, 1, 0x2a3752); // parapet
+        fillRect(bx + bw - 2, by + 1, 2, bh - 1, 0x101623);
+        for (let wy = by + 4; wy < by + bh - 3; wy += 6) {
+            for (let wx = bx + 3; wx < bx + bw - 3; wx += 5) {
+                if ((wx * 3 + wy * 7 + i) % 5 < 3) {
+                    drawPixel(wx, wy, (wx + wy) % 7 ? 0xffd98a : 0xbfe3ff);
+                    drawPixel(wx + 1, wy, (wx + wy) % 4 ? 0xe8bf6a : 0x8fc4e0);
+                }
+            }
+        }
+        if (bh > 70) { // aircraft warning light on the tall ones
+            drawPixel(bx + (bw >> 1), by - 1, 0xff4d4d);
+        }
+    });
+    g.generateTexture('night_skyline', 200, 96);
+
     // --- GASLAMP QUARTER ------------------------------------------------------
     // The storefronts all share a shell — brick pier, sign band, striped awning
     // with a scalloped hem, glass, stall riser — and differ in colour and in
