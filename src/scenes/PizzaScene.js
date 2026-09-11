@@ -230,19 +230,28 @@ export class PizzaScene extends Phaser.Scene {
         });
     }
 
+    /**
+     * The callback to the club. Mike was the one who wanted matching Eevee
+     * tattoos, drunk, on the way out, and Yvy said maybe after food — so he is
+     * the one pushing here, and she is the one holding the line.
+     */
     tattooShop() {
         if (this.tattooUsed) {
-            showDialogue("Yvy: 'I'm serious about the tattoo, by the way.'");
+            showDialogue("Yvy: 'One day. Matching Eevees. I said what I said.'");
             return;
         }
         this.tattooUsed = true;
-        showDialogue("Yvy: 'Ooh. Still open.'", () => {
-            showDialogue("Mike: 'Absolutely not. Not at this hour, not after tonight.'", () => {
-                showDialogue("Yvy: 'Not tonight. One day, though. Matching ones.'", () => {
-                    showDialogue("Mike: 'Matching what?'", () => {
-                        showDialogue("Yvy: 'I don't know yet. That's the point. We'd have to pick it together.'", () => {
-                            showDialogue("Mike: 'One day, then. When we know what it is.'", () => {
-                                showDialogue("Yvy: 'Deal.'");
+        showDialogue("Mike: 'Wait. Wait. Ink and Needle. They're OPEN.'", () => {
+            showDialogue("Yvy: '...Mike.'", () => {
+                showDialogue("Mike: 'You said after food! We are practically AT the food!'", () => {
+                    showDialogue("Yvy: 'I said MAYBE after food. Maybe is doing a lot of work in that sentence.'", () => {
+                        showDialogue("Mike: 'Matching Eevees. Little one. Right here. *hic*'", () => {
+                            showDialogue("Yvy: '*laughing* Absolutely not tonight. You're drunk and I'm not far behind.'", () => {
+                                showDialogue("Mike: 'But one day?'", () => {
+                                    showDialogue("Yvy: 'One day. Matching Eevees. When we're both sober enough to remember picking it.'", () => {
+                                        showDialogue("Mike: 'Deal.'");
+                                    });
+                                });
                             });
                         });
                     });
