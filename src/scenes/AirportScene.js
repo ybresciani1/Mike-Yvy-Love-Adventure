@@ -37,7 +37,7 @@ export class AirportScene extends Phaser.Scene {
         [{x: 900, label: "GATE 10"}, {x: 1300, label: "GATE 11"}, {x: 1700, label: "GATE 12A"}, {x: 2200, label: "GATE 12B\n(TARGET)"}].forEach(g => {
             this.add.rectangle(g.x, 60, 60, 80, 0x555555); this.add.text(g.x-30, 80, g.label, { fontSize: '12px', color: '#fff', align: 'center' });
         });
-        this.wrongGates = [];
+        this.gateDesks = [];
         [
             [900, 0xb07a8c, gate => this.gateTen(gate)],
             [1300, 0x7a9cb0, gate => this.gateEleven(gate)],
@@ -49,8 +49,19 @@ export class AirportScene extends Phaser.Scene {
             const zone = this.add.rectangle(gx + 20, 140, 130, 90, 0xffff00, 0);
             this.physics.add.existing(zone, true);
             zone.setData('talk', talk);
-            this.wrongGates.push(zone);
+            this.gateDesks.push(zone);
         });
+
+        // 12B is his own gate, so it gets a desk too. It sits off to the side of
+        // the boarding zone rather than in front of it — an interaction zone
+        // across the gate mouth would answer instead of the gate itself.
+        this.add.image(2280, 146, 'host_stand');
+        const boardingAgent = this.add.sprite(2280, 122, 'airline_agent').setTint(0x9cb0a0);
+        this.tweens.add({ targets: boardingAgent, y: 120, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        const boardingDesk = this.add.rectangle(2280, 140, 84, 90, 0xffff00, 0);
+        this.physics.add.existing(boardingDesk, true);
+        boardingDesk.setData('talk', zone => this.gateTwelveB(zone));
+        this.gateDesks.push(boardingDesk);
         this.add.rectangle(1500, 50, 300, 100, 0x87ceeb); this.add.text(1500, 110, "OBSERVATION DECK", { fontSize: '12px', color: '#fff', backgroundColor: '#333' }).setOrigin(0.5);
         const planeMaskGraphics = this.make.graphics(); planeMaskGraphics.fillStyle(0xffffff); planeMaskGraphics.fillRect(1350, 0, 300, 100); const planeMask = planeMaskGraphics.createGeometryMask();
         this.time.addEvent({ delay: 2500, loop: true, callback: () => {
@@ -206,7 +217,7 @@ export class AirportScene extends Phaser.Scene {
             if (!Phaser.Input.Keyboard.JustDown(this.spaceKey) || dialogueBusy()) return;
             if (this.seated) this.standUp(); else this.sitDown(spot.getData('seat'));
         }));
-        this.wrongGates.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+        this.gateDesks.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) zone.getData('talk')(zone);
         }));
         this.physics.add.overlap(this.player, this.suitcase, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasSuitcase) { gameState.hasSuitcase = true; this.suitcase.destroy(); this.heldSuitcase.setVisible(true); playSound('select'); showDialogue("Mike grabbed his suitcase."); } });
@@ -366,6 +377,33 @@ export class AirportScene extends Phaser.Scene {
         });
     }
 
+    /**
+     * The one gate that is actually his. She answers differently depending on
+     * how far along he is, so the desk doubles as a reminder of what is left to
+     * do rather than repeating one line at him.
+     */
+    gateTwelveB(zone) {
+        if (!gameState.securityCleared) {
+            showDialogue("Gate Agent: 'Flight 214 to San Diego, that's us. Yes.'", () => {
+                showDialogue("Gate Agent: 'You'll want to clear security first, though. Back that way.'");
+            });
+            return;
+        }
+        if (!gameState.hasCoffee) {
+            showDialogue("Gate Agent: 'We're not boarding for a few minutes yet.'", () => {
+                showDialogue("Gate Agent: 'Go get a coffee. It's a five hour flight and you look like you need one.'");
+            });
+            return;
+        }
+        showDialogue("Gate Agent: 'Flight 214 to San Diego. Boarding whenever you're ready.'", () => {
+            showDialogue("Mike: 'First time out there.'", () => {
+                showDialogue("Gate Agent: 'Oh, you'll love it. Nobody comes back the same.'", () => {
+                    zone.setData('talk', () => showDialogue("Gate Agent: 'Still boarding. Any time you like.'"));
+                });
+            });
+        });
+    }
+
     gateTen(zone) {
         showDialogue("Gate Agent: 'Ten is boarding for Phoenix. Are you Phoenix?'", () => {
             showDialogue("Mike: 'San Diego.'", () => {
@@ -408,7 +446,7 @@ export class AirportScene extends Phaser.Scene {
         if (gameState.hasSuitcase) this.rollSuitcase(); 
         if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
         if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
-        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.wrongGates, ...this.peopleZones, ...this.seatZones]); 
+        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.gateDesks, ...this.peopleZones, ...this.seatZones]); 
         document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
     }
 }
