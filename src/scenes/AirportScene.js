@@ -7,6 +7,18 @@ import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { generateTextures } from '../textures/generateTextures.js';
 import { Player } from '../entities/Player.js';
 
+// Nobody in a departure hall has the same case as anybody else. Mike's is the
+// plain grey one; these are everyone else's.
+const BAG_COLOURS = [
+    0x4f86c6, // navy
+    0xc0655e, // oxblood
+    0x5e9e74, // green
+    0xc6a24f, // mustard
+    0x8a6bb0, // plum
+    0x4fa39e, // teal
+    0xb06a8c  // rose
+];
+
 const WHEELED_LINES = [
     "Passenger: 'Forty minutes to the gate. I looked it up. Forty.'",
     "Passenger: 'If this thing loses a wheel I am leaving it right here.'",
@@ -19,6 +31,7 @@ export class AirportScene extends Phaser.Scene {
     preload() { generateTextures(this); }
     create() {
         playAirportTheme();
+        this.bagColour = 0;
         // He has his case from the first frame. There is nothing to check and
         // nothing to find on the floor of a departure hall.
         gameState.hasSuitcase = true;
@@ -179,7 +192,7 @@ export class AirportScene extends Phaser.Scene {
         const queuePerson = (x, y, key, tint, line, withBag) => {
             const person = addPerson(x, y, key, tint, line);
             if (withBag) {
-                const bag = this.add.sprite(x - 13, y + 9, 'suitcase').setScale(0.85);
+                const bag = this.add.sprite(x - 13, y + 9, 'suitcase').setScale(0.85).setTint(this.nextBagColour());
                 this.tweens.add({ targets: bag, y: y + 8, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             }
             this.tweens.add({
@@ -205,7 +218,7 @@ export class AirportScene extends Phaser.Scene {
             [860, 1900, 462, 'civilian', 0xa08cb4, 23000]
         ].forEach(([x0, x1, wy, key, tint, dur]) => {
             const sprite = this.add.sprite(x0, wy, key).setTint(tint);
-            const bag = this.add.sprite(x0 - 14, wy + 8, 'suitcase').setScale(0.85);
+            const bag = this.add.sprite(x0 - 14, wy + 8, 'suitcase').setScale(0.85).setTint(this.nextBagColour());
             this.tweens.add({ targets: sprite, x: x1, duration: dur, yoyo: true, repeat: -1, ease: 'Linear' });
             this.tweens.add({ targets: sprite, y: wy - 2, duration: 260, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             this.wanderers.push({ sprite, bag, lastX: x0, line: WHEELED_LINES[this.wanderers.length % WHEELED_LINES.length] });
@@ -220,7 +233,10 @@ export class AirportScene extends Phaser.Scene {
         this.pullAngle = Math.PI; // parked behind him until he first moves
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
         this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor); this.laneBarriers.forEach(b => this.physics.add.collider(this.player, b));
-        this.heldSuitcase = this.add.sprite(0, 0, 'suitcase').setVisible(false);
+        // His is the grey one. The shell is drawn pale so colours tint cleanly,
+        // and pale grey on a pale terminal floor disappears -- so his gets a grey
+        // tint of its own rather than going bare.
+        this.heldSuitcase = this.add.sprite(0, 0, 'suitcase').setVisible(false).setTint(0x8f979d);
         this.heldTicket = this.add.sprite(0, 0, 'ticket').setScale(0.5).setVisible(false);
         this.heldCoffee = this.add.sprite(0, 0, 'coffee').setScale(0.5).setVisible(false);
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -291,7 +307,7 @@ export class AirportScene extends Phaser.Scene {
     sendTheLateRunner() {
         const startX = Math.max(-40, this.player.x - 460);
         const runner = this.add.sprite(startX, 400, 'civilian').setTint(0xd48c8c);
-        const bag = this.add.sprite(startX - 14, 408, 'suitcase').setScale(0.85);
+        const bag = this.add.sprite(startX - 14, 408, 'suitcase').setScale(0.85).setTint(this.nextBagColour());
         const cry = this.add.text(startX, 372, "WAIT!", {
             fontSize: '11px', color: '#c0392b', fontStyle: 'bold'
         }).setOrigin(0.5);
@@ -449,6 +465,11 @@ export class AirportScene extends Phaser.Scene {
         ].forEach(([qy, bags, lines]) => lines.forEach((line, i) => {
             queuePerson(QUEUE_AT[qy] + i * 46, qy, i % 2 ? 'civilian_f' : 'civilian', TINTS[i], line, bags);
         }));
+    }
+
+    /** The next case colour along, so no two neighbours match. */
+    nextBagColour() {
+        return BAG_COLOURS[this.bagColour++ % BAG_COLOURS.length];
     }
 
     /** Dialogue fired from a timer has to survive a box that is already open. */

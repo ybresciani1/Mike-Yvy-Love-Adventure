@@ -582,12 +582,12 @@ export function generateTextures(scene) {
     g.clear(); g.fillStyle(0x2e7d32, 1); g.fillRect(0, 0, 32, 32); g.fillStyle(0x1b5e20, 0.5); g.fillRect(0,30,32,2); g.generateTexture('grass', 32, 32);
     // Roller case: shell with straps, a telescoping handle and wheels.
     g.clear();
-    fillRect(6, 9, 20, 17, 0x6d4c41); // shell
-    fillRect(22, 9, 4, 17, 0x543a31); // shadow side
-    fillRect(6, 9, 20, 1, 0x8d6e63);
-    fillRect(11, 9, 2, 17, 0x4e342e); // straps
-    fillRect(19, 9, 2, 17, 0x4e342e);
-    fillRect(6, 16, 20, 1, 0x4e342e); // centre seam
+    fillRect(6, 9, 20, 17, 0xcfd6da); // shell
+    fillRect(22, 9, 4, 17, 0xa3acb2); // shadow side
+    fillRect(6, 9, 20, 1, 0xe8edf0);
+    fillRect(11, 9, 2, 17, 0x8b949a); // straps
+    fillRect(19, 9, 2, 17, 0x8b949a);
+    fillRect(6, 16, 20, 1, 0x8b949a); // centre seam
     fillRect(14, 5, 2, 4, 0x9aa5b1); // handle
     fillRect(14, 4, 6, 1, 0x9aa5b1);
     fillRect(19, 5, 2, 4, 0x9aa5b1);
