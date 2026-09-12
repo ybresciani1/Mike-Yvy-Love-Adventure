@@ -1801,6 +1801,113 @@ export function generateTextures(scene) {
     fillRect(34, 58, 14, 6, 0x6c7679);
     g.generateTexture('security_arch', 48, 64);
 
+    // The detector again, laid on its side. The arch above has its uprights to
+    // the left and right of the lane, which means walking the length of the
+    // terminal takes you across it rather than through it — it reads as a tall
+    // vertical slot. This one is a panel on the far side of the lane and a panel
+    // on the near side, with the walk-through open between them.
+    g.clear();
+    fillRect(2, 0, 60, 18, 0xd7dbdd); // far panel
+    fillRect(2, 0, 60, 3, 0xf4f6f7);
+    fillRect(2, 15, 60, 3, 0xaeb6b8);
+    fillRect(2, 0, 4, 18, 0xb9c2c5); // end posts
+    fillRect(58, 0, 4, 18, 0xaeb6b8);
+    fillRect(29, 4, 6, 4, 0x27ae60); // status lights
+    fillRect(8, 4, 3, 4, 0x27ae60);
+    fillRect(53, 4, 3, 4, 0x27ae60);
+    for (let i = 14; i < 52; i += 8) fillRect(i, 10, 3, 4, 0x9aa5b1);
+    fillRect(5, 18, 6, 3, 0x6c7679); // feet
+    fillRect(53, 18, 6, 3, 0x6c7679);
+    fillRect(6, 23, 52, 1, 0xc9b76a); // the painted lane between the panels
+    fillRect(6, 40, 52, 1, 0xc9b76a);
+    fillRect(2, 46, 60, 18, 0xc3cacd); // near panel
+    fillRect(2, 46, 60, 3, 0xdfe4e6);
+    fillRect(2, 61, 60, 3, 0x8b9497);
+    fillRect(2, 46, 4, 18, 0xaeb6b8);
+    fillRect(58, 46, 4, 18, 0x9aa5b1);
+    fillRect(29, 50, 6, 4, 0x27ae60);
+    fillRect(8, 50, 3, 4, 0x27ae60);
+    fillRect(53, 50, 3, 4, 0x27ae60);
+    for (let i = 14; i < 52; i += 8) fillRect(i, 56, 3, 4, 0x7f8c8d);
+    g.generateTexture('metal_detector', 64, 64);
+
+    // The ordinary bag machine: a belt, a lead curtain, and everything you own
+    // out of the case first.
+    g.clear();
+    fillRect(0, 10, 80, 16, 0x4a5158); // belt bed
+    fillRect(0, 10, 80, 2, 0x6b747c);
+    fillRect(0, 24, 80, 2, 0x2f353b);
+    for (let i = 2; i < 80; i += 6) fillRect(i, 13, 3, 10, 0x394046); // rollers
+    fillRect(26, 0, 28, 30, 0x7f8c8d); // hood
+    fillRect(26, 0, 28, 4, 0x95a5a6);
+    fillRect(30, 6, 20, 14, 0x1c2126); // the mouth
+    fillRect(30, 6, 20, 2, 0x11151a);
+    fillRect(32, 8, 4, 10, 0x2b323a); // lead curtain strips
+    fillRect(38, 8, 4, 10, 0x2b323a);
+    fillRect(44, 8, 4, 10, 0x2b323a);
+    fillRect(56, 2, 20, 8, 0x2c3e50); // operator screen
+    fillRect(58, 4, 16, 4, 0xe8a33d);
+    fillRect(2, 26, 76, 4, 0x5a6265);
+    fillRect(4, 30, 6, 6, 0x3c4248);
+    fillRect(70, 30, 6, 6, 0x3c4248);
+    g.generateTexture('xray_machine', 80, 36);
+
+    // The Smithson: same belt, but a CT ring instead of a curtain. The bag goes
+    // in as it is and the laptop stays where it is.
+    g.clear();
+    fillRect(0, 10, 80, 16, 0x3b4450);
+    fillRect(0, 10, 80, 2, 0x5a687a);
+    fillRect(0, 24, 80, 2, 0x242b34);
+    for (let i = 2; i < 80; i += 6) fillRect(i, 13, 3, 10, 0x2f3743);
+    fillRect(24, 0, 32, 30, 0x1f4f7a); // ring housing
+    fillRect(24, 0, 32, 4, 0x2f6ea8);
+    fillRect(28, 5, 24, 16, 0x0d1c2b); // the bore
+    g.fillStyle(0x3fb7e8, 1);
+    g.fillCircle(40, 13, 7);
+    g.fillStyle(0x0d1c2b, 1);
+    g.fillCircle(40, 13, 4);
+    fillRect(26, 22, 28, 2, 0x3fb7e8); // underlight
+    fillRect(58, 2, 20, 8, 0x16212b);
+    fillRect(60, 4, 16, 4, 0x3fb7e8);
+    fillRect(2, 26, 76, 4, 0x4a535f);
+    fillRect(4, 30, 6, 6, 0x2f3743);
+    fillRect(70, 30, 6, 6, 0x2f3743);
+    g.generateTexture('smithson_machine', 80, 36);
+
+    // Millimetre-wave booth: two panels, a sweep bar, and the yellow feet you
+    // are told to stand on.
+    g.clear();
+    fillRect(2, 6, 10, 52, 0xdfe4e6);
+    fillRect(2, 6, 10, 3, 0xf4f6f7);
+    fillRect(32, 6, 10, 52, 0xc3cacd);
+    fillRect(32, 6, 10, 3, 0xdfe4e6);
+    fillRect(12, 10, 20, 44, 0x8fb9d6); // the glazed middle
+    fillRect(12, 10, 20, 3, 0xbcdcef);
+    fillRect(12, 30, 20, 2, 0x5fa3cc); // sweep bar
+    fillRect(2, 0, 40, 7, 0xb0b8bb); // header
+    fillRect(18, 2, 8, 3, 0x27ae60);
+    fillRect(10, 58, 24, 6, 0x6c7679); // floor pad
+    fillRect(13, 59, 7, 4, 0xf4d03f); // painted footprints
+    fillRect(24, 59, 7, 4, 0xf4d03f);
+    g.generateTexture('body_scanner', 44, 66);
+
+    // CLEAR+ kiosk: a podium with an eye at head height.
+    g.clear();
+    fillRect(4, 14, 22, 26, 0x1b3a6b);
+    fillRect(4, 14, 22, 3, 0x2b56a0);
+    fillRect(4, 37, 22, 3, 0x12284b);
+    fillRect(6, 0, 18, 14, 0x11151a);
+    fillRect(8, 2, 14, 10, 0x2b8ce0);
+    fillRect(8, 2, 14, 3, 0x5fb4ef);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(15, 7, 2);
+    g.fillStyle(0x11151a, 1);
+    g.fillCircle(15, 7, 1);
+    fillRect(9, 20, 12, 3, 0xf4f6f7);
+    fillRect(9, 26, 8, 2, 0xa8c4e8);
+    fillRect(2, 40, 26, 4, 0x0d1c2b);
+    g.generateTexture('clear_pod', 30, 44);
+
     // Coffee kiosk: green fascia, cup sign, counter with a machine.
     g.clear();
     fillRect(0, 8, 64, 40, 0x0b6b4f); // body

@@ -3,6 +3,8 @@
 const INITIAL_STATE = {
     hasTicket: false,
     hasSuitcase: false,
+    bagScreened: false,
+    bodyScanned: false,
     securityCleared: false,
     hasCoffee: false,
     drinksConsumed: 0,

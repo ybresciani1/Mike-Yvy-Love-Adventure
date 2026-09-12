@@ -27,19 +27,29 @@ npx vitest run tests/dialogue.test.js
 npx vitest run -t "types the line out"
 ```
 
-In dev the game is exposed as `window.game`, plus a `gotoScene` helper for jumping straight to a scene without replaying the story:
+## Developer tools
+
+`src/dev/devtools.js` — a chapter-select overlay for jumping straight to a scene without replaying the story. Press `` ` `` in the dev server to open it, arrow keys / PageUp / PageDown to move, ENTER or a click to jump, `` ` `` or ESC to close. It opens on whichever chapter is playing.
+
+The same jump is on the console, along with `window.game` and a `listScenes()` helper:
 
 ```js
 gotoScene('ThanksgivingScene')
+gotoScene('ClubScene', { keepState: true })
 ```
 
-Use it rather than `game.scene.start(key)`. On the global SceneManager `start()` runs the target **alongside** whatever is already active, and two live scenes share one keyboard and one DOM dialogue box — the older scene's overlap handlers keep firing dialogue over the new scene (marine lines from `BarScene` appearing in the restaurant, say). `gotoScene` stops every running scene first. Normal play never hits this, because `this.scene.start()` inside a scene stops the caller.
+Use these rather than `game.scene.start(key)`. On the global SceneManager `start()` runs the target **alongside** whatever is already active, and two live scenes share one keyboard and one DOM dialogue box — the older scene's overlap handlers keep firing dialogue over the new scene (marine lines from `BarScene` appearing in the restaurant, say). `gotoScene` stops every running scene first, and also does the tidying a normal transition would: `stopMusic()`, hiding every DOM overlay a scene can leave showing, and `resetGameState()` so the chapter plays from its own beginning (pass `{ keepState: true }` to keep the current flags). Normal play never hits the overlap problem, because `this.scene.start()` inside a scene stops the caller.
+
+**None of this ships.** `main.js` imports the module dynamically from inside an `import.meta.env.DEV` branch, which Vite replaces with `false` for `npm run build` — the branch and its import are dropped, and the production bundle comes out byte-identical to one built without `src/dev` at all. The overlay also builds its own DOM with `createElement` rather than markup in `index.html`, so the page shell the public downloads has no trace of it either. Keep both properties: never import `src/dev/` from anything that ships, and don't move the overlay's markup into `index.html`.
+
+Because a jump skips the scene that would normally have run first, two things are worth knowing. `generateTextures` only runs in `TitleScene.preload` and `AirportScene.preload`, so jumping works only once one of those has booted — which the title screen always does. And a chapter that expects story flags from earlier will see them reset; that is the intent, but `{ keepState: true }` is there when it isn't.
 
 ## Architecture
 
 ```
 index.html               page shell: DOM overlay markup + <script type="module" src="/src/main.js">
 src/main.js              Phaser config, boots the game
+src/dev/devtools.js      chapter select + console helpers; dev builds only
 src/constants.js         GAME_WIDTH/HEIGHT, TILE_SIZE, COLORS
 src/state.js             gameState story flags + resetGameState
 src/assets.js            every externally hosted image URL (portraits, remote PNGs)

@@ -24,11 +24,6 @@ export class AirportScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, 2400, 600);
         for (let x=0; x<2400/32; x++) for (let y=0; y<600/32; y++) { this.add.image(x*32+16, y*32+16, 'floor_tile'); }
         const walls = this.physics.add.staticGroup();
-        for(let y=0; y<GAME_HEIGHT; y+=32) { if(y < 250 || y > 350) walls.create(600, y+16, null).setSize(32,32).setVisible(false); }
-        this.securityBarrier = this.physics.add.staticSprite(600, 300, null).setSize(32, 100).setVisible(false);
-        this.gateVisual = this.add.rectangle(600, 300, 32, 100, 0xffff00, 0.18);
-        this.tsa = this.physics.add.sprite(600, 260, 'tsa'); this.tsa.setImmovable(true);
-        this.tsaZone = this.add.rectangle(580, 300, 50, 100, 0xffff00, 0); this.physics.add.existing(this.tsaZone, true);
         this.add.text(50, 50, "DEPARTURES", { fontSize: '24px', color: '#000', backgroundColor: '#fff' });
         this.deskAgents = [this.add.sprite(200, 126, 'airline_agent'), this.add.sprite(402, 126, 'airline_agent')];
         this.deskAgents.forEach((a, i) => this.tweens.add({
@@ -39,6 +34,20 @@ export class AirportScene extends Phaser.Scene {
         this.add.image(374, 150, 'checkin_desk'); this.add.image(430, 150, 'checkin_desk'); this.add.text(360, 120, "BAG CHECK-IN", { fontSize: '12px', color: '#fff' });
         this.add.image(275, 150, 'luggage_cart'); // the belt end of the bag drop
         this.suitcase = this.physics.add.sprite(400, 200, 'suitcase');
+        // The two behind the counters were scenery. Both of them have had a
+        // morning. The zones stop short of the ticket and the case on the floor
+        // below them, so the pickup and the conversation do not fight over the
+        // same keypress.
+        this.deskZones = [];
+        [
+            [200, 134, z => this.ticketAgent(z)],
+            [402, 134, z => this.bagAgent(z)]
+        ].forEach(([dx, dy, talk]) => {
+            const z = this.add.rectangle(dx, dy, 130, 62, 0xffff00, 0);
+            this.physics.add.existing(z, true);
+            z.setData('talk', talk);
+            this.deskZones.push(z);
+        });
         this.walkways = this.add.group();
         for (let x = 800; x < 2000; x += 32) { let w = this.add.sprite(x, 300, 'walkway'); this.physics.add.existing(w, true); this.walkways.add(w); }
         [{x: 900, label: "GATE 10"}, {x: 1300, label: "GATE 11"}, {x: 1700, label: "GATE 12A"}, {x: 2200, label: "GATE 12B\n(TARGET)"}].forEach(g => {
@@ -80,7 +89,6 @@ export class AirportScene extends Phaser.Scene {
         this.viewingZone = this.add.rectangle(1500, 100, 300, 50, 0xffff00, 0); this.physics.add.existing(this.viewingZone, true);
         this.add.image(300, 40, 'poster'); this.add.image(700, 40, 'poster'); this.add.image(1100, 40, 'poster'); this.add.image(2000, 40, 'poster');
         this.add.image(330, 56, 'departure_board');
-        this.add.image(600, 300, 'security_arch');
         // Each passenger is a plain sprite plus an invisible zone, the way every
         // other interaction in the game works. Sizing the body on a static group
         // member does not move it to match, so every passenger answered with the
@@ -155,7 +163,7 @@ export class AirportScene extends Phaser.Scene {
             [1560, 450, 'civilian', 0xa0b08c, "Passenger: 'Is this the line? Is anyone in this line?'"],
             [1862, 520, 'civilian_f', 0x8cb0a0, "Passenger: 'Venti. No — grande. No. Venti. Sorry.'"],
             [1190, 336, 'civilian', 0xb08ca0, "Passenger: 'Do you know if this one has power outlets?'"],
-            [760, 372, 'civilian_f', 0x9c8cb0, "Passenger: 'I have been at this airport since Tuesday.'"],
+            [820, 372, 'civilian_f', 0x9c8cb0, "Passenger: 'I have been at this airport since Tuesday.'"],
             [2040, 360, 'civilian', 0x8cb0b0, "Passenger: 'Whatever you do, do not check a bag today.'"]        ].forEach(([px, py, key, tint, line]) => {
             const person = addPerson(px, py, key, tint, line);
             this.tweens.add({
@@ -186,11 +194,14 @@ export class AirportScene extends Phaser.Scene {
             [404, 238, 'civilian_f', 0x8cb0a0, "Passenger: 'Fifty-one pounds. FIFTY-ONE. I have to open it right here.'", true],
             [398, 276, 'civilian', 0xb08ca0, "Passenger: 'One bag each. That is what it said. One bag each.'", true],
             [408, 314, 'civilian_f', 0x9c8cb0, "Passenger: 'If they lose this one again I am going to lie down on the belt.'", true]
-        ].forEach(([qx, qy, key, tint, line, bag]) => queuePerson(qx, qy, key, tint, line, bag));        // Wheeled luggage, going somewhere. The bag is placed each frame rather
+        ].forEach(([qx, qy, key, tint, line, bag]) => queuePerson(qx, qy, key, tint, line, bag));
+
+        this.buildSecurity(walls, queuePerson);
+        // Wheeled luggage, going somewhere. The bag is placed each frame rather
         // than tweened, because it has to swap to the other side when they turn.
         this.wanderers = [];
         [
-            [760, 2000, 372, 'civilian', 0x8c9cb0, 26000],
+            [820, 2000, 372, 'civilian', 0x8c9cb0, 26000],
             [2020, 900, 420, 'civilian_f', 0xb0a08c, 31000],
             [860, 1900, 462, 'civilian', 0xa08cb4, 23000]
         ].forEach(([x0, x1, wy, key, tint, dur]) => {
@@ -209,13 +220,13 @@ export class AirportScene extends Phaser.Scene {
         this.player.setDepth(5);
         this.pullAngle = Math.PI; // parked behind him until he first moves
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-        this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor);
+        this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor); this.laneBarriers.forEach(b => this.physics.add.collider(this.player, b));
         this.heldSuitcase = this.add.sprite(0, 0, 'suitcase').setVisible(false);
         this.heldTicket = this.add.sprite(0, 0, 'ticket').setScale(0.5).setVisible(false);
         this.heldCoffee = this.add.sprite(0, 0, 'coffee').setScale(0.5).setVisible(false);
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.add.text(20, 550, "Task: Ticket -> Suitcase -> Security -> Starbucks -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
+        this.add.text(20, 550, "Task: Ticket -> Suitcase -> Bag scan -> Body scan -> Coffee -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
         this.peopleZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
         }));
@@ -224,12 +235,14 @@ export class AirportScene extends Phaser.Scene {
             if (!Phaser.Input.Keyboard.JustDown(this.spaceKey) || dialogueBusy()) return;
             if (this.seated) this.standUp(); else this.sitDown(spot.getData('seat'));
         }));
-        this.gateDesks.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
+        [...this.gateDesks, ...this.deskZones].forEach(zone => this.physics.add.overlap(this.player, zone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) zone.getData('talk')(zone);
+        }));
+        this.securityZones.forEach(({ zone, act }) => this.physics.add.overlap(this.player, zone, () => {
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) act();
         }));
         this.physics.add.overlap(this.player, this.suitcase, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasSuitcase) { gameState.hasSuitcase = true; this.suitcase.destroy(); this.heldSuitcase.setVisible(true); playSound('select'); showDialogue("Mike grabbed his suitcase."); } });
         this.physics.add.overlap(this.player, this.ticket, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasTicket) { gameState.hasTicket = true; this.ticket.destroy(); this.heldTicket.setVisible(true); playSound('select'); showDialogue("Mike found the Boarding Pass."); } });
-        this.physics.add.overlap(this.player, this.tsaZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.hasSuitcase && gameState.hasTicket) { if (!gameState.securityCleared) { gameState.securityCleared = true; showDialogue("TSA: 'You're clear. Have a safe flight.'"); this.securityBarrier.destroy(); this.gateVisual.fillColor = 0x00ff00; } } else { showDialogue("TSA: 'Ticket and luggage required.'"); } } });
         this.physics.add.overlap(this.player, this.starbucksZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared) { if (!gameState.hasCoffee) { gameState.hasCoffee = true; this.heldCoffee.setVisible(true); playSound('select'); showDialogue("Mike bought a coffee. Essential fuel."); } } else { showDialogue("Security won't let you through yet."); } } });
         this.physics.add.overlap(this.player, this.gateZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared && gameState.hasCoffee) { showDialogue("Boarding Flight...", () => { stopMusic(); document.getElementById('scrolling-banner').style.display = 'none'; this.scene.start('FlightScene'); }); } else if (!gameState.hasCoffee) showDialogue("Mike needs a coffee before boarding."); else showDialogue("Security Check Required."); } });
         this.physics.add.overlap(this.player, this.newsZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike browsed the tech magazines."); });
@@ -243,6 +256,7 @@ export class AirportScene extends Phaser.Scene {
      * rolling, and passes behind him when he walks towards the camera.
      */
     rollSuitcase() {
+        if (this.bagOnBelt) return; // it is riding the Smithson belt, not on his hand
         const bag = this.heldSuitcase;
         const body = this.player.body;
         const moving = body.speed > 5;
@@ -279,13 +293,13 @@ export class AirportScene extends Phaser.Scene {
      */
     sendTheLateRunner() {
         const startX = Math.max(-40, this.player.x - 460);
-        const runner = this.add.sprite(startX, 340, 'civilian').setTint(0xd48c8c);
-        const bag = this.add.sprite(startX - 14, 348, 'suitcase').setScale(0.85);
-        const cry = this.add.text(startX, 312, "WAIT!", {
+        const runner = this.add.sprite(startX, 400, 'civilian').setTint(0xd48c8c);
+        const bag = this.add.sprite(startX - 14, 408, 'suitcase').setScale(0.85);
+        const cry = this.add.text(startX, 372, "WAIT!", {
             fontSize: '11px', color: '#c0392b', fontStyle: 'bold'
         }).setOrigin(0.5);
         const flicker = this.tweens.add({ targets: cry, alpha: 0.25, duration: 420, yoyo: true, repeat: -1 });
-        this.tweens.add({ targets: runner, y: 330, duration: 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        let bob = this.tweens.add({ targets: runner, y: 390, duration: 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.tweens.add({ targets: runner, angle: { from: -9, to: -3 }, duration: 240, yoyo: true, repeat: -1 });
 
         const entry = { sprite: runner, bag, lastX: startX, cry, bagLift: 0, line: WHEELED_LINES[3] };
@@ -303,23 +317,245 @@ export class AirportScene extends Phaser.Scene {
             [runner, bag, cry].forEach(o => o.destroy());
         });
 
-        if (startX > 520) return leave(); // already through, nothing to queue for
-        runTo(548, () => {
-            cry.setText("ONE SECOND!");
+        // Changing lane retires the bob and starts a new one at the new height.
+        // Two tweens writing the same y fight each other and he judders on the spot.
+        const toLane = (laneY, after) => {
+            bob.stop();
+            this.tweens.add({
+                targets: runner, y: laneY, duration: 400, ease: 'Sine.easeInOut',
+                onComplete: () => {
+                    bob = this.tweens.add({
+                        targets: runner, y: laneY - 10, duration: 120,
+                        yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+                    });
+                    if (after) after();
+                }
+            });
+        };
+
+        if (startX > 720) return leave(); // already through, nothing to queue for
+        runTo(508, () => toLane(190, () => {
+            cry.setText("I HAVE CLEAR!");
             flicker.restart();
             playSound('select');
+            const eye = this.add.rectangle(616, 166, 18, 11, 0x3fb7e8, 0.7).setDepth(7);
+            this.tweens.add({ targets: eye, alpha: 0, duration: 300, yoyo: true, repeat: 1, onComplete: () => eye.destroy() });
             // The bag goes up onto the belt. It has to be lifted through the
             // entry, because update() rewrites the bag's position every frame
             // from its owner's and would flatten a tween on the sprite itself.
             this.tweens.add({
                 targets: entry, bagLift: 16, duration: 320, yoyo: true, repeat: 1, ease: 'Sine.easeInOut'
             });
-            const scan = this.add.rectangle(600, 300, 30, 96, 0x9fe8ff, 0.5);
+            const scan = this.add.rectangle(724, 180, 56, 26, 0x9fe8ff, 0.5);
             this.tweens.add({ targets: scan, alpha: 0, duration: 420, yoyo: true, repeat: 1, onComplete: () => scan.destroy() });
-            this.time.delayedCall(1800, () => {
+            this.time.delayedCall(1100, () => {
                 cry.setText("WAIT!");
                 playSound('select');
-                leave();
+                runTo(850, () => toLane(400, leave));
+            });
+        }));
+    }
+
+    /**
+     * The checkpoint. It used to be one gap in a wall with an arch standing in
+     * it, and that arch has its uprights to the left and right of the lane — so
+     * walking the length of the terminal took you across it rather than through
+     * it, and it read as a tall vertical slot you squeezed past. Now it is three
+     * lanes laid across the width of the terminal, each with its own queue:
+     * CLEAR+ at the top, the general lane in the middle, PreCheck at the bottom.
+     */
+    buildSecurity(walls, queuePerson) {
+        const LANES = [
+            // The queues start clear of the check-in hall, which ends at x=467.
+            // Two interaction zones that overlap share one keypress, and whichever
+            // handler runs first swallows it.
+            { y: 180, label: 'CLEAR+', tint: 0x2b8ce0, queueAt: 474 },
+            { y: 330, label: 'GENERAL', tint: 0xf4d03f, queueAt: 474, main: true },
+            { y: 480, label: 'TSA PRECHECK', tint: 0xc0392b, queueAt: 474 }
+        ];
+        const inLane = y => LANES.some(l => Math.abs(y - l.y) < 42);
+
+        // The partition, with a hole punched through it for each lane.
+        for (let y = 0; y < GAME_HEIGHT; y += 32) {
+            if (inLane(y + 16)) continue;
+            walls.create(760, y + 16, null).setSize(32, 32).setVisible(false);
+            this.add.rectangle(760, y + 16, 26, 32, 0x9aa5b1);
+            this.add.rectangle(760, y + 2, 26, 3, 0xb9c2c5);
+        }
+
+        this.securityZones = [];
+        this.laneBarriers = [];
+        const zone = (x, y, w, h, act) => {
+            const z = this.add.rectangle(x, y, w, h, 0xffff00, 0);
+            this.physics.add.existing(z, true);
+            this.securityZones.push({ zone: z, act });
+            return z;
+        };
+
+        LANES.forEach(l => {
+            this.add.image(724, l.y, 'metal_detector');
+            this.add.rectangle(710, l.y - 50, 106, 18, 0x16212b);
+            this.add.text(710, l.y - 50, l.label, { fontSize: '11px', color: '#fff' }).setOrigin(0.5);
+            const officer = this.physics.add.sprite(696, l.y - 84, 'tsa');
+            officer.setImmovable(true);
+            // Wider than the hole it plugs: a 96px gap and an 84px barrier leaves
+            // a 12px slot at each end, and a 16px body will try to wriggle through.
+            const bar = this.physics.add.staticSprite(760, l.y, null).setSize(26, 108).setVisible(false);
+            const glow = this.add.rectangle(760, l.y, 26, 96, l.tint, 0.22);
+            if (l.main) {
+                this.tsa = officer;
+                this.securityBarrier = bar;
+                this.gateVisual = glow;
+            } else {
+                this.laneBarriers.push(bar);
+            }
+        });
+
+        // The general lane: the two bag machines, then the booth, then the
+        // walk-through. The zones are kept clear of one another — overlapping
+        // zones share a keypress and whichever runs first swallows it.
+        this.add.image(616, 262, 'xray_machine');
+        this.add.rectangle(616, 236, 58, 16, 0x16212b);
+        this.add.text(616, 236, 'X-RAY', { fontSize: '11px', color: '#fff' }).setOrigin(0.5);
+        this.add.image(616, 398, 'smithson_machine');
+        this.add.rectangle(596, 424, 96, 16, 0x16212b);
+        this.add.text(596, 424, 'SMITHSON CT', { fontSize: '11px', color: '#fff' }).setOrigin(0.5);
+        this.add.image(672, 330, 'body_scanner');
+        this.add.image(616, 180, 'clear_pod');
+
+        zone(616, 258, 92, 52, () => this.tryRegularXray());
+        zone(616, 402, 92, 52, () => this.trySmithson());
+        zone(672, 330, 46, 72, () => this.tryBodyScanner());
+        zone(728, 330, 40, 44, () => this.lookAtDetector());
+        zone(676, 180, 60, 60, () => showDialogue("CLEAR+ members only. An officer looks at Mike's boarding pass, then at Mike, and points back down the hall."));
+        zone(676, 480, 60, 60, () => showDialogue("TSA PreCheck. 'You got PreCheck on that pass?' Mike does not have PreCheck on that pass."));
+
+        const TINTS = [0x8c9cb0, 0xb09c8c, 0xa0b08c];
+        const QUEUE_AT = Object.fromEntries(LANES.map(l => [l.y, l.queueAt]));
+        [
+            [180, false, [
+                "CLEAR Member: 'Eleven seconds. I timed it. Eleven.'",
+                "CLEAR Member: 'It pays for itself. That is what I tell my wife.'",
+                "CLEAR Member: 'Look at the general line. Look at it.'"
+            ]],
+            [330, true, [
+                "Passenger: 'Shoes off? Is it shoes off? Nobody has said.'",
+                "Passenger: 'Laptop, tablet, Kindle. Three trays. Every single time.'",
+                "Passenger: 'Forty minutes in this one. My own fault entirely.'"
+            ]],
+            [480, true, [
+                "PreCheck Passenger: 'Shoes on. Belt on. Laptop in. It is civilised.'",
+                "PreCheck Passenger: 'Eighty-five dollars for five years. Best money I ever spent.'",
+                "PreCheck Passenger: 'You just walk through. It feels illegal.'"
+            ]]
+        ].forEach(([qy, bags, lines]) => lines.forEach((line, i) => {
+            queuePerson(QUEUE_AT[qy] + i * 46, qy, i % 2 ? 'civilian_f' : 'civilian', TINTS[i], line, bags);
+        }));
+    }
+
+    /** Dialogue fired from a timer has to survive a box that is already open. */
+    saySoon(text, next) {
+        if (!showDialogue(text, next)) this.time.delayedCall(350, () => this.saySoon(text, next));
+    }
+
+    /** The ordinary machine, which mostly exists to point him at the other one. */
+    tryRegularXray() {
+        if (gameState.bagScreened) return showDialogue("The trays come back down the rollers, empty. Somebody is still hunting for a laptop.");
+        showDialogue("TSA: 'Regular lane. Laptops, tablets, liquids — out of the bag, separate tray.'", () => {
+            showDialogue("Mike: 'I have a laptop, a tablet and a Switch in there.'", () => {
+                showDialogue("TSA: 'Then take the Smithson. It is the CT one. Bag goes in exactly as it is.'", () => {
+                    showDialogue("Mike: 'That is the best news I have had all morning.'");
+                });
+            });
+        });
+    }
+
+    trySmithson() {
+        if (gameState.bagScreened) return showDialogue("His case is already through. The booth is next.");
+        if (!gameState.hasSuitcase) return showDialogue("TSA: 'Bag on the belt.' Mike has not picked his up yet.");
+        this.screenTheBag();
+    }
+
+    /**
+     * The case rides the belt through the ring and comes out the far end.
+     * bagOnBelt takes it off rollSuitcase's books for the duration: update()
+     * rewrites the held case's position every frame and would flatten the tween.
+     */
+    screenTheBag() {
+        gameState.bagScreened = true;
+        this.bagOnBelt = true;
+        const bag = this.heldSuitcase;
+        playSound('select');
+        showDialogue("TSA: 'Smithson — straight in. Nothing comes out of the bag.'", () => {
+            this.tweens.add({
+                targets: bag, x: 572, y: 392, rotation: 0, duration: 380, ease: 'Sine.easeOut',
+                onComplete: () => {
+                    const glow = this.add.rectangle(616, 392, 30, 24, 0x3fb7e8, 0.55).setDepth(7);
+                    this.tweens.add({ targets: glow, alpha: 0, duration: 420, yoyo: true, repeat: 1, onComplete: () => glow.destroy() });
+                    this.tweens.add({
+                        targets: bag, x: 662, duration: 1500, ease: 'Linear',
+                        onComplete: () => this.saySoon("The case goes in whole and comes out the other end. Nothing to unpack, nothing to repack.", () => {
+                            this.bagOnBelt = false;
+                            this.saySoon("TSA: 'Clear. Booth is on your right when you are ready.'");
+                        })
+                    });
+                }
+            });
+        });
+    }
+
+    tryBodyScanner() {
+        if (gameState.securityCleared) return showDialogue("Mike has already been through. He is trying not to look pleased about it.");
+        if (!gameState.hasTicket) return showDialogue("TSA: 'Boarding pass first.' Mike does not have one yet.");
+        if (!gameState.bagScreened) return showDialogue("TSA: 'Bag on the belt first. Then you.'");
+        this.bodyScan();
+    }
+
+    bodyScan() {
+        gameState.bodyScanned = true;
+        playSound('select');
+        const sweep = this.add.rectangle(672, 308, 18, 2, 0x9fe8ff, 0.9).setDepth(7);
+        this.tweens.add({ targets: sweep, y: 352, duration: 900, yoyo: true, ease: 'Sine.easeInOut', onComplete: () => sweep.destroy() });
+        showDialogue("TSA: 'Step in. Feet on the prints, arms up, palms forward.'", () => {
+            showDialogue("Mike stands in the booth with his hands over his head like a man being arrested very politely.", () => {
+                showDialogue("TSA: 'You are clear. Have a safe flight.'", () => {
+                    gameState.securityCleared = true;
+                    this.securityBarrier.destroy();
+                    this.gateVisual.fillColor = 0x00ff00;
+                });
+            });
+        });
+    }
+
+    lookAtDetector() {
+        if (gameState.securityCleared) return showDialogue("Mike walks through. Nothing beeps. Small mercies.");
+        showDialogue("The metal detector, for anyone travelling light enough to have nothing to scan. An officer points Mike at the booth instead.");
+    }
+
+    ticketAgent(zone) {
+        showDialogue("Ticket Agent: 'Morning. Where are we headed?'", () => {
+            showDialogue("Mike: 'San Diego. Work thing.'", () => {
+                showDialogue("Ticket Agent: 'Aisle or window?'", () => {
+                    showDialogue("Mike: 'Window. I like watching it come up out of the water.'", () => {
+                        showDialogue("Ticket Agent: 'Lived out there, did you?'", () => {
+                            showDialogue("Mike: 'For a while. It will be good to be back.'", () => {
+                                zone.setData('talk', () => showDialogue("Ticket Agent: 'You are all set. 12B, and it is a long walk.'"));
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+    bagAgent(zone) {
+        showDialogue("Bag Agent: 'Anything fragile, anything lithium, anything alive?'", () => {
+            showDialogue("Mike: 'Only me, and only barely.'", () => {
+                showDialogue("Bag Agent: 'Heard that one already this morning. Twice.'", () => {
+                    showDialogue("Bag Agent: 'Pop it on the scale whenever you are ready.'", () => {
+                        zone.setData('talk', () => showDialogue("Bag Agent: 'Forty-one pounds. You are fine. Next.'"));
+                    });
+                });
             });
         });
     }
@@ -455,7 +691,7 @@ export class AirportScene extends Phaser.Scene {
         if (gameState.hasSuitcase) this.rollSuitcase(); 
         if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
         if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
-        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.tsaZone, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.gateDesks, ...this.peopleZones, ...this.seatZones]); 
+        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.gateDesks, ...this.deskZones, ...this.securityZones.map(s => s.zone), ...this.peopleZones, ...this.seatZones]); 
         // The wheeled-bag passengers are moving targets, so they are caught by
         // distance rather than by a zone. Scene update runs before the physics
         // step, so this only claims the keypress when nothing stationary wants
