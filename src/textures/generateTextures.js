@@ -4559,15 +4559,17 @@ export function generateTextures(scene) {
     drawPixel(9, 1, 0x4a4f5a);
     g.generateTexture('cellphone', 18, 22);
 
-    // Yvy in the royal blue dress she wore to dinner.
+    // Yvy in the royal blue dress she wore to dinner. Her own face and her own
+    // hair -- built from the generic helpers this was a different woman in a
+    // blue dress, not her.
     g.clear();
-    drawLongHair(0x2b2118, 0x45362a, 0x1d1610, 20);
-    drawFace(5, { brow: 0x1d1610, blush: true });
+    drawYvyFace(5);
+    drawYvyHair();
     fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
     fillRect(11, 17, 10, 8, 0x1a3fa8); // bodice
     fillRect(19, 17, 2, 8, 0x12308a);
-    fillRect(12, 18, 1, 4, 0x3a68d8);
-    fillRect(11, 17, 10, 1, 0x5a86e8); // neckline
+    fillRect(12, 18, 1, 4, 0x5a86e8);
+    fillRect(11, 17, 10, 1, 0xa8c4f5); // neckline
     fillRect(11, 24, 10, 1, 0x0e2570); // waist
     fillRect(10, 25, 12, 4, 0x1a3fa8); // skirt
     fillRect(19, 25, 3, 4, 0x12308a);
