@@ -186,14 +186,17 @@ body.touch-mode #touch-controls { display: block; }
     -webkit-tap-highlight-color: transparent;
 }
 
-#touch-pad, #touch-action {
-    position: absolute;
-    bottom: calc(var(--touch-inset) + env(safe-area-inset-bottom, 0px));
+#touch-pad, .touch-btn {
     pointer-events: auto;
     touch-action: none;
     background: rgba(74, 59, 42, 0.82);
     border: 3px solid #8b4513;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+#touch-pad, #touch-buttons {
+    position: absolute;
+    bottom: calc(var(--touch-inset) + env(safe-area-inset-bottom, 0px));
 }
 
 #touch-pad {
@@ -229,8 +232,17 @@ body.touch-mode #touch-controls { display: block; }
     opacity: 0.85;
 }
 
-#touch-action {
+/* A is the one that does something in every scene, so it sits where the thumb
+   already is; B is the extra (dancing at the club) and sits inboard of it. */
+#touch-buttons {
     right: calc(var(--touch-inset) + env(safe-area-inset-right, 0px));
+    display: flex;
+    align-items: center;
+    gap: calc(var(--pad-size) * 0.12);
+    pointer-events: none;
+}
+
+.touch-btn {
     width: calc(var(--pad-size) * 0.6);
     height: calc(var(--pad-size) * 0.6);
     border-radius: 50%;
@@ -241,7 +253,14 @@ body.touch-mode #touch-controls { display: block; }
     background: rgba(139, 69, 19, 0.85);
     border-color: #e1c699;
 }
-#touch-action:active { background: rgba(224, 198, 153, 0.9); color: #3e2723; }
+.touch-btn:active { background: rgba(224, 198, 153, 0.9); color: #3e2723; }
+
+#touch-b {
+    width: calc(var(--pad-size) * 0.5);
+    height: calc(var(--pad-size) * 0.5);
+    font-size: calc(var(--pad-size) * 0.19);
+    background: rgba(74, 59, 42, 0.85);
+}
 
 /*
  * The overlay is drawn inside the game frame, so a phone shrinks it along with

@@ -4,6 +4,7 @@ import { playSound } from '../audio/sfx.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 import { takePhoto } from '../ui/scrapbook.js';
+import { actionLabel, promptFontSize } from '../ui/touch.js';
 
 /**
  * Inside Fifth & Rose. Mike's cousin runs the place, and the two of them have
@@ -44,8 +45,8 @@ export class FifthRoseScene extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.add.text(20, 560, "Find Mike's cousin (Space)", {
-            fontSize: '15px', color: '#f2dcc4', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
+        this.add.text(20, 560, `Find Mike's cousin (${actionLabel()})`, {
+            fontSize: promptFontSize('15px'), color: '#f2dcc4', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
         });
 
         this.physics.add.overlap(this.player, this.cousinZone, () => {

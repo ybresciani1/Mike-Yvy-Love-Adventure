@@ -18,9 +18,12 @@ npm run dev    # open the URL printed in the terminal
 
 - **Arrow keys** — move
 - **Spacebar** — interact with objects and characters / advance dialogue
-- **On a phone** — drag the on-screen pad to move, tap **A** to interact, tap the
-  screen to advance a line of dialogue
+- **F** — hold to dance at the club
+- **On a phone** — drag the on-screen pad to move, tap **A** to interact, hold
+  **B** to dance at the club, tap the screen to advance a line of dialogue
 - Progress is linear — complete each scene's objectives to move to the next
+- Sound starts at your first tap or keypress — browsers refuse to play anything
+  before that. On an iPhone, check the ringer switch too: it mutes web audio
 
 ## Scripts
 

@@ -29,7 +29,10 @@ const KEYS = {
     down: { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
     left: { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
     right: { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
-    action: { key: ' ', code: 'Space', keyCode: 32 }
+    action: { key: ' ', code: 'Space', keyCode: 32 },
+    // B is F: the one key besides SPACE the game asks for, held down to dance
+    // at the club. A phone has no F to hold.
+    dance: { key: 'f', code: 'KeyF', keyCode: 70 }
 };
 
 const DIRECTIONS = ['up', 'down', 'left', 'right'];
@@ -91,12 +94,49 @@ export function isTouchMode() {
     return touchMode;
 }
 
+/**
+ * What a prompt should call the button that interacts: the key on a keyboard,
+ * the button on a phone. Several scenes print this onto the canvas.
+ */
+export function actionLabel() {
+    return touchMode ? 'A' : 'Space';
+}
+
+/**
+ * Canvas text scales down with the frame rather than with the DOM overlay's
+ * touch sizing, so a 16px prompt lands at about 7px on a phone. This keeps each
+ * prompt's own size relative to the others.
+ */
+export function promptFontSize(base = '16px') {
+    if (!touchMode) return base;
+    return `${Math.round(parseFloat(base) * 1.75)}px`;
+}
+
+// Set by installTouchControls, so hiding the button mid-hold cannot leave the
+// key stuck down.
+let releaseDance = null;
+
+/**
+ * Show or hide the B button.
+ *
+ * Only the club asks for it — it is the one scene that reads a key besides
+ * SPACE — so it is hidden everywhere else rather than sitting there doing
+ * nothing. A scene that shows it must hide it again on shutdown.
+ */
+export function showDanceButton(visible) {
+    const button = document.getElementById('touch-b');
+    if (!button) return;
+    button.hidden = !visible;
+    if (!visible) releaseDance?.();
+}
+
 export function installTouchControls(game) {
     const container = document.getElementById('game-container');
     const controls = document.getElementById('touch-controls');
     const pad = document.getElementById('touch-pad');
     const nub = document.getElementById('touch-nub');
     const action = document.getElementById('touch-action');
+    const danceButton = document.getElementById('touch-b');
     if (!container || !controls || !pad || !action) return null;
 
     const held = new Set();
@@ -197,22 +237,31 @@ export function installTouchControls(game) {
         });
     }
 
-    // --- The action button ------------------------------------------------
+    // --- The buttons ------------------------------------------------------
 
-    let actionPointer = null;
+    // Each button is held rather than clicked: SPACE is only ever tapped, but
+    // the club wants F held down for as long as Mike should keep dancing.
+    const wireButton = (button, name) => {
+        if (!button) return;
+        let pointer = null;
 
-    action.addEventListener('pointerdown', (event) => {
-        event.preventDefault?.();
-        actionPointer = event.pointerId;
-        hold('action', true);
-    });
-    for (const type of ['pointerup', 'pointercancel']) {
-        window.addEventListener(type, (event) => {
-            if (actionPointer === null || event.pointerId !== actionPointer) return;
-            actionPointer = null;
-            hold('action', false);
+        button.addEventListener('pointerdown', (event) => {
+            event.preventDefault?.();
+            pointer = event.pointerId;
+            hold(name, true);
         });
-    }
+        for (const type of ['pointerup', 'pointercancel']) {
+            window.addEventListener(type, (event) => {
+                if (pointer === null || event.pointerId !== pointer) return;
+                pointer = null;
+                hold(name, false);
+            });
+        }
+    };
+
+    wireButton(action, 'action');
+    wireButton(danceButton, 'dance');
+    releaseDance = () => hold('dance', false);
 
     // A long press on either control would otherwise raise the text-selection
     // callout over the game.

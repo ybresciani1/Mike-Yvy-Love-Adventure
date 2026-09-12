@@ -5,6 +5,7 @@ import { fadeOutMusic } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 import { takePhoto } from '../ui/scrapbook.js';
+import { actionLabel, promptFontSize } from '../ui/touch.js';
 
 /**
  * Inside Coin-Op, where two men at the pinball machine offer to buy a drink for
@@ -31,8 +32,8 @@ export class CoinOpScene extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.add.text(20, 560, "Find the Jurassic Park table (Space)", {
-            fontSize: '15px', color: '#9fe8ff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
+        this.add.text(20, 560, `Find the Jurassic Park table (${actionLabel()})`, {
+            fontSize: promptFontSize('15px'), color: '#9fe8ff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
         });
 
         this.physics.add.overlap(this.player, this.pinZone, () => {

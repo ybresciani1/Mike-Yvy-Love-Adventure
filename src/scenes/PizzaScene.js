@@ -6,6 +6,7 @@ import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { playSound } from '../audio/sfx.js';
 import { Player } from '../entities/Player.js';
 import { takePhoto } from '../ui/scrapbook.js';
+import { actionLabel, promptFontSize } from '../ui/touch.js';
 
 const DRUNK_LINES = [
     "Drunk Guy: 'I love you man... you're my best friend... wait, who are you? Does not matter! I still love you man!'",
@@ -53,7 +54,7 @@ export class PizzaScene extends Phaser.Scene {
         this.tweens.add({ targets: [d1, d2], x: '+=5', angle: { from: -5, to: 5 }, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
         this.pSlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); this.ySlice = this.add.sprite(0,0,'pizza_slice').setScale(0.7).setVisible(false); 
         this.cursors = this.input.keyboard.createCursorKeys(); this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
-        this.instructionText = this.add.text(20, 20, "Go inside the Pizza Shop (Space)", { fontSize: '16px', color: '#fff' });
+        this.instructionText = this.add.text(20, 20, `Go inside the Pizza Shop (${actionLabel()})`, { fontSize: promptFontSize(), color: '#fff' });
         this.dressStreetLife();
         this.setUpStores();
         this.setUpBrawl();
@@ -384,7 +385,7 @@ export class PizzaScene extends Phaser.Scene {
     startFight() {
         this.fighting = true;
         this.brawlArguing = false;
-        this.instructionText.setText("Two guys are fighting! Get a picture (Space)");
+        this.instructionText.setText(`Two guys are fighting! Get a picture (${actionLabel()})`);
 
         // First they trade visible punches, then it collapses into a dust cloud.
         this.fightTimer = this.time.addEvent({ delay: 200, loop: true, callback: () => {

@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { readSrc } from './helpers.js';
+import path from 'node:path';
+import { readSrc, sceneFiles } from './helpers.js';
 
 // The phone controls are wired to the real page shell: they are what the
 // on-screen pad and button are, so a markup change that renamed or dropped one
@@ -234,6 +235,105 @@ describe('the action button', () => {
         }
 
         expect(keys.filter(([dir]) => dir === 'down')).toHaveLength(2);
+    });
+});
+
+describe('the B button', () => {
+    const showB = () => {
+        touch.showDanceButton(true);
+        return document.getElementById('touch-b');
+    };
+
+    it('is not on screen until a scene asks for it', () => {
+        install();
+        expect(document.getElementById('touch-b').hidden).toBe(true);
+
+        touch.showDanceButton(true);
+        expect(document.getElementById('touch-b').hidden).toBe(false);
+
+        touch.showDanceButton(false);
+        expect(document.getElementById('touch-b').hidden).toBe(true);
+    });
+
+    it('does not leave F held down when it disappears mid-dance', () => {
+        install();
+        showB().dispatchEvent(pointer('pointerdown', { id: 9 }));
+        expect(keys).toEqual([['down', 'KeyF', 70]]);
+
+        touch.showDanceButton(false); // the scene ended while the thumb was down
+
+        expect(keys.at(-1)).toEqual(['up', 'KeyF', 70]);
+    });
+
+    it('holds F down, which is what the club reads to keep Mike dancing', () => {
+        install();
+        const b = showB();
+
+        b.dispatchEvent(pointer('pointerdown', { id: 5 }));
+        expect(keys).toEqual([['down', 'KeyF', 70]]);
+
+        window.dispatchEvent(pointer('pointerup', { id: 5 }));
+        expect(keys).toEqual([
+            ['down', 'KeyF', 70],
+            ['up', 'KeyF', 70]
+        ]);
+    });
+
+    it('can be held at the same time as A, each on its own finger', () => {
+        install();
+        showB().dispatchEvent(pointer('pointerdown', { id: 6 }));
+        document.getElementById('touch-action').dispatchEvent(pointer('pointerdown', { id: 7 }));
+
+        // Letting go of A leaves B held: dancing carries on through a line of
+        // dialogue, which is what the club scene does.
+        window.dispatchEvent(pointer('pointerup', { id: 7 }));
+
+        expect(keys).toEqual([
+            ['down', 'KeyF', 70],
+            ['down', 'Space', 32],
+            ['up', 'Space', 32]
+        ]);
+    });
+
+    it('does not dismiss dialogue, which only SPACE does', () => {
+        install();
+        showB().dispatchEvent(pointer('pointerdown', { id: 8 }));
+
+        expect(keys.every(([, code]) => code !== 'Space')).toBe(true);
+    });
+});
+
+describe('which scenes show the B button', () => {
+    const scenes = sceneFiles().map((file) => [file, readSrc(path.join('src/scenes', file))]);
+
+    it('is the club, and only the club', () => {
+        const showing = scenes
+            .filter(([, src]) => src.includes('showDanceButton(true)'))
+            .map(([file]) => file);
+
+        expect(showing).toEqual(['ClubScene.js']);
+    });
+
+    it('leaves no prompt naming a key a phone does not have', () => {
+        // A scene may still print the word SPACE — but only from the keyboard
+        // side of an isTouchMode() choice, which means it imports the module.
+        const offenders = scenes
+            .filter(([, src]) => /\(Space\)|\(SPACE\)|Press SPACE/i.test(src))
+            .filter(([, src]) => !src.includes("from '../ui/touch.js'"))
+            .map(([file]) => file);
+
+        expect(offenders).toEqual([]);
+    });
+
+    it('and it is taken down again on the way out', () => {
+        for (const [file, src] of scenes) {
+            if (!src.includes('showDanceButton(true)')) continue;
+            const shutdown = src.indexOf("events.once('shutdown'");
+            expect(shutdown, `${file} never hides it again`).toBeGreaterThan(-1);
+            expect(src.slice(shutdown, shutdown + 120), file).toContain(
+                'showDanceButton(false)'
+            );
+        }
     });
 });
 

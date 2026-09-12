@@ -5,6 +5,7 @@ import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 import { takePhoto } from '../ui/scrapbook.js';
+import { actionLabel, promptFontSize } from '../ui/touch.js';
 
 export class ThanksgivingScene extends Phaser.Scene {
     constructor() { super('ThanksgivingScene'); }
@@ -88,7 +89,7 @@ export class ThanksgivingScene extends Phaser.Scene {
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.talkedState = { yvyFamily: false, mikeFamily: false, cousin: false };
 
-        this.add.text(20, 550, "Talk to everyone! (Space)", { fontSize: '16px', color: '#fff' });
+        this.add.text(20, 550, `Talk to everyone! (${actionLabel()})`, { fontSize: promptFontSize(), color: '#fff' });
 
         this.physics.add.overlap(this.player, this.yvyFamilyZone, () => {
              if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !this.talkedState.yvyFamily) {

@@ -5,6 +5,7 @@ import { playSound } from '../audio/sfx.js';
 import { showDialogue, isDialogueOpen, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 import { takePhoto } from '../ui/scrapbook.js';
+import { isTouchMode, promptFontSize, showDanceButton } from '../ui/touch.js';
 
 // Held-F dancing cycles these poses; the floor chases these colours on the beat.
 const DANCE_POSES = ['mike_dance_1', 'mike_dance_2', 'mike_dance_3', 'mike_dance_4'];
@@ -145,7 +146,17 @@ export class ClubScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys(); 
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); 
         this.fKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F); 
-        this.instructionText = this.add.text(20, 20, "Hold F to Dance", { fontSize: '16px', color: '#fff' }); 
+        // The club is the one scene that asks for a key besides SPACE, so it is
+        // the one scene whose prompts have to name a phone's buttons instead.
+        this.danceKey = isTouchMode() ? 'B' : 'F';
+        this.actKey = isTouchMode() ? 'A' : 'Space';
+        // The B button exists for this scene alone, so this scene is what puts
+        // it on screen — and takes it away again by whichever exit it leaves by.
+        showDanceButton(true);
+        this.events.once('shutdown', () => showDanceButton(false));
+        // Canvas text, so it shrinks with the frame rather than with the DOM
+        // overlay's touch sizing: 16px lands at about 7px on a phone.
+        this.instructionText = this.add.text(20, 20, `Hold ${this.danceKey} to Dance`, { fontSize: promptFontSize(), color: '#fff' }); 
         this.time.addEvent({ delay: 450, loop: true, callback: () => { 
             playSound('club_beat'); 
             this.beat = (this.beat + 1) % FLOOR_COLORS.length;            this.floorTiles.forEach(t => t.setTint(FLOOR_COLORS[(t.gridIndex + this.beat) % FLOOR_COLORS.length]));
@@ -192,9 +203,9 @@ export class ClubScene extends Phaser.Scene {
         } else {
             this.stopDancing();
         }
-        if (gameState.clubProgress === 1) this.instructionText.setText("Talk to the girl (Space)"); 
-        else if (gameState.clubProgress === 2) this.instructionText.setText("Go to the Bar (Space)"); 
-        else if (gameState.clubProgress === 3) this.instructionText.setText("Dance again (Hold F)"); 
+        if (gameState.clubProgress === 1) this.instructionText.setText(`Talk to the girl (${this.actKey})`); 
+        else if (gameState.clubProgress === 2) this.instructionText.setText(`Go to the Bar (${this.actKey})`); 
+        else if (gameState.clubProgress === 3) this.instructionText.setText(`Dance again (Hold ${this.danceKey})`); 
         if (gameState.clubProgress >= 2) { 
             const dist = Phaser.Math.Distance.Between(this.yvy.x, this.yvy.y, this.player.x, this.player.y); 
             if (dist > 60) this.physics.moveToObject(this.yvy, this.player, 120); 

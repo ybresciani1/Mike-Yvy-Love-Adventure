@@ -5,6 +5,7 @@ import { playSound } from '../audio/sfx.js';
 import { fadeOutMusic, playRomanticTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
+import { actionLabel, promptFontSize } from '../ui/touch.js';
 
 export class MorningScene extends Phaser.Scene { 
     constructor() { super('MorningScene'); } 
@@ -73,7 +74,7 @@ export class MorningScene extends Phaser.Scene {
         this.tweens.add({ targets: this.phone, scale: 1.12, duration: 620, yoyo: true, repeat: -1 }); 
         this.time.addEvent({ delay: 1000, callback: () => { if(this.ringing) playSound('select'); }, loop: true }); 
         this.add.text(350, 50, "4:00 AM", { fontSize: '40px', color: '#fff', backgroundColor: '#000' }); 
-        this.instructionText = this.add.text(20, 20, "Answer your phone (Space)", { fontSize: '16px', color: '#fff' }); 
+        this.instructionText = this.add.text(20, 20, `Answer your phone (${actionLabel()})`, { fontSize: promptFontSize(), color: '#fff' }); 
         this.setUpRoom();
         this.dresserZone = this.add.rectangle(600, 120, 80, 80, 0xffff00, 0); this.physics.add.existing(this.dresserZone, true); 
         this.doorZone = this.add.rectangle(100, 100, 50, 60, 0x00ff00, 0); this.physics.add.existing(this.doorZone, true); 
@@ -81,7 +82,7 @@ export class MorningScene extends Phaser.Scene {
             if (this.ringing && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { 
                 this.ringing = false; this.phone.destroy(); playRomanticTheme(); 
                 const seq = [ "Mike gropes about on the nightstand and finds his phone...", "Yvy: 'Good morning! It's 4 AM! Wake up!'", "Mike: 'You actually called!'", "Mike: 'I'm awake. Thank you, Yvy.'", "Mike: 'Bye Yvy-- I hope to see you soon!'", "*Click*", "Mike: 'Wow, she actually called... Best trip ever ❤️'", "Mike: 'Time to get ready for work.'" ]; 
-                let i = 0; const next = () => { if (i > 0 && seq[i-1].includes("Bye Yvy.")) fadeOutMusic(2); if (i < seq.length) { showDialogue(seq[i++], next); } else { gameState.callFinished = true; this.instructionText.setText("Go to Dresser (Space)"); } }; next(); 
+                let i = 0; const next = () => { if (i > 0 && seq[i-1].includes("Bye Yvy.")) fadeOutMusic(2); if (i < seq.length) { showDialogue(seq[i++], next); } else { gameState.callFinished = true; this.instructionText.setText(`Go to Dresser (${actionLabel()})`); } }; next(); 
             } 
         }); 
         this.physics.add.overlap(this.player, this.dresserZone, () => { 

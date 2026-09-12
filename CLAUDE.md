@@ -81,8 +81,8 @@ The dialogue box, `PRESS SPACE` interaction hint, airport scrolling banner, ward
 `src/ui/touch.js`, installed from `main.js`, is the whole of the mobile
 support. It never touches Phaser or a scene:
 
-- **The controls are a keyboard.** The D-pad and the `A` button dispatch
-  synthetic `ArrowLeft`/`Space`/… events at `document`, so every
+- **The controls are a keyboard.** The D-pad and the `A`/`B` buttons dispatch
+  synthetic `ArrowLeft`/`Space`/`KeyF` events at `document`, so every
   `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 27 scenes, and the
   SPACE listener that dismisses a line, keeps working with no per-scene wiring.
   Phaser's `KeyboardManager` listens on `window` and reads only the legacy
@@ -102,6 +102,27 @@ support. It never touches Phaser or a scene:
   before the title screen draws; a touchscreen laptop reports a mouse and only
   gets the controls once someone touches the glass. `isTouchMode()` is why the
   title screen can name the controls the player actually has.
+
+`B` is `F`, the only key besides SPACE the game asks for: `ClubScene` reads
+`fKey.isDown` to keep Mike dancing, so the button is *held* rather than tapped —
+which is why both buttons go through the same `hold()` as the pad. It is hidden
+everywhere else rather than sitting there doing nothing: the club puts it up
+with `showDanceButton(true)` and takes it down on its own `shutdown`, which
+covers every exit the scene has. Hiding it releases the key, so a thumb still on
+the button when the scene ends cannot leave `F` stuck down. `tests/touch.test.js`
+scans the scenes to check the club is the only one that shows it and that it is
+always paired with the shutdown that hides it again.
+
+**Prompts drawn on the canvas name their key through two helpers**, since a
+phone has neither a SPACE bar nor the pixels to read 16px at a 0.46 scale:
+`actionLabel()` gives "Space" or "A", and `promptFontSize(base)` scales a
+prompt up on touch while keeping prompts in proportion to each other. Seven
+scenes print such a prompt — `ClubScene`, `PizzaScene`, `MorningScene`,
+`MovieScene`, `ThanksgivingScene`, `CoinOpScene`, `FifthRoseScene` — and all of
+them go through the helpers; the club adds "Hold B" for the dance key on top.
+`tests/touch.test.js` fails any scene that spells a key name into a prompt
+without importing `ui/touch.js`, which is what would put "(Space)" back in front
+of a player who has no such key.
 
 The controls live in `index.html` like the rest of the overlay, but *outside*
 `#game-container`, so they stay thumb-sized however far the game is scaled
@@ -132,6 +153,29 @@ lighter than its texture needs a new texture (`sidewalk_slab` exists because
 
 ### Audio
 No audio files. `playSound(type)` builds one-shot oscillators for SFX. Each `play*Theme()` holds a melody array and schedules notes via a recursive `playNote(idx)` with `setTimeout`, pushing nodes onto the module-level `currentMusicNodes`; `stopMusic()` / `fadeOutMusic(duration)` tear that list down. **Scenes must call `stopMusic()` before starting a scene with a different theme**, otherwise themes overlap — this is done inline at transition points, not automatically. The AudioContext is created lazily on first sound, since browsers suspend one created before a user gesture.
+
+**A phone makes no sound until it is touched, and the permission lasts only as
+long as the gesture.** `playSound`'s own `resume()` is not enough on its own:
+by the time Phaser has processed a tap and reached game code, a frame has
+passed and the gesture is over — which is why the game was silent on mobile.
+`installAudioUnlock()` in `audio/context.js`, called from `main.js`, listens for
+the gesture itself (capture phase, so the D-pad's `preventDefault` cannot get in
+front of it), resumes the context and pushes a silent sample through it, which
+is what iOS counts as unlocked. The listeners stay attached for the life of the
+page rather than coming down after the first success: a phone suspends the
+context again for a call or an app switch, and a game that had stopped
+listening would be silent from then on.
+
+Music started during that silence is lost — the melodies schedule each note
+against a clock that is not running, and the drones get an envelope that has
+already elapsed — so `music.js` remembers the theme that is meant to be playing
+and starts it over when the audio comes up (`startTheme`, plus the
+`onAudioUnlock` hook). `stopMusic()`/`fadeOutMusic()` clear that memory, so a
+scene that deliberately went quiet is not resurrected.
+
+One thing none of this can fix: on an iPhone, the hardware silent switch mutes
+Web Audio outright. A player with the ringer switched off hears nothing no
+matter what the page does.
 
 ### State
 Two game-global mechanisms:

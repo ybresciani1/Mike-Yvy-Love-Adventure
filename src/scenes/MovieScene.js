@@ -4,6 +4,7 @@ import { stopMusic, playDreamworksTheme, playBattleTheme } from '../audio/music.
 import { showDialogue } from '../ui/dialogue.js';
 import { playSound } from '../audio/sfx.js';
 import { takePhoto } from '../ui/scrapbook.js';
+import { actionLabel, isTouchMode, promptFontSize } from '../ui/touch.js';
 
 export class MovieScene extends Phaser.Scene {
     constructor() { super('MovieScene'); }
@@ -239,7 +240,7 @@ export class MovieScene extends Phaser.Scene {
             } else {
                 stopMusic();
                 this.zzz.setVisible(true);
-                this.add.text(400, 550, "Yvy fell asleep. Press SPACE to Pat Head", { fontSize: '16px', color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
+                this.add.text(400, 550, `Yvy fell asleep. ${isTouchMode() ? 'Tap A' : 'Press SPACE'} to Pat Head`, { fontSize: promptFontSize(), color: '#fff', backgroundColor: '#000' }).setOrigin(0.5);
                 this.stage = 1;
             }
         };
