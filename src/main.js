@@ -3,6 +3,13 @@ import './styles.css';
 import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 import { SCENES } from './scenes/index.js';
 import { installTouchControls } from './ui/touch.js';
+import { installAudioUnlock } from './audio/context.js';
+
+// A phone makes no sound until the player touches the screen, and the permission
+// only lasts as long as the gesture itself — by the time Phaser has processed a
+// tap and reached the game's own playSound, it has expired. This listens for the
+// gesture directly, before the game is even built.
+installAudioUnlock();
 
 export const gameConfig = {
     type: Phaser.AUTO,
