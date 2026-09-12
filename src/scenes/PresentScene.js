@@ -17,6 +17,9 @@ export class PresentScene extends Phaser.Scene {
         this.load.image('bojji_custom', REMOTE_IMAGES.bojji);
         this.load.image('lychee_custom', REMOTE_IMAGES.lychee);
         this.load.image('peaches_custom', REMOTE_IMAGES.peaches);
+        this.load.image('riot_custom', REMOTE_IMAGES.riot);
+        this.load.image('beyonce_custom', REMOTE_IMAGES.beyonce);
+        this.load.image('snow_custom', REMOTE_IMAGES.snow);
     }
 
     create() {
@@ -221,6 +224,7 @@ export class PresentScene extends Phaser.Scene {
             const onLeft = () => this.turnPage(-1);
             const onRight = () => this.turnPage(1);
             const onSpace = () => {
+                if (this.plate) return this.closePlate();
                 if (this.pageIndex < this.pageCount - 1) return this.turnPage(1);
                 this.input.keyboard.off('keydown-LEFT', onLeft);
                 this.input.keyboard.off('keydown-RIGHT', onRight);
@@ -230,6 +234,7 @@ export class PresentScene extends Phaser.Scene {
             this.input.keyboard.on('keydown-LEFT', onLeft);
             this.input.keyboard.on('keydown-RIGHT', onRight);
             this.input.keyboard.on('keydown-SPACE', onSpace);
+            this.input.keyboard.on('keydown-ESC', () => this.closePlate());
         });
     }
 
@@ -258,7 +263,7 @@ export class PresentScene extends Phaser.Scene {
         }
         this.footer.setText(
             "Page " + (this.pageIndex + 1) + " of " + this.pageCount +
-            "      ← →  turn the page      SPACE  " +
+            "     ← →  turn     CLICK a photo to look closer     SPACE  " +
             (this.pageIndex < this.pageCount - 1 ? "next" : "the end")
         );
         this.prevArrow.setAlpha(this.pageIndex > 0 ? 1 : 0.15);
@@ -271,7 +276,7 @@ export class PresentScene extends Phaser.Scene {
         // The arrows keep their hit areas after the book closes, invisible in
         // the margins, so the closed flag is what stops a stray click turning a
         // page behind the last two lines.
-        if (this.albumClosed || this.turning || next < 0 || next >= this.pageCount) return;
+        if (this.plate || this.albumClosed || this.turning || next < 0 || next >= this.pageCount) return;
         this.turning = true;
         playSound('page');
         this.tweens.add({
@@ -302,10 +307,11 @@ export class PresentScene extends Phaser.Scene {
     /** One polaroid: mount, window, the sprites of the moment, and a caption. */
     buildFrame(x, y, photo) {
         const frame = this.add.container(x, y);
-        frame.add(this.add.rectangle(0, 0, 196, 150, photo ? 0xf4efe2 : 0x33283f));
-        frame.add(this.add.rectangle(0, -28, 180, 80, photo ? (photo.window || 0x24303f) : 0x2b2136));
+        const mount = this.add.rectangle(0, 0, 196, 150, photo ? 0xf4efe2 : 0x33283f);
+        frame.add(mount);
 
         if (!photo) {
+            frame.add(this.add.rectangle(0, -28, 180, 80, 0x2b2136));
             frame.add(this.add.text(0, -28, "?", {
                 fontSize: '26px', color: '#4e4060', fontStyle: 'bold'
             }).setOrigin(0.5));
@@ -315,27 +321,18 @@ export class PresentScene extends Phaser.Scene {
             return frame;
         }
 
-        // No mask on the window. A geometry mask lives in world space, so one
-        // built from these container-local coordinates hides the picture
-        // somewhere off in the corner of the screen instead of cropping it —
-        // which is exactly what the first version did. Everything drawn here is
-        // kept small enough to sit inside the mount on its own.
-        photo.sprites.forEach(s => {
-            const cy = -28 + (s.y || 0);
-            let obj;
-            if (s.rect) {
-                obj = this.add.rectangle(s.x, cy, s.rect[0], s.rect[1], s.color, s.alpha ?? 1);
-            } else if (s.circle) {
-                obj = this.add.circle(s.x, cy, s.circle, s.color, s.alpha ?? 1);
-            } else {
-                obj = this.add.image(s.x, cy, s.texture);
-                if (s.scale) obj.setScale(s.scale);
-                if (s.size) obj.setDisplaySize(s.size[0], s.size[1]);
-                if (s.flip) obj.setFlipX(true);
-                if (s.tint) obj.setTint(s.tint);
-            }
-            frame.add(obj);
-        });
+        const picture = this.buildPicture(photo);
+        picture.y = -28;
+        frame.add(picture);
+
+        // The mount is what the pointer hits: hit testing only considers
+        // interactive objects, so the sprites sitting on top of it do not eat
+        // the click. Nine-point text at this size is there to be recognised
+        // rather than read, hence the plate.
+        mount.setInteractive({ useHandCursor: true })
+            .on('pointerover', () => { if (!this.plate) frame.setScale(1.04); })
+            .on('pointerout', () => frame.setScale(1))
+            .on('pointerdown', () => this.openPlate(photo));
 
         frame.add(this.add.text(0, 24, photo.title, {
             fontSize: '12px', color: '#2b2038', fontStyle: 'bold',
@@ -345,5 +342,100 @@ export class PresentScene extends Phaser.Scene {
             fontSize: '9px', color: '#6b5a4a', wordWrap: { width: 184 }, align: 'center'
         }).setOrigin(0.5));
         return frame;
+    }
+
+    /**
+     * The picture inside a frame, at its own scale. Everything is positioned
+     * about the middle of the window, so the same container serves the thumbnail
+     * on the page and the big plate at three times the size.
+     *
+     * No mask on it. A geometry mask lives in world space, so one built from
+     * these container-local coordinates hides the picture somewhere off in the
+     * corner of the screen instead of cropping it — which is exactly what the
+     * first version did. Everything drawn here is kept small enough to sit
+     * inside the window on its own.
+     */
+    buildPicture(photo, scale = 1) {
+        const picture = this.add.container(0, 0);
+        picture.add(this.add.rectangle(0, 0, 180, 80, photo.window || 0x24303f));
+        photo.sprites.forEach(s => {
+            let obj;
+            if (s.rect) {
+                obj = this.add.rectangle(s.x, s.y || 0, s.rect[0], s.rect[1], s.color, s.alpha ?? 1);
+            } else if (s.circle) {
+                obj = this.add.circle(s.x, s.y || 0, s.circle, s.color, s.alpha ?? 1);
+            } else {
+                obj = this.add.image(s.x, s.y || 0, s.texture);
+                if (s.scale) obj.setScale(s.scale);
+                if (s.size) obj.setDisplaySize(s.size[0], s.size[1]);
+                if (s.flip) obj.setFlipX(true);
+                if (s.tint) obj.setTint(s.tint);
+            }
+            picture.add(obj);
+        });
+        return picture.setScale(scale);
+    }
+
+    /**
+     * One photograph, held up close. The caption on a thumbnail is nine pixels
+     * tall; this is where it is actually read. Click anywhere, SPACE or ESC puts
+     * it back down.
+     */
+    openPlate(photo) {
+        if (this.plate || this.albumClosed) return;
+        playSound('page');
+
+        // The backdrop is its own object rather than a child of the plate: the
+        // plate grows into place, and a backdrop growing with it would leave the
+        // corners of the screen uncovered while it did.
+        this.plateShade = this.add.rectangle(400, 300, GAME_WIDTH, GAME_HEIGHT, 0x090d1a, 0)
+            .setDepth(13)
+            .setInteractive()
+            .on('pointerdown', () => this.closePlate());
+        this.tweens.add({ targets: this.plateShade, fillAlpha: 0.82, duration: 200 });
+
+        const plate = this.add.container(400, 300).setDepth(14).setAlpha(0).setScale(0.9);
+        plate.add(this.add.rectangle(0, -10, 596, 424, 0x211a2c));
+        plate.add(this.add.rectangle(0, -10, 584, 412, 0xf4efe2));
+
+        const picture = this.buildPicture(photo, 3);
+        picture.y = -78;
+        plate.add(picture);
+        plate.add(this.add.rectangle(0, -78, 546, 246, 0x000000, 0).setStrokeStyle(2, 0xd8cdb8));
+
+        plate.add(this.add.text(0, 78, photo.title, {
+            fontSize: '24px', color: '#2b2038', fontStyle: 'bold',
+            wordWrap: { width: 540 }, align: 'center'
+        }).setOrigin(0.5));
+        plate.add(this.add.text(0, 126, photo.caption, {
+            fontSize: '15px', color: '#5d4d3f', wordWrap: { width: 520 }, align: 'center',
+            lineSpacing: 4
+        }).setOrigin(0.5));
+        plate.add(this.add.text(0, 182, "CLICK, SPACE or ESC to put it back", {
+            fontSize: '12px', color: '#9a8a78'
+        }).setOrigin(0.5));
+
+        this.plate = plate;
+        this.tweens.add({ targets: plate, alpha: 1, scale: 1, duration: 220, ease: 'Back.easeOut' });
+    }
+
+    closePlate() {
+        if (!this.plate) return;
+        const plate = this.plate;
+        const shade = this.plateShade;
+        // Cleared before the tween rather than after it, so the page keys and
+        // the frames are live again the moment it starts going.
+        this.plate = null;
+        this.plateShade = null;
+        shade.disableInteractive();
+        playSound('page');
+        this.tweens.add({
+            targets: plate, alpha: 0, scale: 0.92, duration: 160,
+            onComplete: () => plate.destroy()
+        });
+        this.tweens.add({
+            targets: shade, fillAlpha: 0, duration: 160,
+            onComplete: () => shade.destroy()
+        });
     }
 }
