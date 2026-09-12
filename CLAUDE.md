@@ -29,7 +29,12 @@ npx vitest run -t "types the line out"
 
 ## Developer tools
 
-`src/dev/devtools.js` — a chapter-select overlay for jumping straight to a scene without replaying the story. Press `` ` `` in the dev server to open it, arrow keys / PageUp / PageDown to move, ENTER or a click to jump, `` ` `` or ESC to close. It opens on whichever chapter is playing.
+`src/dev/devtools.js` — a chapter select for jumping straight to a scene without replaying the story, in two shapes:
+
+- **A dropdown on the title screen**, top right, labelled `DEV`. Visible, so the chapters are there to browse without knowing the key. It shows only while `TitleScene` is the running scene — tracked on the game's `poststep` event rather than scene lifecycle events, whose ordering around `status` is easy to get subtly wrong.
+- **An overlay on `` ` ``**, anywhere in the game. Arrow keys / PageUp / PageDown to move, ENTER or a click to jump, `` ` `` or ESC to close. It opens on whichever chapter is playing.
+
+The title screen starts the game on any pointerdown or SPACE, so the dropdown stops its own keystrokes from bubbling to the window listener Phaser uses — otherwise SPACE to open the dropdown would also start the game, and the arrow keys picking an option would leak through. The overlay has the same problem more broadly and solves it by switching each running scene's `KeyboardPlugin` off while it is open; stopping the event is not enough on its own, since that only wins if the listener happens to run before Phaser's. Note `resetKeys` and `enabled` live on the scene's `KeyboardPlugin` — `game.input.keyboard` is the game-level `KeyboardManager` and has neither.
 
 The same jump is on the console, along with `window.game` and a `listScenes()` helper:
 
@@ -40,7 +45,7 @@ gotoScene('ClubScene', { keepState: true })
 
 Use these rather than `game.scene.start(key)`. On the global SceneManager `start()` runs the target **alongside** whatever is already active, and two live scenes share one keyboard and one DOM dialogue box — the older scene's overlap handlers keep firing dialogue over the new scene (marine lines from `BarScene` appearing in the restaurant, say). `gotoScene` stops every running scene first, and also does the tidying a normal transition would: `stopMusic()`, hiding every DOM overlay a scene can leave showing, and `resetGameState()` so the chapter plays from its own beginning (pass `{ keepState: true }` to keep the current flags). Normal play never hits the overlap problem, because `this.scene.start()` inside a scene stops the caller.
 
-**None of this ships.** `main.js` imports the module dynamically from inside an `import.meta.env.DEV` branch, which Vite replaces with `false` for `npm run build` — the branch and its import are dropped, and the production bundle comes out byte-identical to one built without `src/dev` at all. The overlay also builds its own DOM with `createElement` rather than markup in `index.html`, so the page shell the public downloads has no trace of it either. Keep both properties: never import `src/dev/` from anything that ships, and don't move the overlay's markup into `index.html`.
+**None of this ships**, the visible dropdown included. `main.js` imports the module dynamically from inside an `import.meta.env.DEV` branch, which Vite replaces with `false` for `npm run build` — the branch and its import are dropped, and the production bundle comes out byte-identical to one built without `src/dev` at all. Both the dropdown and the overlay build their own DOM with `createElement` rather than markup in `index.html`, so the page shell the public downloads has no trace of them either. Keep both properties: never import `src/dev/` from anything that ships, and don't move any of this markup into `index.html`. `tests/devtools.test.js` guards them.
 
 Because a jump skips the scene that would normally have run first, two things are worth knowing. `generateTextures` only runs in `TitleScene.preload` and `AirportScene.preload`, so jumping works only once one of those has booted — which the title screen always does. And a chapter that expects story flags from earlier will see them reset; that is the intent, but `{ keepState: true }` is there when it isn't.
 

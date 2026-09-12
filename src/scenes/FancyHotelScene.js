@@ -57,7 +57,7 @@ export class FancyHotelScene extends Phaser.Scene {
         this.couch = this.add.image(646, 505, 'couch').setTint(0xa9a396);
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
         this.player = new Player(this, 200, 500); this.player.setTexture(outfit);
-        this.yvy = this.add.sprite(250, 500, 'yvy');
+        this.yvy = this.add.sprite(250, 500, 'yvy_dress');
         this.cursors = this.input.keyboard.createCursorKeys();
         this.time.delayedCall(1000, () => {
             showDialogue("Mike: 'Home sweet home.'", () => { showDialogue("Yvy: 'It's beautiful. What a great day.'", () => { showDialogue("Mike: 'The best day.'", () => {

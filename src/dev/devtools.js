@@ -89,6 +89,86 @@ export function jumpToScene(game, key, { keepState = false } = {}) {
     return key;
 }
 
+/**
+ * A dropdown parked on the title screen, for jumping to a chapter before the
+ * story starts. The `\`` overlay covers the same ground mid-game; this one is
+ * just visible, so the chapters are there to browse without knowing the key.
+ *
+ * It shows only while TitleScene is the running scene — the start screen is the
+ * one place a chapter list is not in the way of the game.
+ */
+function buildChapterDropdown(game, onJump) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = [
+        'position:absolute',
+        'top:8px',
+        'right:8px',
+        // Above the canvas, below the airport banner (100) and dialogue (10) —
+        // neither of which is up on the title screen anyway.
+        'z-index:50',
+        'display:none',
+        'align-items:center',
+        'gap:6px',
+        'font-family:\'Courier New\', Courier, monospace'
+    ].join(';');
+
+    const label = document.createElement('span');
+    label.textContent = 'DEV';
+    label.style.cssText =
+        'color:#0f0;font-size:11px;font-weight:bold;letter-spacing:1px;text-shadow:0 1px 2px #000';
+
+    const select = document.createElement('select');
+    select.style.cssText = [
+        'background:#1b1b1b',
+        'color:#e1c699',
+        'border:2px solid #8b4513',
+        'border-radius:3px',
+        'padding:3px 6px',
+        'font-size:12px',
+        'font-family:\'Courier New\', Courier, monospace',
+        'cursor:pointer'
+    ].join(';');
+
+    const placeholder = document.createElement('option');
+    placeholder.textContent = 'Jump to chapter...';
+    placeholder.value = '';
+    select.append(placeholder);
+
+    STORY_ORDER.forEach((key, i) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = `${String(i + 1).padStart(2, '0')}.  ${labelFor(key)}`;
+        select.append(option);
+    });
+
+    select.addEventListener('change', () => {
+        const key = select.value;
+        // Back to the placeholder, so returning to the title screen does not
+        // show a stale chapter as if it were selected.
+        select.value = '';
+        select.blur();
+        if (key) onJump(key);
+    });
+
+    // The title screen starts the game on any pointerdown or SPACE. Pointer
+    // events on the select never reach the canvas, but its keystrokes bubble to
+    // the window listener Phaser uses — so SPACE to open the dropdown would also
+    // start the game, and the arrow keys picking an option would leak through.
+    for (const type of ['keydown', 'keyup']) {
+        select.addEventListener(type, (event) => event.stopPropagation());
+    }
+
+    wrap.append(label, select);
+
+    return {
+        el: wrap,
+        setVisible: (visible) => {
+            wrap.style.display = visible ? 'flex' : 'none';
+            if (!visible) select.value = '';
+        }
+    };
+}
+
 function buildOverlay(game, onJump) {
     const root = document.createElement('div');
     root.style.cssText = [
@@ -204,6 +284,23 @@ export function installDevTools(game) {
         if (key) jumpToScene(game, key);
     });
 
+    const dropdown = buildChapterDropdown(game, (key) => jumpToScene(game, key));
+    // Inside the game container so it sits over the canvas and travels with it;
+    // the container is already position:relative for the same reason.
+    (document.getElementById('game-container') ?? document.body).append(dropdown.el);
+
+    // Follow the running scene rather than trying to hook scene lifecycle
+    // events, whose ordering around `status` is easy to get subtly wrong.
+    // poststep runs after the scenes have updated, so the answer is settled, and
+    // the cached value keeps this to one comparison a frame.
+    let wasOnTitle = null;
+    game.events.on('poststep', () => {
+        const onTitle = game.scene.isActive('TitleScene');
+        if (onTitle === wasOnTitle) return;
+        wasOnTitle = onTitle;
+        dropdown.setVisible(onTitle);
+    });
+
     function setOpen(next) {
         open = next;
         ui.root.style.display = open ? 'flex' : 'none';
@@ -274,5 +371,8 @@ export function installDevTools(game) {
         true
     );
 
-    console.info('[dev] chapter select: press ` — console: gotoScene(key), listScenes()');
+    console.info(
+        '[dev] chapter select: dropdown on the title screen, or press ` anywhere' +
+            ' — console: gotoScene(key), listScenes()'
+    );
 }

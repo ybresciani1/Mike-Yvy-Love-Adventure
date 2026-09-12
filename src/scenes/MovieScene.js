@@ -69,7 +69,7 @@ export class MovieScene extends Phaser.Scene {
                 for (let x = 60; x < 780; x += 90) this.add.circle(x, 545, 2, 0x4de08a, 0.55); // aisle lights
         this.add.rectangle(400, 600, 800, 40, 0x000000); 
         const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
-        this.player = this.add.sprite(380, 480, outfit); this.yvy = this.add.sprite(420, 480, 'yvy'); this.popcorn = this.add.sprite(400, 490, 'popcorn').setScale(0.8);
+        this.player = this.add.sprite(380, 480, outfit); this.yvy = this.add.sprite(420, 480, 'yvy_dress'); this.popcorn = this.add.sprite(400, 490, 'popcorn').setScale(0.8);
         this.jalapenos = [
             this.add.sprite(372, 468, 'jalapeno').setVisible(false),
             this.add.sprite(428, 468, 'jalapeno').setVisible(false)
@@ -85,7 +85,7 @@ export class MovieScene extends Phaser.Scene {
                             caption: "Jalapenos in the popcorn. She was right.",
                             sprites: [
                                 { texture: this.player.texture.key, x: -14, y: 2 },
-                                { texture: 'yvy', x: 14, y: 2 },
+                                { texture: this.yvy.texture.key, x: 14, y: 2 },
                                 { texture: 'popcorn', x: 0, y: 10, scale: 0.8 },
                                 { texture: 'jalapeno', x: -24, y: 6 },
                                 { texture: 'jalapeno', x: 24, y: 6 }
