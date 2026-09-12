@@ -9,6 +9,7 @@ describe('gameState', () => {
             hasTicket: false,
             hasSuitcase: false,
             bagScreened: false,
+            bagRetrieved: false,
             bodyScanned: false,
             securityCleared: false,
             hasCoffee: false,

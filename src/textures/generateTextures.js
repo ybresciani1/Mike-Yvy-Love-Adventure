@@ -1855,24 +1855,27 @@ export function generateTextures(scene) {
     // The Smithson: same belt, but a CT ring instead of a curtain. The bag goes
     // in as it is and the laptop stays where it is.
     g.clear();
-    fillRect(0, 10, 80, 16, 0x3b4450);
-    fillRect(0, 10, 80, 2, 0x5a687a);
-    fillRect(0, 24, 80, 2, 0x242b34);
-    for (let i = 2; i < 80; i += 6) fillRect(i, 13, 3, 10, 0x2f3743);
-    fillRect(24, 0, 32, 30, 0x1f4f7a); // ring housing
-    fillRect(24, 0, 32, 4, 0x2f6ea8);
-    fillRect(28, 5, 24, 16, 0x0d1c2b); // the bore
+    fillRect(0, 10, 110, 16, 0x3b4450);
+    fillRect(0, 10, 110, 2, 0x5a687a);
+    fillRect(0, 24, 110, 2, 0x242b34);
+    for (let i = 2; i < 110; i += 6) fillRect(i, 13, 3, 10, 0x2f3743); // rollers
+    fillRect(6, 2, 22, 8, 0x16212b); // the in-feed hood
+    fillRect(8, 4, 18, 4, 0x2f6ea8);
+    fillRect(36, 0, 38, 30, 0x1f4f7a); // ring housing
+    fillRect(36, 0, 38, 4, 0x2f6ea8);
+    fillRect(40, 5, 30, 16, 0x0d1c2b); // the bore
     g.fillStyle(0x3fb7e8, 1);
-    g.fillCircle(40, 13, 7);
+    g.fillCircle(55, 13, 7);
     g.fillStyle(0x0d1c2b, 1);
-    g.fillCircle(40, 13, 4);
-    fillRect(26, 22, 28, 2, 0x3fb7e8); // underlight
-    fillRect(58, 2, 20, 8, 0x16212b);
-    fillRect(60, 4, 16, 4, 0x3fb7e8);
-    fillRect(2, 26, 76, 4, 0x4a535f);
+    g.fillCircle(55, 13, 4);
+    fillRect(38, 22, 34, 2, 0x3fb7e8); // underlight
+    fillRect(78, 2, 26, 8, 0x16212b); // operator screen
+    fillRect(80, 4, 22, 4, 0x3fb7e8);
+    fillRect(2, 26, 106, 4, 0x4a535f);
     fillRect(4, 30, 6, 6, 0x2f3743);
-    fillRect(70, 30, 6, 6, 0x2f3743);
-    g.generateTexture('smithson_machine', 80, 36);
+    fillRect(52, 30, 6, 6, 0x2f3743);
+    fillRect(100, 30, 6, 6, 0x2f3743);
+    g.generateTexture('smithson_machine', 110, 36);
 
     // Millimetre-wave booth: two panels, a sweep bar, and the yellow feet you
     // are told to stand on.

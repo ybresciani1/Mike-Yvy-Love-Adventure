@@ -19,6 +19,9 @@ export class AirportScene extends Phaser.Scene {
     preload() { generateTextures(this); }
     create() {
         playAirportTheme();
+        // He has his case from the first frame. There is nothing to check and
+        // nothing to find on the floor of a departure hall.
+        gameState.hasSuitcase = true;
         document.getElementById('scrolling-banner').style.display = 'block';
         this.physics.world.setBounds(0, 0, 2400, 600);
         this.cameras.main.setBounds(0, 0, 2400, 600);
@@ -30,10 +33,8 @@ export class AirportScene extends Phaser.Scene {
             targets: a, y: 124, duration: 1500 + i * 300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
         }));
         this.add.image(200, 150, 'checkin_desk'); this.add.text(175, 120, "TICKETS", { fontSize: '12px', color: '#fff' });
-        this.ticket = this.physics.add.sprite(200, 200, 'ticket');
         this.add.image(374, 150, 'checkin_desk'); this.add.image(430, 150, 'checkin_desk'); this.add.text(360, 120, "BAG CHECK-IN", { fontSize: '12px', color: '#fff' });
         this.add.image(275, 150, 'luggage_cart'); // the belt end of the bag drop
-        this.suitcase = this.physics.add.sprite(400, 200, 'suitcase');
         // The two behind the counters were scenery. Both of them have had a
         // morning. The zones stop short of the ticket and the case on the floor
         // below them, so the pickup and the conversation do not fight over the
@@ -191,9 +192,7 @@ export class AirportScene extends Phaser.Scene {
             [148, 212, 'civilian', 0x8c9cb0, "Passenger: 'Is this the line for tickets? I have asked four people.'", false],
             [144, 250, 'civilian_f', 0xb09c8c, "Passenger: 'I printed it at home and the machine still would not take it.'", false],
             [152, 288, 'civilian', 0xa0b08c, "Passenger: 'Window seat. Window seat. I am not asking for much.'", false],
-            [404, 238, 'civilian_f', 0x8cb0a0, "Passenger: 'Fifty-one pounds. FIFTY-ONE. I have to open it right here.'", true],
-            [398, 276, 'civilian', 0xb08ca0, "Passenger: 'One bag each. That is what it said. One bag each.'", true],
-            [408, 314, 'civilian_f', 0x9c8cb0, "Passenger: 'If they lose this one again I am going to lie down on the belt.'", true]
+            [404, 238, 'civilian_f', 0x8cb0a0, "Passenger: 'Fifty-one pounds. FIFTY-ONE. I have to open it right here.'", true]
         ].forEach(([qx, qy, key, tint, line, bag]) => queuePerson(qx, qy, key, tint, line, bag));
 
         this.buildSecurity(walls, queuePerson);
@@ -226,7 +225,7 @@ export class AirportScene extends Phaser.Scene {
         this.heldCoffee = this.add.sprite(0, 0, 'coffee').setScale(0.5).setVisible(false);
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.add.text(20, 550, "Task: Ticket -> Suitcase -> Bag scan -> Body scan -> Coffee -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
+        this.add.text(20, 550, "Task: Ticket -> Bag scan -> Body scan -> Collect bag -> Coffee -> Gate 12B", { fontSize: '14px', color: '#000', backgroundColor: '#fff' }).setScrollFactor(0);
         this.peopleZones.forEach(zone => this.physics.add.overlap(this.player, zone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
         }));
@@ -241,8 +240,6 @@ export class AirportScene extends Phaser.Scene {
         this.securityZones.forEach(({ zone, act }) => this.physics.add.overlap(this.player, zone, () => {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) act();
         }));
-        this.physics.add.overlap(this.player, this.suitcase, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasSuitcase) { gameState.hasSuitcase = true; this.suitcase.destroy(); this.heldSuitcase.setVisible(true); playSound('select'); showDialogue("Mike grabbed his suitcase."); } });
-        this.physics.add.overlap(this.player, this.ticket, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy() && !gameState.hasTicket) { gameState.hasTicket = true; this.ticket.destroy(); this.heldTicket.setVisible(true); playSound('select'); showDialogue("Mike found the Boarding Pass."); } });
         this.physics.add.overlap(this.player, this.starbucksZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared) { if (!gameState.hasCoffee) { gameState.hasCoffee = true; this.heldCoffee.setVisible(true); playSound('select'); showDialogue("Mike bought a coffee. Essential fuel."); } } else { showDialogue("Security won't let you through yet."); } } });
         this.physics.add.overlap(this.player, this.gateZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared && gameState.hasCoffee) { showDialogue("Boarding Flight...", () => { stopMusic(); document.getElementById('scrolling-banner').style.display = 'none'; this.scene.start('FlightScene'); }); } else if (!gameState.hasCoffee) showDialogue("Mike needs a coffee before boarding."); else showDialogue("Security Check Required."); } });
         this.physics.add.overlap(this.player, this.newsZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike browsed the tech magazines."); });
@@ -369,9 +366,11 @@ export class AirportScene extends Phaser.Scene {
             // The queues start clear of the check-in hall, which ends at x=467.
             // Two interaction zones that overlap share one keypress, and whichever
             // handler runs first swallows it.
-            { y: 180, label: 'CLEAR+', tint: 0x2b8ce0, queueAt: 474 },
-            { y: 330, label: 'GENERAL', tint: 0xf4d03f, queueAt: 474, main: true },
-            { y: 480, label: 'TSA PRECHECK', tint: 0xc0392b, queueAt: 474 }
+            { y: 180, label: 'CLEAR+', tint: 0x2b8ce0, queueAt: 520, officerY: 96 },
+            { y: 330, label: 'GENERAL', tint: 0xf4d03f, queueAt: 520, main: true, officerY: 246 },
+            // The bottom lane's officer stands below it: above it is where the
+            // Smithson belt ends, and he was standing on the bag you collect.
+            { y: 480, label: 'TSA PRECHECK', tint: 0xc0392b, queueAt: 520, officerY: 556 }
         ];
         const inLane = y => LANES.some(l => Math.abs(y - l.y) < 42);
 
@@ -396,7 +395,7 @@ export class AirportScene extends Phaser.Scene {
             this.add.image(724, l.y, 'metal_detector');
             this.add.rectangle(710, l.y - 50, 106, 18, 0x16212b);
             this.add.text(710, l.y - 50, l.label, { fontSize: '11px', color: '#fff' }).setOrigin(0.5);
-            const officer = this.physics.add.sprite(696, l.y - 84, 'tsa');
+            const officer = this.physics.add.sprite(696, l.officerY, 'tsa');
             officer.setImmovable(true);
             // Wider than the hole it plugs: a 96px gap and an 84px barrier leaves
             // a 12px slot at each end, and a 16px body will try to wriggle through.
@@ -418,6 +417,7 @@ export class AirportScene extends Phaser.Scene {
         this.add.rectangle(616, 236, 58, 16, 0x16212b);
         this.add.text(616, 236, 'X-RAY', { fontSize: '11px', color: '#fff' }).setOrigin(0.5);
         this.add.image(616, 398, 'smithson_machine');
+        this.add.image(700, 386, 'luggage_cart').setScale(0.7); // the collection end
         this.add.rectangle(596, 424, 96, 16, 0x16212b);
         this.add.text(596, 424, 'SMITHSON CT', { fontSize: '11px', color: '#fff' }).setOrigin(0.5);
         this.add.image(672, 330, 'body_scanner');
@@ -427,6 +427,7 @@ export class AirportScene extends Phaser.Scene {
         zone(616, 402, 92, 52, () => this.trySmithson());
         zone(672, 330, 46, 72, () => this.tryBodyScanner());
         zone(728, 330, 40, 44, () => this.lookAtDetector());
+        zone(700, 398, 56, 52, () => this.collectBag());
         zone(676, 180, 60, 60, () => showDialogue("CLEAR+ members only. An officer looks at Mike's boarding pass, then at Mike, and points back down the hall."));
         zone(676, 480, 60, 60, () => showDialogue("TSA PreCheck. 'You got PreCheck on that pass?' Mike does not have PreCheck on that pass."));
 
@@ -434,17 +435,14 @@ export class AirportScene extends Phaser.Scene {
         const QUEUE_AT = Object.fromEntries(LANES.map(l => [l.y, l.queueAt]));
         [
             [180, false, [
-                "CLEAR Member: 'Eleven seconds. I timed it. Eleven.'",
                 "CLEAR Member: 'It pays for itself. That is what I tell my wife.'",
                 "CLEAR Member: 'Look at the general line. Look at it.'"
             ]],
             [330, true, [
-                "Passenger: 'Shoes off? Is it shoes off? Nobody has said.'",
                 "Passenger: 'Laptop, tablet, Kindle. Three trays. Every single time.'",
                 "Passenger: 'Forty minutes in this one. My own fault entirely.'"
             ]],
             [480, true, [
-                "PreCheck Passenger: 'Shoes on. Belt on. Laptop in. It is civilised.'",
                 "PreCheck Passenger: 'Eighty-five dollars for five years. Best money I ever spent.'",
                 "PreCheck Passenger: 'You just walk through. It feels illegal.'"
             ]]
@@ -471,8 +469,7 @@ export class AirportScene extends Phaser.Scene {
     }
 
     trySmithson() {
-        if (gameState.bagScreened) return showDialogue("His case is already through. The booth is next.");
-        if (!gameState.hasSuitcase) return showDialogue("TSA: 'Bag on the belt.' Mike has not picked his up yet.");
+        if (gameState.bagScreened) return showDialogue("His case is on the belt. The booth is next.");
         this.screenTheBag();
     }
 
@@ -484,28 +481,67 @@ export class AirportScene extends Phaser.Scene {
     screenTheBag() {
         gameState.bagScreened = true;
         this.bagOnBelt = true;
+        this.bagAtEnd = false;
         const bag = this.heldSuitcase;
+        bag.setDepth(6);
         playSound('select');
         showDialogue("TSA: 'Smithson — straight in. Nothing comes out of the bag.'", () => {
             this.tweens.add({
-                targets: bag, x: 572, y: 392, rotation: 0, duration: 380, ease: 'Sine.easeOut',
+                targets: bag, x: 552, y: 394, rotation: 0, duration: 380, ease: 'Sine.easeOut',
                 onComplete: () => {
-                    const glow = this.add.rectangle(616, 392, 30, 24, 0x3fb7e8, 0.55).setDepth(7);
-                    this.tweens.add({ targets: glow, alpha: 0, duration: 420, yoyo: true, repeat: 1, onComplete: () => glow.destroy() });
+                    const glow = this.add.rectangle(616, 394, 34, 26, 0x3fb7e8, 0.5).setDepth(7);
+                    this.tweens.add({ targets: glow, alpha: 0.1, duration: 700, yoyo: true, repeat: 5, onComplete: () => glow.destroy() });
+                    // A CT machine is not quick, which is the point of doing it
+                    // in this order: he gets scanned himself while it works.
                     this.tweens.add({
-                        targets: bag, x: 662, duration: 1500, ease: 'Linear',
-                        onComplete: () => this.saySoon("The case goes in whole and comes out the other end. Nothing to unpack, nothing to repack.", () => {
-                            this.bagOnBelt = false;
-                            this.saySoon("TSA: 'Clear. Booth is on your right when you are ready.'");
-                        })
+                        targets: bag, x: 690, duration: 8000, ease: 'Linear',
+                        onComplete: () => { this.bagAtEnd = true; }
+                    });
+                    this.saySoon("The belt takes it in. It is a slow machine and there is a queue behind him.", () => {
+                        this.saySoon("TSA: 'Go on through the scanner. It will come out the far end.'");
                     });
                 }
             });
         });
     }
 
+    /**
+     * Walk him somewhere under his own steam. The move has to be driven through
+     * body.reset() rather than by tweening x/y: he is an arcade-physics sprite
+     * and the body writes its own position back onto him every step, so a plain
+     * positional tween is silently undone.
+     */
+    stepTo(x, y, done) {
+        const fromX = this.player.x, fromY = this.player.y;
+        const c = { t: 0 };
+        this.player.isLocked = true;
+        this.player.body.stop();
+        this.tweens.add({
+            targets: c, t: 1, duration: 420, ease: 'Sine.easeInOut',
+            onUpdate: () => this.player.body.reset(
+                Phaser.Math.Linear(fromX, x, c.t),
+                Phaser.Math.Linear(fromY, y, c.t)
+            ),
+            onComplete: () => { this.player.isLocked = false; if (done) done(); }
+        });
+    }
+
+    collectBag() {
+        if (gameState.bagRetrieved) return showDialogue("He has it. Both hands, like it might try something.");
+        if (!gameState.bagScreened) return showDialogue("Nothing on the belt yet. His case is still over his shoulder.");
+        if (!gameState.bodyScanned) return showDialogue("TSA: 'Scanner first. Nobody is going to walk off with it.'");
+        if (!this.bagAtEnd) return showDialogue("The case is still somewhere inside the machine. The belt does not hurry for anyone.");
+        gameState.bagRetrieved = true;
+        gameState.securityCleared = true;
+        this.bagOnBelt = false;
+        playSound('select');
+        this.securityBarrier.destroy();
+        this.gateVisual.fillColor = 0x00ff00;
+        showDialogue("Mike lifts his case off the end of the belt. Shoes on, laptop still inside, nothing repacked.");
+    }
+
     tryBodyScanner() {
-        if (gameState.securityCleared) return showDialogue("Mike has already been through. He is trying not to look pleased about it.");
+        if (gameState.bodyScanned) return showDialogue("Mike has already been through. He is trying not to look pleased about it.");
         if (!gameState.hasTicket) return showDialogue("TSA: 'Boarding pass first.' Mike does not have one yet.");
         if (!gameState.bagScreened) return showDialogue("TSA: 'Bag on the belt first. Then you.'");
         this.bodyScan();
@@ -514,14 +550,17 @@ export class AirportScene extends Phaser.Scene {
     bodyScan() {
         gameState.bodyScanned = true;
         playSound('select');
-        const sweep = this.add.rectangle(672, 308, 18, 2, 0x9fe8ff, 0.9).setDepth(7);
-        this.tweens.add({ targets: sweep, y: 352, duration: 900, yoyo: true, ease: 'Sine.easeInOut', onComplete: () => sweep.destroy() });
-        showDialogue("TSA: 'Step in. Feet on the prints, arms up, palms forward.'", () => {
-            showDialogue("Mike stands in the booth with his hands over his head like a man being arrested very politely.", () => {
-                showDialogue("TSA: 'You are clear. Have a safe flight.'", () => {
-                    gameState.securityCleared = true;
-                    this.securityBarrier.destroy();
-                    this.gateVisual.fillColor = 0x00ff00;
+        const backX = this.player.x, backY = this.player.y;
+        // Into the glass, not alongside it: the booth is drawn at depth 0 and he
+        // is at 5, so standing on its middle puts him inside it.
+        this.stepTo(672, 326, () => {
+            const sweep = this.add.rectangle(672, 310, 18, 2, 0x9fe8ff, 0.9).setDepth(7);
+            this.tweens.add({ targets: sweep, y: 348, duration: 900, yoyo: true, repeat: 1, ease: 'Sine.easeInOut', onComplete: () => sweep.destroy() });
+            this.saySoon("TSA: 'Step in. Feet on the prints, arms up, palms forward.'", () => {
+                this.saySoon("Mike stands in the booth with his hands over his head like a man being arrested very politely.", () => {
+                    this.saySoon("TSA: 'You are good. Collect your bag off the end of the belt.'", () => {
+                        this.stepTo(backX, backY);
+                    });
                 });
             });
         });
@@ -529,6 +568,7 @@ export class AirportScene extends Phaser.Scene {
 
     lookAtDetector() {
         if (gameState.securityCleared) return showDialogue("Mike walks through. Nothing beeps. Small mercies.");
+        if (gameState.bodyScanned) return showDialogue("TSA: 'Sir. Your bag. End of the belt, behind you.'");
         showDialogue("The metal detector, for anyone travelling light enough to have nothing to scan. An officer points Mike at the booth instead.");
     }
 
@@ -539,7 +579,12 @@ export class AirportScene extends Phaser.Scene {
                     showDialogue("Mike: 'Window. I like watching it come up out of the water.'", () => {
                         showDialogue("Ticket Agent: 'Lived out there, did you?'", () => {
                             showDialogue("Mike: 'For a while. It will be good to be back.'", () => {
-                                zone.setData('talk', () => showDialogue("Ticket Agent: 'You are all set. 12B, and it is a long walk.'"));
+                                gameState.hasTicket = true;
+                                this.heldTicket.setVisible(true);
+                                playSound('select');
+                                showDialogue("She slides a boarding pass across the counter. Flight 214, seat 14A, Gate 12B.", () => {
+                                    zone.setData('talk', () => showDialogue("Ticket Agent: 'You are all set. 12B, and it is a long walk.'"));
+                                });
                             });
                         });
                     });
@@ -691,7 +736,7 @@ export class AirportScene extends Phaser.Scene {
         if (gameState.hasSuitcase) this.rollSuitcase(); 
         if (gameState.hasTicket) { this.heldTicket.x = this.player.x + 12; this.heldTicket.y = this.player.y + 5; this.heldTicket.setVisible(true); } 
         if (gameState.hasCoffee) { this.heldCoffee.x = this.player.x + 8; this.heldCoffee.y = this.player.y - 5; this.heldCoffee.setVisible(true); } 
-        const touching = this.physics.overlap(this.player, [this.suitcase, this.ticket, this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.gateDesks, ...this.deskZones, ...this.securityZones.map(s => s.zone), ...this.peopleZones, ...this.seatZones]); 
+        const touching = this.physics.overlap(this.player, [this.gateZone, this.starbucksZone, this.newsZone, this.burgerZone, this.restroomZone, this.viewingZone, ...this.gateDesks, ...this.deskZones, ...this.securityZones.map(s => s.zone), ...this.peopleZones, ...this.seatZones]); 
         // The wheeled-bag passengers are moving targets, so they are caught by
         // distance rather than by a zone. Scene update runs before the physics
         // step, so this only claims the keypress when nothing stationary wants
