@@ -2,18 +2,33 @@ body {
     margin: 0;
     padding: 0;
     background-color: #2d2d2d;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
+    overscroll-behavior: none;
     font-family: 'Courier New', Courier, monospace;
 }
+/*
+ * The game is drawn at a fixed 800x600 and every DOM overlay above is
+ * positioned in those same coordinates, so a small screen scales the whole
+ * frame — canvas and overlays together — with one transform rather than
+ * resizing anything. src/ui/touch.js sets the two variables; on a desktop the
+ * scale stays 1 and this is the size the game has always been.
+ *
+ * transform-origin is the top-left so the operations compose predictably: the
+ * inner translate centres the frame on the point at the middle of the screen,
+ * the scale shrinks it around that same point, and the shift lifts it clear of
+ * the on-screen controls.
+ */
 #game-container {
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
     border: 8px solid #4a3b2a;
     border-radius: 4px;
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-origin: 0 0;
+    transform: translateY(var(--game-shift, 0px)) scale(var(--game-scale, 1)) translate(-50%, -50%);
     background: #000;
 }
 #scrolling-banner {
@@ -146,4 +161,102 @@ body {
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
+}
+
+/* --- On-screen controls for phones ------------------------------------- */
+/*
+ * Hidden until src/ui/touch.js finds a finger. They are fixed to the viewport
+ * rather than to the game frame, so they stay thumb-sized however far the game
+ * itself has been scaled down: in portrait they sit on a strip of their own
+ * below the game, in landscape they overlay the letterbox at either side.
+ */
+#touch-controls { display: none; }
+body.touch-mode #touch-controls { display: block; }
+
+#touch-controls {
+    --pad-size: clamp(112px, 33vmin, 168px);
+    --touch-inset: 16px;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#touch-pad, #touch-action {
+    position: absolute;
+    bottom: calc(var(--touch-inset) + env(safe-area-inset-bottom, 0px));
+    pointer-events: auto;
+    touch-action: none;
+    background: rgba(74, 59, 42, 0.82);
+    border: 3px solid #8b4513;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+#touch-pad {
+    left: calc(var(--touch-inset) + env(safe-area-inset-left, 0px));
+    width: var(--pad-size);
+    height: var(--pad-size);
+    border-radius: 18px;
+    display: grid;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    place-items: center;
+}
+
+.pad-arrow {
+    color: #e1c699;
+    font-size: calc(var(--pad-size) * 0.17);
+    line-height: 1;
+    opacity: 0.7;
+}
+.pad-arrow.is-active { color: #ffd54f; opacity: 1; }
+.pad-up { grid-area: 1 / 2; }
+.pad-left { grid-area: 2 / 1; }
+.pad-right { grid-area: 2 / 3; }
+.pad-down { grid-area: 3 / 2; }
+
+/* Follows the thumb, so it is obvious the pad is being held. */
+#touch-nub {
+    grid-area: 2 / 2;
+    width: calc(var(--pad-size) * 0.3);
+    height: calc(var(--pad-size) * 0.3);
+    border-radius: 50%;
+    background: #e1c699;
+    border: 2px solid #8b4513;
+    opacity: 0.85;
+}
+
+#touch-action {
+    right: calc(var(--touch-inset) + env(safe-area-inset-right, 0px));
+    width: calc(var(--pad-size) * 0.6);
+    height: calc(var(--pad-size) * 0.6);
+    border-radius: 50%;
+    color: #fff8e1;
+    font-family: inherit;
+    font-size: calc(var(--pad-size) * 0.22);
+    font-weight: bold;
+    background: rgba(139, 69, 19, 0.85);
+    border-color: #e1c699;
+}
+#touch-action:active { background: rgba(224, 198, 153, 0.9); color: #3e2723; }
+
+/*
+ * The overlay is drawn inside the game frame, so a phone shrinks it along with
+ * everything else: 18px of dialogue lands at about 8px on a 375px screen.
+ * These sizes are chosen to come out legible *after* that scaling, and to give
+ * a finger something bigger than a cursor needs to hit.
+ */
+body.touch-mode .dialogue-text { font-size: 30px; }
+body.touch-mode .dialogue-box { min-height: 120px; padding: 22px; gap: 22px; }
+body.touch-mode .portrait-frame { width: 130px; height: 130px; }
+body.touch-mode .interaction-hint { font-size: 34px; }
+body.touch-mode #wardrobe-modal h2,
+body.touch-mode #restaurant-menu-modal h2 { font-size: 34px; }
+body.touch-mode .outfit-btn {
+    width: 300px;
+    padding: 20px;
+    font-size: 28px;
 }

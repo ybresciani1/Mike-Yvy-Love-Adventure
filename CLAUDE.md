@@ -62,6 +62,7 @@ src/audio/context.js     lazily created AudioContext
 src/audio/sfx.js         playSound
 src/audio/music.js       play*Theme, stopMusic, fadeOutMusic
 src/ui/dialogue.js       showDialogue, isDialogueOpen, portraitFor
+src/ui/touch.js          phone controls: the on-screen pad, and fitting the frame to the screen
 src/entities/Player.js   the movable character
 src/textures/            generateTextures — all ~96 sprites, drawn in code
 src/scenes/              23 scenes + index.js (the registry)
@@ -74,6 +75,39 @@ The dialogue box, `PRESS SPACE` interaction hint, airport scrolling banner, ward
 - Multi-line conversations are nested `showDialogue(..., () => showDialogue(...))` callbacks; longer sequences use a `sequence` array plus a recursive `nextStep` (see `MovieScene.startMovie`).
 - Modals lock the player with `this.player.isLocked = true` and wire `onclick` handlers imperatively each time they open.
 - Adding an element id to the game code means adding it to `index.html`; `tests/sceneFlow.test.js` enforces that.
+
+### Phones
+
+`src/ui/touch.js`, installed from `main.js`, is the whole of the mobile
+support. It never touches Phaser or a scene:
+
+- **The controls are a keyboard.** The D-pad and the `A` button dispatch
+  synthetic `ArrowLeft`/`Space`/… events at `document`, so every
+  `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 27 scenes, and the
+  SPACE listener that dismisses a line, keeps working with no per-scene wiring.
+  Phaser's `KeyboardManager` listens on `window` and reads only the legacy
+  `event.keyCode`, which several browsers drop from the `KeyboardEvent` init
+  dictionary — `sendKey` redefines it on the event when the constructor ignored
+  it. Dispatching at `document` reaches both listeners, since `window` is the
+  next step in that event's path.
+- **The frame scales as one piece.** The game stays 800x600 and the container —
+  canvas and every DOM overlay together — is scaled by a CSS transform, with
+  `--game-scale` and `--game-shift` set from JS. Resizing the canvas instead
+  would leave the dialogue box, the banner and the modals laid out for a size
+  the canvas no longer is. Phaser derives its own pointer scaling from the
+  canvas bounding rect, which a CSS transform is part of, so taps still land
+  where they look — but the rect is cached, so `fit()` calls `scale.refresh()`.
+  The scale is capped at 1, which is what keeps the desktop exactly as it was.
+- **Touch mode is a decision, not a build.** `(pointer: coarse)` settles it
+  before the title screen draws; a touchscreen laptop reports a mouse and only
+  gets the controls once someone touches the glass. `isTouchMode()` is why the
+  title screen can name the controls the player actually has.
+
+The controls live in `index.html` like the rest of the overlay, but *outside*
+`#game-container`, so they stay thumb-sized however far the game is scaled
+down. In portrait they take a strip below the game (`fit()` shifts the game up
+by half of it); in landscape there is no height to spare, so they sit over the
+letterbox at either side.
 
 ### Procedural textures
 `generateTextures(scene)` draws all ~96 sprites pixel-by-pixel with a Phaser `Graphics` object and `generateTexture(key, w, h)`. It is only called in `TitleScene.preload` and `AirportScene.preload` — Phaser's TextureManager is game-global, so every later scene reuses those keys. **New art belongs in `generateTextures`, not in a per-scene preload.** The exceptions are the remote PNGs in `assets.js`, loaded by individual scene `preload()` methods.

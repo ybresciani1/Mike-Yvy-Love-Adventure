@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { showDialogue } from '../ui/dialogue.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 export class ApartmentScene extends Phaser.Scene {
     constructor() { super('ApartmentScene'); }
@@ -59,6 +60,20 @@ export class ApartmentScene extends Phaser.Scene {
                         this.visitors.addMultiple([mom, alex, kevin]);
                         this.visitors.setAlpha(0);
                         this.tweens.add({ targets: this.visitors.getChildren(), alpha: 1, duration: 1000 });
+                        takePhoto({
+                            key: 'apartment', title: 'Their first apartment',
+                            caption: "Half of it still in boxes the day her family came to see it.",
+                            window: 0xd8cdb8,
+                            sprites: [
+                                { texture: 'large_window', x: 46, y: -14, scale: 0.55 },
+                                { texture: 'couch_green', x: 0, y: 2, scale: 0.8 },
+                                { texture: this.player.texture.key, x: -16, y: 8 },
+                                { texture: 'yvy', x: 2, y: 8 },
+                                { texture: 'aiden', x: 18, y: 12, scale: 0.85 },
+                                { texture: 'moving_box', x: -52, y: 16 },
+                                { texture: 'rolled_rug', x: 54, y: 22, scale: 0.8 }
+                            ]
+                        });
                         showDialogue("Yvy's mom, half-brother Alex, and Kevin came to visit.", () => {
                             showDialogue("Mike met them for the first time, and they grew to appreciate each other.", () => {
                                 this.scene.start('ThanksgivingScene');

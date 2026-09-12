@@ -7,7 +7,7 @@ const keys = textures.map((t) => t.key);
 describe('generateTextures', () => {
     it('draws the full sprite sheet in one pass', () => {
         // Every sprite in the game is drawn here; scenes only reuse the keys.
-        expect(textures).toHaveLength(277);
+        expect(textures).toHaveLength(298);
     });
 
     it('never registers the same key twice, which would silently overwrite art', () => {

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH } from '../constants.js';
 import { playSound } from '../audio/sfx.js';
 import { showDialogue } from '../ui/dialogue.js';
+import { takePhoto } from '../ui/scrapbook.js';
 
 export class TravelScene extends Phaser.Scene {
     constructor() { super('TravelScene'); }
@@ -85,7 +86,27 @@ export class TravelScene extends Phaser.Scene {
             { west: false, line: "Yvy was scared at first because Mike seemed too NICE..." },
             { west: true, line: "But as time passed, she realized Mike was kind, safe, and truly genuine." }
         ];
-        if (this.legIndex >= legs.length) return this.scene.start('HouseScene');
+        if (this.legIndex >= legs.length) {
+            // Out of the window on the last crossing, which is the only picture
+            // either of them took of the year they spent in the air.
+            takePhoto({
+                key: 'crossings', title: 'Three thousand miles',
+                caption: "DC to SD and back again, as often as they could afford it.",
+                window: 0x3b86bf,
+                sprites: [
+                    { rect: [180, 18], x: 0, y: -31, color: 0x2c6fa8 },
+                    { rect: [180, 14], x: 0, y: -15, color: 0x4f9ed2 },
+                    { rect: [180, 12], x: 0, y: -3, color: 0x84c9e8 },
+                    { rect: [180, 10], x: 0, y: 8, color: 0xc9e3ef },
+                    { rect: [180, 24], x: 0, y: 25, color: 0x2f6f96 },
+                    { circle: 7, x: -62, y: -26, color: 0xfffbe4 },
+                    { texture: 'cloud', x: -48, y: 6, scale: 1.1 },
+                    { texture: 'cloud', x: 54, y: 14, scale: 0.8 },
+                    { texture: 'airliner', x: 6, y: -8, scale: 0.9 }
+                ]
+            });
+            return this.scene.start('HouseScene');
+        }
         const leg = legs[this.legIndex++];
 
         // Westbound is DC to SD, so the aeroplane crosses right to left.

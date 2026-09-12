@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mike &amp; Yvy: A Love Story (RPG Edition)</title>
 </head>
 <body>
@@ -38,6 +38,20 @@
                 <div id="dialogue-text" class="dialogue-text"></div>
             </div>
         </div>
+    </div>
+
+    <!-- On-screen controls for phones. Hidden until src/ui/touch.js decides the
+         game is being played with fingers; they sit outside #game-container so
+         they stay thumb-sized while the game itself scales to the screen. -->
+    <div id="touch-controls" aria-hidden="true">
+        <div id="touch-pad">
+            <span class="pad-arrow pad-up" data-dir="up">&#9650;</span>
+            <span class="pad-arrow pad-left" data-dir="left">&#9664;</span>
+            <span class="pad-arrow pad-right" data-dir="right">&#9654;</span>
+            <span class="pad-arrow pad-down" data-dir="down">&#9660;</span>
+            <span id="touch-nub"></span>
+        </div>
+        <button id="touch-action" type="button">A</button>
     </div>
 
     <script type="module" src="/src/main.js"></script>

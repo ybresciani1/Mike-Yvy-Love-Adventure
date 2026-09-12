@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import './styles.css';
 import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 import { SCENES } from './scenes/index.js';
+import { installTouchControls } from './ui/touch.js';
 
 export const gameConfig = {
     type: Phaser.AUTO,
@@ -14,6 +15,11 @@ export const gameConfig = {
 };
 
 export const game = new Phaser.Game(gameConfig);
+
+// Phones: scale the 800x600 frame down to the screen, and put a D-pad and an
+// action button on it. Both feed the game synthetic arrow and SPACE events, so
+// the scenes never learn the difference.
+installTouchControls(game);
 
 // Developer tools: the chapter-select overlay (press `) and the window.gotoScene
 // console helper. Vite substitutes `false` for import.meta.env.DEV in a

@@ -11,7 +11,10 @@ import { playSound } from '../audio/sfx.js';
  * A photo is { key, title, caption, sprites }. `sprites` is what to draw in the
  * frame: an array of { texture, x, y, scale, flip, tint } in frame-local
  * coordinates, so the album is rendered from the same art as the scenes rather
- * than from saved images.
+ * than from saved images. An entry can also be a plain shape —
+ * { rect: [w, h], color, alpha } or { circle: radius, color, alpha } — for a
+ * picture with no sprite to stand in for it, like the sunset on the last page.
+ * `window` overrides the colour behind the sprites.
  */
 const album = [];
 
@@ -31,7 +34,10 @@ export function photoCount() {
 }
 
 /** Every photo the game can produce, so the album can show what was missed. */
-export const TOTAL_PHOTOS = 10;
+export const TOTAL_PHOTOS = 18;
+
+/** Photographs to a page in the album, as two rows of three. */
+export const PHOTOS_PER_PAGE = 6;
 
 export function resetAlbum() {
     album.length = 0;

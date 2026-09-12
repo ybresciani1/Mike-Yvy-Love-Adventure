@@ -18,6 +18,8 @@ npm run dev    # open the URL printed in the terminal
 
 - **Arrow keys** — move
 - **Spacebar** — interact with objects and characters / advance dialogue
+- **On a phone** — drag the on-screen pad to move, tap **A** to interact, tap the
+  screen to advance a line of dialogue
 - Progress is linear — complete each scene's objectives to move to the next
 
 ## Scripts
@@ -41,7 +43,7 @@ index.html      page shell: the HTML overlay (dialogue box, modals) + module ent
 src/scenes/     the 23 story scenes, plus the registry in index.js
 src/textures/   generateTextures — every sprite in the game, drawn pixel by pixel
 src/audio/      synthesised sound effects and music themes
-src/ui/         the dialogue system
+src/ui/         the dialogue system and the on-screen phone controls
 src/entities/   the player character
 tests/          Vitest suites
 ```

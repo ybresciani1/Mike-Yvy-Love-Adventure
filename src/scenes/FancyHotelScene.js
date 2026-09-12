@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { fadeOutMusic, playRomanticTheme } from '../audio/music.js';
 import { showDialogue } from '../ui/dialogue.js';
+import { takePhoto } from '../ui/scrapbook.js';
 import { Player } from '../entities/Player.js';
 
 export class FancyHotelScene extends Phaser.Scene {
@@ -64,6 +65,19 @@ export class FancyHotelScene extends Phaser.Scene {
                 this.tweens.add({ targets: this.player, x: 380, y: 440, duration: 2000 });
                 this.tweens.add({ targets: this.yvy, x: 420, y: 440, duration: 2000, onComplete: () => {
                     this.add.text(400, 350, "❤️", { fontSize: '40px' }).setOrigin(0.5); fadeOutMusic(2);
+                    takePhoto({
+                        key: 'suite', title: 'The best day',
+                        caption: "The end of the longest, easiest day either of them could remember.",
+                        window: 0x2b1730,
+                        sprites: [
+                            { texture: 'chandelier', x: 0, y: -30, scale: 0.6 },
+                            { texture: 'suite_window', x: 36, y: -8, scale: 0.6 },
+                            { texture: 'fancy_bed', x: 0, y: 6, scale: 0.8 },
+                            { texture: this.player.texture.key, x: -14, y: 8 },
+                            { texture: 'yvy_dress', x: 10, y: 8 },
+                            { texture: 'champagne_service', x: -48, y: 12, scale: 0.7 }
+                        ]
+                    });
                     showDialogue("Mike and Yvy share a kiss.", () => { this.time.delayedCall(3000, () => { this.scene.start('DowntownScene'); }); });
                 }});
             }); }); });

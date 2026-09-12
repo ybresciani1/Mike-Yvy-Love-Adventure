@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { fadeOutMusic, playLeFestinTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
+import { takePhoto } from '../ui/scrapbook.js';
 import { Player } from '../entities/Player.js';
 
 export class RestaurantScene extends Phaser.Scene { 
@@ -143,6 +144,20 @@ export class RestaurantScene extends Phaser.Scene {
         });
 
         this.time.delayedCall(7800, () => {
+            takePhoto({
+                key: 'dinner', title: 'Dinner, before the film',
+                caption: "Tacos, spaghetti, and nowhere either of them had to be.",
+                window: 0x3b2a20,
+                sprites: [
+                    { texture: 'pendant_lamp', x: 0, y: -30, scale: 0.7 },
+                    { texture: 'booth_seat', x: 0, y: -6, scale: 0.8 },
+                    { texture: this.player.texture.key, x: -20, y: 8 },
+                    { texture: 'yvy_dress', x: 20, y: 8 },
+                    { texture: 'spaghetti', x: -20, y: 26, scale: 0.8 },
+                    { texture: 'tacos', x: 20, y: 26, scale: 0.8 },
+                    { texture: 'plant_flowers', x: -48, y: 16, scale: 0.7 }
+                ]
+            });
             showDialogue("Yvy: 'Okay. That was worth the wait.'", () => {
                 fadeOutMusic(2);
                 showDialogue("Mike: 'Ready for the movie?'", () => this.scene.start('MovieScene'));

@@ -4,6 +4,7 @@ import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { stopMusic, playConferenceTheme } from '../audio/music.js';
 import { showDialogue, isDialogueOpen, dialogueBusy } from '../ui/dialogue.js';
+import { takePhoto } from '../ui/scrapbook.js';
 import { Player } from '../entities/Player.js';
 
 export class ConferenceScene extends Phaser.Scene { 
@@ -86,6 +87,20 @@ export class ConferenceScene extends Phaser.Scene {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue(zone.getData('line'));
         }));
     } 
-    startTextingSequence() { showDialogue("Mike: 'That went great! I should text Yvy.'", () => { playSound('msg_sent'); showDialogue("Mike sent: 'Demo went great! Dinner tonight?'", () => { this.time.delayedCall(1500, () => { playSound('msg_sent'); showDialogue("Yvy replied: 'YES OFC! ❤️'", () => { stopMusic(); this.scene.start('UberScene'); }); }); }); }); } 
+    startTextingSequence() {
+        takePhoto({
+            key: 'expo', title: 'The show floor',
+            caption: "Three demos, three yeses, and one text he could not wait to send.",
+            window: 0x1d2b3a,
+            sprites: [
+                { texture: 'expo_banner', x: -52, y: -6, scale: 0.7 },
+                { texture: 'expo_booth', x: 0, y: -8, scale: 0.8 },
+                { texture: 'expo_monitor', x: 46, y: -10, scale: 0.8 },
+                { texture: this.player.texture.key, x: -14, y: 16 },
+                { texture: 'vr_headset', x: 2, y: 14, scale: 0.9 },
+                { texture: 'civilian_f', x: 22, y: 16 }
+            ]
+        });
+        showDialogue("Mike: 'That went great! I should text Yvy.'", () => { playSound('msg_sent'); showDialogue("Mike sent: 'Demo went great! Dinner tonight?'", () => { this.time.delayedCall(1500, () => { playSound('msg_sent'); showDialogue("Yvy replied: 'YES OFC! ❤️'", () => { stopMusic(); this.scene.start('UberScene'); }); }); }); }); } 
     update() { this.player.update(this.cursors); if (gameState.hasVR) { this.heldVR.x = this.player.x + 10; this.heldVR.y = this.player.y; } document.getElementById('interaction-hint').style.display = ((!gameState.hasVR && this.physics.overlap(this.player, this.vrHeadset)) || (gameState.hasVR && this.physics.overlap(this.player, this.attendees)) || this.physics.overlap(this.player, [this.booth1Zone, this.booth2Zone, ...this.boothZones])) ? 'block' : 'none'; } 
 }

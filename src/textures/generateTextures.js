@@ -5118,4 +5118,333 @@ export function generateTextures(scene) {
     fillRect(40, 3, 14, 5, 0xf4f6f7); // leaflets
     fillRect(41, 4, 12, 1, 0x33475b);
     g.generateTexture('vr_demo_table', 96, 40);
+
+    // --- 54TH STREET COURTYARD ------------------------------------------------
+    // Red-stained concrete, gone blotchy and cracked in the sun. Three variants,
+    // scattered so the slab does not read as tiling.
+    const patioSlab = (key, marks) => {
+        g.clear();
+        fillRect(0, 0, 32, 32, 0xc08872);
+        marks();
+        g.generateTexture(key, 32, 32);
+    };
+    patioSlab('patio_slab', () => {
+        fillRect(4, 7, 11, 5, 0xc69079); // sun-bleached patches
+        fillRect(17, 19, 10, 6, 0xba806b);
+        drawPixel(26, 4, 0xb47a66);
+        drawPixel(9, 27, 0xb47a66);
+    });
+    patioSlab('patio_slab_worn', () => {
+        fillRect(1, 13, 17, 8, 0xc89479);
+        fillRect(21, 2, 9, 6, 0xb87e69);
+        fillRect(5, 25, 13, 4, 0xbb836d);
+        drawPixel(29, 23, 0xb07864);
+    });
+    patioSlab('patio_slab_cracked', () => {
+        fillRect(9, 1, 12, 5, 0xc69079);
+        // A crack wandering down, one pixel wide, the way they actually run.
+        let cx = 6;
+        for (let cy = 0; cy < 32; cy++) {
+            drawPixel(cx, cy, 0xa06a56);
+            drawPixel(cx + 1, cy, 0xb27c68);
+            if (cy % 5 === 0) cx += cy % 10 === 0 ? 1 : -1;
+            cx = Math.max(1, Math.min(28, cx));
+        }
+        fillRect(19, 21, 9, 5, 0xba806b);
+    });
+
+    // Brick pavers: the drive and the side path, laid in a running bond.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0x86675a);
+    for (let row = 0; row < 4; row++) {
+        const y = row * 8, off = row % 2 ? 8 : 0;
+        for (let bx = -8; bx < 32; bx += 16) {
+            fillRect(bx + off + 1, y + 1, 14, 6, row % 2 ? 0xa8705a : 0xb47c64);
+            fillRect(bx + off + 1, y + 1, 14, 1, 0xc08a72);
+        }
+    }
+    drawPixel(11, 12, 0x77594d);
+    drawPixel(24, 27, 0x77594d);
+    g.generateTexture('brick_pavers', 32, 32);
+
+    // White stucco: almost flat, with just enough grain to not look like paper.
+    g.clear();
+    fillRect(0, 0, 32, 32, 0xeae4da);
+    fillRect(0, 0, 32, 2, 0xf4f0e8);
+    for (let i = 0; i < 22; i++) {
+        drawPixel((i * 13) % 32, (i * 7 + 3) % 32, i % 3 ? 0xe2dbd0 : 0xf0ece3);
+    }
+    fillRect(0, 30, 32, 2, 0xd8d1c5);
+    g.generateTexture('stucco_wall', 32, 32);
+
+    // The low brick wall that runs round the courtyard.
+    g.clear();
+    fillRect(0, 0, 32, 26, 0x9c5842);
+    fillRect(0, 0, 32, 3, 0xb06a51); // capping
+    fillRect(0, 3, 32, 1, 0x7e4433);
+    for (let row = 0; row < 3; row++) {
+        const y = 5 + row * 7, off = row % 2 ? 7 : 0;
+        for (let bx = -7; bx < 32; bx += 14) {
+            fillRect(bx + off, y, 13, 6, row % 2 ? 0xa35f47 : 0x98543e);
+            fillRect(bx + off, y, 13, 1, 0xb2705a);
+        }
+    }
+    fillRect(0, 26, 32, 2, 0x6d3a2c); // shadow at the foot
+    g.generateTexture('brick_low_wall', 32, 28);
+
+    // Barrel tile, terracotta, the roof on every house on the street.
+    g.clear();
+    for (let i = 0; i < 32; i += 8) {
+        fillRect(i, 0, 7, 14, 0xc9764a);
+        fillRect(i, 0, 3, 14, 0xdb8b5c); // the lit side of each barrel
+        fillRect(i + 6, 0, 2, 14, 0xa85c37); // the valley beside it
+    }
+    fillRect(0, 12, 32, 3, 0x8e4b2c); // the shadow under the eave
+    fillRect(0, 0, 32, 1, 0xe89e6d);
+    g.generateTexture('barrel_tile_roof', 32, 15);
+
+    // Solar array, as on the garage roof.
+    g.clear();
+    fillRect(0, 0, 44, 20, 0x1b2430);
+    fillRect(0, 0, 44, 2, 0x37475c);
+    for (let px = 2; px < 44; px += 10) {
+        fillRect(px, 3, 8, 14, 0x223146);
+        fillRect(px, 3, 8, 1, 0x3d5d85);
+        fillRect(px + 3, 3, 1, 14, 0x18202c);
+    }
+    fillRect(0, 18, 44, 2, 0x39424f);
+    g.generateTexture('solar_panel', 44, 20);
+
+    // Lattice-topped fence: boards below, criss-cross above.
+    g.clear();
+    fillRect(0, 18, 32, 26, 0x9b6f46);
+    for (let bx = 0; bx < 32; bx += 8) {
+        fillRect(bx, 18, 7, 26, bx % 16 ? 0xa87a4e : 0x966a42);
+        fillRect(bx, 18, 1, 26, 0x7d5836);
+    }
+    fillRect(0, 0, 32, 18, 0x4a3524); // the gap you see through
+    for (let i = -18; i < 32; i += 9) { // one diagonal
+        for (let d = 0; d < 18; d++) {
+            drawPixel(i + d, d, 0xc9a06a);
+            drawPixel(i + d + 1, d, 0xa8834f);
+        }
+    }
+    for (let i = 0; i < 52; i += 9) { // and the other
+        for (let d = 0; d < 18; d++) {
+            drawPixel(i - d, d, 0xb89158);
+            drawPixel(i - d - 1, d, 0x97743f);
+        }
+    }
+    fillRect(0, 16, 32, 3, 0x6b4a2e); // the rail they sit on
+    fillRect(0, 0, 32, 2, 0x6b4a2e);
+    g.generateTexture('lattice_fence', 32, 44);
+
+    // The side gate, planks with a strap hinge.
+    g.clear();
+    for (let bx = 0; bx < 40; bx += 8) {
+        fillRect(bx, 0, 7, 48, bx % 16 ? 0xa5794d : 0x936a43);
+        fillRect(bx, 0, 1, 48, 0x77532f);
+        fillRect(bx + 1, 1, 5, 2, 0xb98c5c); // the sawn top of each plank
+    }
+    fillRect(0, 10, 40, 4, 0x6f4e2d); // rails
+    fillRect(0, 34, 40, 4, 0x6f4e2d);
+    fillRect(2, 11, 3, 3, 0x4a4f55); // hinge plates
+    fillRect(2, 35, 3, 3, 0x4a4f55);
+    fillRect(33, 22, 5, 4, 0x5d636b); // latch
+    g.generateTexture('wood_gate', 40, 48);
+
+    // The pergola: wrought iron, thin, with scrollwork in the corners. The post
+    // and the span are separate so the frame can be built to any width.
+    g.clear();
+    fillRect(2, 0, 5, 64, 0x3f322b);
+    fillRect(2, 0, 2, 64, 0x63524a); // the light catching one edge
+    fillRect(6, 0, 1, 64, 0x241c18);
+    fillRect(0, 58, 9, 5, 0x342a24); // foot
+    fillRect(0, 62, 9, 2, 0x211a16);
+    fillRect(7, 7, 2, 2, 0x4a3b33); // scrollwork
+    fillRect(8, 9, 1, 3, 0x4a3b33);
+    fillRect(7, 12, 2, 2, 0x4a3b33);
+    g.generateTexture('pergola_post', 9, 64);
+
+    g.clear();
+    fillRect(0, 2, 64, 2, 0x4a3b33); // the one rail it hangs from
+    fillRect(0, 2, 64, 1, 0x6d5a50);
+    // A row of arches hanging off it, and nothing else -- the sky shows through.
+    for (let a = 0; a < 64; a += 16) {
+        for (let t = 0; t <= 16; t++) {
+            const ax = a + t;
+            const ay = 4 + Math.round(Math.sin((t / 16) * Math.PI) * 9);
+            drawPixel(ax, ay, 0x4a3b33);
+            drawPixel(ax, ay + 1, 0x392d27);
+        }
+        fillRect(a, 2, 2, 5, 0x4a3b33); // the drop where two arches meet
+    }
+    g.generateTexture('pergola_arch', 64, 16);
+
+    // Vine climbing a post: yellow-green leaves and the odd red flower.
+    g.clear();
+    for (let vy = 0; vy < 64; vy += 2) {
+        const vx = 4 + Math.round(Math.sin(vy / 5) * 3);
+        drawPixel(vx, vy, 0x4f7a2e);
+        drawPixel(vx, vy + 1, 0x3f6324);
+        if (vy % 6 === 0) {
+            fillRect(vx - 4, vy - 1, 4, 3, 0x8fbe4a); // leaves either side
+            fillRect(vx + 2, vy + 1, 4, 3, 0x7aa83c);
+            drawPixel(vx - 4, vy, 0xa8d45e);
+        }
+        if (vy % 18 === 4) {
+            fillRect(vx + 3, vy - 2, 3, 3, 0xd4453a); // flower
+            drawPixel(vx + 4, vy - 1, 0xf07a4a);
+        }
+    }
+    g.generateTexture('climbing_vine', 12, 64);
+
+    // The swing seat: white cushions, and the pillows she has on it.
+    g.clear();
+    fillRect(2, 0, 4, 10, 0x4a3b33); // chains up to the frame
+    fillRect(58, 0, 4, 10, 0x4a3b33);
+    fillRect(4, 8, 56, 12, 0xdcd6cc); // back cushion
+    fillRect(4, 8, 56, 2, 0xf0ebe3);
+    fillRect(6, 11, 10, 8, 0x2a9d9b); // the teal 'home' pillow
+    fillRect(7, 13, 8, 2, 0xe8f4f3);
+    fillRect(18, 10, 11, 9, 0xf2eee6); // 'enjoy the little things'
+    fillRect(20, 13, 7, 1, 0x8a8578);
+    fillRect(20, 15, 5, 1, 0x8a8578);
+    fillRect(31, 11, 10, 8, 0x6f8fc4); // the blue patterned one
+    drawPixel(33, 13, 0xdfe8f6);
+    drawPixel(36, 15, 0xdfe8f6);
+    drawPixel(39, 13, 0xdfe8f6);
+    fillRect(43, 10, 10, 9, 0xe4e0d6); // striped
+    fillRect(43, 12, 10, 1, 0x9aa7b8);
+    fillRect(43, 15, 10, 1, 0x9aa7b8);
+    fillRect(2, 20, 60, 7, 0xe8e3d9); // seat cushion
+    fillRect(2, 20, 60, 2, 0xf6f2ec);
+    fillRect(2, 25, 60, 2, 0xc4bdb1);
+    fillRect(4, 27, 3, 8, 0x8f9499); // legs
+    fillRect(57, 27, 3, 8, 0x8f9499);
+    fillRect(2, 34, 60, 2, 0x00000000);
+    g.generateTexture('porch_swing', 64, 36);
+
+    // Half a whiskey barrel with a shrub in it.
+    g.clear();
+    fillRect(6, 16, 28, 20, 0xa8855f); // staves
+    for (let bx = 6; bx < 34; bx += 5) fillRect(bx, 16, 1, 20, 0x8a6a49);
+    fillRect(6, 16, 28, 2, 0xc2a079); // rim
+    fillRect(4, 21, 32, 3, 0x4e4a46); // iron bands
+    fillRect(4, 30, 32, 3, 0x4e4a46);
+    fillRect(6, 34, 28, 2, 0x6f563a);
+    fillRect(8, 14, 24, 3, 0x3b2f22); // soil
+    // The shrub: three overlapping mounds so it is not one flat blob.
+    g.fillStyle(0x3f7a2e, 1); g.fillCircle(14, 9, 7);
+    g.fillStyle(0x4f9139, 1); g.fillCircle(21, 6, 8);
+    g.fillStyle(0x5da344, 1); g.fillCircle(27, 10, 6);
+    g.fillStyle(0x7bc45c, 1); g.fillCircle(19, 4, 4);
+    drawPixel(12, 6, 0xd4453a); // a couple of flowers in it
+    drawPixel(25, 5, 0xd4453a);
+    drawPixel(29, 9, 0xe8674f);
+    g.generateTexture('barrel_planter', 40, 36);
+
+    // Terracotta pot with the spiky thing in it.
+    g.clear();
+    fillRect(4, 20, 24, 16, 0xc47a52); // pot
+    fillRect(4, 20, 24, 3, 0xd8916a); // rim
+    fillRect(24, 23, 4, 13, 0xa9613e); // shaded side
+    fillRect(6, 34, 20, 2, 0x8e4f31);
+    fillRect(7, 24, 2, 9, 0xd48f68); // a highlight down the belly
+    fillRect(6, 18, 20, 3, 0x3b2f22); // soil
+    // Blades, fanning out.
+    const potBlades = [[-9, -16], [-6, -19], [-2, -20], [2, -20], [6, -18], [9, -15], [-11, -10], [11, -10]];
+    potBlades.forEach(([dx, dy], i) => {
+        const c = i % 2 ? 0x4f8f3c : 0x63a84b;
+        const steps = Math.max(Math.abs(dx), Math.abs(dy));
+        for (let t = 0; t <= steps; t++) {
+            const bx = 16 + Math.round((dx * t) / steps);
+            const by = 19 + Math.round((dy * t) / steps);
+            drawPixel(bx, by, c);
+            if (t < steps - 2) drawPixel(bx + 1, by, 0x3f7a2e);
+        }
+    });
+    drawPixel(14, 2, 0xe8d24a); // the flower spike
+    drawPixel(15, 1, 0xf2e06a);
+    g.generateTexture('agave_pot', 32, 36);
+
+    // Iron plant stand with two small pots on it.
+    g.clear();
+    fillRect(2, 8, 24, 2, 0x4a3b33); // shelves
+    fillRect(2, 22, 24, 2, 0x4a3b33);
+    fillRect(3, 8, 2, 24, 0x3a2e28); // legs
+    fillRect(23, 8, 2, 24, 0x3a2e28);
+    fillRect(2, 31, 24, 2, 0x2c231e);
+    fillRect(6, 2, 9, 6, 0xd8916a); // upper pot
+    fillRect(6, 2, 9, 1, 0xe8a87e);
+    g.fillStyle(0x5da344, 1); g.fillCircle(10, 1, 4);
+    fillRect(15, 16, 9, 6, 0xc9c4b8); // lower pot, the pale one
+    g.fillStyle(0x4f9139, 1); g.fillCircle(19, 15, 4);
+    drawPixel(17, 13, 0x8fbe4a);
+    g.generateTexture('plant_stand', 28, 33);
+
+    // The toadstool ornament by the seat.
+    g.clear();
+    fillRect(6, 12, 6, 10, 0xe8e0cf); // stalk
+    fillRect(10, 12, 2, 10, 0xcdc3ae);
+    fillRect(5, 21, 8, 2, 0xb8ae99);
+    g.fillStyle(0xc0392b, 1); // cap
+    g.fillCircle(9, 10, 9);
+    fillRect(0, 11, 19, 3, 0x00000000);
+    g.fillStyle(0xd9503f, 1);
+    g.fillCircle(7, 8, 6);
+    fillRect(3, 5, 3, 3, 0xf4f0e8); // spots
+    fillRect(11, 3, 3, 3, 0xf4f0e8);
+    fillRect(13, 8, 2, 2, 0xf4f0e8);
+    fillRect(7, 2, 2, 2, 0xf4f0e8);
+    g.generateTexture('toadstool', 19, 23);
+
+    // The little house on the log, which is the thing a four-year-old put there.
+    g.clear();
+    fillRect(0, 16, 26, 10, 0x8a6a49); // the log
+    fillRect(0, 16, 26, 2, 0xa8855f);
+    for (let lx = 2; lx < 26; lx += 6) drawPixel(lx, 21, 0x6f563a);
+    fillRect(4, 8, 18, 9, 0xd8c9a8); // cottage
+    fillRect(4, 8, 18, 1, 0xe8dcc0);
+    fillRect(9, 12, 6, 5, 0x6f563a); // door
+    fillRect(11, 14, 1, 1, 0xe8d24a);
+    fillRect(17, 11, 3, 3, 0x8fc4d8); // window
+    for (let t = 0; t <= 9; t++) { // roof
+        fillRect(4 + t, 8 - Math.round(t * 0.9), 2, 2, 0xa8553f);
+        fillRect(21 - t, 8 - Math.round(t * 0.9), 2, 2, 0x95472f);
+    }
+    fillRect(12, 0, 2, 3, 0x95472f);
+    g.generateTexture('gnome_house', 26, 26);
+
+    // A pane of glass with the house showing through, for the French doors.
+    g.clear();
+    fillRect(0, 0, 64, 52, 0xf4f0e8); // frame
+    fillRect(0, 0, 64, 3, 0xfbf8f2);
+    fillRect(2, 4, 28, 44, 0xbcd4dd); // the two leaves
+    fillRect(34, 4, 28, 44, 0xb2ccd6);
+    fillRect(2, 4, 28, 12, 0xd2e6ec); // sky reflected in the top panes
+    fillRect(34, 4, 28, 12, 0xc8dee6);
+    fillRect(6, 20, 20, 20, 0x8d6e63); // a room behind
+    fillRect(38, 20, 20, 20, 0x866659);
+    for (let gx = 2; gx < 62; gx += 32) { // glazing bars
+        fillRect(gx + 13, 4, 2, 44, 0xf4f0e8);
+    }
+    fillRect(2, 15, 60, 2, 0xf4f0e8);
+    fillRect(2, 29, 60, 2, 0xf4f0e8);
+    fillRect(30, 0, 4, 52, 0xe8e2d6); // the meeting stiles
+    fillRect(28, 24, 2, 6, 0xb0a898); // handles
+    fillRect(34, 24, 2, 6, 0xb0a898);
+    fillRect(0, 49, 64, 3, 0xd8d1c5); // threshold
+    g.generateTexture('french_doors', 64, 52);
+
+    // The brick step down from the doors onto the concrete.
+    g.clear();
+    fillRect(0, 0, 56, 14, 0x9c5842);
+    fillRect(0, 0, 56, 3, 0xb2705a);
+    for (let bx = 0; bx < 56; bx += 10) {
+        fillRect(bx + 1, 4, 8, 4, 0xa35f47);
+        fillRect(bx + 6, 9, 8, 4, 0x98543e);
+    }
+    fillRect(0, 13, 56, 2, 0x6d3a2c);
+    g.generateTexture('brick_step', 56, 15);
 }

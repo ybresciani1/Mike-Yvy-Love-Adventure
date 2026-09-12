@@ -4,6 +4,7 @@ import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { stopMusic, playAirportTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
+import { takePhoto } from '../ui/scrapbook.js';
 import { generateTextures } from '../textures/generateTextures.js';
 import { Player } from '../entities/Player.js';
 
@@ -257,7 +258,7 @@ export class AirportScene extends Phaser.Scene {
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) act();
         }));
         this.physics.add.overlap(this.player, this.starbucksZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared) { if (!gameState.hasCoffee) { gameState.hasCoffee = true; this.heldCoffee.setVisible(true); playSound('select'); showDialogue("Mike bought a coffee. Essential fuel."); } } else { showDialogue("Security won't let you through yet."); } } });
-        this.physics.add.overlap(this.player, this.gateZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared && gameState.hasCoffee) { showDialogue("Boarding Flight...", () => { stopMusic(); document.getElementById('scrolling-banner').style.display = 'none'; this.scene.start('FlightScene'); }); } else if (!gameState.hasCoffee) showDialogue("Mike needs a coffee before boarding."); else showDialogue("Security Check Required."); } });
+        this.physics.add.overlap(this.player, this.gateZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) { if (gameState.securityCleared && gameState.hasCoffee) { this.photographTheGate(); showDialogue("Boarding Flight...", () => { stopMusic(); document.getElementById('scrolling-banner').style.display = 'none'; this.scene.start('FlightScene'); }); } else if (!gameState.hasCoffee) showDialogue("Mike needs a coffee before boarding."); else showDialogue("Security Check Required."); } });
         this.physics.add.overlap(this.player, this.newsZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike browsed the tech magazines."); });
         this.physics.add.overlap(this.player, this.burgerZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Smells greasy... Mike isn't hungry right now."); });
         this.physics.add.overlap(this.player, this.restroomZone, () => { if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) showDialogue("Mike checked his hair in the mirror. Still looks good."); });
@@ -683,6 +684,25 @@ export class AirportScene extends Phaser.Scene {
                 this.player.setDepth(5);
                 this.player.isLocked = false;
             }
+        });
+    }
+
+    /**
+     * The first page of the album, taken before there is anybody to take it
+     * with — a man, his case and his coffee, waiting on a flight west.
+     */
+    photographTheGate() {
+        takePhoto({
+            key: 'gate', title: 'Gate 12B',
+            caption: "Flight 214 to San Diego. He had no idea.",
+            sprites: [
+                { texture: 'large_window', x: 0, y: -14, scale: 0.5 },
+                { texture: 'mini_plane', x: 30, y: -20 },
+                { texture: this.player.texture.key, x: -6, y: 12 },
+                { texture: 'suitcase', x: 14, y: 18, scale: 0.8 },
+                { texture: 'coffee', x: -24, y: 10, scale: 0.8 },
+                { texture: 'gate_seats_front', x: -44, y: 16, scale: 0.7 }
+            ]
         });
     }
 

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { ROOT, readSrc, sceneFiles, collectTextures } from './helpers.js';
+import { TOTAL_PHOTOS, PHOTOS_PER_PAGE } from '../src/ui/scrapbook.js';
 
 // These checks read the source rather than importing it: booting Phaser needs a
 // real canvas, and the risk worth guarding here is wiring (a scene that is no
@@ -113,6 +114,27 @@ describe('texture keys used by scenes', () => {
     it('does not shadow a generated texture with a downloaded one', () => {
         const clashes = [...loaded].filter((key) => generated.has(key));
         expect(clashes).toEqual([]);
+    });
+});
+
+describe('the album', () => {
+    // The album lays out TOTAL_PHOTOS frames whether or not the photographs
+    // behind them were taken, so a photo added to a scene without raising the
+    // count is one the last page can never show.
+    const keys = [...sources.values()].flatMap((src) =>
+        matchAll(src, /takePhoto\(\{\s*key: '([a-z]+)'/g)
+    );
+
+    it('gives every photograph its own key', () => {
+        expect(new Set(keys).size).toBe(keys.length);
+    });
+
+    it('counts every photograph the scenes can take', () => {
+        expect(keys).toHaveLength(TOTAL_PHOTOS);
+    });
+
+    it('fills whole pages', () => {
+        expect(TOTAL_PHOTOS % PHOTOS_PER_PAGE).toBe(0);
     });
 });
 

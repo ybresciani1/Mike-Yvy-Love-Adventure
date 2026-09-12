@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { playSound } from '../audio/sfx.js';
 import { stopMusic, playBlueTheme } from '../audio/music.js';
 import { generateTextures } from '../textures/generateTextures.js';
+import { isTouchMode } from '../ui/touch.js';
 
 export class TitleScene extends Phaser.Scene {
     constructor() { super('TitleScene'); }
@@ -26,9 +27,12 @@ export class TitleScene extends Phaser.Scene {
         
         this.add.text(400, 340, "Calling Uber...", { fontSize: '16px', color: '#fff', backgroundColor: '#333', padding: {x:5, y:2} }).setOrigin(0.5);
 
-        this.add.text(400, 466, "Arrow keys to move, SPACE to talk.", { fontSize: '13px', color: '#6f9cb0', fontFamily: 'Courier New' }).setOrigin(0.5);
+        // The on-screen controls are already up by the time the title draws, so
+        // the instructions can name whichever ones the player actually has.
+        const controls = isTouchMode() ? "Drag the pad to move, tap A to talk." : "Arrow keys to move, SPACE to talk.";
+        this.add.text(400, 466, controls, { fontSize: '13px', color: '#6f9cb0', fontFamily: 'Courier New' }).setOrigin(0.5);
 
-        this.add.text(400, 520, "CLICK TO START", { fontSize: '24px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.8);
+        this.add.text(400, 520, isTouchMode() ? "TAP TO START" : "CLICK TO START", { fontSize: '24px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.8);
 
         this.input.on('pointerdown', () => this.startGame());
         this.input.keyboard.on('keydown-SPACE', () => this.startGame());
