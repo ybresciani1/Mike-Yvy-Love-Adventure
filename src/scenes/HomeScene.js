@@ -74,8 +74,8 @@ export class HomeScene extends Phaser.Scene {
         // the doors would otherwise show the camera background through it.
         this.add.image(400, 158, 'brick_step');
         this.add.image(400, 178, 'brick_step').setScale(2.4, 1.9);
-        this.add.image(232, 124, 'large_window');
-        this.add.image(600, 124, 'large_window');
+        this.add.image(222, 122, 'window_living_room');
+        this.add.image(596, 122, 'window_living_room');
         this.add.image(330, 120, 'wall_art').setScale(0.6).setTint(0xd8d1c5); // a sconce
         this.add.rectangle(400, 154, 120, 3, 0xd8d1c5);
 
@@ -262,7 +262,10 @@ export class HomeScene extends Phaser.Scene {
                 { texture: 'aiden_older', x: 26, y: 2 },
                 { texture: 'bojji_custom', x: 52, y: 14, size: [26, 26] },
                 { texture: 'lychee_custom', x: -52, y: 14, size: [18, 18] },
-                { texture: 'peaches_custom', x: -34, y: 20, size: [20, 20] }
+                { texture: 'peaches_custom', x: -34, y: 20, size: [20, 20] },
+                { texture: 'riot_custom', x: -72, y: 26, size: [14, 14] },
+                { texture: 'beyonce_custom', x: 16, y: 30, size: [14, 14] },
+                { texture: 'snow_custom', x: 74, y: 28, size: [14, 14] }
             ]
         });
     }

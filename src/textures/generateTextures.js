@@ -5424,8 +5424,16 @@ export function generateTextures(scene) {
     fillRect(34, 4, 28, 44, 0xb2ccd6);
     fillRect(2, 4, 28, 12, 0xd2e6ec); // sky reflected in the top panes
     fillRect(34, 4, 28, 12, 0xc8dee6);
-    fillRect(6, 20, 20, 20, 0x8d6e63); // a room behind
-    fillRect(38, 20, 20, 20, 0x866659);
+    [4, 36].forEach((lx, leaf) => { // the living room through each leaf
+        fillRect(lx, 28, 26, 20, leaf ? 0x8f6a42 : 0x9a7248); // floor
+        fillRect(lx + 3, 17, 20, 11, leaf ? 0xe8e4da : 0xf2f0ea); // couch
+        fillRect(lx + 3, 17, 20, 4, leaf ? 0xf0ece3 : 0xfbfaf7);
+        fillRect(lx + 6, 19, 4, 3, leaf ? 0xbfd2e0 : 0x9fc0d4); // a pillow on it
+        fillRect(lx + 7, 36, 13, 4, 0x8b6239); // coffee table
+        fillRect(lx + 7, 36, 13, 2, 0xa87c4c);
+        fillRect(lx + 8, 40, 2, 3, 0x6f4e2d);
+        fillRect(lx + 18, 40, 2, 3, 0x6f4e2d);
+    });
     for (let gx = 2; gx < 62; gx += 32) { // glazing bars
         fillRect(gx + 13, 4, 2, 44, 0xf4f0e8);
     }
@@ -5447,4 +5455,50 @@ export function generateTextures(scene) {
     }
     fillRect(0, 13, 56, 2, 0x6d3a2c);
     g.generateTexture('brick_step', 56, 15);
+
+    // Looking in from the courtyard: the white couches and the wooden coffee
+    // table, with the room's own back wall behind them.
+    g.clear();
+    fillRect(0, 0, 84, 64, 0xf4f0e8); // frame
+    fillRect(0, 0, 84, 2, 0xfbf8f2);
+    fillRect(5, 5, 74, 26, 0xe8e0d2); // the wall at the back of the room
+    fillRect(5, 5, 74, 2, 0xf0eadf);
+    fillRect(5, 31, 74, 22, 0x9a7248); // board floor
+    [37, 43, 49].forEach(fy => fillRect(5, fy, 74, 1, 0x845f3a));
+    fillRect(16, 40, 48, 11, 0xded5c4); // rug
+    fillRect(16, 40, 48, 1, 0xc7bca8);
+    fillRect(33, 9, 16, 10, 0xb99a6a); // a picture on the back wall
+    fillRect(35, 11, 12, 6, 0x8fb4c9);
+    fillRect(10, 16, 2, 15, 0x8a8578); // standard lamp
+    fillRect(7, 11, 8, 5, 0xf2ecdd);
+    // The long white couch against the back wall.
+    fillRect(20, 18, 40, 13, 0xf2f0ea);
+    fillRect(22, 18, 36, 6, 0xfbfaf7); // back cushions
+    fillRect(22, 24, 36, 6, 0xe6e2d8); // seat
+    fillRect(40, 18, 1, 12, 0xdcd6cc); // the seam between them
+    fillRect(16, 20, 5, 11, 0xeae6dc); // arms
+    fillRect(59, 20, 5, 11, 0xe2ded4);
+    fillRect(18, 31, 2, 3, 0x6f4e2d); // feet
+    fillRect(60, 31, 2, 3, 0x6f4e2d);
+    fillRect(25, 20, 5, 5, 0x9fc0d4); // throw pillows
+    fillRect(50, 20, 5, 5, 0xc9d9c4);
+    fillRect(64, 26, 13, 15, 0xf2f0ea); // the second one, side on
+    fillRect(64, 26, 13, 4, 0xfbfaf7);
+    fillRect(64, 41, 13, 2, 0xdcd6cc);
+    // Wooden coffee table on the rug.
+    fillRect(28, 41, 24, 5, 0x8b6239);
+    fillRect(28, 41, 24, 2, 0xa87c4c);
+    fillRect(30, 46, 3, 4, 0x6f4e2d);
+    fillRect(47, 46, 3, 4, 0x6f4e2d);
+    fillRect(34, 39, 6, 2, 0xb5524a); // a book and something green
+    drawPixel(45, 40, 0x5da344);
+    drawPixel(45, 39, 0x7bc45c);
+    fillRect(41, 5, 2, 48, 0xf4f0e8); // mullion
+    g.fillStyle(0xffffff, 0.2); // and the glass in front of all of it
+    g.fillRect(9, 5, 7, 48);
+    g.fillRect(20, 5, 3, 48);
+    fillRect(2, 53, 80, 7, 0xe2dbd0); // sill
+    fillRect(2, 53, 80, 2, 0xf4f0e8);
+    fillRect(2, 60, 80, 2, 0xcfc6b4);
+    g.generateTexture('window_living_room', 84, 64);
 }
