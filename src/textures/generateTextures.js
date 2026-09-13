@@ -2464,92 +2464,101 @@ export function generateTextures(scene) {
         fillRect(13, 15, 6, 2, SKIN_SHADE);
     };
 
-    // Hair flip: one hand up through her hair, weight on the other hip.
-    g.clear();
-    yvyHead();
-    fillRect(12, 17, 10, 8, DRESS); // bodice, shifted with the hip
-    fillRect(20, 17, 2, 8, DRESS_SHADE);
-    fillRect(13, 18, 1, 4, DRESS_HI);
-    fillRect(12, 17, 10, 1, 0xf8bbd0);
-    fillRect(12, 24, 10, 1, DRESS_DARK);
-    fillRect(11, 25, 12, 4, DRESS); // skirt swung right
-    fillRect(20, 25, 3, 4, DRESS_SHADE);
-    fillRect(11, 28, 12, 1, DRESS_DARK);
-    fillRect(23, 12, 2, 6, SKIN); // arm raised to the hair
-    fillRect(22, 9, 3, 3, SKIN);
-    fillRect(10, 18, 2, 6, SKIN_SHADE); // other arm on the hip
-    fillRect(10, 23, 3, 2, SKIN_SHADE);
-    fillRect(13, 29, 3, 2, SKIN);
-    fillRect(18, 29, 3, 2, SKIN_SHADE);
-    fillRect(12, 31, 4, 1, 0x212121);
-    fillRect(18, 31, 4, 1, 0x121212);
-    g.generateTexture('yvy_dance_1', 32, 32);
+    // Her four dance poses, drawn from a palette so the same moves can be worn
+    // in more than one dress: pink at the club, black at NOVA.
+    // The black dress for Mister A's and NOVA. Black on a dark club floor
+    // disappears, so the highlights are a satin grey rather than a darker black.
+    const YVY_BLACK_DRESS = { main: 0x2b2b35, shade: 0x1a1a21, hi: 0x6a6a7e, neck: 0x8c8ca0, dark: 0x0f0f14 };
+    const drawYvyDances = (key, P) => {
+        // Hair flip: one hand up through her hair, weight on the other hip.
+        g.clear();
+        yvyHead();
+        fillRect(12, 17, 10, 8, P.main); // bodice, shifted with the hip
+        fillRect(20, 17, 2, 8, P.shade);
+        fillRect(13, 18, 1, 4, P.hi);
+        fillRect(12, 17, 10, 1, P.neck);
+        fillRect(12, 24, 10, 1, P.dark);
+        fillRect(11, 25, 12, 4, P.main); // skirt swung right
+        fillRect(20, 25, 3, 4, P.shade);
+        fillRect(11, 28, 12, 1, P.dark);
+        fillRect(23, 12, 2, 6, SKIN); // arm raised to the hair
+        fillRect(22, 9, 3, 3, SKIN);
+        fillRect(10, 18, 2, 6, SKIN_SHADE); // other arm on the hip
+        fillRect(10, 23, 3, 2, SKIN_SHADE);
+        fillRect(13, 29, 3, 2, SKIN);
+        fillRect(18, 29, 3, 2, SKIN_SHADE);
+        fillRect(12, 31, 4, 1, 0x212121);
+        fillRect(18, 31, 4, 1, 0x121212);
+        g.generateTexture(`${key}_1`, 32, 32);
 
-    // Both arms overhead, swaying the other way.
-    g.clear();
-    yvyHead();
-    fillRect(10, 17, 10, 8, DRESS);
-    fillRect(18, 17, 2, 8, DRESS_SHADE);
-    fillRect(11, 18, 1, 4, DRESS_HI);
-    fillRect(10, 17, 10, 1, 0xf8bbd0);
-    fillRect(10, 24, 10, 1, DRESS_DARK);
-    fillRect(9, 25, 12, 4, DRESS); // skirt swung left
-    fillRect(18, 25, 3, 4, DRESS_SHADE);
-    fillRect(9, 28, 12, 1, DRESS_DARK);
-    fillRect(7, 11, 2, 7, SKIN); // arms up
-    fillRect(6, 8, 3, 3, SKIN);
-    fillRect(21, 11, 2, 7, SKIN_SHADE);
-    fillRect(21, 8, 3, 3, SKIN_SHADE);
-    fillRect(11, 29, 3, 2, SKIN);
-    fillRect(16, 29, 3, 2, SKIN_SHADE);
-    fillRect(10, 31, 4, 1, 0x212121);
-    fillRect(16, 31, 4, 1, 0x121212);
-    g.generateTexture('yvy_dance_2', 32, 32);
+        // Both arms overhead, swaying the other way.
+        g.clear();
+        yvyHead();
+        fillRect(10, 17, 10, 8, P.main);
+        fillRect(18, 17, 2, 8, P.shade);
+        fillRect(11, 18, 1, 4, P.hi);
+        fillRect(10, 17, 10, 1, P.neck);
+        fillRect(10, 24, 10, 1, P.dark);
+        fillRect(9, 25, 12, 4, P.main); // skirt swung left
+        fillRect(18, 25, 3, 4, P.shade);
+        fillRect(9, 28, 12, 1, P.dark);
+        fillRect(7, 11, 2, 7, SKIN); // arms up
+        fillRect(6, 8, 3, 3, SKIN);
+        fillRect(21, 11, 2, 7, SKIN_SHADE);
+        fillRect(21, 8, 3, 3, SKIN_SHADE);
+        fillRect(11, 29, 3, 2, SKIN);
+        fillRect(16, 29, 3, 2, SKIN_SHADE);
+        fillRect(10, 31, 4, 1, 0x212121);
+        fillRect(16, 31, 4, 1, 0x121212);
+        g.generateTexture(`${key}_2`, 32, 32);
 
-    // Hands on hips, hip popped, one knee bent.
-    g.clear();
-    yvyHead();
-    fillRect(11, 17, 10, 8, DRESS);
-    fillRect(19, 17, 2, 8, DRESS_SHADE);
-    fillRect(12, 18, 1, 4, DRESS_HI);
-    fillRect(11, 17, 10, 1, 0xf8bbd0);
-    fillRect(11, 24, 11, 1, DRESS_DARK);
-    fillRect(11, 25, 12, 4, DRESS); // skirt kicked out to one side
-    fillRect(20, 25, 3, 4, DRESS_SHADE);
-    fillRect(11, 28, 12, 1, DRESS_DARK);
-    fillRect(8, 18, 2, 5, SKIN); // elbows out, hands on hips
-    fillRect(8, 22, 4, 2, SKIN);
-    fillRect(22, 18, 2, 5, SKIN_SHADE);
-    fillRect(20, 22, 4, 2, SKIN_SHADE);
-    fillRect(13, 29, 3, 2, SKIN);
-    fillRect(18, 28, 3, 3, SKIN_SHADE); // bent knee
-    fillRect(12, 31, 4, 1, 0x212121);
-    fillRect(18, 31, 4, 1, 0x121212);
-    g.generateTexture('yvy_dance_3', 32, 32);
+        // Hands on hips, hip popped, one knee bent.
+        g.clear();
+        yvyHead();
+        fillRect(11, 17, 10, 8, P.main);
+        fillRect(19, 17, 2, 8, P.shade);
+        fillRect(12, 18, 1, 4, P.hi);
+        fillRect(11, 17, 10, 1, P.neck);
+        fillRect(11, 24, 11, 1, P.dark);
+        fillRect(11, 25, 12, 4, P.main); // skirt kicked out to one side
+        fillRect(20, 25, 3, 4, P.shade);
+        fillRect(11, 28, 12, 1, P.dark);
+        fillRect(8, 18, 2, 5, SKIN); // elbows out, hands on hips
+        fillRect(8, 22, 4, 2, SKIN);
+        fillRect(22, 18, 2, 5, SKIN_SHADE);
+        fillRect(20, 22, 4, 2, SKIN_SHADE);
+        fillRect(13, 29, 3, 2, SKIN);
+        fillRect(18, 28, 3, 3, SKIN_SHADE); // bent knee
+        fillRect(12, 31, 4, 1, 0x212121);
+        fillRect(18, 31, 4, 1, 0x121212);
+        g.generateTexture(`${key}_3`, 32, 32);
 
-    // Mid-twirl: arms out, hair and skirt flaring with the spin.
-    g.clear();
-    yvyHead();
-    fillRect(8, 3, 3, 9, YVY_HAIR); // hair thrown out by the turn
-    fillRect(21, 3, 4, 8, YVY_HAIR);
-    fillRect(24, 6, 2, 4, YVY_HAIR_SHADE);
-    fillRect(11, 17, 10, 8, DRESS);
-    fillRect(19, 17, 2, 8, DRESS_SHADE);
-    fillRect(12, 18, 1, 4, DRESS_HI);
-    fillRect(11, 17, 10, 1, 0xf8bbd0);
-    fillRect(11, 24, 10, 1, DRESS_DARK);
-    fillRect(7, 25, 18, 4, DRESS); // skirt flared wide
-    fillRect(20, 25, 5, 4, DRESS_SHADE);
-    fillRect(7, 28, 18, 1, DRESS_DARK);
-    fillRect(6, 19, 4, 2, SKIN); // arms out for the spin
-    fillRect(4, 18, 3, 2, SKIN);
-    fillRect(22, 19, 4, 2, SKIN_SHADE);
-    fillRect(25, 18, 3, 2, SKIN_SHADE);
-    fillRect(13, 29, 3, 2, SKIN);
-    fillRect(17, 29, 3, 2, SKIN_SHADE);
-    fillRect(12, 31, 4, 1, 0x212121);
-    fillRect(17, 31, 4, 1, 0x121212);
-    g.generateTexture('yvy_dance_4', 32, 32);
+        // Mid-twirl: arms out, hair and skirt flaring with the spin.
+        g.clear();
+        yvyHead();
+        fillRect(8, 3, 3, 9, YVY_HAIR); // hair thrown out by the turn
+        fillRect(21, 3, 4, 8, YVY_HAIR);
+        fillRect(24, 6, 2, 4, YVY_HAIR_SHADE);
+        fillRect(11, 17, 10, 8, P.main);
+        fillRect(19, 17, 2, 8, P.shade);
+        fillRect(12, 18, 1, 4, P.hi);
+        fillRect(11, 17, 10, 1, P.neck);
+        fillRect(11, 24, 10, 1, P.dark);
+        fillRect(7, 25, 18, 4, P.main); // skirt flared wide
+        fillRect(20, 25, 5, 4, P.shade);
+        fillRect(7, 28, 18, 1, P.dark);
+        fillRect(6, 19, 4, 2, SKIN); // arms out for the spin
+        fillRect(4, 18, 3, 2, SKIN);
+        fillRect(22, 19, 4, 2, SKIN_SHADE);
+        fillRect(25, 18, 3, 2, SKIN_SHADE);
+        fillRect(13, 29, 3, 2, SKIN);
+        fillRect(17, 29, 3, 2, SKIN_SHADE);
+        fillRect(12, 31, 4, 1, 0x212121);
+        fillRect(17, 31, 4, 1, 0x121212);
+        g.generateTexture(`${key}_4`, 32, 32);
+    };
+    drawYvyDances('yvy_dance', { main: DRESS, shade: DRESS_SHADE, hi: DRESS_HI, neck: 0xf8bbd0, dark: DRESS_DARK });
+    drawYvyDances('yvy_black_dance', YVY_BLACK_DRESS);
 
     // --- LATE-NIGHT STREET ---------------------------------------------------
     // Pizza storefront: awning, window with a counter behind it, and the door.
@@ -4584,6 +4593,30 @@ export function generateTextures(scene) {
     fillRect(17, 31, 4, 1, 0x121212);
     drawPixel(16, 16, 0xdfe4ea); // a little pendant
     g.generateTexture('yvy_dress', 32, 32);
+
+    // And in black, for the night at Mister A's and NOVA: the same Yvy, the same
+    // cut as the pink and the blue.
+    g.clear();
+    drawYvyFace(5);
+    drawYvyHair();
+    fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+    fillRect(11, 17, 10, 8, YVY_BLACK_DRESS.main); // bodice
+    fillRect(19, 17, 2, 8, YVY_BLACK_DRESS.shade);
+    fillRect(12, 18, 1, 4, YVY_BLACK_DRESS.hi);
+    fillRect(11, 17, 10, 1, YVY_BLACK_DRESS.neck); // neckline
+    fillRect(11, 24, 10, 1, YVY_BLACK_DRESS.dark); // waist
+    fillRect(10, 25, 12, 4, YVY_BLACK_DRESS.main); // skirt
+    fillRect(19, 25, 3, 4, YVY_BLACK_DRESS.shade);
+    fillRect(10, 28, 12, 1, YVY_BLACK_DRESS.dark); // hem
+    fillRect(9, 17, 2, 6, SKIN); // bare arms
+    fillRect(21, 17, 2, 6, SKIN_SHADE);
+    fillRect(9, 23, 2, 2, SKIN);
+    fillRect(21, 23, 2, 2, SKIN_SHADE);
+    fillRect(12, 29, 3, 2, SKIN); // legs
+    fillRect(17, 29, 3, 2, SKIN_SHADE);
+    fillRect(11, 31, 4, 1, 0x212121); // heels
+    fillRect(17, 31, 4, 1, 0x121212);
+    g.generateTexture('yvy_black', 32, 32);
 
     // The Jurassic Park table, which is the one they end up on.
     g.clear();

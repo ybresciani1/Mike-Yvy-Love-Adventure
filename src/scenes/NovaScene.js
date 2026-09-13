@@ -8,7 +8,7 @@ import { takePhoto } from '../ui/scrapbook.js';
 import { actionLabel, isTouchMode, promptFontSize, showDanceButton } from '../ui/touch.js';
 
 const MIKE_DANCE = ['mike_dance_1', 'mike_dance_2', 'mike_dance_3', 'mike_dance_4'];
-const YVY_DANCE = ['yvy_dance_1', 'yvy_dance_2', 'yvy_dance_3', 'yvy_dance_4'];
+const YVY_DANCE = ['yvy_black_dance_1', 'yvy_black_dance_2', 'yvy_black_dance_3', 'yvy_black_dance_4'];
 const PLUSH = [0xffffff, 0xffd6e6, 0xd6ecff, 0xfff0c2, 0xe0d6ff, 0xd6ffe6];
 
 /**
@@ -33,7 +33,7 @@ export class NovaScene extends Phaser.Scene {
         this.player = new Player(this, 400, 530);
         this.player.setTexture(this.outfit).setDepth(10);
         // A plain sprite she moves by hand; she gets tweened into the pit.
-        this.yvy = this.add.sprite(440, 530, 'yvy').setDepth(10);
+        this.yvy = this.add.sprite(440, 530, 'yvy_black').setDepth(10);
         this.yvyFollow = true;
         this.wearEars(this.player);
         this.wearEars(this.yvy);
@@ -302,7 +302,7 @@ export class NovaScene extends Phaser.Scene {
                         { texture: 'bunny_ears', x: -26, y: -25 },
                         { texture: 'idol_singer', x: 0, y: -10 },
                         { texture: 'bunny_ears', x: 0, y: -27 },
-                        { texture: 'yvy', x: 26, y: -8 },
+                        { texture: 'yvy_black', x: 26, y: -8 },
                         { texture: 'bunny_ears', x: 26, y: -25 }
                     ]
                 });
@@ -358,7 +358,7 @@ export class NovaScene extends Phaser.Scene {
                         sprites: [
                             { texture: this.outfit, x: -12, y: -14 },
                             { texture: 'bunny_ears', x: -12, y: -31 },
-                            { texture: 'yvy', x: 12, y: -14 },
+                            { texture: 'yvy_black', x: 12, y: -14 },
                             { texture: 'bunny_ears', x: 12, y: -31 },
                             { texture: 'plush_bunny', x: -52, y: -14, tint: PLUSH[2] },
                             { texture: 'plush_bunny', x: 50, y: -10, tint: PLUSH[4] },

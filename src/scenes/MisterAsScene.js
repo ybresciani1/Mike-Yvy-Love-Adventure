@@ -28,7 +28,7 @@ export class MisterAsScene extends Phaser.Scene {
         this.player.isLocked = true;
         // Yvy is a plain sprite, moved by hand: tweening an arcade body's
         // position is undone by the body every step, and she has to be tweened.
-        this.yvy = this.add.sprite(432, 392, 'yvy').setDepth(6).setFlipX(true);
+        this.yvy = this.add.sprite(432, 392, 'yvy_black').setDepth(6).setFlipX(true);
         this.add.image(400, 428, 'rooftop_table').setScale(1.3).setDepth(7);
         this.block(400, 440, 86, 26);
 
@@ -220,7 +220,7 @@ export class MisterAsScene extends Phaser.Scene {
                     { rect: [180, 26], x: 0, y: -52, color: 0xe08a62, alpha: 0.6 },
                     { texture: 'sd_skyline', x: 0, y: -38, scale: 0.9, tint: 0x6a6a90 },
                     { texture: this.player.texture.key, x: -12, y: -6 },
-                    { texture: 'yvy', x: 12, y: -6 },
+                    { texture: 'yvy_black', x: 12, y: -6 },
                     { texture: 'glass_rail', x: -48, y: 4 },
                     { texture: 'glass_rail', x: -16, y: 4 },
                     { texture: 'glass_rail', x: 16, y: 4 },
