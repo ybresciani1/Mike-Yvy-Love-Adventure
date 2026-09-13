@@ -119,9 +119,10 @@ let releaseDance = null;
 /**
  * Show or hide the B button.
  *
- * Only the club asks for it — it is the one scene that reads a key besides
- * SPACE — so it is hidden everywhere else rather than sitting there doing
- * nothing. A scene that shows it must hide it again on shutdown.
+ * Only the scenes that dance ask for it — the club and NOVA, the two that
+ * read a key besides SPACE — so it is hidden everywhere else rather than
+ * sitting there doing nothing. A scene that shows it must hide it again on
+ * shutdown.
  */
 export function showDanceButton(visible) {
     const button = document.getElementById('touch-b');

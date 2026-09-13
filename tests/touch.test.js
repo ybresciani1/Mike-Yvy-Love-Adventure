@@ -306,12 +306,12 @@ describe('the B button', () => {
 describe('which scenes show the B button', () => {
     const scenes = sceneFiles().map((file) => [file, readSrc(path.join('src/scenes', file))]);
 
-    it('is the club, and only the club', () => {
+    it('is the two scenes that dance: the club and NOVA', () => {
         const showing = scenes
             .filter(([, src]) => src.includes('showDanceButton(true)'))
             .map(([file]) => file);
 
-        expect(showing).toEqual(['ClubScene.js']);
+        expect(showing).toEqual(['ClubScene.js', 'NovaScene.js']);
     });
 
     it('leaves no prompt naming a key a phone does not have', () => {

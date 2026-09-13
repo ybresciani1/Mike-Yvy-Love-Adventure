@@ -2,10 +2,10 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { playSound } from '../audio/sfx.js';
 import { stopMusic, playLeFestinTheme } from '../audio/music.js';
-import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
+import { showDialogue, dialogueBusy, isDialogueOpen } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
 import { takePhoto } from '../ui/scrapbook.js';
-import { actionLabel, promptFontSize } from '../ui/touch.js';
+import { actionLabel, isTouchMode, promptFontSize, showDanceButton } from '../ui/touch.js';
 
 const MIKE_DANCE = ['mike_dance_1', 'mike_dance_2', 'mike_dance_3', 'mike_dance_4'];
 const YVY_DANCE = ['yvy_dance_1', 'yvy_dance_2', 'yvy_dance_3', 'yvy_dance_4'];
@@ -44,11 +44,16 @@ export class NovaScene extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.fKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        this.danceKey = isTouchMode() ? 'B' : 'F';
+        this.danceTime = 0;
+        showDanceButton(true);
+        this.events.once('shutdown', () => showDanceButton(false));
 
         // Three zones with clear air between them: overlapping zones share one
         // keypress, and whichever handler runs first swallows it.
+        this.danceZone = this.zoneAt(400, 384, 290, 240);
         this.zones = [
-            [this.zoneAt(400, 384, 290, 240), () => this.danceTogether()],
             [this.zoneAt(140, 312, 190, 110), () => this.meetTheSinger()],
             [this.zoneAt(660, 400, 220, 170), () => this.intoThePit()]
         ];
@@ -56,7 +61,7 @@ export class NovaScene extends Phaser.Scene {
             if (this.ready && !this.busy && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) act();
         }));
 
-        this.instructionText = this.add.text(20, 568, '', {
+        this.instructionText = this.add.text(20, 544, '', {
             fontSize: promptFontSize('14px'), color: '#fff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
         }).setDepth(20);
         this.updateTasks();
@@ -199,7 +204,9 @@ export class NovaScene extends Phaser.Scene {
     updateTasks() {
         const mark = key => (this.done[key] ? '✓ ' : '');
         this.instructionText.setText(
-            `Task: ${mark('dance')}Dance  →  ${mark('singer')}Meet the singer  →  ${mark('pit')}Bunny pit  (${actionLabel()})`
+            `${mark('dance')}Dance: hold ${this.danceKey} on the dance floor
+` +
+            `${mark('singer')}Meet the singer   ${mark('pit')}Bunny pit   (${actionLabel()})`
         );
     }
 
@@ -230,26 +237,40 @@ export class NovaScene extends Phaser.Scene {
         this.checkFinished();
     }
 
-    danceTogether() {
-        if (this.done.dance) return showDialogue("Mike: 'One more song. Then the bunnies.'");
-        this.beginBeat();
-        const rest = { mike: this.player.texture.key, yvy: this.yvy.texture.key };
-        this.tweens.add({ targets: this.yvy, x: this.player.x + 30, y: this.player.y, duration: 300 });
-        let step = 0;
-        this.time.addEvent({
-            delay: 170, repeat: 22, callback: () => {
-                step++;
-                this.player.setTexture(MIKE_DANCE[step % MIKE_DANCE.length]);
-                this.yvy.setTexture(YVY_DANCE[(step + 2) % YVY_DANCE.length]);
-                if (step % 3 === 0) this.noteFrom(this.player);
-            }
-        });
-        this.time.delayedCall(170 * 24, () => {
-            this.player.setTexture(rest.mike);
-            this.yvy.setTexture(rest.yvy);
+    /**
+     * Step both of them through the dance poses while the key is held, the way
+     * the club does. Enough of it counts as the dance done.
+     */
+    danceFrame(delta) {
+        if (!this.isDancing) {
+            this.isDancing = true;
+            this.danceStep = -1;
+            this.restTexture = { mike: this.player.texture.key, yvy: this.yvy.texture.key };
+        }
+        const step = Math.floor(this.time.now / 170) % MIKE_DANCE.length;
+        if (step !== this.danceStep) {
+            this.danceStep = step;
+            this.player.setTexture(MIKE_DANCE[step]);
+            this.yvy.setTexture(YVY_DANCE[(step + 2) % YVY_DANCE.length]);
+            if (step === 0) this.noteFrom(this.player);
+        }
+        this.danceTime += delta;
+        if (!this.done.dance && this.danceTime > 2400) {
             this.done.dance = true;
-            this.narrate(["They danced like nobody was wearing bunny ears. Everybody was wearing bunny ears."], () => this.endBeat());
-        });
+            this.updateTasks();
+            this.narrate(
+                ["They danced like nobody was wearing bunny ears. Everybody was wearing bunny ears."],
+                () => this.checkFinished()
+            );
+        }
+    }
+
+    /** Back to standing, in whatever each of them had on. */
+    stopDancing() {
+        if (!this.isDancing) return;
+        this.isDancing = false;
+        this.player.setTexture(this.restTexture.mike);
+        this.yvy.setTexture(this.restTexture.yvy);
     }
 
     meetTheSinger() {
@@ -374,8 +395,16 @@ export class NovaScene extends Phaser.Scene {
         }));
     }
 
-    update() {
-        this.player.update(this.cursors);
+    update(time, delta) {
+        const dancing = this.ready && !this.busy && !this.leaving && this.fKey.isDown
+            && !isDialogueOpen() && this.physics.overlap(this.player, this.danceZone);
+        if (dancing) {
+            this.player.body.stop();
+            this.danceFrame(delta);
+        } else {
+            this.stopDancing();
+            this.player.update(this.cursors);
+        }
         if (this.yvyFollow) {
             const dx = this.player.x + 28 - this.yvy.x;
             const dy = this.player.y - this.yvy.y;

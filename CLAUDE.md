@@ -103,23 +103,23 @@ support. It never touches Phaser or a scene:
   gets the controls once someone touches the glass. `isTouchMode()` is why the
   title screen can name the controls the player actually has.
 
-`B` is `F`, the only key besides SPACE the game asks for: `ClubScene` reads
-`fKey.isDown` to keep Mike dancing, so the button is *held* rather than tapped —
+`B` is `F`, the only key besides SPACE the game asks for: `ClubScene` and `NovaScene`
+read `fKey.isDown` to keep Mike dancing, so the button is *held* rather than tapped —
 which is why both buttons go through the same `hold()` as the pad. It is hidden
-everywhere else rather than sitting there doing nothing: the club puts it up
-with `showDanceButton(true)` and takes it down on its own `shutdown`, which
+everywhere else rather than sitting there doing nothing: the club and NOVA
+each put it up with `showDanceButton(true)` and take it down on their own `shutdown`, which
 covers every exit the scene has. Hiding it releases the key, so a thumb still on
 the button when the scene ends cannot leave `F` stuck down. `tests/touch.test.js`
-scans the scenes to check the club is the only one that shows it and that it is
+scans the scenes to check the two dancing scenes are the only ones that show it and that it is
 always paired with the shutdown that hides it again.
 
 **Prompts drawn on the canvas name their key through two helpers**, since a
 phone has neither a SPACE bar nor the pixels to read 16px at a 0.46 scale:
 `actionLabel()` gives "Space" or "A", and `promptFontSize(base)` scales a
-prompt up on touch while keeping prompts in proportion to each other. Seven
+prompt up on touch while keeping prompts in proportion to each other. Nine
 scenes print such a prompt — `ClubScene`, `PizzaScene`, `MorningScene`,
-`MovieScene`, `ThanksgivingScene`, `CoinOpScene`, `FifthRoseScene` — and all of
-them go through the helpers; the club adds "Hold B" for the dance key on top.
+`MovieScene`, `ThanksgivingScene`, `CoinOpScene`, `FifthRoseScene`, `MisterAsScene`, `NovaScene` — and all of
+them go through the helpers; the club and NOVA add "Hold B" for the dance key on top.
 `tests/touch.test.js` fails any scene that spells a key name into a prompt
 without importing `ui/touch.js`, which is what would put "(Space)" back in front
 of a player who has no such key.
