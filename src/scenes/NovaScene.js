@@ -69,8 +69,9 @@ export class NovaScene extends Phaser.Scene {
         stopMusic();
         playLeFestinTheme();
         this.time.delayedCall(800, () => this.narrate([
-            "They walked downtown to NOVA, where a charity night was on, and the theme was rabbits.",
-            "Yvy: 'Everybody's wearing ears. Put your ears on.'"
+            "Mike had got them into a charity night at NOVA, and the theme was rabbits.",
+            "Yvy: 'You planned this? Everybody's wearing ears.'",
+            "Mike: 'I may have known about the ears.'"
         ], () => { this.ready = true; }));
     }
 

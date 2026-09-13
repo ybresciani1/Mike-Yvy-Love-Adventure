@@ -107,10 +107,9 @@ export class VisitFlightScene extends Phaser.Scene {
 
         const lines = [
             "Mike flew back out to San Diego. This time, it was not for work.",
-            "Mike: 'Wheels up. See you tonight.'",
-            "Yvy: 'I made us a reservation. Wear something nice.'",
-            "Mike: 'How nice?'",
-            "Yvy: 'Twelve floors up nice.'"
+            "Mike: 'Wheels up. I booked us somewhere for tonight.'",
+            "Yvy: 'Where?'",
+            "Mike: 'Wear something nice. Twelve floors up nice.'"
         ];
         let i = 0;
         const next = () => {
