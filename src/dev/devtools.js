@@ -31,6 +31,7 @@ const CHAPTER_LABELS = {
     MovieScene: 'The Movie',
     DriveToHotelScene: 'Drive to the Hotel',
     FancyHotelScene: 'The Fancy Hotel',
+    ReturnFlightScene: 'The Flight Home',
     DowntownScene: 'Downtown',
     CostumeNightScene: 'Costume Night',
     FifthRoseScene: 'Fifth & Rose',

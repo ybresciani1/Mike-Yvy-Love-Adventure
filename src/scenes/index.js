@@ -11,6 +11,7 @@ import { RestaurantScene } from './RestaurantScene.js';
 import { MovieScene } from './MovieScene.js';
 import { DriveToHotelScene } from './DriveToHotelScene.js';
 import { FancyHotelScene } from './FancyHotelScene.js';
+import { ReturnFlightScene } from './ReturnFlightScene.js';
 import { DowntownScene } from './DowntownScene.js';
 import { CostumeNightScene } from './CostumeNightScene.js';
 import { FifthRoseScene } from './FifthRoseScene.js';
@@ -43,6 +44,7 @@ export const SCENES = [
     MovieScene,
     DriveToHotelScene,
     FancyHotelScene,
+    ReturnFlightScene,
     DowntownScene,
     CostumeNightScene,
     FifthRoseScene,

@@ -78,7 +78,7 @@ export class FancyHotelScene extends Phaser.Scene {
                             { texture: 'champagne_service', x: -48, y: 12, scale: 0.7 }
                         ]
                     });
-                    showDialogue("Mike and Yvy share a kiss.", () => { this.time.delayedCall(3000, () => { this.scene.start('DowntownScene'); }); });
+                    showDialogue("Mike and Yvy share a kiss.", () => { this.time.delayedCall(3000, () => { this.scene.start('ReturnFlightScene'); }); });
                 }});
             }); }); });
         });
