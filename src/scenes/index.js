@@ -13,6 +13,9 @@ import { DriveToHotelScene } from './DriveToHotelScene.js';
 import { FancyHotelScene } from './FancyHotelScene.js';
 import { ReturnFlightScene } from './ReturnFlightScene.js';
 import { LongDistanceScene } from './LongDistanceScene.js';
+import { VisitFlightScene } from './VisitFlightScene.js';
+import { MisterAsScene } from './MisterAsScene.js';
+import { NovaScene } from './NovaScene.js';
 import { DowntownScene } from './DowntownScene.js';
 import { CostumeNightScene } from './CostumeNightScene.js';
 import { FifthRoseScene } from './FifthRoseScene.js';
@@ -47,6 +50,9 @@ export const SCENES = [
     FancyHotelScene,
     ReturnFlightScene,
     LongDistanceScene,
+    VisitFlightScene,
+    MisterAsScene,
+    NovaScene,
     DowntownScene,
     CostumeNightScene,
     FifthRoseScene,

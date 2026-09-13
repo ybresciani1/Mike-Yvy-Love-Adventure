@@ -257,6 +257,9 @@ export class PresentScene extends Phaser.Scene {
         this.leaf.removeAll(true);
         const first = this.pageIndex * PHOTOS_PER_PAGE;
         for (let slot = 0; slot < PHOTOS_PER_PAGE; slot++) {
+            // The last page stops at the last photograph rather than drawing
+            // empty frames after it that nothing in the game could ever fill.
+            if (first + slot >= TOTAL_PHOTOS) break;
             const col = slot % 3;
             const row = Math.floor(slot / 3);
             this.leaf.add(this.buildFrame((col - 1) * 232, -70 + row * 164, this.photos[first + slot]));

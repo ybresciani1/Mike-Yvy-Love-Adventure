@@ -508,7 +508,7 @@ export class LongDistanceScene extends Phaser.Scene {
                 this.cameras.main.fadeOut(1400, 0, 0, 0);
                 this.cameras.main.once('camerafadeoutcomplete', () => {
                     stopMusic();
-                    this.scene.start('DowntownScene');
+                    this.scene.start('VisitFlightScene');
                 });
             }
         ));

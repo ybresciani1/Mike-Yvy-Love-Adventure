@@ -5571,4 +5571,126 @@ export function generateTextures(scene) {
     fillRect(29, 10, 6, 1, 0x27ae60);
     fillRect(27, 12, 6, 1, 0x8e44ad);
     g.generateTexture('kid_table', 48, 26);
+
+    // --- THE VISIT: MISTER A'S AND NOVA ---------------------------------------
+    // A table for two on the terrace: white cloth to the floor, a candle, red
+    // wine in both glasses.
+    g.clear();
+    fillRect(4, 14, 56, 6, 0xfbfaf7); // tabletop
+    fillRect(4, 14, 56, 1, 0xffffff);
+    fillRect(2, 20, 60, 16, 0xf0ede6); // the cloth, falling to the deck
+    for (let fx = 8; fx < 60; fx += 10) fillRect(fx, 22, 1, 14, 0xdedad0);
+    fillRect(2, 35, 60, 2, 0xd8d3c8);
+    fillRect(30, 6, 3, 8, 0xf4efe0); // candle
+    fillRect(30, 3, 3, 3, 0xffd166);
+    drawPixel(31, 2, 0xfff3b0);
+    [14, 46].forEach(gx => { // wine glasses
+        fillRect(gx, 7, 4, 4, 0xd6e6ee);
+        fillRect(gx, 9, 4, 2, 0x7a1f2b);
+        fillRect(gx + 1, 11, 2, 3, 0xc8d8e0);
+    });
+    g.generateTexture('rooftop_table', 64, 40);
+
+    // Beef tartare: a dark red round, the yolk on top, crostini at the side.
+    g.clear();
+    fillRect(4, 5, 20, 1, 0xf6f4ef); // plate
+    fillRect(2, 6, 24, 8, 0xf6f4ef);
+    fillRect(2, 12, 24, 2, 0xe4e0d8);
+    fillRect(4, 14, 20, 1, 0xdcd8d0);
+    fillRect(9, 4, 10, 6, 0xa8323a); // the tartare
+    fillRect(10, 3, 8, 1, 0xbe3f48);
+    drawPixel(11, 6, 0x8a2830);
+    drawPixel(16, 7, 0xc2505a);
+    drawPixel(13, 8, 0x8a2830);
+    fillRect(13, 3, 3, 2, 0xf6b93b); // yolk
+    drawPixel(13, 3, 0xfad27a);
+    drawPixel(10, 9, 0x3f7a2e); // chives
+    drawPixel(17, 8, 0x3f7a2e);
+    fillRect(20, 8, 6, 3, 0xd9a55f); // crostini
+    fillRect(21, 8, 4, 1, 0xeac281);
+    fillRect(3, 9, 5, 3, 0xd9a55f);
+    fillRect(3, 9, 4, 1, 0xeac281);
+    g.generateTexture('tartare_plate', 28, 16);
+
+    // Patio heater, lit.
+    g.clear();
+    fillRect(2, 0, 12, 4, 0x3a3f47); // reflector
+    fillRect(0, 3, 16, 2, 0x2b2f36);
+    fillRect(5, 5, 6, 12, 0xff7a3d); // the glowing column
+    fillRect(6, 6, 4, 10, 0xffb070);
+    fillRect(7, 17, 2, 34, 0x55585e); // pole
+    fillRect(3, 50, 10, 8, 0x3a3f47); // tank
+    fillRect(2, 58, 12, 2, 0x2b2f36);
+    g.generateTexture('patio_heater', 16, 60);
+
+    // A panel of glass balustrade, which is all there is between the terrace
+    // and a twelve-storey drop.
+    g.clear();
+    g.fillStyle(0xbfe0ee, 0.28);
+    g.fillRect(0, 3, 32, 21);
+    g.fillStyle(0xffffff, 0.35); // reflections
+    g.fillRect(5, 5, 2, 17);
+    g.fillRect(9, 5, 1, 17);
+    fillRect(0, 0, 32, 3, 0xc8ccd2); // handrail
+    fillRect(0, 0, 32, 1, 0xe6e9ed);
+    fillRect(0, 3, 2, 21, 0xa9aeb5); // post
+    fillRect(0, 24, 32, 2, 0x8a8f96); // shoe
+    g.generateTexture('glass_rail', 32, 26);
+
+    // Bunny ears on a headband, for everyone at the charity night.
+    g.clear();
+    fillRect(3, 0, 4, 11, 0xf6f0f2); // left ear
+    fillRect(4, 2, 2, 8, 0xf4a6c0);
+    fillRect(11, 2, 4, 9, 0xece4e8); // right ear, bent over at the tip
+    fillRect(12, 4, 2, 6, 0xe890b0);
+    fillRect(14, 0, 4, 3, 0xece4e8);
+    fillRect(1, 11, 18, 2, 0x2b2b33); // headband
+    g.generateTexture('bunny_ears', 20, 13);
+
+    // A stuffed rabbit, drawn pale so it can be tinted any pastel.
+    g.clear();
+    fillRect(4, 0, 3, 7, 0xf2eeea); // ears
+    fillRect(9, 0, 3, 7, 0xf2eeea);
+    fillRect(5, 1, 1, 5, 0xf6c9d8);
+    fillRect(10, 1, 1, 5, 0xf6c9d8);
+    g.fillStyle(0xf2eeea, 1);
+    g.fillCircle(8, 9, 5); // head
+    fillRect(3, 11, 10, 5, 0xe8e2dc); // body
+    fillRect(11, 7, 2, 9, 0xdcd4cc); // its shaded side
+    drawPixel(6, 8, 0x2b2b33); // eyes
+    drawPixel(10, 8, 0x2b2b33);
+    drawPixel(8, 10, 0xe890b0); // nose
+    g.generateTexture('plush_bunny', 16, 16);
+
+    // The singer on the little stage at NOVA: blue button-up, microphone up.
+    g.clear();
+    const SINGER_SKIN = 0xefc9a0, SINGER_SHADE = 0xd9b48c, SINGER_HAIR = 0x15120f;
+    fillRect(9, 2, 14, 5, SINGER_HAIR); // hair
+    fillRect(8, 4, 2, 6, SINGER_HAIR);
+    fillRect(22, 4, 2, 6, SINGER_HAIR);
+    fillRect(10, 2, 6, 1, 0x3a332c);
+    fillRect(10, 6, 12, 9, SINGER_SKIN); // face
+    fillRect(10, 6, 12, 2, SINGER_HAIR); // fringe
+    fillRect(20, 8, 2, 7, SINGER_SHADE);
+    fillRect(12, 9, 2, 2, SINGER_HAIR); // eyes
+    fillRect(17, 9, 2, 2, SINGER_HAIR);
+    fillRect(13, 12, 5, 2, 0x8a3a3a); // singing
+    fillRect(13, 12, 5, 1, 0xfdfdfd);
+    fillRect(14, 15, 4, 2, SINGER_SHADE); // neck
+    fillRect(9, 17, 14, 9, 0x2f6fb8); // shirt
+    fillRect(12, 17, 3, 2, 0xe8eef6); // collar
+    fillRect(17, 17, 3, 2, 0xe8eef6);
+    drawPixel(16, 20, 0xe8eef6); // buttons
+    drawPixel(16, 23, 0xe8eef6);
+    fillRect(7, 18, 2, 7, 0x2f6fb8); // arm down
+    fillRect(7, 25, 2, 2, SINGER_SKIN);
+    fillRect(22, 16, 2, 3, 0x2f6fb8); // arm up, holding the mic
+    fillRect(20, 14, 3, 3, SINGER_SKIN);
+    fillRect(21, 11, 1, 4, 0x55555e);
+    fillRect(20, 9, 3, 3, 0x2b2b33);
+    fillRect(10, 26, 5, 5, 0x8a7a5e); // trousers
+    fillRect(17, 26, 5, 5, 0x7a6a50);
+    fillRect(9, 31, 6, 1, 0x1b1b1b); // shoes
+    fillRect(17, 31, 6, 1, 0x1b1b1b);
+    g.generateTexture('idol_singer', 32, 32);
 }

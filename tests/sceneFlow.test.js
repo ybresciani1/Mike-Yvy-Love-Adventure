@@ -133,8 +133,12 @@ describe('the album', () => {
         expect(keys).toHaveLength(TOTAL_PHOTOS);
     });
 
-    it('fills whole pages', () => {
-        expect(TOTAL_PHOTOS % PHOTOS_PER_PAGE).toBe(0);
+    // A count that leaves the last page part-full is fine, provided the album
+    // stops at the last photograph instead of drawing empty frames after it.
+    it('never draws a frame past the last photograph', () => {
+        const present = readSrc('src/scenes/PresentScene.js');
+        expect(present).toMatch(/first \+ slot >= TOTAL_PHOTOS/);
+        expect(Math.ceil(TOTAL_PHOTOS / PHOTOS_PER_PAGE)).toBeGreaterThan(1);
     });
 });
 

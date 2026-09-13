@@ -1,6 +1,6 @@
 # Mike & Yvy: A Love Story (RPG Edition)
 
-A retro RPG-style adventure game built with Phaser 3 that tells the true story of how Mike and Yvy fell in love. Play through 29 scenes — from a chaotic airport departure and a night out at the club, to a first date, a movie night, tough moments together, and ultimately moving in. All hand-crafted with pixel art graphics and original dialogue.
+A retro RPG-style adventure game built with Phaser 3 that tells the true story of how Mike and Yvy fell in love. Play through 32 scenes — from a chaotic airport departure and a night out at the club, to a first date, a movie night, tough moments together, and ultimately moving in. All hand-crafted with pixel art graphics and original dialogue.
 
 Every sprite is drawn in code and every sound is synthesised with the Web Audio API, so the game ships with no image or audio files of its own.
 
