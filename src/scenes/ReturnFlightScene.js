@@ -142,7 +142,7 @@ export class ReturnFlightScene extends Phaser.Scene {
                 this.tweens.add({ targets: phone, alpha: 0, duration: 400, onComplete: () => phone.destroy() });
                 this.tweens.add({
                     targets: this.plane, x: 940, duration: 2600, ease: 'Quad.easeIn',
-                    onComplete: () => this.scene.start('DowntownScene')
+                    onComplete: () => this.scene.start('LongDistanceScene')
                 });
                 return;
             }

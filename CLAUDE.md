@@ -65,7 +65,7 @@ src/ui/dialogue.js       showDialogue, isDialogueOpen, portraitFor
 src/ui/touch.js          phone controls: the on-screen pad, and fitting the frame to the screen
 src/entities/Player.js   the movable character
 src/textures/            generateTextures — all ~96 sprites, drawn in code
-src/scenes/              28 scenes + index.js (the registry)
+src/scenes/              29 scenes + index.js (the registry)
 ```
 
 ### Hybrid DOM + canvas UI
@@ -83,7 +83,7 @@ support. It never touches Phaser or a scene:
 
 - **The controls are a keyboard.** The D-pad and the `A`/`B` buttons dispatch
   synthetic `ArrowLeft`/`Space`/`KeyF` events at `document`, so every
-  `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 28 scenes, and the
+  `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 29 scenes, and the
   SPACE listener that dismisses a line, keeps working with no per-scene wiring.
   Phaser's `KeyboardManager` listens on `window` and reads only the legacy
   `event.keyCode`, which several browsers drop from the `KeyboardEvent` init
@@ -194,7 +194,7 @@ Scenes are near-uniform:
 ### Scene flow
 The story is a strictly linear chain of `this.scene.start(...)` calls:
 
-Title → Airport → Flight → Bar → Club → Pizza → Morning → Conference → Uber → Restaurant → Movie → DriveToHotel → FancyHotel → ReturnFlight → Downtown → CostumeNight → FifthRose → CoinOpWalk → CoinOp → Travel → House → Surgery → Burial → NewYears → Apartment → Thanksgiving → Home → Present
+Title → Airport → Flight → Bar → Club → Pizza → Morning → Conference → Uber → Restaurant → Movie → DriveToHotel → FancyHotel → ReturnFlight → LongDistance → Downtown → CostumeNight → FifthRose → CoinOpWalk → CoinOp → Travel → House → Surgery → Burial → NewYears → Apartment → Thanksgiving → Home → Present
 
 `src/scenes/index.js` lists the scenes in that same narrative order (only the first entry matters to Phaser — it boots first). `tests/sceneFlow.test.js` derives the real chain from the `scene.start` calls in source and fails if the registry drifts out of sync, so the list stays trustworthy.
 

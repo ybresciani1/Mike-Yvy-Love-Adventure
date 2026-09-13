@@ -5501,4 +5501,74 @@ export function generateTextures(scene) {
     fillRect(2, 53, 80, 2, 0xf4f0e8);
     fillRect(2, 60, 80, 2, 0xcfc6b4);
     g.generateTexture('window_living_room', 84, 64);
+
+    // --- LONG DISTANCE -------------------------------------------------------
+    // A hot desk at a coworking space: white top, black steel, a laptop, a
+    // second screen and somebody's mug.
+    g.clear();
+    fillRect(0, 12, 56, 5, 0xe9e6df); // desk top
+    fillRect(0, 12, 56, 1, 0xfaf8f3);
+    fillRect(0, 17, 56, 2, 0xb9b4aa);
+    fillRect(3, 19, 3, 15, 0x1e1e21); // legs
+    fillRect(50, 19, 3, 15, 0x1e1e21);
+    fillRect(3, 30, 50, 2, 0x1e1e21); // foot rail
+    fillRect(8, 2, 20, 10, 0x2b2f36); // laptop
+    fillRect(9, 3, 18, 8, 0x5dade2);
+    fillRect(9, 3, 18, 2, 0x9fd6f0);
+    fillRect(6, 11, 24, 2, 0x8a939c);
+    fillRect(36, 0, 14, 10, 0x1e1e21); // monitor
+    fillRect(37, 1, 12, 7, 0x3d8bd4);
+    fillRect(42, 10, 2, 2, 0x1e1e21);
+    fillRect(31, 8, 4, 4, 0xf4f0e8); // mug
+    drawPixel(35, 9, 0xf4f0e8);
+    g.generateTexture('cowork_desk', 56, 34);
+
+    // Classroom cubbies, one coloured bin and one name tag per child.
+    g.clear();
+    fillRect(0, 0, 60, 44, 0xc89a62);
+    fillRect(0, 0, 60, 2, 0xdcb27a);
+    const CUBBY_BINS = [0xe74c3c, 0x3498db, 0xf1c40f, 0x2ecc71, 0x9b59b6, 0xe67e22];
+    for (let row = 0; row < 2; row++) {
+        for (let col = 0; col < 3; col++) {
+            const cx = 3 + col * 19, cy = 3 + row * 20;
+            fillRect(cx, cy, 17, 18, 0x8a6238); // the hole
+            fillRect(cx + 1, cy + 8, 15, 10, CUBBY_BINS[row * 3 + col]); // bin
+            fillRect(cx + 1, cy + 8, 15, 1, 0xfdfefe);
+            fillRect(cx + 5, cy + 11, 7, 3, 0xf4f0e8); // name tag
+        }
+    }
+    fillRect(0, 42, 60, 2, 0x8a6238);
+    g.generateTexture('cubby_shelf', 60, 44);
+
+    // Alphabet bunting, sagging in the middle the way bunting does.
+    g.clear();
+    for (let i = 0; i < 120; i++) {
+        drawPixel(i, 1 + Math.round(Math.sin((i / 120) * Math.PI) * 4), 0x6b5a4a);
+    }
+    const PENNANTS = [0xe74c3c, 0xf39c12, 0xf1c40f, 0x2ecc71, 0x3498db, 0x9b59b6];
+    for (let p = 0; p < 10; p++) {
+        const px = 3 + p * 12;
+        const top = 2 + Math.round(Math.sin(((px + 4) / 120) * Math.PI) * 4);
+        for (let row = 0; row < 9; row++) {
+            const inset = Math.floor(row / 2);
+            fillRect(px + inset, top + row, 9 - inset * 2, 1, PENNANTS[p % PENNANTS.length]);
+        }
+        fillRect(px + 3, top + 1, 3, 3, 0xfdfefe); // the letter, at this size a dot
+    }
+    g.generateTexture('alphabet_banner', 120, 16);
+
+    // A preschool table: low, yellow, and covered in somebody's drawing.
+    g.clear();
+    fillRect(2, 6, 44, 8, 0xf5b041);
+    fillRect(2, 6, 44, 2, 0xf8c471);
+    fillRect(2, 14, 44, 2, 0xd68910);
+    fillRect(6, 16, 3, 10, 0x2e86c1); // legs
+    fillRect(39, 16, 3, 10, 0x2e86c1);
+    fillRect(10, 7, 12, 6, 0xfdfefe); // the drawing
+    fillRect(12, 9, 6, 1, 0xe74c3c);
+    fillRect(13, 11, 5, 1, 0x3498db);
+    fillRect(28, 8, 6, 1, 0xe74c3c); // crayons
+    fillRect(29, 10, 6, 1, 0x27ae60);
+    fillRect(27, 12, 6, 1, 0x8e44ad);
+    g.generateTexture('kid_table', 48, 26);
 }
