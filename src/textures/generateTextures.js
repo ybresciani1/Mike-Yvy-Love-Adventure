@@ -6181,4 +6181,304 @@ export function generateTextures(scene) {
         fillRect(6, 66, 24, 4, 0x9c7020);
         g.generateTexture('display_case_round', 36, 70);
     }
+    // --- RAISED BY WOLVES: THE SHOP -------------------------------------------
+    {
+        // The painted walls: a misty landscape, birch trunks, a glint of water.
+        g.clear();
+        fillRect(0, 0, 120, 90, 0xcfd9cf);
+        fillRect(0, 0, 120, 26, 0xdde5dc);
+        fillRect(0, 40, 120, 20, 0xb9c8b5);
+        g.fillStyle(0xa9bca3, 1);
+        [[10, 44, 16], [34, 40, 20], [62, 46, 14], [88, 38, 22], [112, 44, 16]].forEach(([x, y, r]) => g.fillCircle(x, y, r));
+        fillRect(0, 62, 120, 28, 0x9fb392);
+        fillRect(0, 76, 120, 14, 0x8ea683);
+        g.fillStyle(0x7f9a74, 1);
+        [[18, 30, 14], [96, 26, 16]].forEach(([x, y, r]) => g.fillCircle(x, y, r));
+        fillRect(17, 30, 2, 50, 0xe6e2d6); // birches
+        fillRect(95, 26, 2, 54, 0xe6e2d6);
+        fillRect(52, 50, 1, 30, 0x8a7a64);
+        drawPixel(17, 44, 0x5a5448);
+        drawPixel(96, 40, 0x5a5448);
+        fillRect(40, 70, 26, 2, 0xcfd9cf);
+        g.generateTexture('landscape_mural', 120, 90);
+    }
+    {
+        // A white plaster pilaster: capital, scrolled corbel, fluted shaft.
+        g.clear();
+        fillRect(2, 0, 16, 10, 0xf2efe6);
+        fillRect(0, 2, 20, 4, 0xe4dfd2);
+        fillRect(4, 10, 12, 16, 0xece8dd);
+        fillRect(6, 14, 8, 8, 0xd8d2c4);
+        drawPixel(8, 17, 0xbfb8a8);
+        drawPixel(11, 17, 0xbfb8a8);
+        fillRect(4, 26, 12, 86, 0xf4f1e8);
+        for (let x = 6; x < 16; x += 3) fillRect(x, 28, 1, 82, 0xdcd6c8);
+        fillRect(15, 26, 1, 86, 0xcfc8b8);
+        fillRect(2, 112, 16, 8, 0xe4dfd2);
+        g.generateTexture('plaster_pilaster', 20, 120);
+    }
+    {
+        // A carved white niche holding one bottle, like a shrine.
+        g.clear();
+        g.fillStyle(0xeeeae0, 1);
+        g.fillEllipse(14, 10, 20, 16);
+        fillRect(12, 0, 4, 3, 0xe4dfd2);
+        fillRect(3, 10, 22, 34, 0xeeeae0);
+        fillRect(7, 14, 14, 26, 0xc9c2b2);
+        g.fillStyle(0xc9c2b2, 1);
+        g.fillEllipse(14, 14, 14, 8);
+        fillRect(11, 22, 6, 16, 0xc47a2c); // the bottle
+        fillRect(13, 18, 2, 4, 0x3a2a1a);
+        fillRect(11, 28, 6, 5, 0xf2e8d0);
+        fillRect(2, 44, 24, 4, 0xe4dfd2);
+        fillRect(6, 48, 16, 6, 0xeeeae0);
+        fillRect(10, 54, 8, 2, 0xd8d2c4);
+        g.generateTexture('bottle_niche', 28, 56);
+    }
+    {
+        // A glass cabinet hung on the wall, lit inside.
+        g.clear();
+        fillRect(0, 0, 48, 40, 0x5a3a22);
+        fillRect(0, 0, 48, 3, 0x7a5232);
+        fillRect(3, 4, 42, 32, 0xcfe0c0);
+        const WC = [0xb8742a, 0xd9a24a, 0x8a4a1e, 0xe8dcc0];
+        for (let shelf = 0; shelf < 2; shelf++) {
+            const sy = 6 + shelf * 15;
+            for (let bx = 5; bx < 43; bx += 4) {
+                fillRect(bx, sy + 3, 3, 10, WC[(bx + shelf) % WC.length]);
+                fillRect(bx + 1, sy + 1, 1, 2, 0x3a2a1a);
+            }
+            fillRect(3, sy + 13, 42, 2, 0x7a5232);
+        }
+        fillRect(23, 4, 2, 32, 0x5a3a22);
+        fillRect(15, 4, 1, 32, 0x5a3a22);
+        fillRect(33, 4, 1, 32, 0x5a3a22);
+        fillRect(0, 36, 48, 4, 0x3a2414);
+        g.generateTexture('wall_bottle_cabinet', 48, 40);
+    }
+    {
+        // The long oak counter: glass top, drawers, turned legs.
+        g.clear();
+        fillRect(0, 4, 120, 6, 0xa8783e);
+        fillRect(0, 4, 120, 1, 0xc8985a);
+        fillRect(10, 5, 100, 4, 0x3a4a4a); // glass top
+        fillRect(12, 6, 30, 2, 0x6a7a7a);
+        fillRect(60, 6, 12, 1, 0x8a9a9a);
+        fillRect(2, 10, 116, 14, 0x8a5e30);
+        fillRect(2, 10, 116, 2, 0x6a4424);
+        fillRect(8, 13, 48, 8, 0x9a6a38);
+        fillRect(64, 13, 48, 8, 0x9a6a38);
+        fillRect(30, 16, 4, 1, 0xc9a86a);
+        fillRect(86, 16, 4, 1, 0xc9a86a);
+        [6, 56, 110].forEach(x => {
+            fillRect(x, 24, 5, 18, 0x7a5028);
+            fillRect(x - 1, 28, 7, 3, 0x8a5e30);
+            fillRect(x - 1, 36, 7, 2, 0x8a5e30);
+        });
+        fillRect(4, 38, 112, 2, 0x6a4424);
+        g.generateTexture('shop_counter', 120, 44);
+    }
+    {
+        // An antique brass till.
+        g.clear();
+        fillRect(3, 0, 18, 6, 0x9a7a3a);
+        fillRect(4, 1, 16, 4, 0xc9a45a);
+        fillRect(8, 2, 8, 2, 0x6a5020);
+        fillRect(1, 6, 22, 12, 0xb08a42);
+        fillRect(1, 6, 22, 1, 0xd8b86a);
+        for (let x = 3; x < 21; x += 3) {
+            fillRect(x, 8, 2, 2, 0xe8d08a); // keys
+            fillRect(x, 11, 2, 2, 0xe8d08a);
+        }
+        fillRect(2, 14, 20, 3, 0x8a6a2a);
+        drawPixel(6, 15, 0xe8d08a);
+        drawPixel(12, 15, 0xe8d08a);
+        drawPixel(18, 15, 0xe8d08a);
+        fillRect(0, 18, 24, 6, 0x7a5a22); // drawer
+        fillRect(10, 20, 4, 2, 0xd8b86a);
+        g.generateTexture('cash_register', 24, 24);
+    }
+    {
+        // An old rotary telephone.
+        g.clear();
+        fillRect(2, 0, 12, 3, 0x2a2a2a);
+        fillRect(1, 1, 3, 3, 0x2a2a2a);
+        fillRect(12, 1, 3, 3, 0x2a2a2a);
+        fillRect(4, 4, 8, 2, 0xc9a45a);
+        fillRect(2, 6, 12, 7, 0xb08a42);
+        g.fillStyle(0xe8dcc0, 1);
+        g.fillCircle(8, 9, 3);
+        drawPixel(8, 9, 0x2a2a2a);
+        fillRect(1, 13, 14, 1, 0x7a5a22);
+        g.generateTexture('rotary_phone', 16, 14);
+    }
+    {
+        // The bronze lantern chandelier: filigree round amber glass.
+        g.clear();
+        fillRect(34, 0, 4, 6, 0x4a3a24);
+        fillRect(12, 6, 48, 4, 0x6a5230);
+        fillRect(8, 10, 56, 22, 0x5a4428);
+        fillRect(12, 12, 48, 18, 0xd8962e);
+        g.lineStyle(1, 0x4a3a24, 1);
+        for (let x = 12; x < 60; x += 8) {
+            fillRect(x, 12, 1, 18, 0x4a3a24);
+            g.strokeCircle(x + 4, 20, 3);
+        }
+        fillRect(8, 32, 56, 4, 0x6a5230);
+        for (let x = 10; x < 64; x += 9) {
+            fillRect(x, 36, 4, 10, 0x5a4428);
+            drawPixel(x + 1, 44, 0xd8962e);
+        }
+        fillRect(30, 46, 12, 4, 0x4a3a24);
+        g.generateTexture('lantern_chandelier', 72, 50);
+    }
+    {
+        // The carved oval mirror, gold wolf on top, the name etched in the glass.
+        g.clear();
+        const CW = 0x9a6a3a, CW_HI = 0xc08a4e, CW_DK = 0x6a4424;
+        fillRect(0, 0, 64, 104, CW);
+        for (let row = 0, y = 2; y < 104; row++, y += 4) {
+            for (let x = row % 2 ? 2 : 0; x < 64; x += 4) drawPixel(x, y, CW_DK);
+        }
+        g.fillStyle(CW_HI, 1);
+        g.fillEllipse(32, 54, 52, 84);
+        g.fillStyle(CW_DK, 1);
+        g.fillEllipse(32, 54, 46, 78);
+        g.fillStyle(0xcfdde3, 1);
+        g.fillEllipse(32, 54, 40, 72);
+        g.fillStyle(0xe8f0f2, 1);
+        g.fillEllipse(26, 44, 16, 30);
+        fillRect(20, 50, 24, 1, 0xa8b8be); // the etched name, too small to read
+        fillRect(24, 53, 16, 1, 0xa8b8be);
+        fillRect(26, 5, 12, 9, 0xd4a93c); // gold wolf
+        fillRect(26, 3, 3, 3, 0xd4a93c);
+        fillRect(35, 3, 3, 3, 0xd4a93c);
+        fillRect(29, 13, 6, 3, 0xb8862a);
+        drawPixel(29, 8, 0x7a5a1e);
+        drawPixel(34, 8, 0x7a5a1e);
+        fillRect(4, 18, 4, 30, CW_HI);
+        fillRect(56, 18, 4, 30, CW_HI);
+        fillRect(20, 94, 24, 6, CW_HI);
+        g.generateTexture('oval_mirror_frame', 64, 104);
+    }
+    {
+        // A milk-glass globe held up by a little gold figure.
+        g.clear();
+        g.fillStyle(0xf6f2e6, 1);
+        g.fillCircle(8, 6, 6);
+        g.fillStyle(0xffffff, 1);
+        g.fillCircle(6, 4, 2);
+        fillRect(6, 11, 4, 3, 0xc9a45a);
+        fillRect(7, 14, 2, 10, 0xd4a93c);
+        fillRect(5, 16, 6, 4, 0xd4a93c);
+        drawPixel(8, 15, 0xf2d27a);
+        fillRect(4, 24, 8, 3, 0xb8862a);
+        fillRect(6, 27, 4, 5, 0x9c7020);
+        g.generateTexture('globe_sconce', 16, 32);
+    }
+    {
+        // Bottles on gold shelves, wooden cupboards underneath.
+        g.clear();
+        fillRect(0, 0, 110, 52, 0xf0e6d0);
+        const GB = [0x8a4a1e, 0xc98a2e, 0xd8b04a, 0x3f7a4a, 0x6a2a4a, 0xe8e0c8, 0x9a5a2a];
+        for (let shelf = 0; shelf < 3; shelf++) {
+            const sy = 2 + shelf * 17;
+            for (let bx = 3; bx < 107; bx += 4) {
+                const c = GB[(bx * 3 + shelf * 5) % GB.length];
+                const h = 9 + ((bx + shelf) % 3) * 2;
+                fillRect(bx, sy + 15 - h, 3, h, c);
+                fillRect(bx + 1, sy + 13 - h, 1, 2, c);
+                if (bx % 12 === 3) fillRect(bx, sy + 18 - h, 3, 3, 0xf2e8d0);
+            }
+            fillRect(0, sy + 15, 110, 2, 0xd4a93c);
+        }
+        fillRect(0, 52, 110, 32, 0x9a6a3a);
+        fillRect(0, 52, 110, 3, 0xc08a4e);
+        [4, 40, 76].forEach(x => {
+            fillRect(x, 58, 30, 22, 0xa8783e);
+            fillRect(x + 3, 61, 24, 16, 0x9a6a3a);
+            fillRect(x + 3, 61, 24, 1, 0xc08a4e);
+        });
+        g.generateTexture('gold_shelf_wall', 110, 84);
+    }
+    {
+        // A green velvet bench on a black barley-twist frame.
+        g.clear();
+        fillRect(0, 0, 4, 14, 0x1e1a16);
+        fillRect(60, 0, 4, 14, 0x1e1a16);
+        for (let y = 1; y < 14; y += 3) {
+            drawPixel(1, y, 0x4a4036);
+            drawPixel(61, y, 0x4a4036);
+        }
+        fillRect(3, 6, 58, 8, 0x4f6b3a);
+        fillRect(3, 6, 58, 2, 0x6a8a4e);
+        fillRect(3, 13, 58, 3, 0x1e1a16);
+        [5, 30, 56].forEach(x => {
+            fillRect(x, 16, 3, 10, 0x1e1a16);
+            drawPixel(x + 1, 19, 0x4a4036);
+            drawPixel(x + 1, 23, 0x4a4036);
+        });
+        g.generateTexture('velvet_bench', 64, 26);
+    }
+    {
+        // A glass-topped display case with little boxes and tins in it.
+        g.clear();
+        fillRect(0, 0, 52, 30, 0x9a6a3a);
+        fillRect(0, 0, 52, 2, 0xc08a4e);
+        fillRect(3, 3, 46, 12, 0x3a4040);
+        [[5, 5, 0xc0392b], [13, 5, 0xe8c07a], [21, 5, 0x8a4a1e], [29, 6, 0xd8b04a], [37, 5, 0x2e6b8a]]
+            .forEach(([x, y, c]) => fillRect(x, y, 6, 8, c));
+        g.fillStyle(0xffffff, 0.18);
+        g.fillRect(3, 3, 46, 2);
+        fillRect(3, 17, 46, 11, 0xa8783e);
+        for (let x = 6; x < 48; x += 8) fillRect(x, 19, 4, 7, 0x8a5e30);
+        g.generateTexture('glass_display_cabinet', 52, 30);
+    }
+    {
+        // A carved hutch of bottles on a little table.
+        g.clear();
+        const HW = 0x9a6a3a, HW_HI = 0xc08a4e, HW_DK = 0x6a4424;
+        for (let x = 6; x < 46; x += 6) fillRect(x, 0, 3, 4, 0xd4a93c);
+        fillRect(2, 4, 46, 5, HW_HI);
+        fillRect(4, 9, 42, 40, HW_DK);
+        const HB = [0xc98a2e, 0x8a4a1e, 0xe8dcc0, 0x6a2a4a, 0xb8742a];
+        for (let shelf = 0; shelf < 3; shelf++) {
+            const sy = 10 + shelf * 13;
+            for (let bx = 6; bx < 44; bx += 4) {
+                fillRect(bx, sy + 3, 3, 9, HB[(bx + shelf * 2) % HB.length]);
+                fillRect(bx + 1, sy + 1, 1, 2, 0x3a2a1a);
+                if (bx % 8 === 6) fillRect(bx, sy + 6, 3, 3, 0xf2e8d0);
+            }
+            fillRect(4, sy + 12, 42, 1, HW_HI);
+        }
+        fillRect(2, 9, 3, 40, HW);
+        fillRect(45, 9, 3, 40, HW);
+        fillRect(0, 49, 50, 5, HW_HI);
+        fillRect(2, 54, 46, 4, HW);
+        fillRect(4, 58, 3, 16, HW_DK);
+        fillRect(43, 58, 3, 16, HW_DK);
+        fillRect(4, 68, 42, 2, HW_DK);
+        g.generateTexture('bottle_hutch', 50, 74);
+    }
+    {
+        // The gold Egyptian chair: striped blue back, lion-headed arms.
+        g.clear();
+        fillRect(3, 0, 24, 3, 0xd4a93c);
+        fillRect(3, 3, 24, 16, 0x2c4a8a);
+        for (let x = 5; x < 26; x += 5) fillRect(x, 3, 2, 16, 0xd4a93c);
+        fillRect(3, 3, 2, 16, 0xb8862a);
+        fillRect(25, 3, 2, 16, 0xb8862a);
+        fillRect(0, 16, 6, 8, 0xd4a93c);
+        fillRect(24, 16, 6, 8, 0xd4a93c);
+        drawPixel(2, 18, 0x7a5a1e);
+        drawPixel(27, 18, 0x7a5a1e);
+        fillRect(4, 22, 22, 6, 0x2c4a8a);
+        fillRect(4, 22, 22, 2, 0x3a5aa0);
+        fillRect(4, 28, 22, 2, 0xb8862a);
+        fillRect(5, 30, 3, 6, 0xd4a93c);
+        fillRect(22, 30, 3, 6, 0xd4a93c);
+        fillRect(3, 34, 7, 2, 0xb8862a);
+        fillRect(20, 34, 7, 2, 0xb8862a);
+        g.generateTexture('egyptian_chair', 30, 36);
+    }
 }

@@ -37,8 +37,15 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.yvy = this.add.sprite(470, 400, 'yvy_red').setDepth(20);
 
         this.outsideWall = this.solid(400, 170, GAME_WIDTH, 340);
-        this.insideWall = this.solid(400, 118, GAME_WIDTH, 236);
-        this.insideWall.body.enable = false;
+        // Everything inside is solid only once you are inside.
+        this.insideSolids = [
+            this.solid(400, 118, GAME_WIDTH, 236), // the back wall
+            this.solid(140, 332, 184, 40), // the long counter
+            this.solid(507, 494, 146, 44), // the two cabinets out on the floor
+            this.solid(624, 504, 50, 36), // the round case
+            this.solid(720, 500, 70, 40) // the hutch
+        ];
+        this.insideSolids.forEach(b => { b.body.enable = false; });
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -50,6 +57,7 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.zone(300, 380, 96, 56, () => this.stage === 'inside', () => this.talkToHost());
         this.zone(240, 262, 150, 40, () => this.stage === 'inside',
             () => showDialogue("Bottles behind glass, lit like jewellery. Nobody seems to be buying any."));
+        this.buildCrowd();
 
         this.instructionText = this.add.text(20, 560, `Meet Yvy (${actionLabel()})`, {
             fontSize: promptFontSize('15px'), color: '#fff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
@@ -190,6 +198,14 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.I(c, 752, 486, 'palm_tree', 0.85).setFlipX(true);
 
         // Shoppers going by.
+        // It is busy: a few people waiting to get in.
+        [[252, 384, 'civilian_f', 0xe0c8d8], [224, 392, 'civilian', 0xc8d8b8], [196, 386, 'civilian', 0xd0d0e8],
+         [168, 392, 'civilian_f', 0xe8d8b8], [566, 390, 'civilian', 0xc0b8d0], [594, 384, 'civilian_f', 0xd8e0e8]]
+            .forEach(([x, y, key, tint], i) => {
+                const waiting = this.add.sprite(x, y, key).setTint(tint).setFlipX(i % 2 === 0);
+                c.add(waiting);
+                this.tweens.add({ targets: waiting, y: y - 2, duration: 1100 + i * 170, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            });
         [[-40, 840, 578, 'civilian', 0xb8c8d8, 14000], [840, -40, 596, 'civilian_f', 0xd8c0b0, 17000]]
             .forEach(([x0, x1, y, key, tint, duration]) => {
                 const shopper = this.add.sprite(x0, y, key).setTint(tint).setFlipX(x1 < x0);
@@ -202,16 +218,34 @@ export class RaisedByWolvesScene extends Phaser.Scene {
 
     buildInside() {
         const c = this.inside;
-        // Painted walls: a soft landscape above wooden panelling.
-        this.R(c, 400, 118, GAME_WIDTH, 236, 0xb3c2ab);
-        this.R(c, 400, 50, GAME_WIDTH, 100, 0xcad6c8);
-        [[60, 96, 30], [130, 80, 22], [470, 92, 28], [520, 72, 20]].forEach(([tx, ty, r]) => {
-            this.R(c, tx, ty + r, 4, 30, 0x6f5a44, 0.7);
-            c.add(this.add.circle(tx, ty, r, 0x8ba381, 0.8));
+        // The painted landscape all the way round, above wooden panelling.
+        this.R(c, 400, 118, GAME_WIDTH, 236, 0xcfd9cf);
+        [120, 360, 600].forEach(x => this.I(c, x, 112, 'landscape_mural', 2));
+        this.R(c, 400, 12, GAME_WIDTH, 24, 0xf2efe6); // cornice
+        for (let x = 4; x < GAME_WIDTH; x += 8) this.R(c, x, 22, 4, 4, 0xdcd6c8);
+        this.R(c, 400, 212, GAME_WIDTH, 48, 0x7a5232);
+        this.R(c, 400, 190, GAME_WIDTH, 3, 0xf2efe6);
+        for (let x = 16; x < GAME_WIDTH; x += 56) this.R(c, x + 12, 214, 40, 34, 0x8a6240);
+        this.I(c, 270, 34, 'lantern_chandelier', 1.3);
+        c.add(this.add.circle(270, 52, 42, 0xffc46a, 0.12));
+
+        // Plaster pilasters dividing the wall into bays, globe lamps on them.
+        [12, 184, 356, 528].forEach(x => this.I(c, x, 118, 'plaster_pilaster', 1.6));
+        [184, 356].forEach(x => {
+            c.add(this.add.circle(x - 22, 64, 12, 0xfff3c4, 0.25));
+            this.I(c, x - 22, 70, 'globe_sconce', 1.2);
         });
-        this.R(c, 400, 6, GAME_WIDTH, 12, 0xeae4d6);
-        this.R(c, 400, 208, GAME_WIDTH, 56, 0x6a4a2e);
-        for (let x = 20; x < GAME_WIDTH; x += 60) this.R(c, x + 20, 210, 44, 40, 0x7a5636);
+
+        // Bay one: bottles on gold shelves over wooden cupboards.
+        this.I(c, 98, 150, 'gold_shelf_wall', 1.4);
+        // Bay two: a hanging glass cabinet between two carved niches, one bottle each.
+        this.I(c, 270, 96, 'wall_bottle_cabinet', 1.6);
+        this.I(c, 218, 118, 'bottle_niche', 1.3);
+        this.I(c, 322, 118, 'bottle_niche', 1.3);
+        // Bay three: the carved mirror with the gold wolf, a velvet bench, a case.
+        this.I(c, 442, 112, 'oval_mirror_frame', 1.5);
+        this.I(c, 418, 222, 'velvet_bench', 1.2);
+        this.I(c, 492, 222, 'glass_display_cabinet', 1.1);
 
         // Black and white marble, and the name set into it at the door.
         for (let y = 252; y < GAME_HEIGHT + 16; y += 32) {
@@ -220,13 +254,16 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.R(c, 400, 566, 190, 36, 0xeceff1);
         this.T(c, 400, 566, 'RAISED BY WOLVES', { fontFamily: 'Georgia, serif', fontSize: '13px', color: '#6a6a72' });
 
-        // Bottles behind glass and carved wooden cabinets.
-        this.I(c, 70, 170, 'bottle_wall', 1.3);
-        this.I(c, 190, 160, 'liquor_cabinet', 1.3);
-        this.I(c, 290, 160, 'liquor_cabinet', 1.3);
-        this.I(c, 410, 170, 'bottle_wall', 1.3);
-        this.I(c, 40, 330, 'display_case_round', 1.3);
-        this.I(c, 250, 44, 'chandelier', 1);
+        // The long oak counter with the till and the telephone on it.
+        this.I(c, 140, 330, 'shop_counter', 1.5);
+        this.I(c, 170, 298, 'cash_register', 1.3);
+        this.I(c, 88, 304, 'rotary_phone', 1.2);
+        // Cabinets and cases out on the floor.
+        this.I(c, 470, 460, 'liquor_cabinet', 1.2);
+        this.I(c, 544, 460, 'liquor_cabinet', 1.2);
+        this.I(c, 624, 480, 'display_case_round', 1.3);
+        this.I(c, 720, 470, 'bottle_hutch', 1.4);
+        this.I(c, 770, 556, 'egyptian_chair', 1.2);
 
         this.host = this.add.sprite(300, 346, 'host');
         c.add(this.host);
@@ -236,6 +273,46 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.barSide = this.buildNook(true).setScale(0, 1).setVisible(false);
         c.add(this.nook);
         c.add(this.barSide);
+    }
+
+    /**
+     * It is busy - it always is. People browsing every bay, a couple waiting on
+     * the host, and a few who will tell you something if you ask. Their zones are
+     * kept clear of the host's and the cabinet's, since overlapping zones share
+     * one keypress.
+     */
+    buildCrowd() {
+        const c = this.inside;
+        const TINTS = [0xb8c8d8, 0xd8c0b0, 0xc8d8b8, 0xe0c8d8, 0xd0d0e8, 0xe8d8b8, 0xc0b8d0, 0xd8e0e8];
+        [
+            [62, 262, 'civilian_f', false, "Patron: 'We've been in here twenty minutes and I still don't know if it's a bar.'"],
+            [124, 268, 'civilian', true],
+            [110, 396, 'civilian', false],
+            [170, 400, 'civilian_f', true, "Patron: 'The host said forty-five minutes. For a liquor store.'"],
+            [404, 262, 'civilian', false],
+            [462, 258, 'civilian_f', true],
+            [206, 452, 'civilian_f', false],
+            [232, 458, 'civilian', true],
+            [470, 548, 'civilian_f', false, "Patron: 'My friend swears there's a secret room in here. She won't tell me where.'"],
+            [520, 552, 'civilian', true],
+            [596, 556, 'civilian', false],
+            [766, 384, 'civilian_f', true, "Patron: 'Don't sit in those armchairs unless someone tells you to. Trust me.'"],
+            [80, 520, 'civilian', false],
+            [132, 536, 'civilian_f', true],
+            [690, 560, 'civilian_f', false]
+        ].forEach(([x, y, key, flip, line], i) => {
+            const person = this.add.sprite(x, y, key).setTint(TINTS[i % TINTS.length]).setFlipX(flip);
+            c.add(person);
+            this.tweens.add({
+                targets: person, y: y - 2, duration: 1000 + (i * 137) % 900,
+                yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: (i * 211) % 700
+            });
+            // Browsing: every so often somebody turns to look at something else.
+            if (i % 3 === 0) {
+                this.time.addEvent({ delay: 2200 + i * 190, loop: true, callback: () => person.setFlipX(!person.flipX) });
+            }
+            if (line) this.zone(x, y + 14, 46, 44, () => this.stage === 'inside', () => showDialogue(line));
+        });
     }
 
     /**
@@ -308,14 +385,14 @@ export class RaisedByWolvesScene extends Phaser.Scene {
             this.outside.setVisible(false);
             this.inside.setVisible(true);
             this.outsideWall.body.enable = false;
-            this.insideWall.body.enable = true;
+            this.insideSolids.forEach(b => { b.body.enable = true; });
             this.cameras.main.setBackgroundColor('#141416');
-            this.player.body.reset(400, 520);
-            this.yvy.setPosition(440, 520);
+            this.player.body.reset(396, 520);
+            this.yvy.setPosition(356, 520);
             this.cameras.main.fadeIn(450, 0, 0, 0);
             this.instructionText.setText('');
             this.narrate([
-                "Inside, it looked like a very high-class liquor store: black and white marble, bottles lined up behind glass, carved wooden cabinets.",
+                "Inside, it was packed. It looked like a very high-class liquor store: black and white marble, bottles lined up behind glass, carved wooden cabinets.",
                 "Yvy: 'Are we... buying a bottle?'",
                 "Mike: 'I don't think that's why people come here.'"
             ], () => {
@@ -332,7 +409,7 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.yvyFollow = false;
         this.instructionText.setText('');
         this.narrate([
-            "Host: 'Good evening. Just the two of you?'",
+            "Host: 'Good evening. Busy one tonight. Just the two of you?'",
             "Mike: 'Just the two of us.'",
             "Host: 'Wonderful. Right this way. Please, have a seat by the fire.'",
             "Yvy: 'In the liquor store?'",
