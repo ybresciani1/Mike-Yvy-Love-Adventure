@@ -401,7 +401,7 @@ export class WolvesBarScene extends Phaser.Scene {
                     this.cameras.main.fadeOut(1000, 0, 0, 0);
                     this.cameras.main.once('camerafadeoutcomplete', () => {
                         stopMusic();
-                        this.scene.start('MisterAsScene');
+                        this.scene.start('FlowerFieldsScene');
                     });
                 }));
             }));

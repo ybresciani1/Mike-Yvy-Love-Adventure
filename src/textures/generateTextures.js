@@ -6946,6 +6946,287 @@ export function generateTextures(scene) {
         fillRect(12, 27, 16, 1, 0x5a3a22);
         g.generateTexture('drink_table', 40, 32);
     }
+
+    // --- THE FLOWER FIELDS -------------------------------------------------------
+    {
+        // Yvy at the Flower Fields: a pink sweater, a pink glitter hat, light blue
+        // leggings and pink high-tops. Her own face and hair under the hat.
+        const SW = 0xf48fb1, SW_SH = 0xd9739a, SW_HI = 0xf8bbd0;
+        const LEG = 0xa7d3f0, LEG_SH = 0x86b8da, SHOE = 0xf06292, SOLE = 0xfdfdfd;
+        const HAT = 0xf06292, HAT_SH = 0xc2185b;
+        const hat = () => {
+            fillRect(10, 0, 12, 4, HAT); // crown
+            fillRect(8, 4, 16, 2, HAT_SH); // brim
+            fillRect(8, 4, 16, 1, HAT);
+            [[12, 1], [17, 2], [20, 1], [14, 3], [10, 5], [22, 5], [19, 3]].forEach(([x, y]) => drawPixel(x, y, 0xfff0fa)); // glitter
+        };
+        const sweater = () => {
+            fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+            fillRect(10, 17, 12, 9, SW);
+            fillRect(20, 17, 2, 9, SW_SH);
+            fillRect(11, 18, 1, 5, SW_HI);
+            fillRect(12, 17, 8, 1, SW_SH); // crew neck
+            fillRect(10, 25, 12, 1, SW_SH); // ribbed hem
+            fillRect(7, 17, 3, 7, SW); // sleeves to the wrist
+            fillRect(22, 17, 3, 7, SW_SH);
+            fillRect(7, 23, 3, 1, SW_SH); // cuffs
+            fillRect(22, 23, 3, 1, SW_SH);
+            fillRect(7, 24, 3, 2, SKIN);
+            fillRect(22, 24, 3, 2, SKIN_SHADE);
+        };
+        g.clear();
+        drawYvyFace(5);
+        drawYvyHair();
+        hat();
+        sweater();
+        fillRect(11, 26, 4, 4, LEG); // leggings
+        fillRect(17, 26, 4, 4, LEG_SH);
+        fillRect(15, 26, 2, 1, LEG_SH);
+        fillRect(10, 30, 5, 2, SHOE); // high-tops
+        fillRect(17, 30, 5, 2, SHOE);
+        fillRect(10, 31, 5, 1, SOLE);
+        fillRect(17, 31, 5, 1, SOLE);
+        g.generateTexture('yvy_flower', 32, 32);
+
+        g.clear(); // ...and sitting, for the big green chair and the tractor
+        drawYvyFace(5);
+        drawYvyHair();
+        hat();
+        sweater();
+        drawSeatedLegs(LEG, LEG_SH, SHOE, 0xd84d7e);
+        g.generateTexture('yvy_flower_sit', 32, 38);
+
+        // Mike at the Flower Fields: red tank top, black shorts, bare arms and legs.
+        const TANK = 0xd63a3a, TANK_SH = 0xa82828, SHORTS = 0x1e1e22, SHORTS_SH = 0x121214;
+        const tank = () => {
+            fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+            fillRect(10, 17, 12, 9, TANK);
+            fillRect(20, 17, 2, 9, TANK_SH);
+            fillRect(13, 17, 6, 2, SKIN); // scoop neck
+            fillRect(11, 17, 2, 1, TANK_SH); // straps
+            fillRect(19, 17, 2, 1, TANK_SH);
+            fillRect(7, 17, 3, 9, SKIN); // bare arms
+            fillRect(22, 17, 3, 9, SKIN_SHADE);
+            fillRect(7, 17, 3, 1, SKIN_SHADE);
+        };
+        g.clear();
+        drawMikeFace(5);
+        drawMikeHair();
+        tank();
+        fillRect(10, 26, 12, 3, SHORTS); // shorts
+        fillRect(16, 26, 6, 3, SHORTS_SH);
+        fillRect(15, 27, 1, 2, SHORTS_SH);
+        fillRect(11, 29, 4, 2, SKIN); // legs
+        fillRect(17, 29, 4, 2, SKIN_SHADE);
+        fillRect(10, 31, 5, 1, 0xf5f5f5); // trainers
+        fillRect(17, 31, 5, 1, 0xdcdcdc);
+        g.generateTexture('mike_tank', 32, 32);
+
+        g.clear(); // ...and sitting
+        drawMikeFace(5);
+        drawMikeHair();
+        tank();
+        drawSeatedLegs(SKIN, SKIN_SHADE, 0xf5f5f5, 0xdcdcdc);
+        fillRect(9, 26, 14, 3, SHORTS); // the shorts over the tops of his thighs
+        fillRect(16, 26, 7, 3, SHORTS_SH);
+        g.generateTexture('mike_tank_sit', 32, 38);
+    }
+    {
+        // The giant green Adirondack chair out in the flowers.
+        g.clear();
+        const GR = 0x8cc63f, GR_SH = 0x6ea22c, GR_DK = 0x4f7a1c, GR_HI = 0xb2dc6a;
+        for (let i = 0; i < 7; i++) { // back slats, tallest in the middle
+            const x = 11 + i * 6;
+            const top = 2 + Math.abs(i - 3) * 3;
+            fillRect(x, top, 5, 50 - top, i % 2 ? GR_SH : GR);
+            fillRect(x, top, 5, 1, GR_HI);
+            fillRect(x + 4, top + 1, 1, 49 - top, GR_DK);
+        }
+        fillRect(11, 30, 42, 3, GR_DK); // cross rail
+        fillRect(4, 51, 5, 30, GR_SH); // front legs
+        fillRect(55, 51, 5, 30, GR_SH);
+        fillRect(12, 65, 4, 16, GR_DK); // back legs, behind
+        fillRect(48, 65, 4, 16, GR_DK);
+        fillRect(0, 46, 64, 5, GR); // arms
+        fillRect(0, 46, 64, 1, GR_HI);
+        fillRect(0, 50, 64, 1, GR_DK);
+        fillRect(9, 56, 46, 8, GR); // seat
+        fillRect(9, 56, 46, 1, GR_HI);
+        fillRect(9, 63, 46, 2, GR_DK);
+        fillRect(4, 80, 5, 2, GR_DK);
+        fillRect(55, 80, 5, 2, GR_DK);
+        g.generateTexture('giant_chair', 64, 84);
+    }
+    {
+        // An old rusty tractor parked in the flowers, with a little windmill on its back.
+        g.clear();
+        const RU = 0x9a5a34, RU_SH = 0x6e3e22, RU_HI = 0xc27a4a, TYRE = 0x2a2622, HUB = 0x7a6a5a, IRON = 0x3a322c;
+        fillRect(6, 2, 2, 24, 0x5a4a3a); // windmill pole
+        fillRect(26, 22, 38, 16, RU); // hood
+        fillRect(26, 22, 38, 2, RU_HI);
+        fillRect(26, 36, 38, 2, RU_SH);
+        fillRect(56, 20, 10, 20, 0x5a5048); // grille
+        for (let y = 22; y < 39; y += 2) fillRect(57, y, 8, 1, IRON);
+        fillRect(40, 12, 3, 10, IRON); // exhaust
+        g.fillStyle(TYRE, 1);
+        g.fillCircle(16, 40, 15); // big rear wheel
+        g.fillStyle(0x3e3832, 1);
+        g.fillCircle(16, 40, 11);
+        g.fillStyle(HUB, 1);
+        g.fillCircle(16, 40, 5);
+        for (let a = 0; a < 8; a++) {
+            const ang = a * Math.PI / 4;
+            drawPixel(16 + Math.round(Math.cos(ang) * 13), 40 + Math.round(Math.sin(ang) * 13), 0x4a443e); // tread
+        }
+        g.fillStyle(TYRE, 1);
+        g.fillCircle(58, 47, 8); // front wheel
+        g.fillStyle(HUB, 1);
+        g.fillCircle(58, 47, 3);
+        fillRect(30, 40, 20, 4, RU_SH); // chassis
+        fillRect(2, 22, 28, 3, RU); // fender over the rear wheel
+        fillRect(2, 22, 28, 1, RU_HI);
+        fillRect(8, 16, 14, 4, RU_SH); // seat
+        fillRect(8, 8, 3, 10, RU_SH); // seat back
+        fillRect(24, 12, 2, 10, IRON); // steering column
+        fillRect(19, 10, 10, 2, 0x2a2622); // steering wheel
+        g.generateTexture('vintage_tractor', 72, 56);
+
+        g.clear(); // the windmill, separate so it can turn
+        for (let i = 0; i < 12; i++) {
+            const a = i * Math.PI / 6;
+            g.fillStyle(i % 2 ? 0xd9822b : 0xb8541e, 1);
+            g.fillTriangle(12, 12, 12 + Math.cos(a) * 12, 12 + Math.sin(a) * 12,
+                12 + Math.cos(a + 0.45) * 12, 12 + Math.sin(a + 0.45) * 12);
+        }
+        g.fillStyle(IRON, 1);
+        g.fillCircle(12, 12, 2);
+        g.generateTexture('windmill_wheel', 24, 24);
+
+        g.clear(); // a working green tractor, out along the far rows
+        const JD = 0x3a8a2a, JD_SH = 0x2a6a1e, JD_Y = 0xf2c80f;
+        fillRect(20, 12, 32, 14, JD);
+        fillRect(20, 12, 32, 2, 0x5aa83e);
+        fillRect(20, 24, 32, 2, JD_SH);
+        fillRect(4, 2, 20, 2, JD_SH); // canopy
+        fillRect(6, 4, 2, 16, 0x222222);
+        fillRect(20, 4, 2, 16, 0x222222);
+        fillRect(8, 14, 12, 6, JD_SH); // seat
+        fillRect(44, 14, 8, 10, 0x2a2a2a); // grille
+        g.fillStyle(0x1e1e1e, 1);
+        g.fillCircle(14, 28, 11);
+        g.fillStyle(JD_Y, 1);
+        g.fillCircle(14, 28, 5);
+        g.fillStyle(0x1e1e1e, 1);
+        g.fillCircle(46, 32, 7);
+        g.fillStyle(JD_Y, 1);
+        g.fillCircle(46, 32, 3);
+        g.generateTexture('green_tractor', 56, 40);
+    }
+    {
+        // The ticket booth at the entrance: white boards and a striped awning.
+        g.clear();
+        fillRect(4, 14, 56, 50, 0xf4f1ea); // walls
+        for (let y = 18; y < 64; y += 5) fillRect(4, y, 56, 1, 0xdcd6ca);
+        fillRect(10, 26, 44, 20, 0x3a4a5a); // window
+        fillRect(10, 26, 44, 2, 0x2a3440);
+        for (let i = 0; i < 8; i++) fillRect(i * 8, 4, 8, 10, i % 2 ? 0xffffff : 0xf06292); // awning
+        fillRect(0, 13, 64, 2, 0xc2185b);
+        for (let i = 0; i < 8; i++) fillRect(i * 8 + 2, 15, 4, 2, i % 2 ? 0xffffff : 0xf06292); // scallops
+        fillRect(18, 0, 28, 5, 0x2e7d32); // sign board
+        g.generateTexture('ticket_booth', 64, 64);
+
+        g.clear(); // the counter, drawn over whoever is selling
+        fillRect(4, 0, 56, 18, 0xf4f1ea);
+        for (let y = 3; y < 18; y += 5) fillRect(4, y, 56, 1, 0xdcd6ca);
+        fillRect(8, 0, 48, 3, 0xbfa37a); // ledge
+        fillRect(8, 2, 48, 1, 0x8a6f48);
+        g.generateTexture('ticket_booth_front', 64, 18);
+    }
+    {
+        // Ranunculus heads, drawn white so a tint gives each row its colour; the
+        // green under them is drawn by the scene. Two scatters, so rows vary.
+        [['flower_heads_a', 0], ['flower_heads_b', 3]].forEach(([key, seed]) => {
+            g.clear();
+            for (let i = 0; i < 16; i++) {
+                const x = 3 + ((i * 7 + seed * 5) % 27);
+                const y = 3 + ((i * 11 + seed * 3) % 26);
+                fillRect(x - 2, y - 1, 5, 3, 0xd8d8d8);
+                fillRect(x - 1, y - 2, 3, 5, 0xd8d8d8);
+                fillRect(x - 1, y - 1, 3, 2, 0xffffff);
+                drawPixel(x, y, 0xb8b8b8);
+            }
+            g.generateTexture(key, 32, 32);
+        });
+
+        g.clear(); // white picket fence
+        fillRect(0, 9, 32, 3, 0xe6e6e6); // rails
+        fillRect(0, 17, 32, 3, 0xe6e6e6);
+        [2, 10, 18, 26].forEach(x => {
+            fillRect(x, 3, 5, 21, 0xffffff);
+            fillRect(x + 1, 1, 3, 2, 0xffffff);
+            drawPixel(x + 2, 0, 0xffffff);
+            fillRect(x + 4, 3, 1, 21, 0xd0d0d0);
+        });
+        g.generateTexture('picket_fence', 32, 24);
+
+        g.clear(); // the hotels up on the hill behind the fields
+        fillRect(0, 10, 96, 34, 0xe6c49a);
+        fillRect(0, 10, 96, 2, 0xf2d6b0);
+        fillRect(34, 0, 20, 12, 0xe6c49a); // tower
+        fillRect(32, 0, 24, 3, 0xb5563a);
+        fillRect(0, 8, 96, 3, 0xb5563a); // tile roof
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 12; col++) {
+                fillRect(3 + col * 8, 15 + row * 10, 4, 5, 0x8a6a4a);
+                fillRect(2 + col * 8, 20 + row * 10, 6, 1, 0xa0826a); // balconies
+            }
+        }
+        g.generateTexture('hillside_hotel', 96, 44);
+    }
+    {
+        // The fountain out in the fields: the same two tiers and lions as the one
+        // in the bar at Raised by Wolves, but this one has water in it.
+        g.clear();
+        const ST = 0xe8e2d2, ST_SH = 0xbfb7a4, ST_DK = 0x958d7c, WA = 0x5aa9d6, WA_HI = 0x9fd6f0, WA_DK = 0x3b86b4;
+        g.fillStyle(ST, 1);
+        g.fillEllipse(40, 12, 34, 10); // top bowl
+        fillRect(25, 12, 30, 8, ST);
+        fillRect(46, 12, 9, 8, ST_SH);
+        g.fillStyle(WA, 1);
+        g.fillEllipse(40, 11, 28, 6); // water in it
+        fillRect(38, 2, 4, 9, WA_HI); // the jet
+        fillRect(39, 0, 2, 2, 0xffffff);
+        [24, 55].forEach(x => fillRect(x, 16, 1, 18, WA_HI)); // spilling over the lip
+        fillRect(34, 20, 12, 4, ST_SH); // neck
+        fillRect(36, 24, 8, 10, ST); // stem
+        fillRect(41, 24, 3, 10, ST_SH);
+        g.fillStyle(ST, 1);
+        g.fillEllipse(40, 38, 76, 14); // lower basin
+        fillRect(4, 38, 72, 16, ST);
+        fillRect(58, 38, 18, 16, ST_SH);
+        fillRect(4, 52, 72, 3, ST_DK);
+        g.fillStyle(WA_DK, 1);
+        g.fillEllipse(40, 37, 68, 9); // the pool
+        g.fillStyle(WA, 1);
+        g.fillEllipse(40, 36, 60, 6);
+        fillRect(20, 35, 6, 1, WA_HI);
+        fillRect(50, 37, 8, 1, WA_HI);
+        [[10, 46], [40, 48], [70, 46]].forEach(([lx, ly]) => { // lions, spouting
+            g.fillStyle(0xd8d0bc, 1);
+            g.fillCircle(lx, ly, 6);
+            g.fillStyle(ST_SH, 1);
+            g.fillCircle(lx, ly + 1, 4);
+            drawPixel(lx - 2, ly - 1, ST_DK);
+            drawPixel(lx + 2, ly - 1, ST_DK);
+            fillRect(lx - 1, ly + 3, 2, 8, WA_HI);
+        });
+        fillRect(4, 55, 72, 12, WA_DK); // the pool round the base
+        fillRect(4, 55, 72, 2, WA_HI);
+        fillRect(30, 57, 20, 10, ST_SH);
+        fillRect(0, 66, 80, 6, ST_DK); // coping
+        fillRect(0, 66, 80, 1, ST);
+        g.generateTexture('flower_fountain', 80, 72);
+    }
     {
         // A table lamp with a fringed fabric shade.
         g.clear();
