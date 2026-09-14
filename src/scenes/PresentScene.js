@@ -27,7 +27,9 @@ export class PresentScene extends Phaser.Scene {
         playBlueTheme();
         this.buildBeach();
 
-        const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+        // From their first apartment on he has a wolf cut: the same outfit, with the
+        // long wavy hair. Photos draw him from this sprite, so they have it too.
+        const outfit = `${this.game.registry.get('playerOutfit') || 'mike_suit'}_long`;
         this.player = this.add.sprite(362, 470, outfit).setDepth(6);
         this.yvy = this.add.sprite(400, 470, 'yvy').setDepth(6);
         this.aiden = this.add.sprite(438, 476, 'aiden_older').setDepth(6);

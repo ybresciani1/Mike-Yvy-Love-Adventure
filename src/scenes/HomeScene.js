@@ -187,7 +187,9 @@ export class HomeScene extends Phaser.Scene {
 
     /** Everybody who lives here, and everybody who has been adopted into it. */
     buildFamily() {
-        const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+        // From their first apartment on he has a wolf cut: the same outfit, with the
+        // long wavy hair. Photos draw him from this sprite, so they have it too.
+        const outfit = `${this.game.registry.get('playerOutfit') || 'mike_suit'}_long`;
         this.player = new Player(this, 300, 430);
         this.player.setTexture(outfit).setDepth(10);
         this.physics.add.collider(this.player, this.fences);

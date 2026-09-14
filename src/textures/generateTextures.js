@@ -125,13 +125,13 @@ export function generateTextures(scene) {
     const MIKE_HAIR_SHADE = 0x0b0a0e;
 
     const drawMikeFace = (y) => {
-        fillRect(10, y, 12, 9, SKIN);
-        fillRect(11, y + 9, 10, 1, SKIN); // the jaw narrowing
-        fillRect(12, y + 10, 8, 1, SKIN_SHADE); // a defined chin
-        fillRect(21, y, 1, 9, SKIN_SHADE); // cheek shadow
-        fillRect(22, y + 4, 1, 3, SKIN_SHADE); // his ear, showing on this side
-        fillRect(11, y + 2, 4, 1, MIKE_HAIR); // straight, dark brows
-        fillRect(17, y + 2, 4, 1, MIKE_HAIR);
+        fillRect(11, y, 10, 9, SKIN); // a slimmer face than the NPCs' twelve pixels
+        fillRect(12, y + 9, 8, 1, SKIN); // the jaw narrowing
+        fillRect(13, y + 10, 6, 1, SKIN_SHADE); // a defined chin
+        fillRect(20, y, 1, 9, SKIN_SHADE); // cheek shadow
+        fillRect(21, y + 4, 1, 3, SKIN_SHADE); // his ear, showing on this side
+        fillRect(12, y + 2, 3, 1, MIKE_HAIR); // straight, dark brows
+        fillRect(17, y + 2, 3, 1, MIKE_HAIR);
         fillRect(12, y + 4, 3, 1, MIKE_HAIR_SHADE); // lids, narrowed by the smile
         fillRect(17, y + 4, 3, 1, MIKE_HAIR_SHADE);
         drawPixel(13, y + 5, 0x2a2f45); // irises, looking in
@@ -156,14 +156,59 @@ export function generateTextures(scene) {
         drawPixel(17, 2, MIKE_HAIR_HI);
         drawPixel(18, 3, MIKE_HAIR_HI);
         fillRect(20, 3, 3, 2, MIKE_HAIR_SHADE);
-        fillRect(9, 5, 1, 6, MIKE_HAIR); // sides, over the ear
-        fillRect(21, 5, 2, 1, MIKE_HAIR);
-        fillRect(10, 5, 6, 1, MIKE_HAIR); // the fringe, swept to one side
-        drawPixel(11, 6, MIKE_HAIR);
-        drawPixel(13, 6, MIKE_HAIR);
+        fillRect(10, 5, 1, 6, MIKE_HAIR); // sides, down to the slimmer face
+        fillRect(21, 5, 1, 4, MIKE_HAIR);
+        fillRect(11, 5, 5, 1, MIKE_HAIR); // the fringe, swept to one side
+        drawPixel(12, 6, MIKE_HAIR);
         drawPixel(14, 6, MIKE_HAIR);
         drawPixel(12, 7, MIKE_HAIR); // one piece falling across the brow
         drawPixel(17, 5, MIKE_HAIR);
+    };
+
+    // His wolf cut, from their first apartment on: longer, layered and wavy,
+    // with choppy volume at the crown, curtain bangs parted just off centre,
+    // and lengths falling over his ears and past his jaw.
+    const drawMikeWolfHair = () => {
+        [10, 11, 13, 14, 16, 17, 19, 20].forEach(x => drawPixel(x, 0, MIKE_HAIR)); // choppy crown
+        fillRect(9, 1, 14, 1, MIKE_HAIR);
+        fillRect(8, 2, 16, 3, MIKE_HAIR);
+        drawPixel(7, 3, MIKE_HAIR); // volume at the sides
+        drawPixel(24, 3, MIKE_HAIR);
+        drawPixel(12, 1, MIKE_HAIR_HI); // light in the waves
+        drawPixel(11, 2, MIKE_HAIR_HI);
+        drawPixel(16, 2, MIKE_HAIR_HI);
+        drawPixel(17, 3, MIKE_HAIR_HI);
+        drawPixel(21, 2, MIKE_HAIR_HI);
+        fillRect(19, 4, 4, 1, MIKE_HAIR_SHADE);
+        fillRect(10, 5, 5, 1, MIKE_HAIR); // curtain bangs
+        fillRect(17, 5, 4, 1, MIKE_HAIR);
+        drawPixel(11, 6, MIKE_HAIR);
+        drawPixel(12, 6, MIKE_HAIR);
+        drawPixel(19, 6, MIKE_HAIR);
+        drawPixel(20, 6, MIKE_HAIR);
+        drawPixel(11, 7, MIKE_HAIR);
+        drawPixel(20, 7, MIKE_HAIR);
+        for (let y = 5; y <= 16; y++) { // wavy lengths down both sides
+            const wave = (y % 4) < 2 ? 0 : 1;
+            fillRect(9 - wave, y, 2, 1, MIKE_HAIR);
+            fillRect(21 + wave, y, 2, 1, MIKE_HAIR);
+            if (y % 4 === 1) {
+                drawPixel(9 - wave, y, MIKE_HAIR_HI);
+                drawPixel(22 + wave, y, MIKE_HAIR_SHADE);
+            }
+        }
+        fillRect(10, 8, 1, 5, MIKE_HAIR); // the inner layer against his cheek
+    };
+
+    // The ends that fall onto his shoulders. Drawn after the body, so they sit
+    // on top of whatever he is wearing rather than disappearing under it.
+    const drawMikeWolfNape = () => {
+        fillRect(9, 17, 2, 2, MIKE_HAIR);
+        drawPixel(8, 19, MIKE_HAIR);
+        drawPixel(10, 19, MIKE_HAIR_SHADE);
+        fillRect(21, 17, 2, 2, MIKE_HAIR);
+        drawPixel(23, 19, MIKE_HAIR);
+        drawPixel(21, 19, MIKE_HAIR_SHADE);
     };
 
     // --- MIKE (standard: blue tee and jeans) ---
@@ -175,6 +220,17 @@ export function generateTextures(scene) {
     fillRect(10, 26, 12, 1, 0x2c2c2c); // belt
     drawLegs(0x34495e, 0x2c3e50, 0xecf0f1, 0xd5dbdb);
     g.generateTexture('mike', 32, 32);
+
+    // ...and with the wolf cut.
+    g.clear();
+    drawMikeFace(5);
+    drawMikeWolfHair();
+    drawTorso(0x3498db, 0x2f86c4, { hi: 0x5dade2 });
+    fillRect(13, 17, 6, 2, 0x2980b9); // collar
+    fillRect(10, 26, 12, 1, 0x2c2c2c); // belt
+    drawLegs(0x34495e, 0x2c3e50, 0xecf0f1, 0xd5dbdb);
+    drawMikeWolfNape();
+    g.generateTexture('mike_long', 32, 32);
 
     // --- MIKE (business suit) ---
     g.clear();
@@ -190,6 +246,21 @@ export function generateTextures(scene) {
     drawLegs(0x2c3e50, 0x22303d, 0x1b1b1b, 0x121212);
     g.generateTexture('mike_suit', 32, 32);
 
+    // ...and with the wolf cut.
+    g.clear();
+    drawMikeFace(5);
+    drawMikeWolfHair();
+    drawTorso(0x2c3e50, 0x22303d);
+    fillRect(14, 17, 4, 9, 0xf4f6f7); // shirt placket
+    fillRect(15, 18, 2, 7, 0xc0392b); // tie
+    fillRect(15, 25, 2, 1, 0x96281b); // tie tip
+    fillRect(13, 17, 1, 4, 0x22303d); // lapels
+    fillRect(18, 17, 1, 4, 0x1a242f);
+    drawPixel(12, 20, 0xf1c40f); // pocket square
+    drawLegs(0x2c3e50, 0x22303d, 0x1b1b1b, 0x121212);
+    drawMikeWolfNape();
+    g.generateTexture('mike_suit_long', 32, 32);
+
     // --- MIKE (smart casual: grey henley) ---
     g.clear();
     drawMikeFace(5);
@@ -201,6 +272,19 @@ export function generateTextures(scene) {
     fillRect(10, 26, 12, 1, 0x5d4037); // belt
     drawLegs(0x1a237e, 0x151c66, 0xf5f5f5, 0xdcdcdc);
     g.generateTexture('mike_casual', 32, 32);
+
+    // ...and with the wolf cut.
+    g.clear();
+    drawMikeFace(5);
+    drawMikeWolfHair();
+    drawTorso(0x95a5a6, 0x7f8c8d, { hi: 0xbdc3c7 });
+    fillRect(15, 17, 2, 4, 0x7f8c8d); // placket
+    drawPixel(15, 18, 0xecf0f1); // buttons
+    drawPixel(15, 20, 0xecf0f1);
+    fillRect(10, 26, 12, 1, 0x5d4037); // belt
+    drawLegs(0x1a237e, 0x151c66, 0xf5f5f5, 0xdcdcdc);
+    drawMikeWolfNape();
+    g.generateTexture('mike_casual_long', 32, 32);
 
     // --- YVY (long hair, pink dress) ---
     const YVY_HAIR = 0x14141a; // black, with a blue sheen where the light hits
@@ -1703,6 +1787,17 @@ export function generateTextures(scene) {
     drawSeatedLegs(0x34495e, 0x2c3e50, 0xecf0f1, 0xd5dbdb);
     g.generateTexture('mike_sit', 32, 38);
 
+    // ...and with the wolf cut.
+    g.clear();
+    drawMikeFace(5);
+    drawMikeWolfHair();
+    drawTorso(0x3498db, 0x2f86c4, { hi: 0x5dade2 });
+    fillRect(13, 17, 6, 2, 0x2980b9); // collar
+    fillRect(10, 26, 12, 1, 0x2c2c2c); // belt
+    drawSeatedLegs(0x34495e, 0x2c3e50, 0xecf0f1, 0xd5dbdb);
+    drawMikeWolfNape();
+    g.generateTexture('mike_long_sit', 32, 38);
+
     g.clear();
     drawMikeFace(5);
     drawMikeHair();
@@ -1716,6 +1811,21 @@ export function generateTextures(scene) {
     drawSeatedLegs(0x2c3e50, 0x22303d, 0x1b1b1b, 0x121212);
     g.generateTexture('mike_suit_sit', 32, 38);
 
+    // ...and with the wolf cut.
+    g.clear();
+    drawMikeFace(5);
+    drawMikeWolfHair();
+    drawTorso(0x2c3e50, 0x22303d);
+    fillRect(14, 17, 4, 9, 0xf4f6f7); // shirt placket
+    fillRect(15, 18, 2, 7, 0xc0392b); // tie
+    fillRect(15, 25, 2, 1, 0x96281b);
+    fillRect(13, 17, 1, 4, 0x22303d); // lapels
+    fillRect(18, 17, 1, 4, 0x1a242f);
+    drawPixel(12, 20, 0xf1c40f); // pocket square
+    drawSeatedLegs(0x2c3e50, 0x22303d, 0x1b1b1b, 0x121212);
+    drawMikeWolfNape();
+    g.generateTexture('mike_suit_long_sit', 32, 38);
+
     g.clear();
     drawMikeFace(5);
     drawMikeHair();
@@ -1726,6 +1836,19 @@ export function generateTextures(scene) {
     fillRect(10, 26, 12, 1, 0x5d4037); // belt
     drawSeatedLegs(0x1a237e, 0x151c66, 0xf5f5f5, 0xdcdcdc);
     g.generateTexture('mike_casual_sit', 32, 38);
+
+    // ...and with the wolf cut.
+    g.clear();
+    drawMikeFace(5);
+    drawMikeWolfHair();
+    drawTorso(0x95a5a6, 0x7f8c8d, { hi: 0xbdc3c7 });
+    fillRect(15, 17, 2, 4, 0x7f8c8d); // placket
+    drawPixel(15, 18, 0xecf0f1);
+    drawPixel(15, 20, 0xecf0f1);
+    fillRect(10, 26, 12, 1, 0x5d4037); // belt
+    drawSeatedLegs(0x1a237e, 0x151c66, 0xf5f5f5, 0xdcdcdc);
+    drawMikeWolfNape();
+    g.generateTexture('mike_casual_long_sit', 32, 38);
 
     drawNpc({
         hair: 0x6d4c41, hairHi: 0x8d6e63, hairShade: 0x4e342e,
@@ -2176,7 +2299,7 @@ export function generateTextures(scene) {
 
         const danceHead = () => {
             drawMikeFace(5);
-            drawMikeHair();
+            (P.hair || drawMikeHair)();
             fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
         };
 
@@ -2195,6 +2318,7 @@ export function generateTextures(scene) {
         fillRect(17, 27, 4, 4, P.pantsShade);
         fillRect(11, 31, 5, 1, P.shoeL);
         fillRect(17, 31, 5, 1, P.shoeR);
+        if (P.nape) P.nape();
         g.generateTexture(`${key}_1`, 32, 32);
 
         // The mirror of it — the swing back the other way.
@@ -2212,6 +2336,7 @@ export function generateTextures(scene) {
         fillRect(17, 27, 4, 4, P.pantsShade);
         fillRect(11, 31, 5, 1, P.shoeL);
         fillRect(17, 31, 5, 1, P.shoeR);
+        if (P.nape) P.nape();
         g.generateTexture(`${key}_2`, 32, 32);
 
         // One arm bent to the forehead, opposite leg kicked out.
@@ -2232,6 +2357,7 @@ export function generateTextures(scene) {
         fillRect(21, 24, 5, 3, P.pantsShade); // shin kicked up
         fillRect(25, 23, 5, 2, P.shoeR);
         fillRect(11, 31, 5, 1, P.shoeL);
+        if (P.nape) P.nape();
         g.generateTexture(`${key}_3`, 32, 32);
 
         // Both arms up in a V, feet apart and off the floor.
@@ -2249,6 +2375,7 @@ export function generateTextures(scene) {
         fillRect(19, 27, 4, 3, P.pantsShade);
         fillRect(8, 30, 5, 1, P.shoeL);
         fillRect(19, 30, 5, 1, P.shoeR);
+        if (P.nape) P.nape();
         g.generateTexture(`${key}_4`, 32, 32);
     };
     drawMikeDances('mike_dance', {
@@ -2269,6 +2396,36 @@ export function generateTextures(scene) {
         }
     });
     drawMikeDances('mike_casual_dance', {
+        top: 0x95a5a6, topShade: 0x7f8c8d, pants: 0x1a237e, pantsShade: 0x151c66,
+        shoeL: 0xf5f5f5, shoeR: 0xdcdcdc, belt: 0x5d4037,
+        detail: cx => {
+            fillRect(cx, 17, 2, 4, 0x7f8c8d); // henley placket
+            drawPixel(cx, 18, 0xecf0f1);
+            drawPixel(cx, 20, 0xecf0f1);
+        }
+    });
+    // The same moves, with the wolf cut.
+    drawMikeDances('mike_long_dance', {
+        hair: drawMikeWolfHair, nape: drawMikeWolfNape,
+        top: 0x3498db, topShade: 0x2f86c4, pants: 0x34495e, pantsShade: 0x2c3e50,
+        shoeL: 0xecf0f1, shoeR: 0xd5dbdb, belt: 0x2c2c2c,
+        detail: cx => fillRect(cx - 3, 17, 6, 2, 0x2980b9) // collar
+    });
+    drawMikeDances('mike_suit_long_dance', {
+        hair: drawMikeWolfHair, nape: drawMikeWolfNape,
+        top: 0x2c3e50, topShade: 0x22303d, pants: 0x2c3e50, pantsShade: 0x22303d,
+        shoeL: 0x1b1b1b, shoeR: 0x121212, belt: 0x22303d,
+        detail: cx => {
+            fillRect(cx - 1, 17, 4, 9, 0xf4f6f7); // shirt placket
+            fillRect(cx, 18, 2, 7, 0xc0392b); // tie
+            fillRect(cx, 25, 2, 1, 0x96281b);
+            fillRect(cx - 2, 17, 1, 4, 0x22303d); // lapels
+            fillRect(cx + 3, 17, 1, 4, 0x1a242f);
+            drawPixel(cx - 3, 20, 0xf1c40f); // pocket square
+        }
+    });
+    drawMikeDances('mike_casual_long_dance', {
+        hair: drawMikeWolfHair, nape: drawMikeWolfNape,
         top: 0x95a5a6, topShade: 0x7f8c8d, pants: 0x1a237e, pantsShade: 0x151c66,
         shoeL: 0xf5f5f5, shoeR: 0xdcdcdc, belt: 0x5d4037,
         detail: cx => {

@@ -45,7 +45,9 @@ export class ApartmentScene extends Phaser.Scene {
         this.add.image(524, 236, 'toy_chest');
         this.add.image(470, 420, 'toy_blocks').setAngle(9);
         this.add.image(352, 438, 'toy_car');
-        const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+        // From their first apartment on he has a wolf cut: the same outfit, with the
+        // long wavy hair. Photos draw him from this sprite, so they have it too.
+        const outfit = `${this.game.registry.get('playerOutfit') || 'mike_suit'}_long`;
         this.player = this.add.sprite(350, 350, outfit);
         this.yvy = this.add.sprite(450, 350, 'yvy');
         this.aiden = this.add.sprite(400, 320, 'aiden');

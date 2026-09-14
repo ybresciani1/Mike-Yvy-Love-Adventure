@@ -56,7 +56,9 @@ export class ThanksgivingScene extends Phaser.Scene {
         }
         
         // --- Characters ---
-        const outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+        // From their first apartment on he has a wolf cut: the same outfit, with the
+        // long wavy hair. Photos draw him from this sprite, so they have it too.
+        const outfit = `${this.game.registry.get('playerOutfit') || 'mike_suit'}_long`;
         this.player = new Player(this, 100, 450); this.player.setTexture(outfit);
         
         // Interactive Zones
