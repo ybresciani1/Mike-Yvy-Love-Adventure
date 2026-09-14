@@ -146,7 +146,7 @@ export class MisterAsScene extends Phaser.Scene {
 
     theDinner() {
         this.narrate([
-            "Mike landed and took Yvy to Mister A's, where he had booked them a table: a rooftop, twelve floors up, with the whole city underneath it.",
+            "Later that trip, Mike took Yvy to Mister A's, where he had booked them a table: a rooftop, twelve floors up, with the whole city underneath it.",
             "Yvy: 'Mike. Look at the planes. They come in so close you can see into the windows.'",
             "Mike: 'Okay. That one was way too close.'"
         ], () => this.theTartare());

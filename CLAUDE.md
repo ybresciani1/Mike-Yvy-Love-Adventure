@@ -65,7 +65,7 @@ src/ui/dialogue.js       showDialogue, isDialogueOpen, portraitFor
 src/ui/touch.js          phone controls: the on-screen pad, and fitting the frame to the screen
 src/entities/Player.js   the movable character
 src/textures/            generateTextures — all ~96 sprites, drawn in code
-src/scenes/              32 scenes + index.js (the registry)
+src/scenes/              34 scenes + index.js (the registry)
 ```
 
 ### Hybrid DOM + canvas UI
@@ -83,7 +83,7 @@ support. It never touches Phaser or a scene:
 
 - **The controls are a keyboard.** The D-pad and the `A`/`B` buttons dispatch
   synthetic `ArrowLeft`/`Space`/`KeyF` events at `document`, so every
-  `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 32 scenes, and the
+  `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 34 scenes, and the
   SPACE listener that dismisses a line, keeps working with no per-scene wiring.
   Phaser's `KeyboardManager` listens on `window` and reads only the legacy
   `event.keyCode`, which several browsers drop from the `KeyboardEvent` init
@@ -116,9 +116,10 @@ always paired with the shutdown that hides it again.
 **Prompts drawn on the canvas name their key through two helpers**, since a
 phone has neither a SPACE bar nor the pixels to read 16px at a 0.46 scale:
 `actionLabel()` gives "Space" or "A", and `promptFontSize(base)` scales a
-prompt up on touch while keeping prompts in proportion to each other. Nine
+prompt up on touch while keeping prompts in proportion to each other. Eleven
 scenes print such a prompt — `ClubScene`, `PizzaScene`, `MorningScene`,
-`MovieScene`, `ThanksgivingScene`, `CoinOpScene`, `FifthRoseScene`, `MisterAsScene`, `NovaScene` — and all of
+`MovieScene`, `ThanksgivingScene`, `CoinOpScene`, `FifthRoseScene`, `MisterAsScene`, `NovaScene`, `RaisedByWolvesScene`,
+`WolvesBarScene` — and all of
 them go through the helpers; the club and NOVA add "Hold B" for the dance key on top.
 `tests/touch.test.js` fails any scene that spells a key name into a prompt
 without importing `ui/touch.js`, which is what would put "(Space)" back in front
@@ -194,7 +195,7 @@ Scenes are near-uniform:
 ### Scene flow
 The story is a strictly linear chain of `this.scene.start(...)` calls:
 
-Title → Airport → Flight → Bar → Club → Pizza → Morning → Conference → Uber → Restaurant → Movie → DriveToHotel → FancyHotel → ReturnFlight → LongDistance → VisitFlight → MisterAs → Nova → Downtown → CostumeNight → FifthRose → CoinOpWalk → CoinOp → Travel → House → Surgery → Burial → NewYears → Apartment → Thanksgiving → Home → Present
+Title → Airport → Flight → Bar → Club → Pizza → Morning → Conference → Uber → Restaurant → Movie → DriveToHotel → FancyHotel → ReturnFlight → LongDistance → VisitFlight → RaisedByWolves → WolvesBar → MisterAs → Nova → Downtown → CostumeNight → FifthRose → CoinOpWalk → CoinOp → Travel → House → Surgery → Burial → NewYears → Apartment → Thanksgiving → Home → Present
 
 `src/scenes/index.js` lists the scenes in that same narrative order (only the first entry matters to Phaser — it boots first). `tests/sceneFlow.test.js` derives the real chain from the `scene.start` calls in source and fails if the registry drifts out of sync, so the list stays trustworthy.
 

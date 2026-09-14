@@ -7,7 +7,7 @@ import { isDialogueOpen } from './dialogue.js';
  *
  * Nothing here talks to Phaser or to the scenes. The pad and the button
  * dispatch the same arrow-key and SPACE events a keyboard would, so every
- * `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 32 scenes — and
+ * `cursors.left.isDown` and `JustDown(this.spaceKey)` in the 34 scenes — and
  * the SPACE listener that dismisses a line of dialogue — keeps working
  * untouched. Phaser's KeyboardManager listens on `window` and reads only
  * `event.keyCode`, and dialogue.js listens on `document`, so a synthetic event

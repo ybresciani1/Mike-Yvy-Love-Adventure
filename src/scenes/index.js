@@ -14,6 +14,8 @@ import { FancyHotelScene } from './FancyHotelScene.js';
 import { ReturnFlightScene } from './ReturnFlightScene.js';
 import { LongDistanceScene } from './LongDistanceScene.js';
 import { VisitFlightScene } from './VisitFlightScene.js';
+import { RaisedByWolvesScene } from './RaisedByWolvesScene.js';
+import { WolvesBarScene } from './WolvesBarScene.js';
 import { MisterAsScene } from './MisterAsScene.js';
 import { NovaScene } from './NovaScene.js';
 import { DowntownScene } from './DowntownScene.js';
@@ -51,6 +53,8 @@ export const SCENES = [
     ReturnFlightScene,
     LongDistanceScene,
     VisitFlightScene,
+    RaisedByWolvesScene,
+    WolvesBarScene,
     MisterAsScene,
     NovaScene,
     DowntownScene,

@@ -34,6 +34,8 @@ const CHAPTER_LABELS = {
     ReturnFlightScene: 'The Flight Home',
     LongDistanceScene: 'Long Distance',
     VisitFlightScene: 'The Flight Back Out',
+    RaisedByWolvesScene: 'Raised by Wolves',
+    WolvesBarScene: 'The Bar Behind the Wall',
     MisterAsScene: "Mister A's",
     NovaScene: 'NOVA',
     DowntownScene: 'Downtown',

@@ -5726,4 +5726,459 @@ export function generateTextures(scene) {
     fillRect(9, 31, 6, 1, 0x1b1b1b); // shoes
     fillRect(17, 31, 6, 1, 0x1b1b1b);
     g.generateTexture('idol_singer', 32, 32);
+
+    // --- RAISED BY WOLVES ------------------------------------------------------
+    // Each piece in its own block, so the palettes do not collide with anything
+    // else in this function.
+    {
+        // Yvy in her red long-sleeved dress: her own face and hair, sleeves to the
+        // wrist, and a hem a little longer than the others.
+        g.clear();
+        drawYvyFace(5);
+        drawYvyHair();
+        fillRect(13, 15, 6, 2, SKIN_SHADE);
+        const RED = 0xc0392b, RED_SHADE = 0x922b21, RED_HI = 0xe35d4f, RED_DARK = 0x6e1f17;
+        fillRect(11, 17, 10, 8, RED); // bodice
+        fillRect(19, 17, 2, 8, RED_SHADE);
+        fillRect(12, 18, 1, 4, RED_HI);
+        fillRect(11, 17, 10, 1, RED_DARK); // high neckline
+        fillRect(11, 24, 10, 1, RED_DARK); // waist
+        fillRect(10, 25, 12, 5, RED); // skirt
+        fillRect(19, 25, 3, 5, RED_SHADE);
+        fillRect(10, 29, 12, 1, RED_DARK); // hem
+        fillRect(9, 17, 2, 7, RED); // long sleeves
+        fillRect(21, 17, 2, 7, RED_SHADE);
+        fillRect(9, 17, 2, 1, RED_HI);
+        fillRect(9, 24, 2, 2, SKIN); // hands
+        fillRect(21, 24, 2, 2, SKIN_SHADE);
+        fillRect(12, 30, 3, 1, SKIN); // legs
+        fillRect(17, 30, 3, 1, SKIN_SHADE);
+        fillRect(11, 31, 4, 1, 0x212121); // heels
+        fillRect(17, 31, 4, 1, 0x121212);
+        g.generateTexture('yvy_red', 32, 32);
+    }
+    {
+        // The horchata: creamy, in a rocks glass, cinnamon on top and a stick in it.
+        g.clear();
+        fillRect(3, 7, 10, 12, 0xdfe9ee); // glass
+        fillRect(4, 9, 8, 9, 0xf3ead8);
+        fillRect(4, 9, 8, 1, 0xfbf6ec);
+        drawPixel(6, 11, 0xc9a27a);
+        drawPixel(9, 13, 0xc9a27a);
+        drawPixel(7, 15, 0xc9a27a);
+        fillRect(3, 18, 10, 1, 0xb8c6cc);
+        fillRect(10, 1, 2, 9, 0x8a5a2b); // cinnamon stick
+        fillRect(10, 1, 1, 9, 0xa87040);
+        drawPixel(4, 8, 0xffffff); // the glint on the glass
+        drawPixel(4, 12, 0xffffff);
+        g.generateTexture('horchata_drink', 16, 20);
+    }
+    {
+        // Mike's drink, in the cup: a gold goblet with filigree and a sprig.
+        g.clear();
+        const GOLD = 0xd4a93c, GOLD_HI = 0xf2d27a, GOLD_MID = 0xc8962e, GOLD_DK = 0x9c7020;
+        fillRect(3, 3, 12, 3, GOLD); // rim
+        fillRect(3, 3, 12, 1, GOLD_HI);
+        fillRect(4, 3, 10, 2, 0x6e1a24); // the drink, at the brim
+        fillRect(3, 5, 12, 1, GOLD_DK);
+        fillRect(4, 6, 10, 8, GOLD_MID); // bowl
+        fillRect(5, 6, 1, 8, GOLD_HI);
+        fillRect(12, 6, 2, 8, GOLD_DK);
+        fillRect(6, 9, 6, 2, 0x8a6a1e); // filigree band
+        drawPixel(7, 8, GOLD_HI);
+        drawPixel(10, 8, GOLD_HI);
+        drawPixel(8, 11, GOLD_HI);
+        fillRect(5, 14, 8, 2, 0xb8862a);
+        fillRect(8, 16, 2, 4, GOLD_MID); // stem
+        fillRect(5, 20, 8, 2, GOLD); // foot
+        fillRect(5, 21, 8, 1, GOLD_DK);
+        fillRect(12, 0, 1, 4, 0x3f7a2e); // sprig
+        drawPixel(13, 0, 0x5da344);
+        drawPixel(11, 1, 0x5da344);
+        g.generateTexture('wolf_cup_drink', 18, 24);
+    }
+    {
+        // A stone wolf, sitting up, one either side of the door.
+        g.clear();
+        const ST = 0xcfcfcf, ST_SH = 0xa2a2a6, ST_DK = 0x7c7c82;
+        fillRect(4, 24, 8, 12, ST_SH); // haunches first, so the chest sits over them
+        fillRect(19, 24, 6, 12, ST_DK);
+        fillRect(7, 14, 14, 12, ST); // chest
+        fillRect(17, 14, 4, 12, ST_SH);
+        fillRect(10, 17, 8, 5, 0xe2e2e2); // ruff
+        fillRect(8, 26, 3, 10, ST); // front legs
+        fillRect(17, 26, 3, 10, ST_SH);
+        fillRect(9, 2, 3, 5, ST); // ears
+        fillRect(16, 2, 3, 5, ST_SH);
+        fillRect(9, 5, 10, 9, ST); // head
+        fillRect(16, 5, 3, 9, ST_SH);
+        fillRect(11, 11, 6, 5, ST); // muzzle
+        fillRect(13, 15, 2, 1, ST_DK);
+        drawPixel(11, 8, ST_DK); // eyes
+        drawPixel(16, 8, ST_DK);
+        fillRect(3, 36, 22, 4, ST_DK); // the block it sits on
+        fillRect(3, 36, 22, 1, ST);
+        g.generateTexture('wolf_statue', 28, 40);
+    }
+    {
+        // A bronze wall lantern on a scrolled bracket, lit.
+        g.clear();
+        fillRect(8, 0, 2, 6, 0x6b5a3a); // bracket
+        fillRect(8, 0, 6, 2, 0x6b5a3a);
+        fillRect(12, 2, 2, 3, 0x6b5a3a);
+        fillRect(5, 6, 8, 3, 0x7d6a45); // cap
+        fillRect(3, 9, 12, 2, 0x5e4f33);
+        fillRect(4, 11, 10, 16, 0x5e4f33); // frame
+        fillRect(5, 12, 3, 14, 0xf6d98a); // glass
+        fillRect(10, 12, 3, 14, 0xf0c96a);
+        fillRect(3, 27, 12, 2, 0x5e4f33);
+        fillRect(7, 29, 4, 4, 0x6b5a3a); // finial
+        fillRect(8, 33, 2, 5, 0x6b5a3a);
+        g.generateTexture('wall_lantern', 18, 38);
+    }
+    {
+        // The leaded windows: blue frame, pale glass, wavy lead lines.
+        g.clear();
+        fillRect(0, 0, 48, 96, 0x1f2d5c);
+        fillRect(3, 3, 42, 90, 0xb9c7cf);
+        fillRect(3, 3, 42, 30, 0xd2dde3);
+        for (let row = 0; row < 5; row++) {
+            const y0 = 12 + row * 17;
+            for (let x = 3; x < 45; x++) {
+                drawPixel(x, y0 + Math.round(Math.sin(((x - 3) / 42) * Math.PI * 2) * 3), 0x55606a);
+            }
+        }
+        for (let x = 12; x < 45; x += 11) fillRect(x, 3, 1, 90, 0x55606a);
+        fillRect(0, 44, 48, 3, 0x1f2d5c); // transom
+        g.generateTexture('leaded_window', 48, 96);
+    }
+    {
+        // The oval panel: scrollwork, a wolf in the glass, a gold wolf's head on top.
+        g.clear();
+        fillRect(0, 0, 60, 92, 0x22325f);
+        for (let y = 2; y < 92; y += 4) {
+            for (let x = (y / 4) % 2 ? 2 : 0; x < 60; x += 4) drawPixel(x, y, 0x2e3f70); // lattice
+        }
+        g.fillStyle(0x3a4b7c, 1);
+        g.fillEllipse(30, 52, 46, 74); // moulding
+        g.fillStyle(0x6fb3b8, 1);
+        g.fillEllipse(30, 52, 36, 64); // the picture
+        g.fillStyle(0x9fd0cf, 1);
+        g.fillEllipse(30, 44, 26, 28);
+        fillRect(22, 40, 16, 12, 0xd8e4e6); // the wolf
+        fillRect(22, 36, 3, 5, 0xc4d2d6);
+        fillRect(35, 36, 3, 5, 0xc4d2d6);
+        fillRect(27, 50, 6, 4, 0xc4d2d6);
+        drawPixel(26, 44, 0x2b3a40);
+        drawPixel(33, 44, 0x2b3a40);
+        fillRect(29, 53, 2, 1, 0x2b3a40);
+        fillRect(18, 60, 24, 16, 0xbfd3d6);
+        fillRect(8, 22, 3, 60, 0x3a4b7c); // scrolls down the sides
+        fillRect(49, 22, 3, 60, 0x3a4b7c);
+        fillRect(25, 8, 10, 9, 0xd4a93c); // gold crest
+        fillRect(25, 5, 3, 4, 0xd4a93c);
+        fillRect(32, 5, 3, 4, 0xd4a93c);
+        fillRect(28, 16, 4, 3, 0xb8862a);
+        drawPixel(27, 11, 0x7a5a1e);
+        drawPixel(32, 11, 0x7a5a1e);
+        g.generateTexture('wolf_oval_window', 60, 92);
+    }
+    {
+        // The carved panel over the door: two wolves lying head to head.
+        g.clear();
+        fillRect(0, 0, 84, 24, 0x2a3a68);
+        fillRect(2, 2, 80, 20, 0x31437a);
+        g.fillStyle(0xc9d2dc, 1);
+        g.fillEllipse(28, 14, 34, 12);
+        g.fillEllipse(56, 14, 34, 12);
+        g.fillStyle(0xe6ebf0, 1);
+        g.fillEllipse(38, 10, 12, 9);
+        g.fillEllipse(46, 10, 12, 9);
+        fillRect(34, 4, 2, 3, 0xe6ebf0); // ears
+        fillRect(49, 4, 2, 3, 0xe6ebf0);
+        g.fillStyle(0xa8b3be, 1);
+        g.fillEllipse(14, 16, 10, 6); // tails
+        g.fillEllipse(70, 16, 10, 6);
+        g.generateTexture('wolf_relief', 84, 24);
+    }
+    {
+        // Black and white marble floor.
+        g.clear();
+        fillRect(0, 0, 32, 32, 0x141416);
+        fillRect(5, 5, 22, 22, 0xefeeea);
+        fillRect(5, 5, 22, 1, 0xfbfbf9);
+        fillRect(8, 8, 16, 16, 0xdedcd6);
+        fillRect(9, 9, 14, 14, 0xefeeea);
+        for (let r = 0; r < 5; r++) fillRect(16 - r, 12 + r, r * 2 + 1, 1, 0x141416); // black diamond
+        for (let r = 0; r < 4; r++) fillRect(13 + r, 17 + r, 7 - r * 2, 1, 0x141416);
+        drawPixel(7, 20, 0xc8c6c0); // veins
+        drawPixel(22, 9, 0xc8c6c0);
+        fillRect(0, 15, 5, 2, 0x2a2a2e);
+        fillRect(27, 15, 5, 2, 0x2a2a2e);
+        fillRect(15, 0, 2, 5, 0x2a2a2e);
+        fillRect(15, 27, 2, 5, 0x2a2a2e);
+        g.generateTexture('bw_marble_tile', 32, 32);
+    }
+    {
+        // A tall carved cabinet with bottles behind glass doors.
+        g.clear();
+        const WOOD = 0x5a3a22, WOOD_HI = 0x7a5232, WOOD_DK = 0x3a2414;
+        fillRect(2, 8, 52, 92, WOOD);
+        fillRect(0, 4, 56, 6, WOOD_HI); // cornice
+        fillRect(8, 0, 40, 5, WOOD); // crest
+        fillRect(22, 0, 12, 2, WOOD_HI);
+        fillRect(6, 14, 44, 58, 0x241812); // inside the glass
+        const BOTTLES = [0x7a3b1e, 0xc98a2e, 0x2e6b3a, 0xd9c9a0, 0x6a2a4a, 0x3a5a8a];
+        for (let shelf = 0; shelf < 4; shelf++) {
+            const sy = 16 + shelf * 14;
+            for (let bx = 8; bx < 48; bx += 5) {
+                const c = BOTTLES[(bx + shelf * 3) % BOTTLES.length];
+                fillRect(bx, sy + 2, 3, 8, c);
+                fillRect(bx + 1, sy, 1, 2, c);
+                drawPixel(bx, sy + 4, 0xf2e8d0);
+            }
+            fillRect(6, sy + 10, 44, 2, WOOD_HI);
+        }
+        fillRect(27, 14, 2, 58, WOOD); // where the glass doors meet
+        fillRect(4, 74, 48, 24, WOOD_DK);
+        fillRect(8, 77, 18, 18, WOOD);
+        fillRect(30, 77, 18, 18, WOOD);
+        fillRect(9, 78, 16, 1, WOOD_HI);
+        fillRect(31, 78, 16, 1, WOOD_HI);
+        fillRect(2, 98, 52, 2, 0x1a0f08);
+        g.fillStyle(0xffffff, 0.12);
+        g.fillRect(10, 16, 3, 54);
+        g.generateTexture('liquor_cabinet', 56, 100);
+    }
+    {
+        // A lit wall of bottles on glass shelves, a cabinet underneath.
+        g.clear();
+        fillRect(0, 0, 100, 84, 0x6b4a2e);
+        fillRect(4, 4, 92, 64, 0xf1e6cf);
+        const BW = [0x8a4a1e, 0xd8b04a, 0x3f7a4a, 0xe8e0c8, 0x7a2e4a, 0x4a6a9a, 0xb8c8a0];
+        for (let shelf = 0; shelf < 4; shelf++) {
+            const sy = 6 + shelf * 16;
+            for (let bx = 6; bx < 94; bx += 4) {
+                const c = BW[(bx * 7 + shelf) % BW.length];
+                const h = 8 + ((bx + shelf) % 3) * 2;
+                fillRect(bx, sy + 14 - h, 3, h, c);
+                fillRect(bx + 1, sy + 12 - h, 1, 2, c);
+            }
+            fillRect(4, sy + 14, 92, 2, 0x8a6a44);
+        }
+        fillRect(0, 68, 100, 16, 0x5a3a22);
+        fillRect(4, 71, 44, 10, 0x6b4a2e);
+        fillRect(52, 71, 44, 10, 0x6b4a2e);
+        g.generateTexture('bottle_wall', 100, 84);
+    }
+    {
+        // The fireplace wall: carved oak, a mantel, white marble, and a firebox
+        // with nothing burning in it.
+        g.clear();
+        const OAK = 0x7a5230, OAK_HI = 0x9a6a40, OAK_DK = 0x4f331c;
+        fillRect(0, 0, 160, 200, OAK);
+        [[8, 8, 44, 70], [108, 8, 44, 70], [58, 8, 44, 40]].forEach(([x, y, w, h]) => {
+            fillRect(x, y, w, h, OAK_DK);
+            fillRect(x + 2, y + 2, w - 4, h - 4, OAK);
+            fillRect(x + 2, y + 2, w - 4, 1, OAK_HI);
+        });
+        fillRect(10, 82, 140, 3, 0xb07c4c); // mantel shelf
+        fillRect(14, 84, 132, 8, OAK_HI);
+        fillRect(14, 92, 132, 4, OAK_DK);
+        fillRect(30, 96, 100, 12, OAK_DK); // carved lattice under it
+        for (let x = 30; x < 130; x += 4) {
+            const up = ((x - 30) / 4) % 2 === 0;
+            drawPixel(x, up ? 98 : 102, OAK_HI);
+            drawPixel(x + 2, up ? 102 : 98, OAK_HI);
+        }
+        fillRect(18, 96, 12, 96, OAK_HI); // pilasters
+        fillRect(130, 96, 12, 96, OAK_HI);
+        fillRect(20, 100, 8, 88, OAK);
+        fillRect(132, 100, 8, 88, OAK);
+        fillRect(34, 110, 92, 82, 0xf2efe8); // marble surround
+        fillRect(34, 110, 92, 2, 0xffffff);
+        fillRect(46, 120, 68, 72, 0x16110e); // the firebox, cold
+        fillRect(46, 120, 68, 3, 0x2a211b);
+        fillRect(52, 176, 56, 6, 0x4a4038); // grate
+        for (let x = 54; x < 106; x += 8) fillRect(x, 170, 2, 12, 0x3a322c);
+        fillRect(58, 172, 18, 5, 0x5a4a3c); // unlit logs
+        fillRect(80, 173, 22, 4, 0x4e4034);
+        fillRect(0, 192, 160, 8, OAK_DK);
+        g.generateTexture('fireplace_wall', 160, 200);
+    }
+    {
+        // The golden wolf's head above the mantel.
+        g.clear();
+        const GOLD = 0xd4a93c, GOLD_HI = 0xf2d27a, GOLD_DK = 0x9c7020;
+        fillRect(1, 14, 5, 8, GOLD_DK); // ruff
+        fillRect(24, 14, 5, 8, 0x7a5a18);
+        fillRect(5, 0, 5, 8, GOLD); // ears
+        fillRect(20, 0, 5, 8, GOLD_DK);
+        fillRect(6, 2, 2, 4, GOLD_DK);
+        fillRect(22, 2, 2, 4, 0x7a5a18);
+        fillRect(4, 6, 22, 12, GOLD); // head
+        fillRect(20, 6, 6, 12, GOLD_DK);
+        fillRect(6, 7, 6, 2, GOLD_HI);
+        fillRect(9, 16, 12, 8, GOLD); // muzzle
+        fillRect(18, 16, 3, 8, GOLD_DK);
+        fillRect(13, 23, 4, 2, 0x5a4210); // nose
+        fillRect(8, 11, 3, 2, 0x5a4210); // eyes
+        fillRect(19, 11, 3, 2, 0x5a4210);
+        fillRect(12, 26, 6, 2, GOLD_DK);
+        g.generateTexture('gold_wolf_head', 30, 28);
+    }
+    {
+        // An old mantel clock.
+        g.clear();
+        fillRect(2, 4, 16, 12, 0x3a2414);
+        fillRect(5, 1, 10, 4, 0x3a2414);
+        fillRect(8, 0, 4, 1, 0x5a3a22);
+        g.fillStyle(0xf4ecd8, 1);
+        g.fillCircle(10, 9, 5);
+        drawPixel(10, 6, 0x2b2b2b); // hands
+        fillRect(10, 7, 1, 3, 0x2b2b2b);
+        fillRect(10, 9, 3, 1, 0x2b2b2b);
+        fillRect(1, 15, 18, 2, 0x5a3a22);
+        fillRect(2, 17, 3, 1, 0xc9a86a); // brass feet
+        fillRect(15, 17, 3, 1, 0xc9a86a);
+        g.generateTexture('mantel_clock', 20, 18);
+    }
+    {
+        // A little wolf in sheep's clothing: a fleece, and a wolf's head out of it.
+        g.clear();
+        g.fillStyle(0xf2efe6, 1);
+        [[5, 9], [9, 8], [13, 9], [7, 12], [11, 12]].forEach(([x, y]) => g.fillCircle(x, y, 3));
+        fillRect(3, 14, 2, 2, 0x3a3a3a); // legs
+        fillRect(12, 14, 2, 2, 0x3a3a3a);
+        fillRect(12, 3, 5, 5, 0x8a8a92); // the wolf's head
+        fillRect(12, 1, 2, 3, 0x8a8a92);
+        fillRect(15, 1, 2, 3, 0x6a6a72);
+        fillRect(16, 6, 2, 2, 0x8a8a92);
+        drawPixel(14, 5, 0x1a1a1a);
+        drawPixel(17, 7, 0x1a1a1a);
+        fillRect(1, 16, 16, 2, 0x5a3a22); // base
+        g.generateTexture('wolf_sheep_figure', 18, 18);
+    }
+    {
+        // Barley-twist armchair, drawn as a back and a front so a person can
+        // sit between the two.
+        g.clear();
+        const TWIST = 0x3a2414, TWIST_HI = 0x6a4a2e;
+        fillRect(4, 2, 28, 2, TWIST); // top rail
+        fillRect(2, 4, 32, 4, TWIST);
+        for (let x = 3; x < 34; x += 5) {
+            fillRect(x, 8, 3, 20, TWIST); // spindles
+            for (let y = 9; y < 28; y += 3) drawPixel(x + 1, y, TWIST_HI);
+        }
+        fillRect(2, 26, 32, 4, TWIST);
+        g.generateTexture('wolf_armchair_back', 36, 30);
+
+        g.clear();
+        fillRect(0, 0, 4, 12, TWIST); // arm posts
+        fillRect(32, 0, 4, 12, TWIST);
+        for (let y = 1; y < 12; y += 3) {
+            drawPixel(1, y, TWIST_HI);
+            drawPixel(33, y, TWIST_HI);
+        }
+        fillRect(3, 6, 30, 7, 0xd9a8b0); // pink cushion
+        fillRect(3, 6, 30, 2, 0xe8c0c6);
+        fillRect(3, 12, 30, 3, TWIST); // seat rail
+        fillRect(4, 15, 3, 9, TWIST); // legs
+        fillRect(29, 15, 3, 9, TWIST);
+        fillRect(15, 15, 3, 7, TWIST);
+        for (let y = 16; y < 24; y += 3) {
+            drawPixel(5, y, TWIST_HI);
+            drawPixel(30, y, TWIST_HI);
+        }
+        g.generateTexture('wolf_armchair_front', 36, 24);
+    }
+    {
+        // Parquet laid as tumbling blocks, on the platform by the fire.
+        g.clear();
+        fillRect(0, 0, 32, 32, 0x7a5230);
+        g.fillStyle(0xa87848, 1);
+        g.fillTriangle(16, 0, 32, 8, 16, 16);
+        g.fillTriangle(16, 0, 0, 8, 16, 16);
+        g.fillStyle(0x6a4428, 1);
+        g.fillTriangle(0, 8, 16, 16, 0, 24);
+        g.fillTriangle(16, 16, 0, 24, 16, 32);
+        g.fillStyle(0x4f331c, 1);
+        g.fillTriangle(32, 8, 16, 16, 32, 24);
+        g.fillTriangle(16, 16, 32, 24, 16, 32);
+        g.generateTexture('parquet_cube', 32, 32);
+    }
+    {
+        // The stone fountain in the middle of the bar: two tiers, lions round the
+        // lower basin.
+        g.clear();
+        const ST = 0xe8e2d2, ST_SH = 0xbfb7a4, ST_DK = 0x958d7c;
+        g.fillStyle(ST, 1);
+        g.fillEllipse(40, 10, 34, 10); // top bowl
+        fillRect(25, 10, 30, 8, ST);
+        fillRect(46, 10, 9, 8, ST_SH);
+        for (let x = 27; x < 54; x += 4) fillRect(x, 12, 2, 5, ST_SH);
+        fillRect(34, 18, 12, 4, ST_SH); // neck
+        fillRect(36, 22, 8, 10, ST); // stem
+        fillRect(41, 22, 3, 10, ST_SH);
+        for (let y = 23; y < 32; y += 3) fillRect(36, y, 8, 1, ST_DK);
+        g.fillStyle(ST, 1);
+        g.fillEllipse(40, 36, 76, 14); // lower basin
+        fillRect(4, 36, 72, 16, ST);
+        fillRect(58, 36, 18, 16, ST_SH);
+        fillRect(4, 50, 72, 3, ST_DK);
+        for (let x = 8; x < 74; x += 6) fillRect(x, 40, 3, 8, ST_SH);
+        [[10, 44], [40, 46], [70, 44]].forEach(([lx, ly]) => { // lions
+            g.fillStyle(0xd8d0bc, 1);
+            g.fillCircle(lx, ly, 6);
+            g.fillStyle(ST_SH, 1);
+            g.fillCircle(lx, ly + 1, 4);
+            drawPixel(lx - 2, ly - 1, ST_DK);
+            drawPixel(lx + 2, ly - 1, ST_DK);
+            fillRect(lx - 1, ly + 2, 3, 1, ST_DK);
+        });
+        fillRect(32, 53, 16, 10, ST_SH); // pedestal
+        fillRect(28, 62, 24, 6, ST_DK);
+        g.generateTexture('lion_fountain', 80, 70);
+    }
+    {
+        // The front of the round bar: gold ribs curving towards you, a dark
+        // counter edge on top.
+        g.clear();
+        for (let x = 0; x < 260; x++) {
+            const t = (x - 130) / 130;
+            const sag = Math.round((1 - t * t) * 10);
+            const top = 8 + sag;
+            const bottom = 58 + sag;
+            const edge = Math.abs(t) > 0.85;
+            const colour = edge ? 0x8a6a2a : (x % 6 < 3 ? 0xd9b45a : 0xb08a38);
+            fillRect(x, top, 1, bottom - top, colour);
+            drawPixel(x, top, 0xf2d58a);
+            fillRect(x, top - 6, 1, 6, 0x2b2621);
+            drawPixel(x, top - 6, 0x5a534a);
+            fillRect(x, bottom, 1, 3, 0x3a2e1e);
+        }
+        g.generateTexture('circular_bar_front', 260, 72);
+    }
+    {
+        // A round glass display case on a gold pedestal.
+        g.clear();
+        g.fillStyle(0x8a6240, 1);
+        g.fillEllipse(18, 4, 32, 8);
+        fillRect(4, 4, 28, 40, 0x6a4a2e);
+        fillRect(7, 8, 22, 32, 0x2a3a3a); // glass
+        const DC = [0xc98a2e, 0x7a3b1e, 0xe8e0c8, 0x3f7a4a];
+        [[10, 16], [16, 14], [22, 16], [12, 30], [20, 30]].forEach(([x, y], i) => {
+            fillRect(x, y, 3, 8, DC[i % DC.length]);
+            fillRect(x + 1, y - 2, 1, 2, DC[i % DC.length]);
+        });
+        fillRect(7, 24, 22, 1, 0x8a6240);
+        g.fillStyle(0xffffff, 0.15);
+        g.fillRect(9, 8, 3, 32);
+        fillRect(4, 44, 28, 4, 0x8a6240);
+        fillRect(15, 48, 6, 14, 0xc9a86a); // pedestal
+        fillRect(16, 48, 2, 14, 0xf2d27a);
+        fillRect(8, 62, 20, 4, 0xb08a38);
+        fillRect(6, 66, 24, 4, 0x9c7020);
+        g.generateTexture('display_case_round', 36, 70);
+    }
 }

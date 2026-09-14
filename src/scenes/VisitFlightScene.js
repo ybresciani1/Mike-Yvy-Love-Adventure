@@ -107,9 +107,8 @@ export class VisitFlightScene extends Phaser.Scene {
 
         const lines = [
             "Mike flew back out to San Diego. This time, it was not for work.",
-            "Mike: 'Wheels up. I booked us somewhere for tonight.'",
-            "Yvy: 'Where?'",
-            "Mike: 'Wear something nice. Twelve floors up nice.'"
+            "Mike: 'Wheels up. See you tonight.'",
+            "Yvy: 'See you tonight.'"
         ];
         let i = 0;
         const next = () => {
@@ -117,7 +116,7 @@ export class VisitFlightScene extends Phaser.Scene {
                 this.tweens.add({ targets: phone, alpha: 0, duration: 400, onComplete: () => phone.destroy() });
                 this.tweens.add({
                     targets: this.plane, x: -140, duration: 2600, ease: 'Quad.easeIn',
-                    onComplete: () => this.scene.start('MisterAsScene')
+                    onComplete: () => this.scene.start('RaisedByWolvesScene')
                 });
                 return;
             }
