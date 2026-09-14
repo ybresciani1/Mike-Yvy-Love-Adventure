@@ -2117,91 +2117,116 @@ export function generateTextures(scene) {
     }
     g.generateTexture('plant_flowers', 32, 32);
     // --- MIKE'S DANCE POSES --------------------------------------------------
-    // Held-F dancing cycles these instead of flashing random tints. Same 32x32
-    // footprint and the same blue tee as 'mike', so only the limbs change.
-    const TEE = 0x3498db;
-    const TEE_SHADE = 0x2f86c4;
-    const JEANS = 0x34495e;
-    const JEANS_SHADE = 0x2c3e50;
-    const SHOE_L = 0xecf0f1;
-    const SHOE_R = 0xd5dbdb;
+    // Held-F dancing cycles these instead of flashing random tints. The same
+    // four moves are drawn in whatever he is wearing, so dancing never changes
+    // his clothes: the tee and jeans at the club, the suit or the henley later.
+    const drawMikeDances = (key, P) => {
+        // Held-F dancing cycles these instead of flashing random tints. Same 32x32
+        // footprint and the same blue tee as 'mike', so only the limbs change.
 
-    const danceHead = () => {
-        drawFace(5, { brow: HAIR_SHADE });
-        drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
-        fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+        const danceHead = () => {
+            drawFace(5, { brow: HAIR_SHADE });
+            drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+            fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+        };
+
+        // Arms swung across to the right, hips counter-swung left.
+        g.clear();
+        danceHead();
+        fillRect(9, 17, 12, 9, P.top);
+        fillRect(19, 17, 2, 9, P.topShade);
+        P.detail(15);
+        fillRect(21, 14, 6, 3, P.top); // lead arm out high
+        fillRect(26, 13, 3, 3, SKIN);
+        fillRect(11, 22, 10, 3, P.topShade); // trailing arm across the body
+        fillRect(7, 22, 4, 3, SKIN);
+        fillRect(9, 26, 12, 1, P.belt); // belt
+        fillRect(12, 27, 4, 4, P.pants);
+        fillRect(17, 27, 4, 4, P.pantsShade);
+        fillRect(11, 31, 5, 1, P.shoeL);
+        fillRect(17, 31, 5, 1, P.shoeR);
+        g.generateTexture(`${key}_1`, 32, 32);
+
+        // The mirror of it — the swing back the other way.
+        g.clear();
+        danceHead();
+        fillRect(11, 17, 12, 9, P.top);
+        fillRect(21, 17, 2, 9, P.topShade);
+        P.detail(17);
+        fillRect(5, 14, 6, 3, P.top); // lead arm out high, other side
+        fillRect(3, 13, 3, 3, SKIN);
+        fillRect(11, 22, 10, 3, P.topShade);
+        fillRect(21, 22, 4, 3, SKIN);
+        fillRect(11, 26, 12, 1, P.belt);
+        fillRect(12, 27, 4, 4, P.pants);
+        fillRect(17, 27, 4, 4, P.pantsShade);
+        fillRect(11, 31, 5, 1, P.shoeL);
+        fillRect(17, 31, 5, 1, P.shoeR);
+        g.generateTexture(`${key}_2`, 32, 32);
+
+        // One arm bent to the forehead, opposite leg kicked out.
+        // Arm bent over the brow in an L, opposite leg kicked out.
+        g.clear();
+        danceHead();
+        fillRect(10, 17, 12, 9, P.top);
+        fillRect(20, 17, 2, 9, P.topShade);
+        P.detail(16);
+        fillRect(22, 9, 3, 9, P.top); // upper arm straight up from the shoulder
+        fillRect(16, 6, 9, 3, P.top); // forearm folded back across the brow
+        fillRect(13, 6, 3, 3, SKIN); // hand resting on the forehead
+        fillRect(7, 18, 3, 7, P.top); // other arm hanging
+        fillRect(7, 25, 3, 3, SKIN);
+        fillRect(10, 26, 12, 1, P.belt);
+        fillRect(12, 27, 4, 5, P.pants); // planted leg
+        fillRect(16, 26, 6, 3, P.pantsShade); // thigh swinging out
+        fillRect(21, 24, 5, 3, P.pantsShade); // shin kicked up
+        fillRect(25, 23, 5, 2, P.shoeR);
+        fillRect(11, 31, 5, 1, P.shoeL);
+        g.generateTexture(`${key}_3`, 32, 32);
+
+        // Both arms up in a V, feet apart and off the floor.
+        g.clear();
+        danceHead();
+        fillRect(10, 17, 12, 9, P.top);
+        fillRect(20, 17, 2, 9, P.topShade);
+        P.detail(16);
+        fillRect(6, 9, 3, 9, P.top); // arms up and out
+        fillRect(4, 6, 3, 3, SKIN);
+        fillRect(23, 9, 3, 9, P.topShade);
+        fillRect(25, 6, 3, 3, SKIN);
+        fillRect(10, 26, 12, 1, P.belt);
+        fillRect(9, 27, 4, 3, P.pants); // legs apart, airborne
+        fillRect(19, 27, 4, 3, P.pantsShade);
+        fillRect(8, 30, 5, 1, P.shoeL);
+        fillRect(19, 30, 5, 1, P.shoeR);
+        g.generateTexture(`${key}_4`, 32, 32);
     };
-
-    // Arms swung across to the right, hips counter-swung left.
-    g.clear();
-    danceHead();
-    fillRect(9, 17, 12, 9, TEE);
-    fillRect(19, 17, 2, 9, TEE_SHADE);
-    fillRect(12, 17, 6, 2, 0x2980b9); // collar
-    fillRect(21, 14, 6, 3, TEE); // lead arm out high
-    fillRect(26, 13, 3, 3, SKIN);
-    fillRect(11, 22, 10, 3, TEE_SHADE); // trailing arm across the body
-    fillRect(7, 22, 4, 3, SKIN);
-    fillRect(9, 26, 12, 1, 0x2c2c2c); // belt
-    fillRect(12, 27, 4, 4, JEANS);
-    fillRect(17, 27, 4, 4, JEANS_SHADE);
-    fillRect(11, 31, 5, 1, SHOE_L);
-    fillRect(17, 31, 5, 1, SHOE_R);
-    g.generateTexture('mike_dance_1', 32, 32);
-
-    // The mirror of it — the swing back the other way.
-    g.clear();
-    danceHead();
-    fillRect(11, 17, 12, 9, TEE);
-    fillRect(21, 17, 2, 9, TEE_SHADE);
-    fillRect(14, 17, 6, 2, 0x2980b9);
-    fillRect(5, 14, 6, 3, TEE); // lead arm out high, other side
-    fillRect(3, 13, 3, 3, SKIN);
-    fillRect(11, 22, 10, 3, TEE_SHADE);
-    fillRect(21, 22, 4, 3, SKIN);
-    fillRect(11, 26, 12, 1, 0x2c2c2c);
-    fillRect(12, 27, 4, 4, JEANS);
-    fillRect(17, 27, 4, 4, JEANS_SHADE);
-    fillRect(11, 31, 5, 1, SHOE_L);
-    fillRect(17, 31, 5, 1, SHOE_R);
-    g.generateTexture('mike_dance_2', 32, 32);
-
-    // One arm bent to the forehead, opposite leg kicked out.
-    // Arm bent over the brow in an L, opposite leg kicked out.
-    g.clear();
-    danceHead();
-    fillRect(10, 17, 12, 9, TEE);
-    fillRect(20, 17, 2, 9, TEE_SHADE);
-    fillRect(13, 17, 6, 2, 0x2980b9);
-    fillRect(22, 9, 3, 9, TEE); // upper arm straight up from the shoulder
-    fillRect(16, 6, 9, 3, TEE); // forearm folded back across the brow
-    fillRect(13, 6, 3, 3, SKIN); // hand resting on the forehead
-    fillRect(7, 18, 3, 7, TEE); // other arm hanging
-    fillRect(7, 25, 3, 3, SKIN);
-    fillRect(10, 26, 12, 1, 0x2c2c2c);
-    fillRect(12, 27, 4, 5, JEANS); // planted leg
-    fillRect(16, 26, 6, 3, JEANS_SHADE); // thigh swinging out
-    fillRect(21, 24, 5, 3, JEANS_SHADE); // shin kicked up
-    fillRect(25, 23, 5, 2, SHOE_R);
-    fillRect(11, 31, 5, 1, SHOE_L);
-    g.generateTexture('mike_dance_3', 32, 32);
-
-    // Both arms up in a V, feet apart and off the floor.
-    g.clear();
-    danceHead();
-    fillRect(10, 17, 12, 9, TEE);
-    fillRect(20, 17, 2, 9, TEE_SHADE);
-    fillRect(13, 17, 6, 2, 0x2980b9);
-    fillRect(6, 9, 3, 9, TEE); // arms up and out
-    fillRect(4, 6, 3, 3, SKIN);
-    fillRect(23, 9, 3, 9, TEE_SHADE);
-    fillRect(25, 6, 3, 3, SKIN);
-    fillRect(10, 26, 12, 1, 0x2c2c2c);
-    fillRect(9, 27, 4, 3, JEANS); // legs apart, airborne
-    fillRect(19, 27, 4, 3, JEANS_SHADE);
-    fillRect(8, 30, 5, 1, SHOE_L);
-    fillRect(19, 30, 5, 1, SHOE_R);
-    g.generateTexture('mike_dance_4', 32, 32);
+    drawMikeDances('mike_dance', {
+        top: 0x3498db, topShade: 0x2f86c4, pants: 0x34495e, pantsShade: 0x2c3e50,
+        shoeL: 0xecf0f1, shoeR: 0xd5dbdb, belt: 0x2c2c2c,
+        detail: cx => fillRect(cx - 3, 17, 6, 2, 0x2980b9) // collar
+    });
+    drawMikeDances('mike_suit_dance', {
+        top: 0x2c3e50, topShade: 0x22303d, pants: 0x2c3e50, pantsShade: 0x22303d,
+        shoeL: 0x1b1b1b, shoeR: 0x121212, belt: 0x22303d,
+        detail: cx => {
+            fillRect(cx - 1, 17, 4, 9, 0xf4f6f7); // shirt placket
+            fillRect(cx, 18, 2, 7, 0xc0392b); // tie
+            fillRect(cx, 25, 2, 1, 0x96281b);
+            fillRect(cx - 2, 17, 1, 4, 0x22303d); // lapels
+            fillRect(cx + 3, 17, 1, 4, 0x1a242f);
+            drawPixel(cx - 3, 20, 0xf1c40f); // pocket square
+        }
+    });
+    drawMikeDances('mike_casual_dance', {
+        top: 0x95a5a6, topShade: 0x7f8c8d, pants: 0x1a237e, pantsShade: 0x151c66,
+        shoeL: 0xf5f5f5, shoeR: 0xdcdcdc, belt: 0x5d4037,
+        detail: cx => {
+            fillRect(cx, 17, 2, 4, 0x7f8c8d); // henley placket
+            drawPixel(cx, 18, 0xecf0f1);
+            drawPixel(cx, 20, 0xecf0f1);
+        }
+    });
 
     // --- CLUB FITTINGS -------------------------------------------------------
     // Lit glass dance-floor panel. Scenes tint these to chase colour on the beat.

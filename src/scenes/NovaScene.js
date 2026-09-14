@@ -7,7 +7,7 @@ import { Player } from '../entities/Player.js';
 import { takePhoto } from '../ui/scrapbook.js';
 import { actionLabel, isTouchMode, promptFontSize, showDanceButton } from '../ui/touch.js';
 
-const MIKE_DANCE = ['mike_dance_1', 'mike_dance_2', 'mike_dance_3', 'mike_dance_4'];
+const DANCE_STEPS = 4;
 const YVY_DANCE = ['yvy_black_dance_1', 'yvy_black_dance_2', 'yvy_black_dance_3', 'yvy_black_dance_4'];
 const PLUSH = [0xffffff, 0xffd6e6, 0xd6ecff, 0xfff0c2, 0xe0d6ff, 0xd6ffe6];
 
@@ -30,6 +30,9 @@ export class NovaScene extends Phaser.Scene {
         this.buildPit();
 
         this.outfit = this.game.registry.get('playerOutfit') || 'mike_suit';
+        // His dance moves in whatever he has on tonight. The club's frames are
+        // the tee and jeans, and dancing in them here changed his clothes.
+        this.danceSet = this.textures.exists(`${this.outfit}_dance_1`) ? `${this.outfit}_dance` : 'mike_dance';
         this.player = new Player(this, 400, 530);
         this.player.setTexture(this.outfit).setDepth(10);
         // A plain sprite she moves by hand; she gets tweened into the pit.
@@ -248,10 +251,10 @@ export class NovaScene extends Phaser.Scene {
             this.danceStep = -1;
             this.restTexture = { mike: this.player.texture.key, yvy: this.yvy.texture.key };
         }
-        const step = Math.floor(this.time.now / 170) % MIKE_DANCE.length;
+        const step = Math.floor(this.time.now / 170) % DANCE_STEPS;
         if (step !== this.danceStep) {
             this.danceStep = step;
-            this.player.setTexture(MIKE_DANCE[step]);
+            this.player.setTexture(`${this.danceSet}_${step + 1}`);
             this.yvy.setTexture(YVY_DANCE[(step + 2) % YVY_DANCE.length]);
             if (step === 0) this.noteFrom(this.player);
         }
