@@ -43,11 +43,14 @@ export class WolvesBarScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        this.barZone = this.add.rectangle(400, 400, 280, 50, 0xffff00, 0);
+        // The middle of the counter only: the drinkers on the stools either side
+        // have zones of their own, and two zones that overlap share a keypress.
+        this.barZone = this.add.rectangle(400, 400, 120, 50, 0xffff00, 0);
         this.physics.add.existing(this.barZone, true);
         this.physics.add.overlap(this.player, this.barZone, () => {
             if (this.ready && !this.ordered && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) this.order();
         });
+        this.buildPatrons();
 
         this.instructionText = this.add.text(20, 560, `Walk up to the round bar (${actionLabel()})`, {
             fontSize: promptFontSize('15px'), color: '#fff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
@@ -197,6 +200,128 @@ export class WolvesBarScene extends Phaser.Scene {
         this.add.image(470, 470, 'wolf_figure_glasses').setScale(0.8).setDepth(12);
     }
 
+    /**
+     * Everybody else's night, all of it with a drink in hand: two on stools at
+     * the round bar, a pair standing at its end, two tables down the right-hand
+     * side, and the people already in the lounges. Each group has one zone, and
+     * the zones are kept clear of each other and of the bar's, since two that
+     * overlap share one keypress: the pair at x 161-241, the stools at 265-319
+     * and 481-535 either side of the bar's 340-460 (wider apart than he is, so he
+     * can never touch two at once), the tables at 594-710, and
+     * the settees below their own blocks.
+     */
+    buildPatrons() {
+        this.patronZones = [];
+        let sippers = 0;
+
+        // Every so often a glass comes up to somebody's mouth, tips, and goes back.
+        const glass = (x, y, key, depth, towardMouth) => {
+            const g = this.add.image(x, y, key).setScale(0.5).setDepth(depth);
+            const i = sippers++;
+            this.time.addEvent({
+                delay: 2600 + (i * 530) % 1900, startAt: (i * 670) % 2400, loop: true,
+                callback: () => this.tweens.add({
+                    targets: g, x: x + towardMouth * 7, y: y - 9, angle: towardMouth * 35,
+                    duration: 260, hold: 450, yoyo: true, ease: 'Sine.easeOut'
+                })
+            });
+            return g;
+        };
+
+        const block = (x, y, w, h) => {
+            const b = this.add.rectangle(x, y, w, h, 0, 0);
+            this.physics.add.existing(b, true);
+            this.physics.add.collider(this.player, b);
+        };
+
+        // A whole conversation the first time, and one line after that.
+        const talk = (x, y, w, h, lines, again) => {
+            const z = this.add.rectangle(x, y, w, h, 0xffff00, 0);
+            this.physics.add.existing(z, true);
+            let told = false;
+            this.physics.add.overlap(this.player, z, () => {
+                if (!this.ready || this.ordered || this.player.isLocked) return;
+                if (!Phaser.Input.Keyboard.JustDown(this.spaceKey) || dialogueBusy()) return;
+                if (told) return showDialogue(again);
+                told = true;
+                this.narrate(lines, () => {});
+            });
+            this.patronZones.push(z);
+        };
+
+        // Somebody sitting, on a stool of their own unless it is one of the
+        // bar's. `hand` is the side the glass is on: -1 left, 1 right.
+        const sitter = (x, y, key, tint, flip, drink, { stool = true, depth = 10, hand = flip ? -1 : 1 } = {}) => {
+            if (stool) this.add.image(x, y + 20, 'leather_stool').setDepth(depth - 1);
+            this.add.sprite(x, y, key).setTint(tint).setFlipX(flip).setDepth(depth);
+            glass(x + hand * 10, y + 4, drink, depth + 2, -hand);
+        };
+
+        // At the round bar, on the two outside stools, turned to the room.
+        sitter(292, 379, 'civilian_f_sit', 0xd8c8e8, false, 'cocktail', { stool: false, depth: 9 });
+        sitter(508, 379, 'civilian_sit', 0xc8d8c0, true, 'beer', { stool: false, depth: 9 });
+        block(292, 396, 20, 14);
+        block(508, 396, 20, 14);
+        talk(292, 398, 54, 48, [
+            "Patron: 'I asked for something smoky. He set the glass on fire. On purpose.'",
+            "Patron: 'It was very good. My eyebrows are fine.'"
+        ], "Patron: 'Still a little warm.'");
+        talk(508, 398, 54, 48, [
+            "Patron: 'Third time here, and I still can't find the bathroom on the first try.'",
+            "Patron: 'It's behind a bookcase. Obviously.'"
+        ], "Patron: 'Left bookcase. No, the other left.'");
+
+        // Standing at the end of the bar, beside the stone wolf.
+        [[186, 'civilian_f', 0xe8d0c0, 'margarita', 1], [216, 'civilian', 0xc0c8e0, 'cocktail', -1]]
+            .forEach(([x, key, tint, drink, towardMouth]) => {
+                this.add.sprite(x, 392, key).setTint(tint).setFlipX(towardMouth < 0).setDepth(10);
+                glass(x - towardMouth * 9, 396, drink, 11, towardMouth);
+            });
+        block(201, 400, 48, 14);
+        talk(201, 402, 80, 48, [
+            "Patron: 'We came in through the liquor store like everybody else.'",
+            "Her friend: 'She tried to buy a bottle on the way through. The host was very kind about it.'"
+        ], "Patron: 'I still think I could have bought the bottle.'");
+
+        // Tables down the right-hand side: people on stools behind each one,
+        // with the marble top across their laps.
+        const table = (x, y, people, lines, again) => {
+            people.forEach(([dx, key, tint, drink, hand]) => sitter(x + dx, y, key, tint, dx > 0, drink, { hand }));
+            this.add.image(x, y + 18, 'drink_table').setDepth(11);
+            block(x, y + 8, 80, 40);
+            talk(x, y + 12, 116, 72, lines, again);
+        };
+        table(652, 404, [
+            [-14, 'civilian_sit', 0xd8c0b0, 'cocktail', 1],
+            [14, 'civilian_f_sit', 0xe0c8d8, 'margarita', -1]
+        ], [
+            "Patron: 'First date. The wall turned around right in the middle of my story.'",
+            "Date: 'It was a good story. The wall made it better.'"
+        ], "Date: 'Go get a drink, you two. We're fine.'");
+        table(652, 516, [
+            [-24, 'civilian_f_sit', 0xc8d8e8, 'margarita', -1],
+            [0, 'civilian_sit', 0xe8d8b8, 'beer', 1],
+            [24, 'civilian_f_sit', 0xd8b8c8, 'cocktail', 1]
+        ], [
+            "Patron: 'Get the horchata one. Trust me.'",
+            "Friend: 'Or anything that comes in the gold cup.'",
+            "Other friend: 'You don't get to keep the cup. He asked.'"
+        ], "Patron: 'Seriously. The horchata one.'");
+
+        // The lounges: the throne chairs and one on each settee have a glass too.
+        glass(246, 456, 'cocktail', 12, -1);
+        glass(554, 456, 'margarita', 12, 1);
+        glass(294, 514, 'beer', 12, -1);
+        glass(506, 514, 'cocktail', 12, 1);
+        talk(300, 550, 76, 30, [
+            "Patron: 'We're playing chess. Neither of us knows how.'",
+            "Patron: 'It just feels like the kind of room where you should.'"
+        ], "Patron: 'I think I'm winning. I took the horse.'");
+        talk(500, 550, 76, 30, [
+            "Patron: 'Don't look now, but the wolf in the glasses has been judging my order all night.'"
+        ], "Patron: 'He's still judging.'");
+    }
+
     /** Dialogue fired from a timer has to survive a box that is already open. */
     saySoon(text, next) {
         if (!showDialogue(text, next)) this.time.delayedCall(350, () => this.saySoon(text, next));
@@ -294,7 +419,8 @@ export class WolvesBarScene extends Phaser.Scene {
                 this.yvy.setFlipX(dx < 0);
             }
         }
-        const near = this.ready && !this.ordered && this.physics.overlap(this.player, this.barZone);
+        const near = this.ready && !this.ordered && !this.player.isLocked
+            && this.physics.overlap(this.player, [this.barZone, ...this.patronZones]);
         document.getElementById('interaction-hint').style.display = near ? 'block' : 'none';
     }
 }

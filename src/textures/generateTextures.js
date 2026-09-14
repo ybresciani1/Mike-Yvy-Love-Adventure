@@ -6926,6 +6926,27 @@ export function generateTextures(scene) {
         g.generateTexture('chess_table', 30, 34);
     }
     {
+        // A round drinks table: a marble top seen a little from above on a brass
+        // rim, and a dark wood pedestal down to a round foot.
+        g.clear();
+        g.fillStyle(0x9c7020, 1);
+        g.fillEllipse(20, 9, 40, 16);
+        g.fillStyle(0xe8e4dc, 1);
+        g.fillEllipse(20, 7, 36, 12);
+        g.fillStyle(0xf8f6f0, 1);
+        g.fillEllipse(15, 5, 14, 4); // shine
+        g.lineStyle(1, 0xc2bab0, 1);
+        g.lineBetween(7, 7, 16, 10); // veins in the marble
+        g.lineBetween(23, 4, 32, 8);
+        fillRect(17, 16, 6, 11, 0x3a2418);
+        fillRect(17, 16, 2, 11, 0x6a4a2e);
+        fillRect(16, 19, 8, 2, 0xc9a45a); // brass collar
+        g.fillStyle(0x2a1a10, 1);
+        g.fillEllipse(20, 28, 22, 6);
+        fillRect(12, 27, 16, 1, 0x5a3a22);
+        g.generateTexture('drink_table', 40, 32);
+    }
+    {
         // A table lamp with a fringed fabric shade.
         g.clear();
         g.fillStyle(0xf6e8c4, 1);
