@@ -7262,20 +7262,21 @@ export function generateTextures(scene) {
         g.generateTexture('chicha_morada', 12, 18);
     }
     {
-        // A red market umbrella over a patio table.
-        g.clear();
-        const RED = 0xd23a2a, RED_SH = 0xa82a1e;
-        g.fillStyle(RED, 1);
-        g.fillTriangle(36, 0, 0, 20, 72, 20);
-        fillRect(0, 18, 72, 4, RED);
-        g.fillStyle(RED_SH, 1);
-        for (let x = 0; x < 72; x += 9) g.fillTriangle(x, 22, x + 9, 22, x + 4, 26); // scalloped valance
-        g.lineStyle(1, RED_SH, 1);
-        [12, 24, 48, 60].forEach(x => g.lineBetween(36, 1, x, 21)); // ribs
-        fillRect(20, 19, 32, 2, 0xf2f2f2); // the lettering band
-        fillRect(35, 0, 2, 2, 0x3a3a3a); // finial
-        fillRect(35, 22, 2, 34, 0x8a8a8a); // pole
-        g.generateTexture('red_umbrella', 72, 56);
+        // Market umbrellas over the patio tables, in red and in green, on wooden poles.
+        [['red_umbrella', 0xd23a2a, 0xa82a1e], ['green_umbrella', 0x2e6e4a, 0x1e4e32]].forEach(([key, CANVAS, CANVAS_SH]) => {
+            g.clear();
+            g.fillStyle(CANVAS, 1);
+            g.fillTriangle(36, 0, 0, 20, 72, 20);
+            fillRect(0, 18, 72, 4, CANVAS);
+            g.fillStyle(CANVAS_SH, 1);
+            for (let x = 0; x < 72; x += 9) g.fillTriangle(x, 22, x + 9, 22, x + 4, 26); // scalloped valance
+            g.lineStyle(1, CANVAS_SH, 1);
+            [12, 24, 48, 60].forEach(x => g.lineBetween(36, 1, x, 21)); // ribs
+            fillRect(20, 19, 32, 2, 0xf2f2f2); // the lettering band
+            fillRect(35, 0, 2, 2, 0x3a3a3a); // finial
+            fillRect(35, 22, 2, 34, 0x9a6a3a); // pole
+            g.generateTexture(key, 72, 56);
+        });
 
         g.clear(); // a little square patio table, yellow wood on a black pedestal
         fillRect(0, 0, 36, 6, 0xe8c25a);
@@ -7381,6 +7382,84 @@ export function generateTextures(scene) {
             fillRect(19, y, 8, 1, 0xb0b0b0);
         }
         g.generateTexture('menu_board_stand', 34, 56);
+    }
+    {
+        // A round table under the pergola, its top tiled yellow, blue, red and green.
+        g.clear();
+        g.fillStyle(0x2a2a2e, 1);
+        g.fillEllipse(18, 6, 36, 12);
+        g.fillStyle(0xf2d23a, 1);
+        g.fillEllipse(18, 5, 34, 10);
+        [[6, 4, 0x3a7ad0], [12, 6, 0xd84a3a], [18, 3, 0x3aa05a], [24, 6, 0x3a7ad0], [29, 4, 0xd84a3a],
+         [15, 8, 0xf2f2e6], [21, 5, 0xe87a2a], [9, 7, 0xf2f2e6]].forEach(([x, y, c]) => fillRect(x, y, 3, 2, c));
+        fillRect(16, 11, 4, 15, 0x1e1e22); // pedestal
+        fillRect(8, 26, 20, 2, 0x1e1e22);
+        fillRect(5, 28, 26, 2, 0x141416);
+        g.generateTexture('mosaic_table', 36, 30);
+
+        g.clear(); // a black wrought-iron chair with a red cushion, side on
+        const IR = 0x1e1e22;
+        fillRect(2, 0, 2, 30, IR); // back leg
+        fillRect(2, 0, 7, 2, IR);
+        fillRect(7, 0, 2, 14, IR);
+        for (let y = 4; y < 14; y += 3) drawPixel(5, y, IR); // scrollwork
+        fillRect(3, 12, 15, 3, 0xc8283a); // cushion
+        fillRect(2, 15, 17, 2, IR); // seat
+        fillRect(16, 17, 2, 13, IR); // front leg
+        g.generateTexture('iron_chair', 20, 30);
+    }
+    {
+        // Bird of paradise: long blades of leaf and orange-and-blue flowers.
+        g.clear();
+        g.lineStyle(3, 0x4a8a4a, 1);
+        [[3, 4], [9, 2], [19, 3], [25, 8], [1, 14], [27, 18]].forEach(([x, y]) => g.lineBetween(14, 35, x, y));
+        g.lineStyle(1, 0x2e6a36, 1);
+        [[6, 10], [22, 12]].forEach(([x, y]) => g.lineBetween(14, 35, x, y));
+        [[8, 7], [19, 6]].forEach(([x, y]) => {
+            fillRect(x - 3, y, 4, 2, 0x2e6a36);
+            g.fillStyle(0xf28a1e, 1);
+            g.fillTriangle(x, y, x + 6, y - 4, x + 5, y + 1);
+            g.fillStyle(0x3a5ad0, 1);
+            g.fillTriangle(x + 2, y, x + 6, y - 1, x + 3, y + 2);
+        });
+        g.generateTexture('bird_of_paradise', 28, 36);
+
+        g.clear(); // a low green shrub in yellow flower
+        [[8, 18, 8], [20, 14, 11], [32, 18, 8], [14, 22, 7], [26, 22, 7]].forEach(([x, y, r], i) => {
+            g.fillStyle(i % 2 ? 0x3e7a2e : 0x4f9a3a, 1);
+            g.fillCircle(x, y, r);
+        });
+        for (let i = 0; i < 16; i++) fillRect(4 + (i * 13) % 32, 6 + (i * 7) % 18, 2, 2, i % 3 ? 0xf2d23a : 0xfae27a);
+        g.generateTexture('yellow_shrub', 40, 28);
+
+        g.clear(); // a succulent in a little terracotta pot
+        fillRect(3, 8, 8, 6, 0xb86a4a);
+        fillRect(2, 8, 10, 2, 0xc87a5a);
+        [[3, 4], [11, 4], [7, 1]].forEach(([x, y]) => fillRect(x - 1, y, 2, 3, 0x6a9a86));
+        g.fillStyle(0x7ab09a, 1);
+        g.fillCircle(7, 6, 4);
+        g.fillStyle(0x9ad0b8, 1);
+        g.fillCircle(7, 5, 2);
+        g.generateTexture('succulent_pot', 14, 14);
+    }
+    {
+        // Through the bar window: a chrome tap tower with four handles...
+        g.clear();
+        fillRect(2, 10, 28, 4, 0xc8ccd0);
+        fillRect(2, 10, 28, 1, 0xf2f2f2);
+        fillRect(14, 14, 4, 8, 0xa8acb0);
+        [[5, 0xd84a3a], [11, 0x2e6e4a], [19, 0xf2c94c], [25, 0x3a5ad0]].forEach(([x, c]) => {
+            fillRect(x, 0, 3, 10, c); // handle
+            fillRect(x + 1, 14, 1, 3, 0x8a8e92); // spout
+        });
+        g.generateTexture('tap_tower', 32, 22);
+
+        g.clear(); // ...and the blue lanterns on the ledge
+        fillRect(1, 2, 8, 11, 0x2a4ab8);
+        fillRect(3, 4, 4, 7, 0xfff0c0);
+        fillRect(0, 12, 10, 2, 0x1e3488);
+        fillRect(3, 0, 4, 2, 0x1e3488);
+        g.generateTexture('blue_lantern', 10, 14);
     }
     {
         // A table lamp with a fringed fabric shade.
