@@ -55,8 +55,8 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.zone(470, 414, 76, 60, () => this.stage === 'outside' && !this.met, () => this.meetYvy());
         this.zone(400, 356, 110, 34, () => this.stage === 'outside' && this.met, () => this.goInside());
         this.zone(300, 380, 96, 56, () => this.stage === 'inside', () => this.talkToHost());
-        this.zone(240, 262, 150, 40, () => this.stage === 'inside',
-            () => showDialogue("Bottles behind glass, lit like jewellery. Nobody seems to be buying any."));
+        this.buildOutsideTalk();
+        this.buildLookingAround();
         this.buildCrowd();
 
         this.instructionText = this.add.text(20, 560, `Meet Yvy (${actionLabel()})`, {
@@ -115,6 +115,28 @@ export class RaisedByWolvesScene extends Phaser.Scene {
     /** Dialogue fired from a timer has to survive a box that is already open. */
     saySoon(text, next) {
         if (!showDialogue(text, next)) this.time.delayedCall(350, () => this.saySoon(text, next));
+    }
+
+    /** A conversation the first time, and one line after that. */
+    chat(lines, again) {
+        let told = false;
+        return () => {
+            if (told) return showDialogue(again);
+            told = true;
+            this.narrate(lines, () => {});
+        };
+    }
+
+    /**
+     * A group of people sharing one zone, and whoever is nearest answers. Given
+     * a zone each they would sit closer together than he is wide, and two zones
+     * he can touch at once share one keypress.
+     */
+    crowdZone(x, y, w, h, when, people) {
+        const distance = p => Math.abs(p.sprite.x - this.player.x) + Math.abs(p.sprite.y - this.player.y);
+        this.zone(x, y, w, h, when, () => {
+            people.reduce((a, b) => (distance(a) <= distance(b) ? a : b)).talk();
+        });
     }
 
     narrate(lines, done) {
@@ -197,21 +219,89 @@ export class RaisedByWolvesScene extends Phaser.Scene {
         this.I(c, 50, 480, 'palm_tree', 0.9);
         this.I(c, 752, 486, 'palm_tree', 0.85).setFlipX(true);
 
+        // It is busy: a few people waiting to get in, happy to talk while they do.
+        this.queue = [
+            [252, 384, 'civilian_f', 0xe0c8d8, "Patron: 'We've been out here twenty minutes. Worth it, apparently.'", "Patron: 'Any minute now.'"],
+            [224, 392, 'civilian', 0xc8d8b8, "Patron: 'My cousin says it's a liquor store. My other cousin says it's a bar. They're both very sure.'", "Patron: 'I'm on the bar side.'"],
+            [196, 386, 'civilian', 0xd0d0e8, "Patron: 'The wolves out front are the only ones who don't have to wait.'", "Patron: 'Lucky wolves.'"],
+            [168, 392, 'civilian_f', 0xe8d8b8, "Patron: 'I'm mostly here for a picture with the statues. Don't tell my friends.'", "Patron: 'Okay, and maybe one drink.'"],
+            [566, 390, 'civilian', 0xc0b8d0, "Patron: 'She said dress nice. I said it's a liquor store. I lost that one.'", "Patron: 'She was right. Look at everybody.'"],
+            [594, 384, 'civilian_f', 0xd8e0e8, "Patron: 'The doors are wide open and they still make you wait. That's how you know it's good.'", "Patron: 'That's the rule.'"]
+        ].map(([x, y, key, tint, line, again], i) => {
+            const waiting = this.add.sprite(x, y, key).setTint(tint).setFlipX(i % 2 === 0);
+            c.add(waiting);
+            this.tweens.add({ targets: waiting, y: y - 2, duration: 1100 + i * 170, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            return { sprite: waiting, talk: this.chat([line], again) };
+        });
         // Shoppers going by.
-        // It is busy: a few people waiting to get in.
-        [[252, 384, 'civilian_f', 0xe0c8d8], [224, 392, 'civilian', 0xc8d8b8], [196, 386, 'civilian', 0xd0d0e8],
-         [168, 392, 'civilian_f', 0xe8d8b8], [566, 390, 'civilian', 0xc0b8d0], [594, 384, 'civilian_f', 0xd8e0e8]]
-            .forEach(([x, y, key, tint], i) => {
-                const waiting = this.add.sprite(x, y, key).setTint(tint).setFlipX(i % 2 === 0);
-                c.add(waiting);
-                this.tweens.add({ targets: waiting, y: y - 2, duration: 1100 + i * 170, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-            });
-        [[-40, 840, 578, 'civilian', 0xb8c8d8, 14000], [840, -40, 596, 'civilian_f', 0xd8c0b0, 17000]]
-            .forEach(([x0, x1, y, key, tint, duration]) => {
-                const shopper = this.add.sprite(x0, y, key).setTint(tint).setFlipX(x1 < x0);
-                c.add(shopper);
-                this.tweens.add({ targets: shopper, x: x1, duration, repeat: -1, delay: 1200 });
-            });
+        this.walkers = [
+            [-40, 840, 578, 'civilian', 0xb8c8d8, 14000, "Shopper: 'Every time I walk past there's a line. For a liquor store.'", "Shopper: 'Still a line.'"],
+            [840, -40, 596, 'civilian_f', 0xd8c0b0, 17000, "Shopper: 'Is that the place with the secret room? Nobody will tell me how you get in.'", "Shopper: 'Somebody knows.'"]
+        ].map(([x0, x1, y, key, tint, duration, line, again]) => {
+            const shopper = this.add.sprite(x0, y, key).setTint(tint).setFlipX(x1 < x0);
+            c.add(shopper);
+            this.tweens.add({ targets: shopper, x: x1, duration, repeat: -1, delay: 1200 });
+            return { sprite: shopper, talk: this.chat([line], again) };
+        });
+    }
+
+    /**
+     * Talking outside: the queue either side of the door and the two stone
+     * wolves on the step. Zones, all further apart than he is wide: the left of
+     * the queue at x 150-262, the wolves at 286-326 and 474-514 either side of
+     * the door's 345-455, the right of the queue at 545-615; the wolves' run
+     * y 343-365, clear of Yvy's from 384. The shoppers are moving, so update()
+     * finds them by distance instead.
+     */
+    buildOutsideTalk() {
+        const outside = () => this.stage === 'outside';
+        this.crowdZone(206, 396, 112, 48, outside, this.queue.slice(0, 4));
+        this.crowdZone(580, 396, 70, 48, outside, this.queue.slice(4));
+        this.zone(306, 354, 40, 22, outside, this.chat([
+            "A stone wolf sits on the step, chin up, watching the door like it's the one checking names.",
+            "Mike: 'Good boy.'"
+        ], "The wolf is still watching the door."));
+        this.zone(494, 354, 40, 22, outside, this.chat([
+            "Its twin sits on the other side of the door, mid-howl. Somebody has tucked a cocktail napkin under its paw.",
+            "Mike: 'Somebody's already had a good night.'"
+        ], "Still howling. Still holding the napkin."));
+    }
+
+    /**
+     * Looking round the shop before the host seats them: the counter, the
+     * bottles, the cases and the cabinets. Each zone sits in front of the thing
+     * it describes; the numbers that keep them clear of the crowd and the host
+     * are in buildCrowd.
+     */
+    buildLookingAround() {
+        const inside = () => this.stage === 'inside';
+        [
+            [140, 362, 184, 20, [
+                "Gold shelves of bottles behind a long oak counter, with a brass till and a rotary phone sat on top.",
+                "Mike: 'Nobody's behind the counter. I don't think anybody has ever been behind the counter.'"
+            ], "The till looks like it has never once been opened."],
+            [240, 262, 150, 40, [
+                "Bottles behind glass, lit like jewellery. Nobody seems to be buying any.",
+                "Yvy: 'Are they even allowed to open those?'"
+            ], "The bottles glow. Nobody buys one."],
+            [515, 270, 50, 40, [
+                "A glass case under the carved mirror: crystal decanters, each one with its own little lock.",
+                "Yvy: 'Who locks a decanter?'",
+                "Mike: 'Somebody who really likes that decanter.'"
+            ], "Locked. Every one of them."],
+            [507, 456, 140, 24, [
+                "Two carved wooden cabinets out on the floor, glass doors, the bottles stood in rows like books in a library.",
+                "Mike: 'Every one of these has a price tag, and I haven't seen anybody pick one up.'"
+            ], "Price tags on every bottle. Still nobody picks one up."],
+            [624, 470, 56, 20, [
+                "A round glass case with a single bottle inside, standing on its own under a little light.",
+                "Yvy: 'That one's not for drinking. That one's for looking at.'"
+            ], "One bottle, one light, and nobody touching it."],
+            [720, 462, 70, 24, [
+                "A tall wooden hutch stacked with amber bottles, and every stopper is a little gold wolf's head.",
+                "Yvy: 'I want one of those stoppers.'"
+            ], "Gold wolves on every stopper."]
+        ].forEach(([x, y, w, h, lines, again]) => this.zone(x, y, w, h, inside, this.chat(lines, again)));
     }
 
     // --- inside: the liquor store that isn't ----------------------------------
@@ -276,31 +366,40 @@ export class RaisedByWolvesScene extends Phaser.Scene {
     }
 
     /**
-     * It is busy - it always is. People browsing every bay, a couple waiting on
-     * the host, and a few who will tell you something if you ask. Their zones are
-     * kept clear of the host's and the cabinet's, since overlapping zones share
-     * one keypress.
+     * It is busy - it always is. People browsing every bay and a couple waiting
+     * on the host, and every one of them will talk. They stand in twos and
+     * threes, so each group shares a zone and the nearest answers.
+     *
+     * Every zone inside, kept further apart than he is wide wherever two could
+     * be reached at once, since overlapping zones share one keypress:
+     *   crowd   x 48-138 y 255-305 · x 85-195 y 400-440 · x 385-465 y 257-307
+     *           x 184-254 y 445-495 · x 458-608 y 542-582 · x 741-791 y 375-425
+     *           x 61-151 y 519-569 · x 665-715 y 556-592
+     *   looking the counter x 48-232 y 352-372 · the bottle wall x 165-315 y 242-282
+     *           the glass case x 490-540 y 250-290 · the cabinets x 437-577 y 444-468
+     *           the round case x 596-652 y 460-480 · the hutch x 685-755 y 450-474
+     *   host    x 252-348 y 352-408
      */
     buildCrowd() {
         const c = this.inside;
         const TINTS = [0xb8c8d8, 0xd8c0b0, 0xc8d8b8, 0xe0c8d8, 0xd0d0e8, 0xe8d8b8, 0xc0b8d0, 0xd8e0e8];
-        [
-            [62, 262, 'civilian_f', false, "Patron: 'We've been in here twenty minutes and I still don't know if it's a bar.'"],
-            [124, 268, 'civilian', true],
-            [110, 396, 'civilian', false],
-            [170, 400, 'civilian_f', true, "Patron: 'The host said forty-five minutes. For a liquor store.'"],
-            [404, 262, 'civilian', false],
-            [462, 258, 'civilian_f', true],
-            [206, 452, 'civilian_f', false],
-            [232, 458, 'civilian', true],
-            [470, 548, 'civilian_f', false, "Patron: 'My friend swears there's a secret room in here. She won't tell me where.'"],
-            [520, 552, 'civilian', true],
-            [596, 556, 'civilian', false],
-            [766, 384, 'civilian_f', true, "Patron: 'Don't sit in those armchairs unless someone tells you to. Trust me.'"],
-            [80, 520, 'civilian', false],
-            [132, 536, 'civilian_f', true],
-            [690, 560, 'civilian_f', false]
-        ].forEach(([x, y, key, flip, line], i) => {
+        const people = [
+            [62, 262, 'civilian_f', false, "Patron: 'We've been in here twenty minutes and I still don't know if it's a bar.'", "Patron: 'Still don't know.'"],
+            [124, 268, 'civilian', true, "Patron: 'I asked the man at the till how much the whisky was. He just smiled at me.'", "Patron: 'He's still smiling.'"],
+            [110, 396, 'civilian', false, "Patron: 'The phone on the counter rang once. The whole room went quiet.'", "Patron: 'It hasn't rung again.'"],
+            [170, 400, 'civilian_f', true, "Patron: 'The host said forty-five minutes. For a liquor store.'", "Patron: 'Forty minutes now.'"],
+            [404, 262, 'civilian', false, "Patron: 'That mirror has a wolf on it. Everything in here has a wolf on it.'", "Patron: 'I've counted eleven.'"],
+            [462, 258, 'civilian_f', true, "Patron: 'I've been looking at this case for ten minutes. I don't think any of it is for sale.'", "Patron: 'Nope. Not for sale.'"],
+            [206, 452, 'civilian_f', false, "Patron: 'The floor's so shiny you can see yourself in it. I've checked my hair twice.'", "Patron: 'Three times.'"],
+            [232, 458, 'civilian', true, "Patron: 'She wants to buy a bottle. I keep telling her that's not the point.'", "Patron: 'She's looking at bottles again.'"],
+            [470, 548, 'civilian_f', false, "Patron: 'My friend swears there's a secret room in here. She won't tell me where.'", "Patron: 'She's still not telling.'"],
+            [520, 552, 'civilian', true, "Patron: 'See the people by the fireplace? They're sitting like they're waiting for something to happen.'", "Patron: 'Still waiting. Weird.'"],
+            [596, 556, 'civilian', false, "Patron: 'Every label in here has a wolf on it. I'm starting to see a theme.'", "Patron: 'Definitely a theme.'"],
+            [766, 384, 'civilian_f', true, "Patron: 'Don't sit in those armchairs unless someone tells you to. Trust me.'", "Patron: 'Trust me.'"],
+            [80, 520, 'civilian', false, "Patron: 'We're on the list. We're just enjoying the shop part first.'", "Patron: 'It's a very nice shop.'"],
+            [132, 536, 'civilian_f', true, "Patron: 'I love the painted hills on the walls. It's like a very fancy picnic.'", "Patron: 'A very fancy picnic.'"],
+            [690, 560, 'civilian_f', false, "Patron: 'Those bottles on the hutch have gold wolf heads for stoppers. I want one for my shelf.'", "Patron: 'Just the stopper. Just one.'"]
+        ].map(([x, y, key, flip, line, again], i) => {
             const person = this.add.sprite(x, y, key).setTint(TINTS[i % TINTS.length]).setFlipX(flip);
             c.add(person);
             this.tweens.add({
@@ -311,8 +410,19 @@ export class RaisedByWolvesScene extends Phaser.Scene {
             if (i % 3 === 0) {
                 this.time.addEvent({ delay: 2200 + i * 190, loop: true, callback: () => person.setFlipX(!person.flipX) });
             }
-            if (line) this.zone(x, y + 14, 46, 44, () => this.stage === 'inside', () => showDialogue(line));
+            return { sprite: person, talk: this.chat([line], again) };
         });
+        const inside = () => this.stage === 'inside';
+        [
+            [93, 280, 90, 50, [0, 1]],
+            [140, 420, 110, 40, [2, 3]],
+            [425, 282, 80, 50, [4, 5]],
+            [219, 470, 70, 50, [6, 7]],
+            [533, 562, 150, 40, [8, 9, 10]],
+            [766, 400, 50, 50, [11]],
+            [106, 544, 90, 50, [12, 13]],
+            [690, 574, 50, 36, [14]]
+        ].forEach(([x, y, w, h, who]) => this.crowdZone(x, y, w, h, inside, who.map(i => people[i])));
     }
 
     /**
@@ -398,7 +508,7 @@ export class RaisedByWolvesScene extends Phaser.Scene {
             ], () => {
                 this.busy = false;
                 this.player.isLocked = false;
-                this.instructionText.setText(`Talk to the host (${actionLabel()})`);
+                this.instructionText.setText(`Look around, or talk to the host (${actionLabel()})`);
             });
         });
     }
@@ -482,6 +592,12 @@ export class RaisedByWolvesScene extends Phaser.Scene {
             }
         }
         const near = !this.busy && this.zones.some(({ z, when }) => when() && this.physics.overlap(this.player, z));
-        document.getElementById('interaction-hint').style.display = near ? 'block' : 'none';
+        // The shoppers crossing the walkway are moving targets, so they are
+        // caught by distance rather than a zone. Scene update runs before the
+        // physics step, so this only claims the keypress when no zone wants it.
+        const walker = !near && !this.busy && this.stage === 'outside' && this.walkers.find(w =>
+            Phaser.Math.Distance.Between(this.player.x, this.player.y, w.sprite.x, w.sprite.y) < 36);
+        if (walker && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) walker.talk();
+        document.getElementById('interaction-hint').style.display = (near || walker) ? 'block' : 'none';
     }
 }
