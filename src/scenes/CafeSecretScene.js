@@ -518,7 +518,7 @@ export class CafeSecretScene extends Phaser.Scene {
             this.cameras.main.fadeOut(1200, 0, 0, 0);
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 stopMusic();
-                this.scene.start('MisterAsScene');
+                this.scene.start('TorreyPinesScene');
             });
         }));
     }

@@ -18,6 +18,7 @@ import { RaisedByWolvesScene } from './RaisedByWolvesScene.js';
 import { WolvesBarScene } from './WolvesBarScene.js';
 import { FlowerFieldsScene } from './FlowerFieldsScene.js';
 import { CafeSecretScene } from './CafeSecretScene.js';
+import { TorreyPinesScene } from './TorreyPinesScene.js';
 import { MisterAsScene } from './MisterAsScene.js';
 import { NovaScene } from './NovaScene.js';
 import { DowntownScene } from './DowntownScene.js';
@@ -59,6 +60,7 @@ export const SCENES = [
     WolvesBarScene,
     FlowerFieldsScene,
     CafeSecretScene,
+    TorreyPinesScene,
     MisterAsScene,
     NovaScene,
     DowntownScene,

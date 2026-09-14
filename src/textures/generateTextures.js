@@ -7461,6 +7461,172 @@ export function generateTextures(scene) {
         fillRect(3, 0, 4, 2, 0x1e3488);
         g.generateTexture('blue_lantern', 10, 14);
     }
+
+    // --- TORREY PINES ------------------------------------------------------------------
+    {
+        // Yvy on the hike: a black sweatshirt, black leggings, and her hair pulled
+        // back into a braided ponytail that falls over one shoulder.
+        const SW = 0x1e1e22, SW_SH = 0x121214, SW_HI = 0x3a3a40;
+        g.clear();
+        drawYvyFace(5);
+        fillRect(9, 1, 14, 4, YVY_HAIR); // pulled back off her face
+        fillRect(8, 3, 2, 6, YVY_HAIR);
+        fillRect(22, 3, 2, 5, YVY_HAIR);
+        fillRect(10, 2, 6, 1, YVY_HAIR_HI);
+        fillRect(9, 4, 14, 1, YVY_HAIR_SHADE);
+        fillRect(10, 5, 3, 1, YVY_HAIR); // a wisp at the temple
+        fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+        fillRect(10, 17, 12, 9, SW); // sweatshirt
+        fillRect(20, 17, 2, 9, SW_SH);
+        fillRect(11, 18, 1, 5, SW_HI);
+        fillRect(12, 17, 8, 1, SW_HI); // ribbed collar
+        fillRect(10, 25, 12, 1, SW_SH); // ribbed hem
+        fillRect(7, 17, 3, 7, SW); // sleeves
+        fillRect(22, 17, 3, 7, SW_SH);
+        fillRect(7, 23, 3, 1, SW_HI);
+        fillRect(22, 23, 3, 1, SW_HI);
+        fillRect(7, 24, 3, 2, SKIN);
+        fillRect(22, 24, 3, 2, SKIN_SHADE);
+        for (let y = 8; y < 26; y += 2) { // the braid, over her shoulder
+            fillRect(22, y, 3, 1, YVY_HAIR);
+            fillRect(23, y + 1, 2, 1, YVY_HAIR_HI);
+            drawPixel(22, y + 1, YVY_HAIR_SHADE);
+        }
+        fillRect(22, 26, 3, 1, 0xe91e63); // hair tie
+        fillRect(23, 27, 1, 2, YVY_HAIR);
+        fillRect(11, 26, 4, 4, 0x18181c); // leggings
+        fillRect(17, 26, 4, 4, 0x0e0e10);
+        fillRect(10, 30, 5, 2, 0xf2f2f2); // trainers
+        fillRect(17, 30, 5, 2, 0xdcdcdc);
+        fillRect(10, 31, 5, 1, 0x9a9a9a);
+        fillRect(17, 31, 5, 1, 0x8a8a8a);
+        g.generateTexture('yvy_hike', 32, 32);
+
+        // Mike on the hike: a gray tank top and shorts.
+        const GT = 0x9aa0a8, GT_SH = 0x7a8088, SH = 0x2e3440, SH_SH = 0x20252e;
+        g.clear();
+        drawMikeFace(5);
+        drawMikeHair();
+        fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
+        fillRect(10, 17, 12, 9, GT);
+        fillRect(20, 17, 2, 9, GT_SH);
+        fillRect(13, 17, 6, 2, SKIN); // scoop neck
+        fillRect(11, 17, 2, 1, GT_SH); // straps
+        fillRect(19, 17, 2, 1, GT_SH);
+        fillRect(7, 17, 3, 9, SKIN); // bare arms
+        fillRect(22, 17, 3, 9, SKIN_SHADE);
+        fillRect(7, 17, 3, 1, SKIN_SHADE);
+        fillRect(10, 26, 12, 3, SH); // shorts
+        fillRect(16, 26, 6, 3, SH_SH);
+        fillRect(15, 27, 1, 2, SH_SH);
+        fillRect(11, 29, 4, 2, SKIN); // legs
+        fillRect(17, 29, 4, 2, SKIN_SHADE);
+        fillRect(10, 31, 5, 1, 0x3a3a3a); // trail shoes
+        fillRect(17, 31, 5, 1, 0x2a2a2a);
+        g.generateTexture('mike_hike', 32, 32);
+
+        g.clear(); // a water bottle
+        fillRect(1, 3, 4, 11, 0x5ab0e0);
+        fillRect(1, 3, 4, 1, 0x8ad0f0);
+        fillRect(2, 0, 2, 3, 0x2a2a2e);
+        g.generateTexture('water_bottle', 6, 14);
+    }
+    {
+        // A Torrey pine: a twisted, windswept trunk and clumps of long needles.
+        g.clear();
+        g.lineStyle(7, 0x5a4230, 1);
+        g.lineBetween(38, 96, 32, 62);
+        g.lineBetween(32, 62, 40, 34);
+        g.lineStyle(4, 0x6a4e38, 1);
+        g.lineBetween(32, 62, 12, 44);
+        g.lineBetween(40, 34, 60, 22);
+        g.lineBetween(38, 46, 62, 48);
+        g.lineBetween(36, 40, 20, 18);
+        g.lineStyle(1, 0x8a7458, 1);
+        g.lineBetween(36, 94, 31, 64); // light on the bark
+        [[12, 40, 12], [22, 16, 11], [42, 26, 13], [60, 20, 12], [62, 46, 11], [30, 30, 9]].forEach(([x, y, r]) => {
+            g.fillStyle(0x2e5a3a, 1);
+            g.fillCircle(x, y, r);
+            g.fillStyle(0x4a7a4a, 1);
+            g.fillCircle(x - 2, y - 3, r * 0.55);
+        });
+        g.generateTexture('torrey_pine', 72, 96);
+
+        g.clear(); // coastal sage scrub, grey-green with a little yellow
+        [[8, 16, 8], [18, 12, 10], [30, 15, 9], [24, 19, 6], [12, 20, 6]].forEach(([x, y, r], i) => {
+            g.fillStyle([0x6a8a5a, 0x7a9a6a, 0x5a7a4e][i % 3], 1);
+            g.fillCircle(x, y, r);
+        });
+        for (let i = 0; i < 10; i++) drawPixel(4 + (i * 11) % 32, 6 + (i * 7) % 14, i % 2 ? 0xd8c870 : 0xa8b898);
+        g.generateTexture('sage_bush', 40, 24);
+
+        g.clear(); // eroded sandstone: a rounded ridge, fluted by the rain
+        g.fillStyle(0xd8b888, 1);
+        g.fillPoints([{ x: 0, y: 70 }, { x: 6, y: 42 }, { x: 16, y: 30 }, { x: 28, y: 32 }, { x: 38, y: 16 }, { x: 52, y: 12 },
+            { x: 64, y: 24 }, { x: 78, y: 18 }, { x: 92, y: 28 }, { x: 104, y: 38 }, { x: 114, y: 50 }, { x: 120, y: 70 }], true);
+        g.fillStyle(0xe8cca0, 1); // the sunlit tops
+        g.fillPoints([{ x: 16, y: 30 }, { x: 28, y: 32 }, { x: 38, y: 16 }, { x: 52, y: 12 }, { x: 64, y: 24 }, { x: 78, y: 18 },
+            { x: 92, y: 28 }, { x: 90, y: 34 }, { x: 76, y: 26 }, { x: 64, y: 32 }, { x: 50, y: 20 }, { x: 40, y: 24 },
+            { x: 28, y: 38 }, { x: 18, y: 36 }], true);
+        g.fillStyle(0xc49a6a, 1); // shadowed gullies
+        [[22, 30, 40], [46, 52, 30], [70, 76, 34], [96, 100, 44]].forEach(([x0, x1, y1]) => g.fillTriangle(x0 - 7, 70, x1, y1, x0 + 7, 70));
+        g.lineStyle(1, 0xa87c52, 1);
+        for (let x = 10; x < 112; x += 7) g.lineBetween(x, 70, x + ((x % 3) - 1) * 2, 46 + (x % 11));
+        fillRect(3, 60, 114, 2, 0xc8a070); // a harder layer in the rock
+        g.generateTexture('sandstone_bluff', 120, 70);
+    }
+    {
+        // The trail furniture: a carved wooden sign and a post-and-rail fence.
+        g.clear();
+        fillRect(4, 14, 4, 26, 0x5a4230);
+        fillRect(28, 14, 4, 26, 0x5a4230);
+        fillRect(0, 2, 36, 16, 0x7a5a3a);
+        fillRect(1, 3, 34, 14, 0x8a6a48);
+        fillRect(0, 2, 36, 1, 0xa88a68);
+        g.generateTexture('trail_sign', 36, 40);
+
+        g.clear();
+        fillRect(2, 2, 4, 18, 0x6a5038);
+        fillRect(2, 2, 4, 1, 0x8a7058);
+        fillRect(0, 6, 32, 3, 0x7a5a40);
+        fillRect(0, 13, 32, 2, 0x6a4a34);
+        g.generateTexture('post_fence', 32, 20);
+    }
+    {
+        // Down on the beach: Flat Rock with its tide pools, a gull, a surfboard, a towel.
+        g.clear();
+        g.fillStyle(0x5a5048, 1);
+        g.fillEllipse(55, 32, 110, 30);
+        g.fillStyle(0x6e6258, 1);
+        g.fillEllipse(52, 26, 96, 20);
+        fillRect(20, 12, 70, 16, 0x6e6258);
+        g.fillStyle(0x7e7266, 1);
+        g.fillEllipse(55, 14, 72, 12);
+        g.fillStyle(0x4a7a8a, 1);
+        g.fillEllipse(34, 28, 16, 5); // tide pools
+        g.fillEllipse(72, 30, 12, 4);
+        [[24, 20], [48, 16], [80, 22], [60, 34]].forEach(([x, y]) => drawPixel(x, y, 0xd8d0c0)); // barnacles
+        fillRect(10, 42, 90, 3, 0x3e3830);
+        g.generateTexture('flat_rock', 110, 50);
+
+        g.clear();
+        fillRect(5, 4, 7, 3, 0xf2f2f2);
+        fillRect(0, 2, 6, 2, 0x9aa0a8);
+        fillRect(10, 2, 6, 2, 0x9aa0a8);
+        fillRect(11, 5, 2, 1, 0xf2c84a);
+        drawPixel(8, 4, 0x2a2a2a);
+        g.generateTexture('seagull', 16, 10);
+
+        g.clear();
+        g.fillStyle(0xf2f2e6, 1);
+        g.fillEllipse(6, 20, 12, 40);
+        fillRect(5, 2, 2, 36, 0x3a8ab8);
+        g.generateTexture('surfboard', 12, 40);
+
+        g.clear();
+        [0xe84a5a, 0xf2f2e6, 0x3a8ab8, 0xf2f2e6, 0xf2c84a].forEach((c, i) => fillRect(i * 8, 0, 8, 20, c));
+        g.generateTexture('beach_towel', 40, 20);
+    }
     {
         // A table lamp with a fringed fabric shade.
         g.clear();
