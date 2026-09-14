@@ -39,19 +39,28 @@ export function stopMusic() {
 export function fadeOutMusic(duration) {
     currentTheme = null;
     const now = audioCtx().currentTime;
-    currentMusicNodes.forEach(node => {
+    const fading = currentMusicNodes;
+    fading.forEach(node => {
+        // The melodies schedule each note on a timer and add it to the list as
+        // it plays, so the timers have to stop now. Left until the fade ends,
+        // the note after this call is not in `fading` and the tune plays on at
+        // full volume into whatever scene comes next.
+        if (node.stop) node.stop();
         if (node.gain && node.gain.gain) {
             node.gain.gain.cancelScheduledValues(now);
             node.gain.gain.setValueAtTime(node.gain.gain.value, now);
             node.gain.gain.linearRampToValueAtTime(0, now + duration);
         }
-        setTimeout(() => {
-            if(node.stop) node.stop();
+    });
+    setTimeout(() => {
+        fading.forEach(node => {
             if(node.osc) try { node.osc.stop(); } catch(e){}
             if(node.gain) try { node.gain.disconnect(); } catch(e){}
-        }, duration * 1000);
-    });
-    setTimeout(() => { currentMusicNodes = []; }, duration * 1000);
+        });
+        // Only what was fading: a theme started during the fade owns the rest,
+        // and has to stay in the list for stopMusic to find.
+        currentMusicNodes = currentMusicNodes.filter(node => !fading.includes(node));
+    }, duration * 1000);
 }
 
 export function playAirportTheme() {

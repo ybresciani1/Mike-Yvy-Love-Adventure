@@ -184,7 +184,10 @@ export class ClubScene extends Phaser.Scene {
             if (gameState.clubProgress === 3 && !this.danceTimer3) { 
                 this.danceTimer3 = this.time.delayedCall(2000, () => { 
                     this.player.isLocked = true; 
-                    showDialogue("Mike: 'I'm getting hungry...'", () => { 
+                    // Scheduled, so it retries: a marine's or the DJ's line
+                    // opened in the last two seconds would otherwise swallow
+                    // it and leave him locked with nothing left to trigger.
+                    this.saySoon("Mike: 'I'm getting hungry...'", () => {
                         showDialogue("Yvy: 'Me too. Let's go get pizza.'", () => { 
                             showDialogue("Mike: 'You know what?! We should get matching *hic* Eevee tattoos!'", () => {
                                 showDialogue("Yvy: 'HMMM, maybe after getting food *giggles*'", () => {
@@ -213,6 +216,11 @@ export class ClubScene extends Phaser.Scene {
         } 
         const touching = this.physics.overlap(this.player, [this.yvy, this.barZone, this.djZone]) || this.physics.overlap(this.player, this.marines); document.getElementById('interaction-hint').style.display = touching ? 'block' : 'none'; 
     } 
+    /** Dialogue fired from a timer has to survive a box that is already open. */
+    saySoon(text, next) {
+        if (!showDialogue(text, next)) this.time.delayedCall(350, () => this.saySoon(text, next));
+    }
+
     /** Step Mike through the dance poses while F is held. */
     danceFrame() {
         if (!this.isDancing) {
@@ -275,8 +283,10 @@ export class ClubScene extends Phaser.Scene {
                         this.instructionText.setText("Dancing..."); 
                         this.time.addEvent({ delay: 100, repeat: 20, callback: () => { this.player.y += (Math.random()-0.5)*8; this.yvy.y += (Math.random()-0.5)*8; } }); 
                         this.time.delayedCall(2500, () => { 
-                            this.player.isLocked = false; 
-                            showDialogue("Yvy: 'Haha yes! I actually cosplay too.'", () => { 
+                            this.player.isLocked = false;
+                            // Retries for the same reason as the dance-again
+                            // line: a box opened meanwhile would strand isInteracting.
+                            this.saySoon("Yvy: 'Haha yes! I actually cosplay too.'", () => {
                                 showDialogue("Mike: 'Really? Me too. Let me see photos.'", () => {
                                     const phone = this.add.sprite(this.yvy.x + 14, this.yvy.y - 6, 'phone_cam').setDepth(9);
                                     const glow = this.add.rectangle(phone.x, phone.y - 2, 10, 12, 0xbfe9ff, 0.5).setDepth(10);

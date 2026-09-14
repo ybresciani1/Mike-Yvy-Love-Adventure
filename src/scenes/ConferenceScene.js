@@ -88,6 +88,9 @@ export class ConferenceScene extends Phaser.Scene {
         }));
     } 
     startTextingSequence() {
+        // Held still until the ride: a fourth demo started while he waits for
+        // her reply would run this whole sequence a second time.
+        this.player.isLocked = true;
         takePhoto({
             key: 'expo', title: 'The show floor',
             caption: "Three demos, three yeses, and one text he could not wait to send.",
@@ -101,6 +104,10 @@ export class ConferenceScene extends Phaser.Scene {
                 { texture: 'civilian_f', x: 22, y: 16 }
             ]
         });
-        showDialogue("Mike: 'That went great! I should text Yvy.'", () => { playSound('msg_sent'); showDialogue("Mike sent: 'Demo went great! Dinner tonight?'", () => { this.time.delayedCall(1500, () => { playSound('msg_sent'); showDialogue("Yvy replied: 'YES OFC! ❤️'", () => { stopMusic(); this.scene.start('UberScene'); }); }); }); }); } 
+        showDialogue("Mike: 'That went great! I should text Yvy.'", () => { playSound('msg_sent'); showDialogue("Mike sent: 'Demo went great! Dinner tonight?'", () => { this.time.delayedCall(1500, () => { playSound('msg_sent'); this.saySoon("Yvy replied: 'YES OFC! ❤️'", () => { stopMusic(); this.scene.start('UberScene'); }); }); }); }); }
+    /** Dialogue fired from a timer has to survive a box that is already open. */
+    saySoon(text, next) {
+        if (!showDialogue(text, next)) this.time.delayedCall(350, () => this.saySoon(text, next));
+    }
     update() { this.player.update(this.cursors); if (gameState.hasVR) { this.heldVR.x = this.player.x + 10; this.heldVR.y = this.player.y; } document.getElementById('interaction-hint').style.display = ((!gameState.hasVR && this.physics.overlap(this.player, this.vrHeadset)) || (gameState.hasVR && this.physics.overlap(this.player, this.attendees)) || this.physics.overlap(this.player, [this.booth1Zone, this.booth2Zone, ...this.boothZones])) ? 'block' : 'none'; } 
 }

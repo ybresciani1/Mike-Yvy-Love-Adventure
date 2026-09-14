@@ -86,4 +86,34 @@ describe('music themes', () => {
         music.playRomanticTheme();
         expect(() => music.fadeOutMusic(0.5)).not.toThrow();
     });
+
+    it('fadeOutMusic stops a melody scheduling any more notes', () => {
+        vi.useFakeTimers();
+        try {
+            music.playLeFestinTheme();
+            vi.advanceTimersByTime(1000);
+            music.fadeOutMusic(2);
+            const faded = created.oscillators.length;
+            vi.advanceTimersByTime(8000);
+            expect(created.oscillators).toHaveLength(faded);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('a theme started during a fade can still be stopped', () => {
+        vi.useFakeTimers();
+        try {
+            music.playLeFestinTheme();
+            music.fadeOutMusic(2);
+            music.playAirportTheme();
+            vi.advanceTimersByTime(2500); // the fade finishes under the new theme
+            music.stopMusic();
+            const stopped = created.oscillators.length;
+            vi.advanceTimersByTime(8000);
+            expect(created.oscillators).toHaveLength(stopped);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 });
