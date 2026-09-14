@@ -7628,6 +7628,53 @@ export function generateTextures(scene) {
         g.generateTexture('beach_towel', 40, 20);
     }
     {
+        // The old lodge on the mesa, now the visitor center: pueblo-style adobe
+        // with soft corners, a stepped roof, and the ends of the roof beams poking out.
+        g.clear();
+        const AD = 0xd8b48a, AD_SH = 0xc09a70, AD_HI = 0xe8c8a0, VIGA = 0x6a4a30;
+        g.fillStyle(AD, 1);
+        g.fillRoundedRect(0, 30, 140, 50, 6); // lower block
+        g.fillRoundedRect(34, 6, 72, 30, 6); // upper block
+        fillRect(0, 30, 140, 3, AD_HI);
+        fillRect(34, 6, 72, 3, AD_HI);
+        fillRect(124, 33, 16, 44, AD_SH);
+        fillRect(94, 9, 12, 24, AD_SH);
+        for (let x = 6; x < 136; x += 12) fillRect(x, 36, 4, 3, VIGA); // vigas
+        for (let x = 40; x < 104; x += 12) fillRect(x, 12, 4, 3, VIGA);
+        [[16, 48], [44, 48], [96, 48], [52, 18], [80, 18]].forEach(([x, y]) => {
+            fillRect(x, y, 14, 14, 0x5a4230);
+            fillRect(x + 2, y + 2, 10, 10, 0x3a4a58);
+            fillRect(x + 2, y + 2, 10, 2, 0x5a6a78);
+        });
+        fillRect(66, 52, 14, 28, 0x5a3a24); // door
+        fillRect(68, 54, 10, 26, 0x7a5232);
+        fillRect(0, 78, 140, 2, AD_SH);
+        g.generateTexture('adobe_lodge', 140, 80);
+    }
+    {
+        // Rocks on the beach below the cliffs, big enough to jump onto, and the
+        // pebbles and cobbles all through the sand around them.
+        [['beach_rock', 40, 26, 0x7a7268, 0x5a534a, 0x9a9288], ['beach_rock_small', 22, 14, 0x8a7a68, 0x6a5a4a, 0xa89a88]]
+            .forEach(([key, w, h, ROCK, ROCK_SH, ROCK_HI]) => {
+                g.clear();
+                g.fillStyle(ROCK_SH, 1);
+                g.fillEllipse(w / 2, h / 2 + 2, w, h - 2);
+                g.fillStyle(ROCK, 1);
+                g.fillEllipse(w / 2 - 1, h / 2, w - 4, h - 6);
+                g.fillStyle(ROCK_HI, 1);
+                g.fillEllipse(w / 2 - w * 0.15, h / 2 - h * 0.18, w * 0.4, h * 0.3);
+                drawPixel(Math.floor(w * 0.7), Math.floor(h * 0.6), ROCK_SH);
+                g.generateTexture(key, w, h);
+            });
+
+        g.clear();
+        const PEB = [0x9a8e80, 0x7a6e62, 0xb8aa98, 0x6a6058, 0xa89880];
+        for (let i = 0; i < 14; i++) {
+            fillRect((i * 17 + i * i * 3) % 30, (i * 7 + i * i) % 14, 2 + (i % 2), 2, PEB[i % PEB.length]);
+        }
+        g.generateTexture('pebbles', 32, 16);
+    }
+    {
         // A table lamp with a fringed fabric shade.
         g.clear();
         g.fillStyle(0xf6e8c4, 1);
