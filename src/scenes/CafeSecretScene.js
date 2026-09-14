@@ -24,6 +24,7 @@ export class CafeSecretScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('#8ec0e6');
         this.zones = [];
         this.bulbs = [];
+        this.lamps = [];
         this.busy = true;
         this.yvyFollow = true;
 
@@ -47,7 +48,9 @@ export class CafeSecretScene extends Phaser.Scene {
         this.buildPlants();
         this.buildTalk();
 
-        this.dusk = this.add.rectangle(400, 300, GAME_WIDTH, 600, 0xff8a40, 0).setDepth(35);
+        // Evening, laid over everything at the end. The lights that come on are
+        // lifted above it, which is what makes them read as lit.
+        this.dusk = this.add.rectangle(400, 300, GAME_WIDTH, 600, 0x1c2248, 0).setDepth(35);
         this.instructionText = this.add.text(20, 574, '', {
             fontSize: promptFontSize('15px'), color: '#fff', backgroundColor: '#00000099', padding: { x: 6, y: 3 }
         }).setDepth(40);
@@ -116,11 +119,33 @@ export class CafeSecretScene extends Phaser.Scene {
         }
     }
 
+    /** One bulb, unlit until lightsOn() — it is still daylight when they arrive. */
     bulb(x, y, i, depth) {
-        this.add.circle(x, y, 5, BULBS[i % 2], 0.2).setDepth(depth);
-        const bulb = this.add.circle(x, y, 2.5, BULBS[i % 2]).setDepth(depth).setAlpha(0.75);
-        this.bulbs.push(bulb);
-        this.tweens.add({ targets: bulb, alpha: 1, duration: 800 + (i * 53) % 600, yoyo: true, repeat: -1 });
+        const color = BULBS[i % 2];
+        const glow = this.add.circle(x, y, 6, color, 0).setDepth(depth);
+        const bulb = this.add.circle(x, y, 2.5, 0xcfc8b4).setDepth(depth).setAlpha(0.7);
+        this.bulbs.push({ bulb, glow, color, i });
+    }
+
+    /** Dusk falls, then the strings come on a bulb at a time, and the lamps with them. */
+    lightsOn(done) {
+        this.tweens.add({ targets: this.dusk, fillAlpha: 0.45, duration: 1800, ease: 'Sine.easeIn' });
+        this.time.delayedCall(1500, () => {
+            playSound('select');
+            this.lamps.forEach(lamp => {
+                lamp.setDepth(36);
+                this.tweens.add({ targets: lamp, fillAlpha: 0.45, scale: 1.4, duration: 500 });
+            });
+            this.bulbs.forEach(({ bulb, glow, color, i }, n) => this.time.delayedCall(n * 18, () => {
+                bulb.setFillStyle(color).setAlpha(1).setDepth(36);
+                glow.setDepth(36);
+                this.tweens.add({ targets: glow, fillAlpha: 0.3, scale: 1.3, duration: 250 });
+                this.tweens.add({
+                    targets: bulb, alpha: 0.75, duration: 700 + (i * 53) % 600, yoyo: true, repeat: -1, delay: 250
+                });
+            }));
+            this.time.delayedCall(this.bulbs.length * 18 + 700, done);
+        });
     }
 
     // --- the place ----------------------------------------------------------------
@@ -169,7 +194,7 @@ export class CafeSecretScene extends Phaser.Scene {
             this.add.rectangle(x, 302, 8, 3, 0x7a7a80);
         });
         this.add.rectangle(56, 290, 10, 14, 0x2a2a2e); // a lamp
-        this.add.circle(56, 298, 9, 0xffe8a0, 0.35);
+        this.lamps.push(this.add.circle(56, 298, 9, 0xffe8a0, 0.35));
         this.add.rectangle(236, 280, 28, 11, 0x1e1e22); // OPEN
         this.add.text(236, 280, 'OPEN', { fontSize: '7px', color: '#f2f2f2' }).setOrigin(0.5);
 
@@ -182,7 +207,7 @@ export class CafeSecretScene extends Phaser.Scene {
         for (let i = 0; i < 11; i++) this.add.rectangle(47 + i * 20.6, 348, 20, 16, SLATE[i % SLATE.length]);
         this.add.rectangle(150, 339, 236, 3, 0x4a4a50);
         [70, 250].forEach(x => {
-            this.add.circle(x, 330, 8, 0xfff0c0, 0.25);
+            this.lamps.push(this.add.circle(x, 330, 8, 0xfff0c0, 0.25));
             this.add.image(x, 331, 'blue_lantern');
         });
         [[92, 332], [210, 332], [228, 332]].forEach(([x, y]) => this.add.image(x, y, 'succulent_pot'));
@@ -484,9 +509,7 @@ export class CafeSecretScene extends Phaser.Scene {
 
     endOfTheDay() {
         this.tweens.add({ targets: this.causa, scale: 0.6, alpha: 0.5, duration: 2400 });
-        this.tweens.add({ targets: this.dusk, fillAlpha: 0.18, duration: 2400 });
-        this.bulbs.forEach(b => b.setScale(1.4));
-        this.time.delayedCall(1200, () => this.narrate([
+        this.lightsOn(() => this.narrate([
             "They stayed out on the patio until the string lights came on. And that was the end of the day.",
             "Yvy: 'Don't forget, tomorrow we're hiking Torrey Pines.'",
             "Mike: 'I'll be there. Early.'",
