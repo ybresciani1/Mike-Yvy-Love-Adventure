@@ -6481,4 +6481,271 @@ export function generateTextures(scene) {
         fillRect(20, 34, 7, 2, 0xb8862a);
         g.generateTexture('egyptian_chair', 30, 36);
     }
+    // --- RAISED BY WOLVES: THE ROOM BEHIND THE WALL -----------------------------
+    {
+        // A bookcase lit from inside, every shelf full, the odd book leaning.
+        g.clear();
+        const BC = 0x5a3a22, BC_HI = 0x7a5232, BC_DK = 0x3a2414;
+        fillRect(0, 0, 60, 120, BC);
+        fillRect(0, 0, 60, 5, BC_HI);
+        fillRect(4, 6, 52, 108, 0xe8c98e);
+        const BOOKS = [0x7a1f24, 0x2a4a3a, 0x3a2a5a, 0x8a5a2a, 0xc9a45a, 0x2a3a5a, 0x6a2a2a, 0xe8dcc0, 0x4a6a3a];
+        for (let shelf = 0; shelf < 5; shelf++) {
+            const sy = 6 + shelf * 21;
+            let bx = 5;
+            let n = shelf * 7;
+            while (bx < 51) {
+                const w = 2 + (n % 3 === 0 ? 1 : 0);
+                const h = 12 + (n * 5) % 6;
+                if (n % 11 === 10) {
+                    fillRect(bx, sy + 21 - h, w + 3, h - 2, BOOKS[n % BOOKS.length]); // leaning
+                    bx += w + 4;
+                } else {
+                    fillRect(bx, sy + 19 - h, w, h, BOOKS[n % BOOKS.length]);
+                    drawPixel(bx, sy + 21 - h, 0xe8d08a); // gilt on the spine
+                    bx += w + 1;
+                }
+                n++;
+            }
+            fillRect(4, sy + 19, 52, 2, BC_HI);
+        }
+        fillRect(0, 6, 4, 108, BC_DK);
+        fillRect(56, 6, 4, 108, BC_DK);
+        fillRect(0, 114, 60, 6, BC_DK);
+        g.generateTexture('bookcase', 60, 120);
+
+        // A single shelf's worth of books, for the low shelf round the bar.
+        g.clear();
+        const ROW = [0x7a1f24, 0x2a4a3a, 0x3a2a5a, 0x8a5a2a, 0xc9a45a, 0x2a3a5a, 0xe8dcc0];
+        for (let x = 1, n = 0; x < 61; n++) {
+            const w = 2 + (n % 3 === 0 ? 1 : 0);
+            const h = 10 + (n * 5) % 5;
+            fillRect(x, 15 - h, w, h, ROW[n % ROW.length]);
+            drawPixel(x, 17 - h, 0xe8d08a);
+            x += w + 1;
+        }
+        fillRect(0, 15, 64, 3, 0x7a5232);
+        g.generateTexture('book_row', 64, 18);
+    }
+    {
+        // Diamond parquet.
+        g.clear();
+        fillRect(0, 0, 32, 32, 0x8a5a30);
+        g.fillStyle(0xa8703c, 1);
+        g.fillTriangle(16, 0, 32, 16, 16, 32);
+        g.fillTriangle(16, 0, 0, 16, 16, 32);
+        g.fillStyle(0xb8804a, 1);
+        g.fillTriangle(16, 4, 28, 16, 16, 28);
+        g.fillTriangle(16, 4, 4, 16, 16, 28);
+        g.fillStyle(0x7a4a26, 1);
+        g.fillTriangle(16, 12, 20, 16, 16, 20);
+        g.fillTriangle(16, 12, 12, 16, 16, 20);
+        for (let i = 0; i < 6; i++) drawPixel(8 + i * 3, 10 + (i % 2) * 12, 0x9a6434);
+        g.generateTexture('parquet_diamond', 32, 32);
+    }
+    {
+        // The portraits: every one a dog or a wolf, every frame different.
+        g.clear(); // a white wolf, in black
+        fillRect(0, 0, 28, 30, 0x141414);
+        fillRect(2, 2, 24, 26, 0x2a2a2a);
+        fillRect(4, 4, 20, 22, 0xe8e4d8);
+        fillRect(6, 6, 16, 18, 0x6a6a6a);
+        fillRect(8, 10, 12, 10, 0xf6f6f2);
+        fillRect(8, 7, 3, 4, 0xf6f6f2);
+        fillRect(17, 7, 3, 4, 0xf6f6f2);
+        fillRect(15, 15, 6, 4, 0xe8e8e4);
+        drawPixel(11, 13, 0x1a1a1a);
+        drawPixel(16, 13, 0x1a1a1a);
+        drawPixel(20, 16, 0x1a1a1a);
+        fillRect(6, 20, 16, 4, 0xdedad0);
+        g.generateTexture('portrait_white_wolf', 28, 30);
+
+        g.clear(); // a spaniel, in an ornate gilt frame
+        fillRect(0, 0, 32, 26, 0xc9a45a);
+        for (let x = 1; x < 32; x += 3) {
+            drawPixel(x, 1, 0xf2d27a);
+            drawPixel(x, 24, 0x9c7020);
+        }
+        fillRect(0, 0, 2, 26, 0xb08a42);
+        fillRect(30, 0, 2, 26, 0x9c7020);
+        fillRect(3, 3, 26, 20, 0x2a1a12);
+        fillRect(7, 10, 5, 10, 0x9a4a22); // ears
+        fillRect(20, 10, 5, 10, 0x9a4a22);
+        fillRect(10, 9, 12, 9, 0xf2ede4); // face
+        fillRect(12, 8, 8, 3, 0x9a4a22);
+        drawPixel(13, 12, 0x1a1a1a);
+        drawPixel(18, 12, 0x1a1a1a);
+        fillRect(15, 15, 2, 1, 0x1a1a1a);
+        fillRect(8, 18, 16, 5, 0xe8e0d4);
+        g.generateTexture('portrait_spaniel', 32, 26);
+
+        g.clear(); // a shaggy black dog, in a thin gold frame
+        fillRect(0, 0, 24, 30, 0xb08a42);
+        fillRect(1, 1, 22, 28, 0x6a4a24);
+        fillRect(2, 2, 20, 26, 0xa87a40);
+        g.fillStyle(0x161412, 1);
+        g.fillCircle(12, 13, 7);
+        g.fillCircle(9, 20, 6);
+        g.fillCircle(15, 21, 6);
+        fillRect(5, 9, 4, 8, 0x161412);
+        fillRect(16, 9, 4, 8, 0x161412);
+        drawPixel(10, 12, 0xd8a040);
+        drawPixel(14, 12, 0xd8a040);
+        g.generateTexture('portrait_black_dog', 24, 30);
+
+        g.clear(); // a figure in a red hood
+        fillRect(0, 0, 22, 26, 0xc9a45a);
+        fillRect(2, 2, 18, 22, 0x3a2a22);
+        g.fillStyle(0xb8322a, 1);
+        g.fillEllipse(11, 11, 14, 16);
+        g.fillStyle(0xe8c8a8, 1);
+        g.fillEllipse(12, 12, 7, 9);
+        fillRect(4, 18, 14, 6, 0xa82a22);
+        drawPixel(12, 11, 0x3a2a22);
+        g.generateTexture('portrait_red_hood', 22, 26);
+
+        g.clear(); // a gold wolf's head on a wooden shield
+        g.fillStyle(0x4a2a18, 1);
+        g.fillEllipse(13, 13, 26, 24);
+        fillRect(6, 20, 14, 6, 0x4a2a18);
+        fillRect(11, 25, 4, 3, 0x4a2a18);
+        fillRect(8, 5, 3, 5, 0xd4a93c);
+        fillRect(15, 5, 3, 5, 0xb8862a);
+        fillRect(8, 9, 10, 8, 0xd4a93c);
+        fillRect(9, 10, 3, 1, 0xf2d27a);
+        fillRect(10, 15, 6, 5, 0xc8962e);
+        fillRect(12, 19, 2, 1, 0x5a4210);
+        drawPixel(10, 12, 0x5a4210);
+        drawPixel(15, 12, 0x5a4210);
+        g.generateTexture('wolf_plaque', 26, 28);
+
+        g.clear(); // the brass light over each picture
+        fillRect(0, 0, 24, 4, 0xc9a45a);
+        fillRect(0, 0, 24, 1, 0xf2d27a);
+        fillRect(2, 4, 20, 1, 0xfff3b0);
+        fillRect(11, 4, 2, 4, 0x9c7020);
+        g.generateTexture('picture_light', 24, 8);
+    }
+    {
+        // A throne chair: tall carved back, gilt crest, purple velvet.
+        g.clear();
+        const TH = 0x3a2414, TH_HI = 0x6a4a2e, GILT = 0xc9a45a, VELVET = 0x5a2a4a, VELVET_HI = 0x7a3a6a;
+        fillRect(6, 0, 20, 4, GILT);
+        fillRect(12, 0, 8, 2, 0xf2d27a);
+        fillRect(4, 4, 24, 26, TH);
+        fillRect(7, 7, 18, 20, VELVET);
+        fillRect(7, 7, 18, 2, VELVET_HI);
+        fillRect(4, 4, 2, 26, TH_HI);
+        fillRect(26, 4, 2, 26, TH_HI);
+        fillRect(0, 22, 6, 12, TH); // arms
+        fillRect(26, 22, 6, 12, TH);
+        fillRect(0, 22, 6, 2, GILT);
+        fillRect(26, 22, 6, 2, GILT);
+        drawPixel(1, 27, GILT);
+        drawPixel(30, 27, GILT);
+        fillRect(5, 30, 22, 6, VELVET); // seat
+        fillRect(5, 30, 22, 2, VELVET_HI);
+        fillRect(4, 36, 24, 3, TH);
+        fillRect(5, 39, 3, 7, TH); // legs
+        fillRect(24, 39, 3, 7, TH);
+        fillRect(4, 44, 5, 2, GILT);
+        fillRect(23, 44, 5, 2, GILT);
+        g.generateTexture('throne_chair', 32, 46);
+    }
+    {
+        // A royal settee: tufted green velvet on a gilt frame, a curved crest.
+        g.clear();
+        const GV = 0x3f5a3a, GV_HI = 0x5a7a4e, GILT = 0xc9a45a;
+        g.fillStyle(GILT, 1);
+        g.fillEllipse(32, 6, 60, 14);
+        g.fillStyle(GV, 1);
+        g.fillEllipse(32, 8, 54, 10);
+        fillRect(5, 8, 54, 14, GV);
+        for (let x = 11; x < 56; x += 9) {
+            drawPixel(x, 12, 0x2a3a26); // tufting
+            drawPixel(x + 4, 17, 0x2a3a26);
+        }
+        fillRect(0, 12, 6, 14, GILT); // arms
+        fillRect(58, 12, 6, 14, GILT);
+        fillRect(1, 12, 4, 3, 0xf2d27a);
+        fillRect(59, 12, 4, 3, 0xf2d27a);
+        fillRect(4, 20, 56, 7, GV_HI); // seat
+        fillRect(4, 20, 56, 2, 0x6a8a5a);
+        fillRect(3, 27, 58, 3, GILT);
+        fillRect(6, 30, 3, 4, 0x9c7020); // feet
+        fillRect(55, 30, 3, 4, 0x9c7020);
+        fillRect(30, 30, 3, 3, 0x9c7020);
+        g.generateTexture('royal_settee', 64, 34);
+    }
+    {
+        // A little table with a chessboard top on a gold pedestal.
+        g.clear();
+        fillRect(1, 1, 28, 10, 0x1a1a1a);
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 7; col++) {
+                if ((row + col) % 2 === 0) fillRect(1 + col * 4, 2 + row * 3, 4, 3, 0xf2f2ee);
+            }
+        }
+        fillRect(0, 10, 30, 2, 0x2a2a2a);
+        fillRect(13, 12, 4, 14, 0xc9a45a);
+        fillRect(13, 12, 1, 14, 0xf2d27a);
+        fillRect(8, 26, 14, 3, 0xb08a42);
+        fillRect(5, 29, 20, 3, 0x9c7020);
+        g.generateTexture('chess_table', 30, 34);
+    }
+    {
+        // A table lamp with a fringed fabric shade.
+        g.clear();
+        g.fillStyle(0xf6e8c4, 1);
+        g.fillTriangle(4, 0, 16, 0, 20, 12);
+        g.fillTriangle(4, 0, 0, 12, 20, 12);
+        fillRect(4, 0, 12, 2, 0xf2e6c8);
+        fillRect(0, 12, 20, 2, 0xe8d4a0);
+        for (let x = 0; x < 20; x += 2) fillRect(x, 14, 1, 4, 0xc9b080); // fringe
+        fillRect(9, 18, 2, 8, 0xc9a45a);
+        g.fillStyle(0xc9a45a, 1);
+        g.fillEllipse(10, 28, 12, 5);
+        fillRect(4, 29, 12, 3, 0xb08a42);
+        g.generateTexture('fringe_lamp', 20, 32);
+    }
+    {
+        // The goofy wolves. One in round glasses...
+        g.clear();
+        const BR = 0xb08a42, BR_SH = 0x8a6a2a, BR_HI = 0xd8b86a;
+        fillRect(2, 22, 14, 2, 0x3a2414); // base
+        fillRect(3, 14, 12, 8, BR);
+        fillRect(11, 14, 4, 8, BR_SH);
+        fillRect(4, 22, 3, 1, BR_SH);
+        fillRect(11, 22, 3, 1, BR_SH);
+        fillRect(5, 2, 2, 3, BR); // ears
+        fillRect(11, 2, 2, 3, BR_SH);
+        fillRect(4, 4, 10, 8, BR);
+        fillRect(11, 4, 3, 8, BR_SH);
+        fillRect(7, 10, 5, 4, BR_HI);
+        drawPixel(9, 13, 0x3a2a14);
+        g.lineStyle(1, 0x1a1a1a, 1);
+        g.strokeCircle(6, 7, 2);
+        g.strokeCircle(11, 7, 2);
+        drawPixel(8, 7, 0x1a1a1a);
+        g.generateTexture('wolf_figure_glasses', 18, 24);
+
+        // ...and one in a top hat and a bow tie.
+        g.clear();
+        fillRect(2, 26, 14, 4, 0x3a2414);
+        fillRect(3, 16, 12, 10, 0xb8b8bc);
+        fillRect(11, 16, 4, 10, 0x8a8a90);
+        fillRect(5, 6, 2, 3, 0xc8c8cc); // ears, under the brim
+        fillRect(11, 6, 2, 3, 0x9a9aa0);
+        fillRect(4, 8, 10, 8, 0xc8c8cc);
+        fillRect(11, 8, 3, 8, 0x9a9aa0);
+        fillRect(7, 13, 5, 4, 0xdcdce0);
+        drawPixel(9, 16, 0x2a2a2a);
+        drawPixel(6, 10, 0x2a2a2a);
+        drawPixel(11, 10, 0x2a2a2a);
+        fillRect(3, 5, 12, 2, 0x141414); // brim
+        fillRect(5, 0, 8, 5, 0x141414); // hat
+        fillRect(5, 3, 8, 1, 0x8a1a24);
+        fillRect(7, 17, 4, 2, 0x8a1a24); // bow tie
+        g.generateTexture('wolf_figure_tophat', 18, 30);
+    }
 }

@@ -22,14 +22,18 @@ export class WolvesBarScene extends Phaser.Scene {
         this.buildDome();
         this.buildRoom();
         this.buildBar();
-        this.buildPatrons();
+        this.buildLounges();
 
-        this.player = new Player(this, 170, 540);
+        this.player = new Player(this, 170, 560);
         this.player.setTexture(this.outfit).setDepth(20);
-        this.yvy = this.add.sprite(214, 540, 'yvy_red').setDepth(20);
+        this.yvy = this.add.sprite(214, 560, 'yvy_red').setDepth(20);
         this.yvyFollow = true;
 
-        [[400, 336, 300, 70], [45, 300, 90, GAME_HEIGHT], [755, 300, 90, GAME_HEIGHT], [400, 122, GAME_WIDTH, 248]]
+        [[400, 336, 300, 70], [45, 300, 90, GAME_HEIGHT], [755, 300, 90, GAME_HEIGHT], [400, 122, GAME_WIDTH, 248],
+         [300, 524, 70, 16], [500, 524, 70, 16], // settees
+         [236, 466, 30, 16], [564, 466, 30, 16], // throne chairs
+         [282, 486, 24, 10], [518, 486, 24, 10], // chess tables
+         [340, 478, 24, 12], [460, 478, 24, 12]] // lamp tables
             .forEach(([x, y, w, h]) => {
                 const b = this.add.rectangle(x, y, w, h, 0, 0);
                 this.physics.add.existing(b, true);
@@ -54,6 +58,7 @@ export class WolvesBarScene extends Phaser.Scene {
         this.time.delayedCall(800, () => this.narrate([
             "On the other side of the wall was the actual bar.",
             "A huge glowing dome overhead, a round bar in the middle of the room, and a stone fountain rising out of the bottles.",
+            "Bookcases full of books. Portraits of dogs and wolves in every kind of frame. Throne chairs, velvet couches, and little wolf statues everywhere, one of them in glasses.",
             "Yvy: 'Okay. I take back what I said about the liquor store.'"
         ], () => { this.ready = true; }));
     }
@@ -97,27 +102,52 @@ export class WolvesBarScene extends Phaser.Scene {
         this.add.rectangle(400, 60, GAME_WIDTH, 4, 0x5a3a22);
         for (let x = 25; x < GAME_WIDTH; x += 50) this.add.circle(x, 14, 3, 0xffc46a);
 
-        // Wood-panelled walls either side, shelved with bottles.
-        [50, 750].forEach(x => {
-            this.add.rectangle(x, 330, 100, 540, 0x4a2f1c);
-            this.add.image(x, 160, 'bottle_wall').setScale(0.9).setTint(0xc8a880);
-            this.add.image(x, 260, 'bottle_wall').setScale(0.9).setTint(0xc8a880);
-        });
-        this.add.rectangle(400, 336, 600, 88, 0x3a2418); // panelling round the back under the dome
-        for (let x = 130; x < 680; x += 46) this.add.rectangle(x, 336, 36, 64, 0x4a2f1c);
-
-        // Floor, and a rug around the bar.
-        this.add.rectangle(400, 490, GAME_WIDTH, 220, 0x2c1c12);
-        for (let y = 390; y < GAME_HEIGHT; y += 20) this.add.rectangle(400, y, GAME_WIDTH, 1, 0x3a2618);
+        // Diamond parquet, and a rug round the bar.
+        this.add.rectangle(400, 490, 600, 220, 0x8a5a30);
+        for (let y = 396; y < GAME_HEIGHT + 16; y += 32) {
+            for (let x = 116; x <= 684; x += 32) this.add.image(x, y, 'parquet_diamond');
+        }
         this.add.ellipse(400, 420, 470, 110, 0x5a2e22);
         this.add.ellipse(400, 420, 440, 90, 0x6a3a2a);
 
+        // Round the back under the dome: panelling, a low shelf of books, and
+        // portraits of dogs and wolves, each with its own little brass light.
+        this.add.rectangle(400, 336, 600, 88, 0x3a2418);
+        for (let x = 130; x < 680; x += 46) this.add.rectangle(x, 336, 36, 64, 0x4a2f1c);
+        [[140, 'portrait_white_wolf', 1.1], [196, 'wolf_plaque', 1.1], [240, 'portrait_red_hood', 1.2],
+         [562, 'portrait_spaniel', 1.0], [612, 'wolf_plaque', 1.1], [664, 'portrait_black_dog', 1.1]]
+            .forEach(([x, key, scale]) => {
+                if (key !== 'wolf_plaque') {
+                    this.add.circle(x, 302, 16, 0xfff3b0, 0.14);
+                    this.add.image(x, 294, 'picture_light');
+                }
+                this.add.image(x, 316, key).setScale(scale);
+            });
+        [190, 610].forEach(x => this.add.image(x, 364, 'book_row').setScale(1.6, 1));
+        this.add.image(254, 344, 'wolf_figure_glasses').setScale(0.9);
+        this.add.image(546, 342, 'wolf_figure_tophat').setScale(0.8);
+
+        // The side walls are libraries: bookcases lit from inside, and more
+        // dogs and wolves in their frames above.
+        [50, 750].forEach((x, side) => {
+            this.add.rectangle(x, 330, 100, 540, 0x4a2f1c);
+            this.add.image(x, 300, 'bookcase').setScale(1.3);
+            this.add.image(x, 470, 'bookcase').setScale(1.3);
+            this.add.circle(x, 104, 24, 0xfff3b0, 0.12);
+            this.add.image(x, 76, 'picture_light').setScale(1.4);
+            this.add.image(x, 112, side ? 'portrait_black_dog' : 'portrait_spaniel').setScale(1.6);
+            this.add.image(x, 178, side ? 'wolf_plaque' : 'portrait_white_wolf').setScale(1.4);
+        });
+
+        // Stone wolves at either end of the bar.
+        [238, 562].forEach((x, i) => this.add.image(x, 398, 'wolf_statue').setScale(0.7).setFlipX(i === 1).setDepth(8));
+
         // The wall they came round on, fireplace facing this way now.
-        this.add.image(110, 468, 'fireplace_wall').setScale(0.5);
-        this.add.image(90, 506, 'wolf_armchair_back').setScale(0.9);
-        this.add.image(90, 516, 'wolf_armchair_front').setScale(0.9);
-        this.add.image(132, 506, 'wolf_armchair_back').setScale(0.9);
-        this.add.image(132, 516, 'wolf_armchair_front').setScale(0.9);
+        this.add.image(150, 468, 'fireplace_wall').setScale(0.5);
+        [130, 172].forEach(x => {
+            this.add.image(x, 506, 'wolf_armchair_back').setScale(0.9);
+            this.add.image(x, 516, 'wolf_armchair_front').setScale(0.9);
+        });
     }
 
     /** The round bar: bottles up the middle, the fountain, the gold front. */
@@ -135,15 +165,36 @@ export class WolvesBarScene extends Phaser.Scene {
         });
     }
 
-    buildPatrons() {
-        [[170, 440, 'civilian', 'civilian_f', 0xc8b8a8, 0xd8c8e0], [630, 440, 'civilian_f', 'civilian', 0xb8c8d8, 0xd8c0b0]]
-            .forEach(([tx, ty, a, b, ta, tb]) => {
-                this.add.sprite(tx - 22, ty - 14, a).setTint(ta).setDepth(9);
-                this.add.sprite(tx + 22, ty - 14, b).setTint(tb).setFlipX(true).setDepth(9);
-                this.add.ellipse(tx, ty + 6, 46, 16, 0x3a2418).setDepth(10);
-                this.add.ellipse(tx, ty + 3, 46, 12, 0x5a3a22).setDepth(10);
-                this.add.image(tx - 6, ty - 4, 'cocktail').setScale(0.5).setDepth(11);
-            });
+    /**
+     * A lounge either side of the way up to the bar: a throne chair and a velvet
+     * settee round a chessboard table, a fringed lamp, a wolf on the table, and
+     * the people sitting in all of it.
+     */
+    buildLounges() {
+        const SIDES = [
+            { dir: 1, sitters: [['civilian_sit', 0xc8b8a8], ['civilian_f_sit', 0xe0c8d8], ['civilian_sit', 0xc8d8b8]] },
+            { dir: -1, sitters: [['civilian_f_sit', 0xd0d0e8], ['civilian_sit', 0xe8d8b8], ['civilian_f_sit', 0xb8c8d8]] }
+        ];
+        SIDES.forEach(({ dir, sitters }) => {
+            const X = x => 400 + (x - 400) * dir; // the right-hand lounge mirrors the left
+
+            this.add.image(X(236), 452, 'throne_chair').setFlipX(dir < 0).setDepth(9);
+            this.add.sprite(X(236), 450, sitters[0][0]).setTint(sitters[0][1]).setFlipX(dir < 0).setDepth(10);
+
+            this.add.image(X(282), 478, 'chess_table').setDepth(11);
+            this.add.image(X(dir > 0 ? 280 : 290), 454, dir > 0 ? 'wolf_figure_tophat' : 'cocktail')
+                .setScale(dir > 0 ? 0.7 : 0.5).setDepth(12);
+
+            this.add.image(X(300), 520, 'royal_settee').setScale(1.1).setDepth(9);
+            this.add.sprite(X(284), 508, sitters[1][0]).setTint(sitters[1][1]).setDepth(10);
+            this.add.sprite(X(316), 508, sitters[2][0]).setTint(sitters[2][1]).setFlipX(true).setDepth(10);
+
+            this.add.rectangle(X(340), 482, 22, 18, 0x3a2418).setDepth(9); // lamp table
+            this.add.rectangle(X(340), 474, 26, 3, 0x6a4a2e).setDepth(9);
+            this.add.circle(X(340), 450, 22, 0xfff0c0, 0.16).setDepth(9);
+            this.add.image(X(340), 458, 'fringe_lamp').setScale(0.9).setDepth(10);
+        });
+        this.add.image(470, 470, 'wolf_figure_glasses').setScale(0.8).setDepth(12);
     }
 
     /** Dialogue fired from a timer has to survive a box that is already open. */
