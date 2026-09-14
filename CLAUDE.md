@@ -64,6 +64,7 @@ src/audio/music.js       play*Theme, stopMusic, fadeOutMusic
 src/ui/dialogue.js       showDialogue, isDialogueOpen, portraitFor
 src/ui/touch.js          phone controls: the on-screen pad, and fitting the frame to the screen
 src/entities/Player.js   the movable character
+src/entities/solids.js   addSolid — furniture the player walks around rather than over
 src/textures/            generateTextures — all ~96 sprites, drawn in code
 src/scenes/              34 scenes + index.js (the registry)
 ```
@@ -191,6 +192,26 @@ Scenes are near-uniform:
 4. `update()` calls `this.player.update(this.cursors)`, repositions "held item" sprites next to the player, and toggles the `interaction-hint` element from `this.physics.overlap(this.player, [...zones])`.
 
 `AirportScene` is the most complete example. Cutscene-only scenes (`FlightScene`, `UberScene`, `DriveToHotelScene`) skip the player entirely and tween straight into the next `scene.start`.
+
+**Solid furniture changes what an interaction zone has to cover.** Zones are
+drawn centred on the thing they belong to, which works while the player can
+stand on it. `addSolid(scene, x, y, w, h)` from `entities/solids.js` gives a
+piece of furniture an invisible static body — the scene resets `this.solids` in
+`create()` and `collideWithSolids` covers the lot with one collider — and from
+then on the player is stopped *alongside* it, so the zone has to reach past the
+body to find him there, without running into a neighbouring zone, since two
+zones that overlap share one keypress. The numbers are worked out in the
+comments at each site.
+
+`AirportScene` does its check-in counters, the X-ray and the gate benches this
+way. The benches also seat the player *inside* the body they just gained, so
+`sitDown` stands the collider down and `standUp` puts it back. `BarScene` does
+its tables and drinkers, plus one band across the top six rows — those are wall
+tiles rather than floor, and the counter alone did not keep him out of them
+because it only spans the middle of the room, leaving either end of it as a way
+up behind the bar. People who already have a physics sprite (the airport's
+officers, the marine, his squad once they are on their stools) are made
+`setImmovable(true)` with a collider of their own instead of getting a block.
 
 ### Scene flow
 The story is a strictly linear chain of `this.scene.start(...)` calls:

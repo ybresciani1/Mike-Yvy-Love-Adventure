@@ -7,6 +7,7 @@ import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { takePhoto } from '../ui/scrapbook.js';
 import { generateTextures } from '../textures/generateTextures.js';
 import { Player } from '../entities/Player.js';
+import { addSolid, collideWithSolids } from '../entities/solids.js';
 
 // Nobody in a departure hall has the same case as anybody else. Mike's is the
 // plain grey one; these are everyone else's.
@@ -41,6 +42,7 @@ export class AirportScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, 2400, 600);
         for (let x=0; x<2400/32; x++) for (let y=0; y<600/32; y++) { this.add.image(x*32+16, y*32+16, 'floor_tile'); }
         const walls = this.physics.add.staticGroup();
+        this.solids = [];
         this.add.text(50, 50, "DEPARTURES", { fontSize: '24px', color: '#000', backgroundColor: '#fff' });
         this.deskAgents = [this.add.sprite(200, 126, 'airline_agent'), this.add.sprite(402, 126, 'airline_agent')];
         this.deskAgents.forEach((a, i) => this.tweens.add({
@@ -48,17 +50,23 @@ export class AirportScene extends Phaser.Scene {
         }));
         this.add.image(200, 150, 'checkin_desk'); this.add.text(175, 120, "TICKETS", { fontSize: '12px', color: '#fff' });
         this.add.image(374, 150, 'checkin_desk'); this.add.image(430, 150, 'checkin_desk'); this.add.text(360, 120, "BAG CHECK-IN", { fontSize: '12px', color: '#fff' });
+        // Counters are furniture: you stand at one rather than on it. The bag
+        // desk is two images pushed together, so it takes one body across both.
+        addSolid(this, 200, 150, 64, 32);
+        addSolid(this, 402, 150, 120, 32);
         this.add.image(275, 150, 'luggage_cart'); // the belt end of the bag drop
         // The two behind the counters were scenery. Both of them have had a
-        // morning. The zones stop short of the ticket and the case on the floor
-        // below them, so the pickup and the conversation do not fight over the
-        // same keypress.
+        // morning. The zone used to sit on the counter, which worked while you
+        // could stand on it; a solid counter leaves you in front of it instead,
+        // so the zone reaches down to y=200 to find you there. Not past it: the
+        // queues below start at 204, and two zones that overlap share one
+        // keypress -- whichever handler runs first swallows it.
         this.deskZones = [];
         [
-            [200, 134, z => this.ticketAgent(z)],
-            [402, 134, z => this.bagAgent(z)]
+            [200, 160, z => this.ticketAgent(z)],
+            [402, 160, z => this.bagAgent(z)]
         ].forEach(([dx, dy, talk]) => {
-            const z = this.add.rectangle(dx, dy, 130, 62, 0xffff00, 0);
+            const z = this.add.rectangle(dx, dy, 130, 80, 0xffff00, 0);
             this.physics.add.existing(z, true);
             z.setData('talk', talk);
             this.deskZones.push(z);
@@ -149,6 +157,9 @@ export class AirportScene extends Phaser.Scene {
             [x, x - 72].forEach(bx => {
                 this.add.image(bx, 201, 'gate_seats_back').setDepth(0);
                 this.add.image(bx, 216, 'gate_seats_front').setDepth(2);
+                // Back and cushion together. The seat zone is taller than the
+                // bench, so it still catches him standing at either edge.
+                addSolid(this, bx, 208, 64, 30);
                 // The far-left chair of the bench, centred on it, not between two.
                 const spot = this.add.rectangle(bx - 24, 210, 20, 54, 0xffff00, 0);
                 this.physics.add.existing(spot, true);
@@ -234,6 +245,7 @@ export class AirportScene extends Phaser.Scene {
         this.pullAngle = Math.PI; // parked behind him until he first moves
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
         this.physics.add.collider(this.player, walls); this.physics.add.collider(this.player, this.securityBarrier); this.physics.add.collider(this.player, this.tsa); this.physics.add.collider(this.player, this.decor); this.laneBarriers.forEach(b => this.physics.add.collider(this.player, b));
+        this.solidCollider = collideWithSolids(this, this.player);
         // His is the grey one. The shell is drawn pale so colours tint cleanly,
         // and pale grey on a pale terminal floor disappears -- so his gets a grey
         // tint of its own rather than going bare.
@@ -431,6 +443,7 @@ export class AirportScene extends Phaser.Scene {
         // walk-through. The zones are kept clear of one another — overlapping
         // zones share a keypress and whichever runs first swallows it.
         this.add.image(616, 262, 'xray_machine');
+        addSolid(this, 616, 262, 80, 36);
         this.add.rectangle(616, 236, 58, 16, 0x16212b);
         this.add.text(616, 236, 'X-RAY', { fontSize: '11px', color: '#fff' }).setOrigin(0.5);
         this.add.image(616, 398, 'smithson_machine');
@@ -440,7 +453,10 @@ export class AirportScene extends Phaser.Scene {
         this.add.image(672, 330, 'body_scanner');
         this.add.image(616, 180, 'clear_pod');
 
-        zone(616, 258, 92, 52, () => this.tryRegularXray());
+        // Around the solid machine rather than on it: the gap above it, its left
+        // side, and the floor below. It stops short of x=648 so it does not run
+        // into the body scanner's zone and share its keypress.
+        zone(603, 262, 90, 92, () => this.tryRegularXray());
         zone(616, 402, 92, 52, () => this.trySmithson());
         zone(672, 330, 46, 72, () => this.tryBodyScanner());
         zone(728, 330, 40, 44, () => this.lookAtDetector());
@@ -640,6 +656,10 @@ export class AirportScene extends Phaser.Scene {
      */
     sitDown(spot) {
         this.seated = spot;
+        // The seat is inside the bench he is not allowed to walk through, so
+        // the furniture stops pushing back while he is on it. He cannot move
+        // while seated anyway, and standing up puts him back on the floor.
+        this.solidCollider.active = false;
         this.player.isLocked = true;
         this.player.body.stop();
         this.standingTexture = this.player.texture.key;
@@ -683,6 +703,7 @@ export class AirportScene extends Phaser.Scene {
                 this.player.setTexture(this.standingTexture);
                 this.player.setDepth(5);
                 this.player.isLocked = false;
+                this.solidCollider.active = true; // clear of the bench again
             }
         });
     }

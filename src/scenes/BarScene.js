@@ -4,6 +4,7 @@ import { gameState } from '../state.js';
 import { playSound } from '../audio/sfx.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
+import { addSolid, collideWithSolids } from '../entities/solids.js';
 import { takePhoto } from '../ui/scrapbook.js';
 
 export class BarScene extends Phaser.Scene { 
@@ -21,6 +22,12 @@ export class BarScene extends Phaser.Scene {
             shadow: { color: '#2b1a14', offsetX: 1, offsetY: 1, blur: 2, fill: true }
         }).setOrigin(0.5);
         for (let x = 200; x <= 600; x += 32) this.add.image(x, 150, 'talavera_tile').setTint(0xcfc4b0);
+
+        this.solids = [];
+        // The top six rows are wall, not floor. The counter alone was not enough
+        // to keep him out of them: it only spans x=200..600, so either end of it
+        // was a way up into the wall and along behind the bar.
+        addSolid(this, GAME_WIDTH / 2, 96, GAME_WIDTH, 192);
 
         const barGroup = this.physics.add.staticGroup(); for(let x=200; x<=600; x+=32) {
             barGroup.create(x, 200, 'bar_counter');
@@ -55,6 +62,9 @@ export class BarScene extends Phaser.Scene {
         const seatGuest = (x, y, female) => {
             const guest = this.add.sprite(x, y - 12, female ? 'civilian_f' : 'civilian');
             guest.setTint(Phaser.Display.Color.RandomRGB(120, 235).color);
+            // Where they are sitting, not the whole sprite: their zone is 42x52
+            // and has to stay reachable from the side he walks up on.
+            addSolid(this, x, y - 6, 22, 26);
             const zone = this.add.rectangle(x, y - 4, 42, 52, 0xffff00, 0);
             this.physics.add.existing(zone, true);
             zone.setData('line', CHATTER[chatter % CHATTER.length]);
@@ -64,6 +74,7 @@ export class BarScene extends Phaser.Scene {
         };
         [{ x: 690, y: 380 }, { x: 690, y: 480 }].forEach((p, i) => {
             this.add.image(p.x, p.y, 'conf_table').setTint(0x4a3226).setScale(0.65);
+            addSolid(this, p.x, p.y, 62, 31); // 96x48 at 0.65
             seatGuest(p.x - 42, p.y, i % 2 === 0);
             seatGuest(p.x + 42, p.y, i % 2 === 1);
             this.add.image(p.x - 42, p.y, 'bar_stool');
@@ -73,6 +84,7 @@ export class BarScene extends Phaser.Scene {
         });
         [{ x: 150, y: 430 }, { x: 260, y: 500 }].forEach((p, i) => {
             this.add.image(p.x, p.y, 'conf_table').setTint(0x4a3226).setScale(0.65);
+            addSolid(this, p.x, p.y, 62, 31);
             seatGuest(p.x - 42, p.y, i % 2 === 0);
             this.add.image(p.x - 42, p.y, 'bar_stool');
             this.add.image(p.x, p.y - 6, 'margarita').setScale(0.7);
@@ -91,8 +103,14 @@ export class BarScene extends Phaser.Scene {
 
         this.add.sprite(400, 160, 'bartender');
         this.marine = this.physics.add.sprite(360, 230, 'marine'); 
+        // He is a body at the bar like anyone else. Immovable rather than a
+        // block of his own, the way the airport's officers are done, since he
+        // already has a physics sprite; his zone reaches 30px below him.
+        this.marine.setImmovable(true);
         this.player = new Player(this, 280, 300); 
         this.physics.add.collider(this.player, barGroup); 
+        this.physics.add.collider(this.player, this.marine);
+        collideWithSolids(this, this.player); 
         this.pBeer = this.add.sprite(360, 300, 'beer').setScale(0.8).setVisible(false); 
         this.mBeer = this.add.sprite(410, 190, 'beer').setScale(0.8).setVisible(false);
         this.toastLift = 0; this.marineZone = this.add.rectangle(360, 250, 60, 60, 0xffffff, 0); 
@@ -194,6 +212,11 @@ export class BarScene extends Phaser.Scene {
                 this.tweens.add({
                     targets: mate, y: 226, duration: 2600, delay: i * 450, ease: 'Sine.easeOut',
                     onComplete: () => {
+                        // Solid once they are on the stool, not on the way in:
+                        // they cross the floor to get there, and a body that
+                        // cannot be moved would shove him aside as it passed.
+                        mate.setImmovable(true);
+                        this.physics.add.collider(this.player, mate);
                         // They arrive empty-handed and get served once they are on
                         // the stool: the bartender slides the glass down the bar.
                         const glass = this.add.sprite(400, 196, 'beer').setScale(0.8);
