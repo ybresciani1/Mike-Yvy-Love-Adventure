@@ -116,10 +116,60 @@ export function generateTextures(scene) {
     const HAIR_HI = 0x6d4c41;
     const HAIR_SHADE = 0x33281c;
 
+    // Mike's own head, drawn from his portrait rather than the shared NPC one:
+    // black hair, tousled, with the fringe swept down over his forehead; straight
+    // dark brows; narrow smiling eyes; a wide grin with teeth; a defined chin.
+    // Every Mike sprite uses these, and nobody else does.
+    const MIKE_HAIR = 0x16141b;
+    const MIKE_HAIR_HI = 0x3c3d4e;
+    const MIKE_HAIR_SHADE = 0x0b0a0e;
+
+    const drawMikeFace = (y) => {
+        fillRect(10, y, 12, 9, SKIN);
+        fillRect(11, y + 9, 10, 1, SKIN); // the jaw narrowing
+        fillRect(12, y + 10, 8, 1, SKIN_SHADE); // a defined chin
+        fillRect(21, y, 1, 9, SKIN_SHADE); // cheek shadow
+        fillRect(22, y + 4, 1, 3, SKIN_SHADE); // his ear, showing on this side
+        fillRect(11, y + 2, 4, 1, MIKE_HAIR); // straight, dark brows
+        fillRect(17, y + 2, 4, 1, MIKE_HAIR);
+        fillRect(12, y + 4, 3, 1, MIKE_HAIR_SHADE); // lids, narrowed by the smile
+        fillRect(17, y + 4, 3, 1, MIKE_HAIR_SHADE);
+        drawPixel(13, y + 5, 0x2a2f45); // irises, looking in
+        drawPixel(18, y + 5, 0x2a2f45);
+        drawPixel(12, y + 5, EYE_WHITE);
+        drawPixel(19, y + 5, EYE_WHITE);
+        drawPixel(16, y + 6, SKIN_SHADE); // nose
+        drawPixel(12, y + 7, 0xf2b29c); // a bit of colour in the cheeks
+        drawPixel(19, y + 7, 0xf2b29c);
+        fillRect(13, y + 8, 6, 1, 0x7a3a2e); // the grin
+        fillRect(14, y + 8, 4, 1, 0xfbf6ee); // teeth
+        fillRect(14, y + 9, 4, 1, 0xc27060); // lower lip
+    };
+
+    const drawMikeHair = () => {
+        [11, 12, 14, 15, 16, 18, 19].forEach(x => drawPixel(x, 0, MIKE_HAIR)); // tousled crown
+        fillRect(9, 1, 14, 4, MIKE_HAIR);
+        drawPixel(8, 2, MIKE_HAIR); // stray ends at the edges
+        drawPixel(23, 2, MIKE_HAIR);
+        drawPixel(13, 1, MIKE_HAIR_HI); // light catching a few strands
+        drawPixel(12, 2, MIKE_HAIR_HI);
+        drawPixel(17, 2, MIKE_HAIR_HI);
+        drawPixel(18, 3, MIKE_HAIR_HI);
+        fillRect(20, 3, 3, 2, MIKE_HAIR_SHADE);
+        fillRect(9, 5, 1, 6, MIKE_HAIR); // sides, over the ear
+        fillRect(21, 5, 2, 1, MIKE_HAIR);
+        fillRect(10, 5, 6, 1, MIKE_HAIR); // the fringe, swept to one side
+        drawPixel(11, 6, MIKE_HAIR);
+        drawPixel(13, 6, MIKE_HAIR);
+        drawPixel(14, 6, MIKE_HAIR);
+        drawPixel(12, 7, MIKE_HAIR); // one piece falling across the brow
+        drawPixel(17, 5, MIKE_HAIR);
+    };
+
     // --- MIKE (standard: blue tee and jeans) ---
     g.clear();
-    drawFace(5, { brow: HAIR_SHADE });
-    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawMikeFace(5);
+    drawMikeHair();
     drawTorso(0x3498db, 0x2f86c4, { hi: 0x5dade2 });
     fillRect(13, 17, 6, 2, 0x2980b9); // collar
     fillRect(10, 26, 12, 1, 0x2c2c2c); // belt
@@ -128,8 +178,8 @@ export function generateTextures(scene) {
 
     // --- MIKE (business suit) ---
     g.clear();
-    drawFace(5, { brow: HAIR_SHADE });
-    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawMikeFace(5);
+    drawMikeHair();
     drawTorso(0x2c3e50, 0x22303d);
     fillRect(14, 17, 4, 9, 0xf4f6f7); // shirt placket
     fillRect(15, 18, 2, 7, 0xc0392b); // tie
@@ -142,8 +192,8 @@ export function generateTextures(scene) {
 
     // --- MIKE (smart casual: grey henley) ---
     g.clear();
-    drawFace(5, { brow: HAIR_SHADE });
-    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawMikeFace(5);
+    drawMikeHair();
     drawTorso(0x95a5a6, 0x7f8c8d, { hi: 0xbdc3c7 });
     fillRect(15, 17, 2, 4, 0x7f8c8d); // placket
     drawPixel(15, 18, 0xecf0f1); // buttons
@@ -1645,8 +1695,8 @@ export function generateTextures(scene) {
     // go — the whole point is that you can see the legs rather than tucking them
     // out of sight behind the furniture.
     g.clear();
-    drawFace(5, { brow: HAIR_SHADE });
-    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawMikeFace(5);
+    drawMikeHair();
     drawTorso(0x3498db, 0x2f86c4, { hi: 0x5dade2 });
     fillRect(13, 17, 6, 2, 0x2980b9); // collar
     fillRect(10, 26, 12, 1, 0x2c2c2c); // belt
@@ -1654,8 +1704,8 @@ export function generateTextures(scene) {
     g.generateTexture('mike_sit', 32, 38);
 
     g.clear();
-    drawFace(5, { brow: HAIR_SHADE });
-    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawMikeFace(5);
+    drawMikeHair();
     drawTorso(0x2c3e50, 0x22303d);
     fillRect(14, 17, 4, 9, 0xf4f6f7); // shirt placket
     fillRect(15, 18, 2, 7, 0xc0392b); // tie
@@ -1667,8 +1717,8 @@ export function generateTextures(scene) {
     g.generateTexture('mike_suit_sit', 32, 38);
 
     g.clear();
-    drawFace(5, { brow: HAIR_SHADE });
-    drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+    drawMikeFace(5);
+    drawMikeHair();
     drawTorso(0x95a5a6, 0x7f8c8d, { hi: 0xbdc3c7 });
     fillRect(15, 17, 2, 4, 0x7f8c8d); // placket
     drawPixel(15, 18, 0xecf0f1);
@@ -2125,8 +2175,8 @@ export function generateTextures(scene) {
         // footprint and the same blue tee as 'mike', so only the limbs change.
 
         const danceHead = () => {
-            drawFace(5, { brow: HAIR_SHADE });
-            drawShortHair(HAIR, HAIR_HI, HAIR_SHADE);
+            drawMikeFace(5);
+            drawMikeHair();
             fillRect(13, 15, 6, 2, SKIN_SHADE); // neck
         };
 
