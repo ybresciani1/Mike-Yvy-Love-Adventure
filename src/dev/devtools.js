@@ -37,6 +37,7 @@ const CHAPTER_LABELS = {
     RaisedByWolvesScene: 'Raised by Wolves',
     WolvesBarScene: 'The Bar Behind the Wall',
     FlowerFieldsScene: 'The Flower Fields',
+    CafeSecretScene: 'Cafe Secret',
     MisterAsScene: "Mister A's",
     NovaScene: 'NOVA',
     DowntownScene: 'Downtown',

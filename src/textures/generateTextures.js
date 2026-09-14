@@ -7227,6 +7227,161 @@ export function generateTextures(scene) {
         fillRect(0, 66, 80, 1, ST);
         g.generateTexture('flower_fountain', 80, 72);
     }
+
+    // --- CAFE SECRET ---------------------------------------------------------------
+    {
+        // Causa: a little tower of yellow potato with a layer of avocado and
+        // shrimp through it, a shrimp on top, and sauce dotted round the plate.
+        g.clear();
+        g.fillStyle(0xf4f4f0, 1);
+        g.fillEllipse(12, 19, 24, 9); // plate
+        g.fillStyle(0xdcdcd6, 1);
+        g.fillEllipse(12, 20, 18, 5);
+        fillRect(6, 6, 12, 13, 0xf2c94c); // potato
+        fillRect(6, 6, 12, 1, 0xf7dc7a);
+        fillRect(16, 6, 2, 13, 0xd9ab2e);
+        fillRect(6, 11, 12, 2, 0x7fae3a); // the avocado and shrimp layer
+        fillRect(8, 11, 3, 1, 0xf2a58a);
+        fillRect(13, 12, 3, 1, 0xf2a58a);
+        fillRect(6, 3, 12, 3, 0x8cc04a); // avocado on top
+        fillRect(9, 1, 7, 3, 0xf28a5a); // the shrimp
+        fillRect(9, 1, 7, 1, 0xf7b08a);
+        drawPixel(15, 2, 0xd9604a);
+        [[2, 19], [21, 18], [4, 22], [19, 22]].forEach(([x, y]) => drawPixel(x, y, 0xf0a070)); // sauce
+        fillRect(16, 19, 3, 1, 0xe8c84a);
+        g.generateTexture('causa_plate', 24, 24);
+
+        g.clear(); // chicha morada: purple corn, pineapple and cinnamon, over ice
+        fillRect(2, 2, 8, 15, 0xdfe8ee); // glass
+        fillRect(3, 5, 6, 11, 0x5a1a5e);
+        fillRect(3, 5, 6, 1, 0x8a3a8e);
+        fillRect(4, 7, 2, 2, 0x9a6aa0); // ice
+        fillRect(6, 10, 2, 2, 0x9a6aa0);
+        fillRect(2, 16, 8, 1, 0xb8c4cc);
+        fillRect(8, 0, 1, 6, 0xf2f2f2); // straw
+        g.generateTexture('chicha_morada', 12, 18);
+    }
+    {
+        // A red market umbrella over a patio table.
+        g.clear();
+        const RED = 0xd23a2a, RED_SH = 0xa82a1e;
+        g.fillStyle(RED, 1);
+        g.fillTriangle(36, 0, 0, 20, 72, 20);
+        fillRect(0, 18, 72, 4, RED);
+        g.fillStyle(RED_SH, 1);
+        for (let x = 0; x < 72; x += 9) g.fillTriangle(x, 22, x + 9, 22, x + 4, 26); // scalloped valance
+        g.lineStyle(1, RED_SH, 1);
+        [12, 24, 48, 60].forEach(x => g.lineBetween(36, 1, x, 21)); // ribs
+        fillRect(20, 19, 32, 2, 0xf2f2f2); // the lettering band
+        fillRect(35, 0, 2, 2, 0x3a3a3a); // finial
+        fillRect(35, 22, 2, 34, 0x8a8a8a); // pole
+        g.generateTexture('red_umbrella', 72, 56);
+
+        g.clear(); // a little square patio table, yellow wood on a black pedestal
+        fillRect(0, 0, 36, 6, 0xe8c25a);
+        fillRect(0, 0, 36, 1, 0xf6dc8a);
+        fillRect(0, 5, 36, 1, 0xb8923a);
+        fillRect(16, 6, 4, 20, 0x222226);
+        fillRect(8, 26, 20, 2, 0x222226);
+        fillRect(4, 28, 28, 2, 0x18181a);
+        g.generateTexture('bistro_table', 36, 30);
+
+        g.clear(); // a slatted wooden patio chair with a red cushion, side on
+        const WD = 0xb07a44, WD_SH = 0x80542a;
+        fillRect(2, 0, 3, 30, WD_SH); // back leg, rising into the back
+        for (let y = 2; y < 14; y += 4) fillRect(2, y, 8, 2, WD); // slats
+        fillRect(2, 15, 18, 3, WD); // seat
+        fillRect(3, 13, 16, 2, 0xc8323a); // cushion
+        fillRect(16, 18, 3, 12, WD_SH); // front leg
+        fillRect(5, 22, 12, 2, WD_SH); // stretcher
+        g.generateTexture('wood_chair', 20, 30);
+    }
+    {
+        // Stacked stone for the wall under the bougainvillea.
+        g.clear();
+        fillRect(0, 0, 32, 32, 0x8a7560);
+        const STONES = [0xc8b090, 0xb89c7a, 0xd6c0a0, 0xa88c6a, 0xbfa684];
+        for (let row = 0; row < 7; row++) {
+            for (let x = -((row * 7) % 9), i = 0; x < 32; i++) {
+                const w = 6 + ((row * 3 + i * 5) % 9);
+                const x0 = Math.max(0, x), x1 = Math.min(32, x + w - 1);
+                if (x1 > x0) fillRect(x0, row * 5, x1 - x0, Math.min(4, 32 - row * 5), STONES[(row + i) % STONES.length]);
+                x += w;
+            }
+        }
+        g.generateTexture('stacked_stone', 32, 32);
+
+        g.clear(); // grey slate shingles
+        fillRect(0, 0, 32, 16, 0x6a6e76);
+        for (let row = 0; row < 4; row++) {
+            for (let x = (row % 2) * -4; x < 32; x += 8) {
+                const x0 = Math.max(0, x), x1 = Math.min(32, x + 7);
+                fillRect(x0, row * 4, x1 - x0, 3, (row + x) % 3 ? 0x7e838c : 0x8a8f98);
+            }
+        }
+        g.generateTexture('slate_shingles', 32, 16);
+
+        g.clear(); // bougainvillea: a tangle of leaves and magenta bracts
+        const LEAF = [0x3e7a2e, 0x4f9a3a, 0x2e5e22];
+        for (let i = 0; i < 22; i++) {
+            g.fillStyle(LEAF[i % 3], 1);
+            g.fillCircle(6 + (i * 13) % 46, 6 + (i * 7) % 32, 4 + (i % 3));
+        }
+        const PINK = [0xe0379a, 0xf05cb4, 0xc02882];
+        for (let i = 0; i < 26; i++) {
+            const x = 4 + (i * 17) % 50, y = 4 + (i * 11) % 36;
+            fillRect(x, y, 3, 3, PINK[i % 3]);
+            drawPixel(x + 1, y + 1, 0xfbd0e8);
+        }
+        g.generateTexture('bougainvillea', 56, 44);
+    }
+    {
+        // The chalkboard of specials: best dishes on the left, drinks on the right.
+        g.clear();
+        fillRect(0, 0, 72, 44, 0x3a2418); // frame
+        fillRect(3, 3, 66, 38, 0x1e2422);
+        fillRect(6, 6, 22, 2, 0xf2f2f2);
+        fillRect(40, 6, 26, 2, 0xf2e27a);
+        for (let i = 0; i < 5; i++) {
+            fillRect(8, 12 + i * 5, 10 + ((i * 7) % 18), 1, 0xdcdcdc);
+            drawPixel(6, 12 + i * 5, 0xf2f2f2);
+        }
+        fillRect(42, 16, 22, 2, 0xf2f2f2);
+        for (let i = 0; i < 4; i++) fillRect(42, 22 + i * 5, 10 + ((i * 5) % 12), 1, 0xdcdcdc);
+        g.generateTexture('chalkboard_menu', 72, 44);
+
+        g.clear(); // a little fountain set into a tiled arch in the wall
+        const TL = 0xc8a878, TL_SH = 0xa88858;
+        fillRect(0, 10, 40, 42, TL);
+        g.fillStyle(TL, 1);
+        g.fillEllipse(20, 10, 40, 20);
+        for (let y = 4; y < 50; y += 6) {
+            for (let x = ((y / 6) | 0) % 2 * 3; x < 40; x += 6) drawPixel(x, y, TL_SH);
+        }
+        fillRect(8, 14, 24, 26, 0x6a5a48); // the recess
+        g.fillStyle(0x6a5a48, 1);
+        g.fillEllipse(20, 14, 24, 12);
+        fillRect(18, 18, 4, 4, 0x4a4038); // spout
+        fillRect(19, 22, 2, 18, 0x9fd6f0); // water
+        fillRect(4, 40, 32, 10, 0x8a7a64); // basin
+        fillRect(6, 40, 28, 3, 0x5aa9d6);
+        fillRect(4, 49, 32, 3, 0x6a5a48);
+        g.generateTexture('tiled_wall_fountain', 40, 52);
+
+        g.clear(); // the menu on a post by the sidewalk, in a bright yellow frame
+        fillRect(15, 30, 4, 22, 0x8a6a44); // post
+        fillRect(6, 52, 22, 4, 0x6a4e30); // base
+        fillRect(0, 0, 34, 32, 0xf2d23a); // frame
+        fillRect(3, 3, 28, 26, 0x6a4ab8); // board
+        fillRect(6, 6, 10, 12, 0xf6f6f2); // menus pinned up
+        fillRect(18, 6, 10, 14, 0xf6f6f2);
+        fillRect(10, 20, 10, 7, 0xf6f6f2);
+        for (let y = 8; y < 18; y += 2) {
+            fillRect(7, y, 8, 1, 0xb0b0b0);
+            fillRect(19, y, 8, 1, 0xb0b0b0);
+        }
+        g.generateTexture('menu_board_stand', 34, 56);
+    }
     {
         // A table lamp with a fringed fabric shade.
         g.clear();
