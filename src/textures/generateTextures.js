@@ -7794,13 +7794,16 @@ export function generateTextures(scene) {
                 fillRect(1, 1, 18, 2, HI);
                 fillRect(15, 1, 4, 18, SHADE);
                 fillRect(1, 17, 18, 2, SHADE);
-                fillRect(9, 5, 2, 9, 0xf2f2f2); // the arrow, pointing down
-                fillRect(7, 11, 2, 2, 0xf2f2f2);
-                fillRect(11, 11, 2, 2, 0xf2f2f2);
-                fillRect(5, 9, 2, 2, 0xf2f2f2);
-                fillRect(13, 9, 2, 2, 0xf2f2f2);
                 g.generateTexture(key, 20, 20);
             });
+
+        g.clear(); // the arrow on a block: drawn pointing up, turned to point any way
+        fillRect(5, 2, 2, 9, 0xf2f2f2);
+        fillRect(3, 4, 2, 2, 0xf2f2f2);
+        fillRect(7, 4, 2, 2, 0xf2f2f2);
+        fillRect(1, 6, 2, 2, 0xf2f2f2);
+        fillRect(9, 6, 2, 2, 0xf2f2f2);
+        g.generateTexture('beat_arrow', 12, 12);
 
         // ...and the two sabers you cut them with.
         [['saber_red', 0xff5a6a, 0xffd0d6], ['saber_blue', 0x5a9aff, 0xd0e2ff]].forEach(([key, BLADE, GLOW]) => {

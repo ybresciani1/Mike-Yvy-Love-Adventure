@@ -5,13 +5,26 @@ import { playSound } from '../audio/sfx.js';
 import { stopMusic, playLeFestinTheme, playBattleTheme } from '../audio/music.js';
 import { showDialogue, dialogueBusy } from '../ui/dialogue.js';
 import { Player } from '../entities/Player.js';
-import { actionLabel, promptFontSize } from '../ui/touch.js';
+import { takePhoto } from '../ui/scrapbook.js';
+import { actionLabel, promptFontSize, isTouchMode } from '../ui/touch.js';
 
-// The song: which lane each block comes down, and how long after the last one.
-const CHART = [
-    [0, 900], [1, 800], [0, 700], [1, 700], [0, 650], [1, 600], [0, 600],
-    [1, 550], [0, 550], [1, 520], [0, 520], [1, 500], [0, 500], [1, 500]
-];
+// The two songs: which lane each block comes down, which way its arrow points,
+// and how long after the one before it. Mike demonstrates on the long one.
+const CHARTS = {
+    mike: [
+        [0, 'down', 1000], [1, 'down', 850], [0, 'left', 750], [1, 'right', 750],
+        [0, 'up', 700], [1, 'down', 650], [0, 'right', 650], [1, 'left', 620],
+        [0, 'down', 600], [1, 'up', 600], [0, 'left', 560], [1, 'right', 560],
+        [0, 'down', 540], [1, 'down', 540]
+    ],
+    yvy: [
+        [0, 'down', 1000], [1, 'down', 900], [0, 'right', 850], [1, 'left', 800],
+        [0, 'up', 800], [1, 'down', 760], [0, 'left', 760], [1, 'right', 720]
+    ]
+};
+
+// Which way each arrow points, as an angle.
+const ARROWS = { up: 0, right: 90, down: 180, left: 270 };
 const LANES = [-96, 96]; // red on the left, blue on the right
 const STRIKE = 112; // where a block meets the sabers, in panel coordinates
 
@@ -56,12 +69,12 @@ export class FiftyFourthScene extends Phaser.Scene {
         playLeFestinTheme();
         this.time.delayedCall(700, () => this.narrate([
             "After downtown, Yvy drove them back to the house on 54th Street. Aiden was out for the night; Penny met them at the door and had opinions about it.",
-            "Yvy: 'Okay. You have to try the VR. It's set up in the living room.'",
-            "Mike: 'I build VR for a living.'",
-            "Yvy: 'Then you have no excuse.'"
+            "Mike had carried his headset in from the car. He builds VR for a living, and he had been promising to show her for weeks.",
+            "Yvy: 'Set it up, set it up.'",
+            "Mike: 'Two minutes. I'll run it to your computer so I can see what you're seeing.'"
         ], () => {
             this.busy = false;
-            this.instructionText.setText(`Look around, or pick up the headset (${actionLabel()})`);
+            this.instructionText.setText(`Look around, or set up the headset (${actionLabel()})`);
         }));
     }
 
@@ -133,6 +146,17 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.headset = this.add.image(628, 296, 'vr_headset').setScale(1.1);
         this.tweens.add({ targets: this.headset, y: 292, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
+        // Yvy's computer, which Mike runs the headset to so he can see her view.
+        this.add.rectangle(440, 316, 96, 10, 0x6a5240);
+        this.add.rectangle(440, 322, 88, 6, 0x5a4434);
+        this.add.image(440, 290, 'expo_monitor');
+        this.monitorGlow = this.add.rectangle(440, 286, 44, 24, 0x6ad0f0, 0.12);
+        this.tweens.add({ targets: this.monitorGlow, alpha: 0.26, duration: 1200, yoyo: true, repeat: -1 });
+        const cable = this.add.graphics();
+        cable.lineStyle(2, 0x2a2a2e, 0.9);
+        cable.lineBetween(472, 316, 545, 330);
+        cable.lineBetween(545, 330, 616, 304);
+
         // The couch, a lamp, plants, and Penny's corner.
         this.add.image(240, 428, 'couch').setScale(1.8);
         this.add.image(240, 492, 'kid_table').setScale(1.2); // the coffee table
@@ -179,6 +203,11 @@ export class FiftyFourthScene extends Phaser.Scene {
             "The TV, paused on a menu screen with a song list on it.",
             "Yvy: 'That's the playlist. Don't scroll it, you'll lose my place.'"
         ], "The song list glows on the TV."));
+        this.zone(440, 345, 60, 20, this.chat([
+            "Yvy's computer, with the headset's view mirrored on the monitor — whatever is in the headset, Mike can see.",
+            "Mike: 'That's so I can tell you what you're doing wrong.'",
+            "Yvy: 'Rude. Accurate, probably. Rude.'"
+        ], "The monitor mirrors whatever the headset sees."));
         this.zone(630, 345, 40, 20, () => this.pickUpHeadset());
         this.zone(740, 345, 50, 20, this.chat([
             "Through the doors, the yard is dark and quiet, with Penny's tennis ball out on the grass where she left it."
@@ -210,21 +239,26 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.instructionText.setText('');
         this.headset.setVisible(false);
         this.narrate([
-            "Yvy: 'Beat Saber. Red saber in your left hand, blue in your right — you cut the blocks that match.'",
-            "Mike: 'How hard can it be.'",
-            "Yvy: 'Famous last words. Ready?'"
-        ], () => this.startSong());
+            "Mike ran the cable to the computer, cleared a space on the rug, and brought the menu up on her monitor.",
+            "Mike: 'Painting, a space station, one where you sit in a room with a dog. And this — Beat Saber.'",
+            "Yvy: 'That one. Obviously that one.'",
+            "Mike: 'Let me show you the first song. Watch the arrows — you cut each block the way its arrow points.'"
+        ], () => this.startSong('mike'));
     }
 
     /** Inside the headset: a dark field, two lanes, and blocks coming at you. */
-    startSong() {
+    startSong(who) {
+        this.who = who;
+        this.chart = CHARTS[who];
         stopMusic();
         playBattleTheme();
         this.hits = 0;
         this.misses = 0;
         this.blocks = [];
-        this.dim = this.add.rectangle(400, 300, GAME_WIDTH, GAME_HEIGHT, 0x05060c, 0).setDepth(30);
-        this.tweens.add({ targets: this.dim, fillAlpha: 0.9, duration: 500 });
+        if (!this.dim) {
+            this.dim = this.add.rectangle(400, 300, GAME_WIDTH, GAME_HEIGHT, 0x05060c, 0).setDepth(30);
+            this.tweens.add({ targets: this.dim, fillAlpha: 0.9, duration: 500 });
+        }
 
         this.panel = this.add.container(400, 300).setDepth(31);
         this.panel.add(this.add.rectangle(0, 0, 640, 380, 0x0a0c18));
@@ -243,8 +277,14 @@ export class FiftyFourthScene extends Phaser.Scene {
             this.panel.add(saber);
             return saber;
         });
-        this.scoreText = this.add.text(0, -170, '0', { fontSize: '20px', color: '#f2f2f2', fontStyle: 'bold' }).setOrigin(0.5);
+        this.scoreText = this.add.text(0, -170, '0', {
+            fontSize: '20px', color: who === 'mike' ? '#f2f2f2' : '#ff8ad0', fontStyle: 'bold'
+        }).setOrigin(0.5);
         this.panel.add(this.scoreText);
+        this.panel.add(this.add.text(0, 170, isTouchMode()
+            ? 'Cut each block the way its arrow points — use the D-pad'
+            : 'Cut each block the way its arrow points — use the arrow keys',
+        { fontSize: '11px', color: '#9aa8d0' }).setOrigin(0.5));
 
         // Three, two, one.
         const count = this.add.text(0, 0, '3', { fontSize: '52px', color: '#f2f2f2', fontStyle: 'bold' }).setOrigin(0.5);
@@ -260,47 +300,44 @@ export class FiftyFourthScene extends Phaser.Scene {
         });
     }
 
-    /** One block at a time, down the lane the chart says. */
+    /** One block at a time, down the lane the chart says, pointing where it says. */
     runChart(i) {
-        if (i >= CHART.length) {
-            this.time.delayedCall(2000, () => this.finishSong());
+        if (i >= this.chart.length) {
+            this.time.delayedCall(2100, () => this.finishSong());
             return;
         }
-        const [lane, gap] = CHART[i];
-        this.dropBlock(lane);
+        const [lane, dir, gap] = this.chart[i];
+        this.dropBlock(lane, dir);
         this.time.delayedCall(gap, () => this.runChart(i + 1));
     }
 
-    dropBlock(lane, auto = false) {
-        const block = this.add.image(LANES[lane], -190, lane ? 'beat_block_blue' : 'beat_block_red').setScale(1.6);
-        this.panel.add(block);
-        const entry = { block, lane, cut: false };
+    dropBlock(lane, dir) {
+        const cube = this.add.image(0, 0, lane ? 'beat_block_blue' : 'beat_block_red').setScale(1.6);
+        const arrow = this.add.image(0, 0, 'beat_arrow').setScale(1.3).setAngle(ARROWS[dir]);
+        const box = this.add.container(LANES[lane], -190, [cube, arrow]);
+        this.panel.add(box);
+        const entry = { box, cube, arrow, lane, dir, cut: false };
         this.blocks.push(entry);
         this.tweens.add({
-            targets: block, y: STRIKE + 70, duration: 1700, ease: 'Linear',
-            onUpdate: () => {
-                if (auto && !entry.cut && block.y >= STRIKE - 6) this.cut(entry);
-            },
+            targets: box, y: STRIKE + 70, duration: 1700, ease: 'Linear',
             onComplete: () => {
                 if (entry.cut) return;
                 this.blocks = this.blocks.filter(b => b !== entry);
-                block.destroy();
-                if (!auto) {
-                    this.misses += 1;
-                    this.cameras.main.shake(120, 0.004);
-                }
+                box.destroy();
+                this.misses += 1;
+                this.cameras.main.shake(120, 0.004);
             }
         });
     }
 
-    /** A swing: whichever block is at the line gets cut. */
-    slash() {
-        const entry = this.blocks.find(b => !b.cut && Math.abs(b.block.y - STRIKE) < 34);
-        const lane = entry ? entry.lane : 0;
-        const saber = this.sabers[lane];
-        this.tweens.add({ targets: saber, angle: lane ? -50 : 50, duration: 70, yoyo: true });
+    /** A swing one way: it only counts if the block's arrow agrees with it. */
+    slash(dir) {
+        const entry = this.blocks.find(b => !b.cut && Math.abs(b.box.y - STRIKE) < 34);
+        const saber = this.sabers[entry ? entry.lane : (dir === 'left' ? 0 : 1)];
+        this.tweens.add({ targets: saber, angle: dir === 'left' ? 50 : -50, duration: 70, yoyo: true });
         if (!entry) return playSound('whoosh');
-        this.cut(entry);
+        if (entry.dir === dir) return this.cut(entry);
+        this.wrongWay(entry);
     }
 
     cut(entry) {
@@ -309,65 +346,112 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.hits += 1;
         this.scoreText.setText(String(this.hits));
         playSound('select');
-        const { block } = entry;
+        const { box } = entry;
         this.tweens.add({
-            targets: block, scaleX: 2.2, scaleY: 0.4, alpha: 0, angle: entry.lane ? 40 : -40,
-            duration: 260, onComplete: () => block.destroy()
+            targets: box, scaleX: 2.2, scaleY: 0.4, alpha: 0, angle: entry.lane ? 40 : -40,
+            duration: 260, onComplete: () => box.destroy()
         });
-        const spark = this.add.rectangle(block.x, block.y, 80, 3, 0xffffff, 0.9);
+        const spark = this.add.rectangle(box.x, box.y, 80, 3, 0xffffff, 0.9);
         this.panel.add(spark);
         this.tweens.add({ targets: spark, scaleX: 2, alpha: 0, duration: 260, onComplete: () => spark.destroy() });
     }
 
-    finishSong() {
-        this.playing = false;
-        const scored = this.hits;
-        const verdict = scored >= 12
-            ? "Yvy: 'Okay. You're a natural and I hate it.'"
-            : scored >= 7
-                ? "Yvy: 'Not bad for a first song! You only fell over once.'"
-                : "Yvy: 'You'll get it. Nobody is good at this the first time.'";
-        this.narrate([
-            `Mike cut ${scored} of ${CHART.length} blocks, and put his whole shoulder into most of them.`,
-            verdict,
-            "Yvy: 'My turn. Watch.'"
-        ], () => this.yvyTurn());
+    /** Cut it the wrong way and it goes grey, and it counts against you. */
+    wrongWay(entry) {
+        entry.cut = true;
+        this.blocks = this.blocks.filter(b => b !== entry);
+        this.misses += 1;
+        playSound('whoosh');
+        this.cameras.main.shake(140, 0.005);
+        entry.cube.setTint(0x6a6a72);
+        entry.arrow.setTint(0x9a9aa2);
+        this.tweens.add({
+            targets: entry.box, alpha: 0, y: entry.box.y + 26, duration: 300,
+            onComplete: () => entry.box.destroy()
+        });
     }
 
-    /** Her turn: she does not miss. */
-    yvyTurn() {
-        this.hits = 0;
-        this.scoreText.setText('0');
-        this.scoreText.setColor('#ff8ad0');
-        let i = 0;
-        const next = () => {
-            if (i >= 8) {
-                this.time.delayedCall(1800, () => this.afterSong());
-                return;
-            }
-            this.dropBlock(i % 2, true);
-            i += 1;
-            this.time.delayedCall(420, next);
-        };
-        next();
+    clearPanel() {
+        this.playing = false;
+        this.blocks.forEach(b => b.box.destroy());
+        this.blocks = [];
+        this.panel.destroy();
+    }
+
+    finishSong() {
+        const scored = this.hits;
+        const total = this.chart.length;
+        this.clearPanel();
+        if (this.who === 'mike') {
+            this.narrate([
+                `Mike cut ${scored} of ${total}, calling the arrows out loud as they came down.`,
+                scored >= total - 2
+                    ? "Yvy: 'Okay, show-off. Give it here.'"
+                    : "Yvy: 'You missed some! Give it here, I want to try.'",
+                "Mike: 'Feet apart. Watch the arrow, not the block — I'll watch you on the monitor.'"
+            ], () => this.startSong('yvy'));
+            return;
+        }
+        this.narrate([
+            `On the monitor, Mike watched Yvy cut ${scored} of ${total}, swinging at the ceiling for the high ones.`,
+            scored >= total - 2
+                ? "Mike: 'That was your first song. That is not normal.'"
+                : scored >= total / 2
+                    ? "Mike: 'That's really good for a first song. Most people just flail.'"
+                    : "Mike: 'Everybody flails the first time. You're already better than I was.'",
+            "Yvy: 'Again. I've got it now.'"
+        ], () => this.afterSong());
     }
 
     afterSong() {
-        this.tweens.add({ targets: this.panel, alpha: 0, duration: 500, onComplete: () => this.panel.destroy() });
-        this.tweens.add({ targets: this.dim, fillAlpha: 0, duration: 600, onComplete: () => this.dim.destroy() });
+        this.tweens.add({
+            targets: this.dim, fillAlpha: 0, duration: 600,
+            onComplete: () => { this.dim.destroy(); this.dim = null; }
+        });
         stopMusic();
         playLeFestinTheme();
         this.played = true;
         this.headset.setVisible(true);
         this.narrate([
-            "Yvy cut every single block without moving her feet.",
-            "Mike: 'You've done this before.'",
-            "Yvy: 'Once or twice. Aiden and I play until the neighbours complain.'"
-        ], () => {
-            this.busy = false;
-            this.player.isLocked = false;
-            this.instructionText.setText(`Play again, or call it a night (${actionLabel()})`);
-            this.zone(400, 560, 90, 24, () => this.endNight());
+            "Yvy pulled the headset off with her hair everywhere and a controller still in each hand.",
+            "Yvy: 'Okay. Picture. Penny — Penny. Penny, come here.'"
+        ], () => this.vrPhoto());
+    }
+
+    /** The picture: the pair of them, the headset, and a dog who will not look at the camera. */
+    vrPhoto() {
+        this.player.body.reset(392, 470);
+        this.player.setFlipX(false);
+        this.yvy.setPosition(424, 470).setFlipX(true);
+        this.penny.setPosition(458, 486);
+        this.pennyFollows = false;
+        this.time.delayedCall(700, () => {
+            this.cameras.main.flash(250, 255, 255, 255);
+            takePhoto({
+                key: 'vrnight', title: 'VR night at 54th Street',
+                caption: "Mike's headset, Yvy's living room, and Penny refusing to look at the camera.",
+                window: 0x2e2636,
+                sprites: [
+                    { rect: [180, 34], x: 0, y: 24, color: 0x6a4a32 },
+                    { texture: 'tv', x: 54, y: -16, scale: 0.9 },
+                    { texture: 'couch', x: -54, y: 2 },
+                    { texture: this.player.texture.key, x: -16, y: 8 },
+                    { texture: 'vr_headset', x: -16, y: -2, scale: 0.7 },
+                    { texture: 'yvy', x: 10, y: 8 },
+                    { texture: 'saber_blue', x: 28, y: 2, scale: 0.7 },
+                    { texture: 'penny_custom', x: 44, y: 18, size: [22, 22] }
+                ]
+            });
+            this.narrate([
+                "Penny looked at the phone, looked away, and leaned on Mike's leg instead.",
+                "Mike: 'That's the one. That's the picture.'"
+            ], () => {
+                this.busy = false;
+                this.player.isLocked = false;
+                this.pennyFollows = true;
+                this.instructionText.setText(`Play again, or call it a night (${actionLabel()})`);
+                this.zone(400, 560, 90, 24, () => this.endNight());
+            });
         });
     }
 
@@ -377,8 +461,8 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.instructionText.setText('');
         this.narrate([
             "They played until they were both out of breath, and Penny watched the whole thing from her spot on the couch like they had lost their minds.",
-            "Yvy: 'Same time tomorrow? I'll make you play on hard.'",
-            "Mike: 'Same time tomorrow.'"
+            "Yvy: 'Bring it back tomorrow. I want to try the one with the dog.'",
+            "Mike: 'Penny can supervise.'"
         ], () => {
             this.cameras.main.fadeOut(1200, 0, 0, 0);
             this.cameras.main.once('camerafadeoutcomplete', () => {
@@ -390,7 +474,11 @@ export class FiftyFourthScene extends Phaser.Scene {
 
     update() {
         if (this.playing) {
-            if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.slash();
+            const { left, right, up, down } = this.cursors;
+            if (Phaser.Input.Keyboard.JustDown(left)) this.slash('left');
+            else if (Phaser.Input.Keyboard.JustDown(right)) this.slash('right');
+            else if (Phaser.Input.Keyboard.JustDown(up)) this.slash('up');
+            else if (Phaser.Input.Keyboard.JustDown(down)) this.slash('down');
             return;
         }
         this.player.update(this.cursors);

@@ -34,7 +34,7 @@ export function photoCount() {
 }
 
 /** Every photo the game can produce, so the album can show what was missed. */
-export const TOTAL_PHOTOS = 26;
+export const TOTAL_PHOTOS = 27;
 
 /** Photographs to a page in the album, as two rows of three. */
 export const PHOTOS_PER_PAGE = 6;
