@@ -37,10 +37,11 @@ const LANES = [-96, 96]; // red on the left, blue on the right
 const STRIKE = 112; // where a block meets the sabers, in panel coordinates
 
 /**
- * The house on 54th Street, the same night as downtown. Aiden is out, Penny is
- * very much in, and the VR headset is on the TV unit — which is how Mike ends
- * up playing Beat Saber in Yvy's living room, badly, and then watching her do
- * it properly.
+ * The house on 54th Street that Yvy shares with Aiden and her roommates David
+ * and Forest, the same night as downtown. All of them are out, Penny is
+ * very much in, and Mike has carried his headset and his laptop in from the
+ * car — which is how the two of them end up playing Beat Saber in her living
+ * room until one in the morning.
  */
 export class FiftyFourthScene extends Phaser.Scene {
     constructor() { super('FiftyFourthScene'); }
@@ -76,7 +77,7 @@ export class FiftyFourthScene extends Phaser.Scene {
         stopMusic();
         playLeFestinTheme();
         this.time.delayedCall(700, () => this.narrate([
-            "After downtown, Yvy drove them back to the house she shared on 54th Street. Her roommates, David and Forest, were out; Aiden wasn't living with her yet. Penny met them at the door and had opinions about the hour.",
+            "After downtown, Yvy drove them back to the house on 54th Street, which she shared with Aiden and her roommates, David and Forest. All three were out; Penny met them at the door and had opinions about the hour.",
             "Mike had carried his headset and his laptop in from the car. He builds VR for a living, and he had been promising to show her for weeks.",
             "Yvy: 'Set it up, set it up.'",
             "Mike: 'Two minutes. I'll run it to my laptop so I can see what you're seeing.'"
@@ -206,9 +207,9 @@ export class FiftyFourthScene extends Phaser.Scene {
      */
     buildTalk() {
         this.zone(120, 345, 60, 20, this.chat([
-            "The kitchen, dark except for the light over the stove. There is a plate of something under foil.",
-            "Yvy: 'Leftovers. My mom cooks like there's twelve of us.'"
-        ], "Yvy: 'The foil stays on until after.'"));
+            "The kitchen, dark except for the light over the stove, with somebody's dishes stacked by the sink.",
+            "Yvy: 'If it's got a name on it, it isn't mine. Everything in that fridge has a name on it.'"
+        ], "Yvy: 'Anything labelled Forest is very much Forest's.'"));
         this.zone(545, 345, 60, 20, this.chat([
             "The TV, paused on a menu screen with a song list on it.",
             "Yvy: 'That's the playlist. Don't scroll it, you'll lose my place.'"
