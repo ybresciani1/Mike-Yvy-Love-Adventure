@@ -42,6 +42,7 @@ const CHAPTER_LABELS = {
     MisterAsScene: "Mister A's",
     NovaScene: 'NOVA',
     DowntownScene: 'Downtown',
+    FiftyFourthScene: '54th Street',
     CostumeNightScene: 'Costume Night',
     FifthRoseScene: 'Fifth & Rose',
     CoinOpWalkScene: 'Walk to Coin-Op',

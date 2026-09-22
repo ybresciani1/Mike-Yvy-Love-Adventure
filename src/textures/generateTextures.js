@@ -7786,6 +7786,34 @@ export function generateTextures(scene) {
         g.generateTexture('sea_star', 14, 14);
     }
     {
+        // Beat Saber, on the TV at 54th Street: the blocks that come at you...
+        [['beat_block_red', 0xd23a4a, 0xa82a38, 0xf06a78], ['beat_block_blue', 0x2a6ad2, 0x1e4ea8, 0x6a9af0]]
+            .forEach(([key, FACE, SHADE, HI]) => {
+                g.clear();
+                fillRect(1, 1, 18, 18, FACE);
+                fillRect(1, 1, 18, 2, HI);
+                fillRect(15, 1, 4, 18, SHADE);
+                fillRect(1, 17, 18, 2, SHADE);
+                fillRect(9, 5, 2, 9, 0xf2f2f2); // the arrow, pointing down
+                fillRect(7, 11, 2, 2, 0xf2f2f2);
+                fillRect(11, 11, 2, 2, 0xf2f2f2);
+                fillRect(5, 9, 2, 2, 0xf2f2f2);
+                fillRect(13, 9, 2, 2, 0xf2f2f2);
+                g.generateTexture(key, 20, 20);
+            });
+
+        // ...and the two sabers you cut them with.
+        [['saber_red', 0xff5a6a, 0xffd0d6], ['saber_blue', 0x5a9aff, 0xd0e2ff]].forEach(([key, BLADE, GLOW]) => {
+            g.clear();
+            fillRect(1, 1, 4, 32, GLOW);
+            fillRect(2, 0, 2, 34, BLADE);
+            fillRect(2, 3, 2, 26, GLOW);
+            fillRect(1, 34, 4, 6, 0x3a3a40); // hilt
+            fillRect(1, 36, 4, 1, 0x8a8a92);
+            g.generateTexture(key, 6, 40);
+        });
+    }
+    {
         // A table lamp with a fringed fabric shade.
         g.clear();
         g.fillStyle(0xf6e8c4, 1);

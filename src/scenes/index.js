@@ -22,6 +22,7 @@ import { TorreyPinesScene } from './TorreyPinesScene.js';
 import { MisterAsScene } from './MisterAsScene.js';
 import { NovaScene } from './NovaScene.js';
 import { DowntownScene } from './DowntownScene.js';
+import { FiftyFourthScene } from './FiftyFourthScene.js';
 import { CostumeNightScene } from './CostumeNightScene.js';
 import { FifthRoseScene } from './FifthRoseScene.js';
 import { CoinOpWalkScene } from './CoinOpWalkScene.js';
@@ -64,6 +65,7 @@ export const SCENES = [
     MisterAsScene,
     NovaScene,
     DowntownScene,
+    FiftyFourthScene,
     CostumeNightScene,
     FifthRoseScene,
     CoinOpWalkScene,
