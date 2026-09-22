@@ -147,6 +147,43 @@ export class TorreyPinesScene extends Phaser.Scene {
         return w;
     }
 
+    /**
+     * Somebody who walks the whole way and off the edge of the screen — over the
+     * top of the hill, or away down the trail — then comes round again after a
+     * while, so the hill always has somebody on it.
+     */
+    passerby(c, stage, from, to, { key, tint, duration, line, again, breathless = false, pause = [2500, 7000] }) {
+        const w = this.add.sprite(from[0], from[1], key).setTint(tint);
+        c.add(w);
+        const go = () => {
+            w.setPosition(from[0], from[1]).setVisible(true).setFlipX(to[0] < from[0]);
+            this.tweens.add({
+                targets: w, x: to[0], y: to[1], duration, ease: 'Linear',
+                onComplete: () => {
+                    w.setVisible(false);
+                    this.time.delayedCall(pause[0] + Math.random() * (pause[1] - pause[0]), go);
+                }
+            });
+        };
+        go();
+        if (breathless) this.breathless(c, w);
+        this.walkers.push({ sprite: w, stage, talk: this.chat([line], again) });
+        return w;
+    }
+
+    /** Out of breath: shoulders going, and the odd puff of air on the way up. */
+    breathless(c, sprite, every = 2600) {
+        this.tweens.add({ targets: sprite, scaleY: 0.94, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.time.addEvent({
+            delay: every, loop: true, startAt: Math.floor(Math.random() * every), callback: () => {
+                if (!sprite.visible) return;
+                const puff = this.add.text(sprite.x + 11, sprite.y - 15, '*huff*', { fontSize: '8px', color: '#f2f8fa' });
+                c.add(puff);
+                this.tweens.add({ targets: puff, y: puff.y - 14, alpha: 0, duration: 1200, onComplete: () => puff.destroy() });
+            }
+        });
+    }
+
     /** A gull crossing the sky now and then. */
     gulls(c, y) {
         const gull = this.add.image(-20, y, 'seagull');
@@ -238,17 +275,24 @@ export class TorreyPinesScene extends Phaser.Scene {
         }).setOrigin(0.5));
         this.gulls(c, 90);
 
-        // Everybody else going up, or coming back down.
-        const lane = (t0, t1, off) => [this.roadPoint(t0, off), this.roadPoint(t1, off)];
-        [
-            [0.05, 0.95, 18, 'civilian', 0xe0c8b0, 5200, "Runner: 'Third time up today. It never gets any less steep.'", "Runner: 'Fourth time!'"],
-            [0.9, 0.15, -16, 'civilian_f', 0xd0d8f0, 12000, "Walker: 'Take the Beach Trail on the way down. It comes out right on the sand.'", "Walker: 'Beach Trail!'"],
-            [0.2, 0.7, -4, 'civilian', 0xc8e0c8, 14000, "Hiker: 'Everybody says it's just a road. Then they walk up it.'", "Hiker: 'Just a road.'"],
-            [0.6, 0.98, 10, 'civilian_f', 0xf0c8d8, 9000, "Walker: 'You're halfway! Probably.'", "Walker: 'Probably halfway.'"]
-        ].forEach(([t0, t1, off, key, tint, duration, line, again]) => {
-            const [from, to] = lane(t0, t1, off);
-            this.walker(c, 'road', from, to, key, tint, duration, line, again);
+        // Everybody else on the hill. Two go all the way up and over the top,
+        // off the screen into the reserve, and come round again a while later;
+        // two more work their way up and down the middle of it. The climbers are
+        // out of breath, because everybody on this road is.
+        this.passerby(c, 'road', this.roadPoint(-0.06, 18), this.roadPoint(1.22, 18), {
+            key: 'civilian', tint: 0xe0c8b0, duration: 9000, breathless: true,
+            line: "Runner (between breaths): 'Third time up today... it never gets... any less steep.'",
+            again: "Runner: 'Fourth... time...'"
         });
+        this.passerby(c, 'road', this.roadPoint(-0.1, -14), this.roadPoint(1.2, -14), {
+            key: 'civilian_f', tint: 0xf0c8d8, duration: 16000, breathless: true,
+            line: "Walker (puffing): 'They tell you it's eight-tenths of a mile. They don't tell you it's straight up.'",
+            again: "Walker: 'Straight... up...'"
+        });
+        this.walker(c, 'road', this.roadPoint(0.9, -16), this.roadPoint(0.15, -16), 'civilian_f', 0xd0d8f0, 12000,
+            "Walker: 'Take the Beach Trail on the way down. It comes out right on the sand.'", "Walker: 'Beach Trail!'");
+        this.walker(c, 'road', this.roadPoint(0.2, -4), this.roadPoint(0.7, -4), 'civilian', 0xc8e0c8, 14000,
+            "Hiker: 'Everybody says it's just a road. Then they walk up it.'", "Hiker: 'Just a road.'");
     }
 
     /** Keep him on the road (or in the lot at the bottom of it): it is a hill, not a path through the scrub. */
@@ -325,6 +369,13 @@ export class TorreyPinesScene extends Phaser.Scene {
             "Hiker: 'Going down is the easy part. Save your legs for the way back up.'", "Hiker: 'Save your legs!'");
         this.walker(c, 'reserve', [150, 498], [440, 462], 'civilian_f', 0xf0d0d8, 6000,
             "Runner: 'Morning! On your left!'", "Runner: 'On your left!'");
+        // Somebody who has just come up the road, crossing the mesa and away
+        // down the trail, still getting their breath back.
+        this.passerby(c, 'reserve', [-30, 585], [840, 372], {
+            key: 'civilian', tint: 0xc8d8b0, duration: 16000, breathless: true,
+            line: "Hiker (getting their breath back): 'That road... gets me... every time. Worth it, though.'",
+            again: "Hiker: 'Worth it... every time.'"
+        });
     }
 
     // --- the beach -----------------------------------------------------------------------
@@ -673,6 +724,7 @@ export class TorreyPinesScene extends Phaser.Scene {
         // The people walking about are caught by distance, and only when no zone
         // wants the keypress (scene update runs before the physics step).
         const walker = !near && !this.busy && !this.hopping && this.walkers.find(w => w.stage === this.stage
+            && w.sprite.visible // the ones over the hill are off the screen
             && Phaser.Math.Distance.Between(this.player.x, this.player.y, w.sprite.x, w.sprite.y) < 36);
         if (walker && Phaser.Input.Keyboard.JustDown(this.spaceKey) && !dialogueBusy()) walker.talk();
         document.getElementById('interaction-hint').style.display = (near || walker) ? 'block' : 'none';
