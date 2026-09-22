@@ -18,8 +18,16 @@ const CHARTS = {
         [0, 'down', 540], [1, 'down', 540]
     ],
     yvy: [
-        [0, 'down', 1000], [1, 'down', 900], [0, 'right', 850], [1, 'left', 800],
-        [0, 'up', 800], [1, 'down', 760], [0, 'left', 760], [1, 'right', 720]
+        [0, 'down', 1000], [1, 'down', 880], [0, 'right', 800], [1, 'right', 780],
+        [0, 'up', 740], [1, 'left', 700], [0, 'down', 700], [1, 'up', 660],
+        [0, 'left', 640], [1, 'down', 620], [0, 'right', 600], [1, 'up', 580],
+        [0, 'down', 560], [1, 'left', 540]
+    ],
+    encore: [
+        [1, 'down', 900], [0, 'up', 780], [1, 'left', 720], [0, 'right', 700],
+        [1, 'down', 660], [0, 'down', 640], [1, 'up', 600], [0, 'left', 580],
+        [1, 'right', 560], [0, 'down', 540], [1, 'left', 520], [0, 'up', 500],
+        [1, 'right', 500], [0, 'down', 480]
     ]
 };
 
@@ -68,10 +76,10 @@ export class FiftyFourthScene extends Phaser.Scene {
         stopMusic();
         playLeFestinTheme();
         this.time.delayedCall(700, () => this.narrate([
-            "After downtown, Yvy drove them back to the house on 54th Street. Aiden was out for the night; Penny met them at the door and had opinions about it.",
-            "Mike had carried his headset in from the car. He builds VR for a living, and he had been promising to show her for weeks.",
+            "After downtown, Yvy drove them back to the house she shared on 54th Street. Her roommates, David and Forest, were out; Aiden wasn't living with her yet. Penny met them at the door and had opinions about the hour.",
+            "Mike had carried his headset and his laptop in from the car. He builds VR for a living, and he had been promising to show her for weeks.",
             "Yvy: 'Set it up, set it up.'",
-            "Mike: 'Two minutes. I'll run it to your computer so I can see what you're seeing.'"
+            "Mike: 'Two minutes. I'll run it to my laptop so I can see what you're seeing.'"
         ], () => {
             this.busy = false;
             this.instructionText.setText(`Look around, or set up the headset (${actionLabel()})`);
@@ -146,7 +154,7 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.headset = this.add.image(628, 296, 'vr_headset').setScale(1.1);
         this.tweens.add({ targets: this.headset, y: 292, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
-        // Yvy's computer, which Mike runs the headset to so he can see her view.
+        // Mike's laptop, which he runs the headset to so he can see her view.
         this.add.rectangle(440, 316, 96, 10, 0x6a5240);
         this.add.rectangle(440, 322, 88, 6, 0x5a4434);
         this.add.image(440, 290, 'expo_monitor');
@@ -171,7 +179,9 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.add.ellipse(150, 550, 64, 26, 0x8a6a52);
         this.penny = this.add.sprite(150, 544, 'penny_custom').setDepth(19);
         this.penny.setDisplaySize(26, 26);
-        this.tweens.add({ targets: this.penny, x: 158, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        // Her pottering about by the bowls — stopped the moment she has somewhere to be,
+        // or it would drag her back here however far she has walked.
+        this.pennyIdle = this.tweens.add({ targets: this.penny, x: 158, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
 
     buildSolids() {
@@ -204,10 +214,10 @@ export class FiftyFourthScene extends Phaser.Scene {
             "Yvy: 'That's the playlist. Don't scroll it, you'll lose my place.'"
         ], "The song list glows on the TV."));
         this.zone(440, 345, 60, 20, this.chat([
-            "Yvy's computer, with the headset's view mirrored on the monitor — whatever is in the headset, Mike can see.",
+            "Mike's laptop, open on the side table, with the headset's view mirrored on it — whatever is in the headset, he can see.",
             "Mike: 'That's so I can tell you what you're doing wrong.'",
             "Yvy: 'Rude. Accurate, probably. Rude.'"
-        ], "The monitor mirrors whatever the headset sees."));
+        ], "The laptop mirrors whatever the headset sees."));
         this.zone(630, 345, 40, 20, () => this.pickUpHeadset());
         this.zone(740, 345, 50, 20, this.chat([
             "Through the doors, the yard is dark and quiet, with Penny's tennis ball out on the grass where she left it."
@@ -219,8 +229,16 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.zone(150, 588, 60, 20, () => this.petPenny());
     }
 
+    stopPennyIdle() {
+        if (this.pennyIdle) {
+            this.pennyIdle.remove();
+            this.pennyIdle = null;
+        }
+    }
+
     petPenny() {
         if (this.pennyFollows) return showDialogue("Penny leans on Mike's leg and stays there.");
+        this.stopPennyIdle();
         this.pennyFollows = true;
         playSound('select');
         this.narrate([
@@ -233,17 +251,42 @@ export class FiftyFourthScene extends Phaser.Scene {
     // --- the headset ------------------------------------------------------------------
 
     pickUpHeadset() {
-        if (this.played) return showDialogue("Yvy: 'One more song and it's midnight. ...Okay, one more.'");
+        if (this.played) return this.encore();
         this.busy = true;
         this.player.isLocked = true;
         this.instructionText.setText('');
         this.headset.setVisible(false);
         this.narrate([
-            "Mike ran the cable to the computer, cleared a space on the rug, and brought the menu up on her monitor.",
+            "Mike ran the cable to his laptop, cleared a space on the rug, and brought the menu up on the screen.",
             "Mike: 'Painting, a space station, one where you sit in a room with a dog. And this — Beat Saber.'",
             "Yvy: 'That one. Obviously that one.'",
             "Mike: 'Let me show you the first song. Watch the arrows — you cut each block the way its arrow points.'"
         ], () => this.startSong('mike'));
+    }
+
+    /** One more song, as many times as they want one. */
+    encore() {
+        this.busy = true;
+        this.player.isLocked = true;
+        this.instructionText.setText('');
+        this.headset.setVisible(false);
+        this.narrate([
+            "Yvy: 'One more song and it's midnight. ...Okay, one more.'"
+        ], () => this.startSong('encore'));
+    }
+
+    /** Out of the headset and back into the living room, ready to go again. */
+    backToTheRoom() {
+        this.tweens.add({
+            targets: this.dim, fillAlpha: 0, duration: 600,
+            onComplete: () => { this.dim.destroy(); this.dim = null; }
+        });
+        stopMusic();
+        playLeFestinTheme();
+        this.headset.setVisible(true);
+        this.busy = false;
+        this.player.isLocked = false;
+        this.instructionText.setText(`Play again, or call it a night (${actionLabel()})`);
     }
 
     /** Inside the headset: a dark field, two lanes, and blocks coming at you. */
@@ -388,12 +431,21 @@ export class FiftyFourthScene extends Phaser.Scene {
                 scored >= total - 2
                     ? "Yvy: 'Okay, show-off. Give it here.'"
                     : "Yvy: 'You missed some! Give it here, I want to try.'",
-                "Mike: 'Feet apart. Watch the arrow, not the block — I'll watch you on the monitor.'"
+                "Mike: 'Feet apart. Watch the arrow, not the block — I'll watch you on the laptop.'"
             ], () => this.startSong('yvy'));
             return;
         }
+        if (this.who === 'encore') {
+            this.narrate([
+                `That one came out ${scored} of ${total}.`,
+                scored >= total - 2
+                    ? "Yvy: 'Okay. Now we're both good at this.'"
+                    : "Yvy: 'Again. One more and then it's actually midnight.'"
+            ], () => this.backToTheRoom());
+            return;
+        }
         this.narrate([
-            `On the monitor, Mike watched Yvy cut ${scored} of ${total}, swinging at the ceiling for the high ones.`,
+            `On the laptop, Mike watched Yvy cut ${scored} of ${total}, swinging at the ceiling for the high ones.`,
             scored >= total - 2
                 ? "Mike: 'That was your first song. That is not normal.'"
                 : scored >= total / 2
@@ -423,9 +475,14 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.player.body.reset(392, 470);
         this.player.setFlipX(false);
         this.yvy.setPosition(424, 470).setFlipX(true);
-        this.penny.setPosition(458, 486);
         this.pennyFollows = false;
-        this.time.delayedCall(700, () => {
+        this.stopPennyIdle();
+        // She takes her time about it, but she comes when she is called.
+        this.tweens.add({
+            targets: this.penny, x: 458, y: 486, duration: 1000, ease: 'Sine.easeInOut',
+            onComplete: () => this.tweens.add({ targets: this.penny, y: 480, duration: 160, yoyo: true, repeat: 1 })
+        });
+        this.time.delayedCall(1500, () => {
             this.cameras.main.flash(250, 255, 255, 255);
             takePhoto({
                 key: 'vrnight', title: 'VR night at 54th Street',
@@ -461,6 +518,7 @@ export class FiftyFourthScene extends Phaser.Scene {
         this.instructionText.setText('');
         this.narrate([
             "They played until they were both out of breath, and Penny watched the whole thing from her spot on the couch like they had lost their minds.",
+            "David and Forest came home around one, found the pair of them swinging at nothing in a dark living room, and asked to go next.",
             "Yvy: 'Bring it back tomorrow. I want to try the one with the dog.'",
             "Mike: 'Penny can supervise.'"
         ], () => {
