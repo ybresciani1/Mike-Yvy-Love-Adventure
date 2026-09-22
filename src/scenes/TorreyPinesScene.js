@@ -18,6 +18,74 @@ const TRAIL = [[60, 600], [150, 505], [300, 462], [460, 470], [600, 425], [720, 
 // The rocks on the beach he can jump onto and off again.
 const ROCKS = [[330, 430], [440, 500], [560, 450], [680, 520], [300, 560]];
 
+// What Yvy can name up on the mesa. A magnifying glass floats over each one
+// until she has, and `image` is drawn here for the ones the scenery hasn't
+// already put there (the pine and the sage are part of the hillside).
+const FINDS = [
+    {
+        marker: [60, 214], zone: [62, 360, 50, 16],
+        lines: [
+            "A Torrey pine, bent sideways by years of wind off the ocean.",
+            "Yvy: 'These only grow here and on one island off the coast. They're the rarest pine in the country.'",
+            "Mike: 'So we're basically hiking past celebrities.'"
+        ],
+        again: "The Torrey pine leans into the wind."
+    },
+    {
+        marker: [300, 368], zone: [300, 410, 50, 16],
+        lines: [
+            "Yvy: 'Smell that? California sagebrush. Rub one leaf and your hands smell like this all day.'",
+            "Mike: 'It smells like a candle. A really expensive candle.'"
+        ],
+        again: "Coastal sage, warm in the sun."
+    },
+    {
+        image: ['yucca', 170, 418, 1], marker: [170, 386], zone: [170, 442, 44, 16],
+        lines: [
+            "A rosette of stiff blades with one tall spike of cream flowers standing over it.",
+            "Yvy: 'Our Lord's candle. It grows for years, throws up one flower spike like that, and then it's done.'"
+        ],
+        again: "Yvy: 'One flower, one lifetime.'"
+    },
+    {
+        image: ['lemonade_berry', 400, 542, 1], marker: [400, 516], zone: [400, 566, 44, 14],
+        lines: [
+            "A round green shrub, dotted all over with sticky red berries.",
+            "Yvy: 'Lemonade berry. People used to soak the berries in water and drink it.'",
+            "Mike: 'Is it good?'",
+            "Yvy: 'It's sour. Don't.'"
+        ],
+        again: "Yvy: 'Still don't eat them.'"
+    },
+    {
+        image: ['lizard', 598, 520, 1.2], under: ['beach_rock_small', 600, 528, 1.2],
+        marker: [600, 494], zone: [600, 546, 40, 16], scurry: true,
+        lines: [
+            "Something small moves on a rock, and then stops dead.",
+            "Yvy: 'Side-blotched lizard. Watch — it'll do push-ups at you.'",
+            "Mike: 'It is absolutely doing push-ups at me.'"
+        ],
+        again: "Yvy: 'Still doing push-ups.'"
+    },
+    {
+        image: ['hummingbird', 250, 330, 1.2], under: ['yellow_shrub', 252, 350, 1],
+        marker: [250, 304], zone: [248, 366, 40, 16], hover: true,
+        lines: [
+            "A tiny bird hangs in the air by the flowers, and then is somewhere else.",
+            "Yvy: 'Anna's hummingbird. They're here all year, and the males will dive-bomb you if you stand too near their bush.'"
+        ],
+        again: "Yvy: 'Don't crowd his bush.'"
+    },
+    {
+        image: ['quail', 660, 466, 1], marker: [660, 440], zone: [660, 488, 40, 16], trot: true,
+        lines: [
+            "A plump little bird trots across the trail with a black comma bobbing on its head.",
+            "Yvy: 'California quail. Where there's one, there are twenty. Listen for the rest of them.'"
+        ],
+        again: "Yvy: 'The other nineteen are in that bush.'"
+    }
+];
+
 /**
  * Torrey Pines, the morning after Cafe Secret, in three parts that are three
  * containers in one scene:
@@ -41,6 +109,9 @@ export class TorreyPinesScene extends Phaser.Scene {
         this.yvyFollow = true;
         this.hopping = false;
         this.reservePhoto = false;
+        this.racing = false;
+        this.hopped = new Set();
+        this.found = 0;
 
         this.road = this.add.container(0, 0);
         this.buildRoad(this.road);
@@ -363,6 +434,7 @@ export class TorreyPinesScene extends Phaser.Scene {
         c.add(this.add.text(110, 516, 'BEACH TRAIL', { fontSize: '7px', color: '#f2e6c8', fontStyle: 'bold' }).setOrigin(0.5));
         this.I(c, 520, 372, 'park_bench');
         c.add(this.add.sprite(504, 356, 'civilian_sit').setTint(0xc8d8e8));
+        this.buildFinds(c);
         this.gulls(c, 120);
 
         this.walker(c, 'reserve', [300, 455], [600, 420], 'civilian', 0xd8c0a0, 9000,
@@ -428,6 +500,71 @@ export class TorreyPinesScene extends Phaser.Scene {
         this.gulls(c, 90);
         this.walker(c, 'beach', [420, 590], [540, 584], 'seagull', 0xffffff, 5000,
             "A seagull walks right up to Mike and stares at his bag of snacks.", "The seagull has not given up.");
+    }
+
+    /** The flora and fauna Yvy can name, each under a floating magnifying glass. */
+    buildFinds(c) {
+        this.finds = FINDS.map(find => {
+            if (find.under) this.I(c, find.under[1], find.under[2], find.under[0], find.under[3]);
+            const sprite = find.image ? this.I(c, find.image[1], find.image[2], find.image[0], find.image[3]) : null;
+            if (sprite && find.hover) {
+                this.tweens.add({ targets: sprite, x: sprite.x + 10, y: sprite.y - 6, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            }
+            if (sprite && find.scurry) {
+                this.tweens.add({ targets: sprite, x: sprite.x + 10, duration: 400, yoyo: true, hold: 200, repeat: -1, repeatDelay: 2600 });
+            }
+            if (sprite && find.trot) {
+                this.tweens.add({ targets: sprite, x: sprite.x - 26, duration: 3200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            }
+            const glass = this.I(c, find.marker[0], find.marker[1], 'magnifier');
+            this.tweens.add({ targets: glass, y: glass.y - 5, duration: 1100, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            return { ...find, sprite, glass, named: false };
+        });
+    }
+
+    /** Yvy names it, and the magnifying glass over it goes out. */
+    identify(find) {
+        if (find.named) return showDialogue(find.again);
+        find.named = true;
+        playSound('select');
+        this.tweens.add({ targets: find.glass, alpha: 0, scale: 1.8, duration: 400, onComplete: () => find.glass.destroy() });
+        this.found += 1;
+        const lines = [...find.lines];
+        if (this.found === this.finds.length) {
+            lines.push("Yvy: 'That's everything out here I know by name. Give me another trail.'");
+        }
+        this.narrate(lines, () => {});
+    }
+
+    /** Yvy jumping somewhere, in a little arc — she is a plain sprite, so this just moves her. */
+    yvyHopTo(x, y, duration = 420) {
+        const from = { x: this.yvy.x, y: this.yvy.y };
+        const c = { t: 0 };
+        this.yvy.setFlipX(x < from.x);
+        this.tweens.add({
+            targets: c, t: 1, duration, ease: 'Sine.easeInOut',
+            onUpdate: () => {
+                this.yvy.x = Phaser.Math.Linear(from.x, x, c.t);
+                this.yvy.y = Phaser.Math.Linear(from.y, y, c.t) - Math.sin(c.t * Math.PI) * 16;
+            }
+        });
+    }
+
+    /** What is living in the tide pools, once Yvy has spotted it. */
+    showTidePools() {
+        playSound('select');
+        const on = (x, y, key, scale) => {
+            const o = this.add.image(x, y, key).setScale(scale).setDepth(6).setAlpha(0);
+            this.beach.add(o);
+            this.tweens.add({ targets: o, alpha: 1, duration: 400 });
+            return o;
+        };
+        const crab = on(524, 334, 'crab', 1.2);
+        this.tweens.add({ targets: crab, x: 552, duration: 1900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        on(590, 340, 'anemone', 1.1);
+        on(612, 332, 'anemone', 0.85);
+        const star = on(548, 320, 'sea_star', 1);
+        this.tweens.add({ targets: star, angle: 12, duration: 3000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
 
     buildSolids() {
@@ -500,19 +637,12 @@ export class TorreyPinesScene extends Phaser.Scene {
         this.zone(110, 566, 50, 14, onMesa, this.chat([
             "TORREY PINES STATE NATURAL RESERVE. BEACH TRAIL. Please stay on the trail."
         ], "Please stay on the trail."));
-        this.zone(62, 360, 50, 16, onMesa, this.chat([
-            "A Torrey pine, bent sideways by years of wind off the ocean.",
-            "Yvy: 'These only grow here and on one island off the coast. They're the rarest pine in the country.'",
-            "Mike: 'So we're basically hiking past celebrities.'"
-        ], "The Torrey pine leans into the wind."));
+        // Everything with a magnifying glass over it: Yvy names it, the glass goes out.
+        this.finds.forEach(find => this.zone(...find.zone, onMesa, () => this.identify(find)));
         this.zone(223, 250, 40, 16, onMesa, this.chat([
             "The old lodge: adobe walls and the ends of the roof beams poking out, the visitor center now.",
             "Yvy: 'Water fountain, then trail. Let's go.'"
         ], "The visitor center, cool and shady inside."));
-        this.zone(300, 410, 50, 16, onMesa, this.chat([
-            "Yvy: 'Smell that? That's the sage.'",
-            "Mike: 'It smells like a candle. A really expensive candle.'"
-        ], "Coastal sage, warm in the sun."));
         this.zone(520, 392, 70, 14, onMesa, () => this.overlook());
         this.zone(740, 400, 60, 30, onMesa, () => this.toBeach());
     }
@@ -557,11 +687,13 @@ export class TorreyPinesScene extends Phaser.Scene {
         this.narrate([
             "At the top of the hill the road levels out onto the mesa: the old adobe lodge, the Torrey pines, and the trailheads."
         ], () => this.changePlace('reserve', 60, 578, '#b8d8ee', () => this.narrate([
-            "Yvy: 'Made it. Now the good part.'"
+            "Yvy: 'Made it. Now the good part.'",
+            "Yvy: 'Anything out here with a magnifying glass over it, I can name. Go on, point at things.'",
+            "Yvy: 'And I want a picture at the overlook, by the bench, before we head down to the beach.'"
         ], () => {
             this.busy = false;
             this.player.isLocked = false;
-            this.instructionText.setText(`Take a picture at the overlook, then head down the Beach Trail (${actionLabel()})`);
+            this.instructionText.setText(`Explore the reserve, then take a picture at the overlook (${actionLabel()})`);
         })));
     }
 
@@ -617,12 +749,15 @@ export class TorreyPinesScene extends Phaser.Scene {
             playSound('whoosh');
             this.narrate([
                 "The beach under the cliffs was more rocks than sand: pebbles, cobbles, and boulders washed up all along it.",
-                "Yvy: 'Race you across the rocks to Flat Rock!'",
-                "Mike: 'You're on.'"
+                "Yvy: 'Race you to Flat Rock. Rock to rock — the sand is lava.'",
+                "Mike: 'Obviously.'",
+                "Yvy: 'Ready... set... GO!'"
             ], () => {
                 this.busy = false;
                 this.player.isLocked = false;
-                this.instructionText.setText(`Jump across the rocks to Flat Rock (${actionLabel()})`);
+                this.racing = true;
+                this.yvyFollow = false; // she is racing, not following
+                this.instructionText.setText(`Race across the rocks to Flat Rock (${actionLabel()})`);
             });
         }));
     }
@@ -645,19 +780,25 @@ export class TorreyPinesScene extends Phaser.Scene {
         if (this.hopping) return;
         const [rx, ry] = ROCKS[i];
         this.hopping = true;
+        this.hopped.add(i);
         this.player.isLocked = true;
         this.rockBlocks[i].body.enable = false;
         const from = { x: this.player.x, y: this.player.y };
+        const side = from.x <= rx ? 1 : -1;
         const top = { x: rx, y: ry - 18 };
-        const land = { x: rx + (from.x <= rx ? 42 : -42), y: ry + 22 };
+        const land = { x: rx + side * 42, y: ry + 22 };
         playSound('whoosh');
         this.yvyFollow = false;
-        this.tweens.add({ targets: this.yvy, y: this.yvy.y - 16, duration: 200, yoyo: true, delay: 150, ease: 'Sine.easeOut' });
+        if (this.racing) {
+            this.yvyHopTo(rx - side * 44, ry + 20, 500); // the far side of whichever rock he is on
+        } else {
+            this.tweens.add({ targets: this.yvy, y: this.yvy.y - 16, duration: 200, yoyo: true, delay: 150, ease: 'Sine.easeOut' });
+        }
         this.arc(from, top, 260, 20, () => this.time.delayedCall(220, () => this.arc(top, land, 260, 14, () => {
             this.rockBlocks[i].body.enable = true;
             this.player.isLocked = false;
             this.hopping = false;
-            this.yvyFollow = true;
+            if (!this.racing) this.yvyFollow = true;
         })));
     }
 
@@ -666,42 +807,60 @@ export class TorreyPinesScene extends Phaser.Scene {
         this.player.isLocked = true;
         this.yvyFollow = false;
         this.instructionText.setText('');
-        this.narrate([
-            "Flat Rock, sitting out in the surf with tide pools in its hollows.",
-            "Yvy: 'Look, a little crab! And anemones. Don't poke them.'",
-            "Mike: 'I wasn't going to poke them.'",
-            "Yvy: 'One more picture. On the rocks.'"
-        ], () => {
-            this.player.body.reset(548, 358);
-            this.player.setFlipX(false);
-            this.yvy.setPosition(576, 358).setFlipX(true);
-            this.time.delayedCall(600, () => {
-                this.cameras.main.flash(250, 255, 255, 255);
-                takePhoto({
-                    key: 'flatrock', title: 'Flat Rock',
-                    caption: "Down on the beach under the cliffs, sandy and out of breath.",
-                    window: 0xa8d4f0,
-                    sprites: [
-                        { rect: [180, 26], x: 0, y: -24, color: 0x3a86b8 },
-                        { rect: [180, 40], x: 0, y: 20, color: 0xe6d2a6 },
-                        { texture: 'flat_rock', x: 10, y: -4, scale: 0.9 },
-                        { texture: 'pebbles', x: -60, y: 30 },
-                        { texture: 'pebbles', x: 58, y: 32, flip: true },
-                        { texture: 'beach_rock', x: -62, y: 20, scale: 0.8 },
-                        { texture: 'mike_hike', x: -14, y: 12 },
-                        { texture: 'yvy_hike', x: 12, y: 12 }
-                    ]
-                });
-                this.narrate([
-                    "They stayed on the beach under the cliffs a long time, jumping from rock to rock, watching the waves come in.",
-                    "Yvy: 'Worth the hill?'",
-                    "Mike: 'Ask me again on the way back up.'"
-                ], () => {
-                    this.cameras.main.fadeOut(1200, 0, 0, 0);
-                    this.cameras.main.once('camerafadeoutcomplete', () => {
-                        stopMusic();
-                        this.scene.start('MisterAsScene');
-                    });
+        const opening = [];
+        if (this.racing) {
+            this.racing = false;
+            // Whoever actually took the rocks gets a hand on it first.
+            const overTheRocks = this.hopped.size >= 3;
+            opening.push(overTheRocks
+                ? "Mike came off the last rock a stride ahead and got a hand on Flat Rock first."
+                : "Yvy came across the rocks and touched Flat Rock first, while Mike was still down on the sand.");
+            opening.push(overTheRocks
+                ? "Yvy: 'Fine. You won. This time.'"
+                : "Yvy: 'Beat you! And you went round half of them!'");
+        }
+        this.narrate([...opening, "Flat Rock, sitting out in the surf with tide pools in its hollows."], () => {
+            this.showTidePools();
+            this.narrate([
+                "Yvy: 'Look — a little crab! And anemones, and a sea star. Don't poke them.'",
+                "Mike: 'I wasn't going to poke them.'",
+                "Yvy: 'One more picture. On the rocks.'"
+            ], () => this.rockPhoto());
+        });
+    }
+
+    /** The second picture: the two of them out on the rocks. */
+    rockPhoto() {
+        this.player.body.reset(548, 358);
+        this.player.setFlipX(false);
+        this.yvy.setPosition(576, 358).setFlipX(true);
+        this.time.delayedCall(600, () => {
+            this.cameras.main.flash(250, 255, 255, 255);
+            takePhoto({
+                key: 'flatrock', title: 'Flat Rock',
+                caption: "Down on the beach under the cliffs, sandy and out of breath.",
+                window: 0xa8d4f0,
+                sprites: [
+                    { rect: [180, 26], x: 0, y: -24, color: 0x3a86b8 },
+                    { rect: [180, 40], x: 0, y: 20, color: 0xe6d2a6 },
+                    { texture: 'flat_rock', x: 10, y: -4, scale: 0.9 },
+                    { texture: 'pebbles', x: -60, y: 30 },
+                    { texture: 'pebbles', x: 58, y: 32, flip: true },
+                    { texture: 'beach_rock', x: -62, y: 20, scale: 0.8 },
+                    { texture: 'crab', x: 26, y: 2, scale: 1.2 },
+                    { texture: 'mike_hike', x: -14, y: 12 },
+                    { texture: 'yvy_hike', x: 12, y: 12 }
+                ]
+            });
+            this.narrate([
+                "They stayed on the beach under the cliffs a long time, jumping from rock to rock, watching the waves come in.",
+                "Yvy: 'Worth the hill?'",
+                "Mike: 'Ask me again on the way back up.'"
+            ], () => {
+                this.cameras.main.fadeOut(1200, 0, 0, 0);
+                this.cameras.main.once('camerafadeoutcomplete', () => {
+                    stopMusic();
+                    this.scene.start('MisterAsScene');
                 });
             });
         });

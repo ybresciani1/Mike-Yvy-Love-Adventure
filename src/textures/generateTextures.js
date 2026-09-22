@@ -7675,6 +7675,117 @@ export function generateTextures(scene) {
         g.generateTexture('pebbles', 32, 16);
     }
     {
+        // A little magnifying glass, floating over anything Yvy can name.
+        g.clear();
+        g.lineStyle(2, 0xf2f2f2, 1);
+        g.strokeCircle(7, 6, 5);
+        g.fillStyle(0xbfe6f4, 0.6);
+        g.fillCircle(7, 6, 4);
+        drawPixel(5, 4, 0xffffff);
+        fillRect(9, 10, 2, 5, 0x8a6a44);
+        fillRect(9, 14, 3, 2, 0x6a4e30);
+        g.generateTexture('magnifier', 14, 16);
+    }
+    {
+        // Out on the mesa: a side-blotched lizard, an Anna's hummingbird, a quail.
+        g.clear();
+        fillRect(3, 3, 8, 3, 0x9a8460); // body
+        fillRect(3, 3, 8, 1, 0xb8a078);
+        fillRect(11, 3, 4, 2, 0x8a7454); // tail
+        fillRect(1, 3, 3, 2, 0x8a7454); // head
+        drawPixel(2, 3, 0x2a2a2a);
+        [[4, 6], [9, 6], [4, 1], [9, 1]].forEach(([x, y]) => fillRect(x, y, 2, 1, 0x7a6448)); // legs
+        [[5, 4], [8, 4]].forEach(([x, y]) => drawPixel(x, y, 0x4a3e2a)); // blotches
+        g.generateTexture('lizard', 16, 8);
+
+        g.clear();
+        fillRect(3, 3, 6, 4, 0x3a8a5a); // body
+        fillRect(3, 3, 6, 1, 0x5aaa7a);
+        fillRect(2, 4, 2, 2, 0xd0407a); // the male's pink throat
+        fillRect(0, 4, 3, 1, 0x2a2a2a); // bill
+        fillRect(6, 1, 5, 2, 0x2e6a48); // wing
+        fillRect(8, 5, 4, 2, 0x2e6a48); // tail
+        drawPixel(4, 3, 0x111111); // eye
+        g.generateTexture('hummingbird', 12, 10);
+
+        g.clear();
+        g.fillStyle(0x8a8f9a, 1);
+        g.fillEllipse(9, 9, 14, 11); // body
+        g.fillStyle(0xa8a294, 1);
+        g.fillEllipse(8, 8, 10, 7);
+        fillRect(4, 3, 5, 4, 0x2a2a2e); // black face
+        fillRect(4, 3, 5, 1, 0xf2f2ee); // white stripe
+        fillRect(6, 0, 2, 3, 0x2a2a2e); // the topknot comma
+        drawPixel(8, 0, 0x2a2a2e);
+        drawPixel(5, 5, 0xf2f2ee); // eye
+        fillRect(3, 5, 2, 1, 0x4a4a4a); // bill
+        for (let x = 10; x < 16; x += 2) fillRect(x, 10, 1, 4, 0x6a6a70); // barred flank
+        fillRect(7, 14, 2, 2, 0x8a7454); // legs
+        fillRect(11, 14, 2, 2, 0x8a7454);
+        g.generateTexture('quail', 18, 16);
+    }
+    {
+        // Our Lord's candle: a rosette of blades and one tall flower spike.
+        g.clear();
+        g.lineStyle(2, 0x7a9a7a, 1);
+        [[2, 22], [8, 16], [14, 14], [20, 16], [28, 20], [4, 30], [26, 30], [10, 20], [22, 20]]
+            .forEach(([x, y]) => g.lineBetween(17, 42, x, y));
+        g.lineStyle(1, 0x9ab89a, 1);
+        [[6, 26], [24, 26]].forEach(([x, y]) => g.lineBetween(17, 42, x, y));
+        fillRect(16, 2, 2, 22, 0x9a8a5a); // the spike
+        [[13, 4], [19, 6], [12, 10], [20, 12], [14, 16], [19, 18]].forEach(([x, y]) => {
+            g.fillStyle(0xf2ecd8, 1);
+            g.fillCircle(x, y, 2);
+        });
+        g.generateTexture('yucca', 34, 44);
+
+        g.clear(); // lemonade berry: a rounded green shrub with sticky red berries
+        [[10, 18, 9], [22, 14, 11], [32, 19, 8], [16, 22, 7], [27, 23, 7]].forEach(([x, y, r], i) => {
+            g.fillStyle(i % 2 ? 0x2e6a3e : 0x3e7a4e, 1);
+            g.fillCircle(x, y, r);
+        });
+        for (let i = 0; i < 12; i++) {
+            const x = 5 + (i * 13 + i * i * 3) % 30, y = 7 + (i * 7 + i * i) % 16;
+            fillRect(x, y, 2, 2, i % 3 ? 0xc8402a : 0xe8604a);
+        }
+        g.generateTexture('lemonade_berry', 40, 28);
+    }
+    {
+        // In the tide pools on Flat Rock: a crab, anemones, a sea star.
+        g.clear();
+        g.fillStyle(0xd85a3a, 1);
+        g.fillEllipse(7, 6, 10, 6); // shell
+        g.fillStyle(0xf07a5a, 1);
+        g.fillEllipse(7, 5, 8, 3);
+        fillRect(0, 3, 3, 2, 0xd85a3a); // claws
+        fillRect(11, 3, 3, 2, 0xd85a3a);
+        fillRect(1, 2, 2, 2, 0xf07a5a);
+        fillRect(11, 2, 2, 2, 0xf07a5a);
+        [[3, 8], [6, 9], [9, 9], [11, 8]].forEach(([x, y]) => fillRect(x, y, 1, 2, 0xb8442a)); // legs
+        drawPixel(5, 3, 0x1a1a1a); // eyes
+        drawPixel(9, 3, 0x1a1a1a);
+        g.generateTexture('crab', 14, 10);
+
+        g.clear();
+        fillRect(3, 4, 6, 6, 0x4a8a6a); // column
+        fillRect(3, 4, 6, 1, 0x6aaa8a);
+        for (let x = 1; x < 12; x += 2) fillRect(x, 1, 1, 4, 0xe87a9a); // tentacles
+        for (let x = 2; x < 11; x += 2) fillRect(x, 2, 1, 3, 0xf2a0b8);
+        g.generateTexture('anemone', 12, 10);
+
+        g.clear();
+        g.fillStyle(0xe88a3a, 1);
+        for (let i = 0; i < 5; i++) { // five arms
+            const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+            g.fillTriangle(7, 7, 7 + Math.cos(a - 0.4) * 4, 7 + Math.sin(a - 0.4) * 4,
+                7 + Math.cos(a) * 7, 7 + Math.sin(a) * 7);
+        }
+        g.fillStyle(0xf2a85a, 1);
+        g.fillCircle(7, 7, 3);
+        [[5, 5], [9, 6], [6, 9]].forEach(([x, y]) => drawPixel(x, y, 0xc06a2a));
+        g.generateTexture('sea_star', 14, 14);
+    }
+    {
         // A table lamp with a fringed fabric shade.
         g.clear();
         g.fillStyle(0xf6e8c4, 1);
