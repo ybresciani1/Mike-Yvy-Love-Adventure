@@ -53,9 +53,9 @@ const FINDS = [
             "A round green shrub, dotted all over with sticky red berries.",
             "Yvy: 'Lemonade berry. People used to soak the berries in water and drink it.'",
             "Mike: 'Is it good?'",
-            "Yvy: 'It's sour. Don't.'"
+            "Yvy: 'You can suck on one and spit it out — don't chew it — but we're in a reserve, so let's leave them alone.'"
         ],
-        again: "Yvy: 'Still don't eat them.'"
+        again: "Yvy: 'Leave the berries be. Reserve rules.'"
     },
     {
         image: ['lizard', 598, 520, 1.2], under: ['beach_rock_small', 600, 528, 1.2],
