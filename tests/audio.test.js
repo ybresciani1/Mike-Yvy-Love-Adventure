@@ -117,3 +117,26 @@ describe('music themes', () => {
         }
     });
 });
+
+describe('the volume control', () => {
+    it('turns the whole game down through one gain node, and remembers the setting', async () => {
+        const { masterGain, setVolume, setMuted, isMuted, getVolume } = await import('../src/audio/context.js');
+        setVolume(0.4);
+        expect(getVolume()).toBe(0.4);
+        expect(masterGain().gain.value).toBe(0.4);
+
+        setMuted(true);
+        expect(isMuted()).toBe(true);
+        expect(masterGain().gain.value).toBe(0);
+
+        setMuted(false);
+        expect(masterGain().gain.value).toBe(0.4);
+        expect(JSON.parse(localStorage.getItem('mikeyvy.audio'))).toEqual({ volume: 0.4, muted: false });
+    });
+
+    it('counts a slider dragged to zero as muted', async () => {
+        const { setVolume, isMuted } = await import('../src/audio/context.js');
+        setVolume(0);
+        expect(isMuted()).toBe(true);
+    });
+});

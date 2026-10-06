@@ -63,6 +63,7 @@ src/audio/sfx.js         playSound
 src/audio/music.js       play*Theme, stopMusic, fadeOutMusic
 src/ui/dialogue.js       showDialogue, isDialogueOpen, portraitFor
 src/ui/touch.js          phone controls: the on-screen pad, and fitting the frame to the screen
+src/ui/audioControls.js  the speaker in the corner: mute and volume, in every scene
 src/entities/Player.js   the movable character
 src/entities/solids.js   addSolid — furniture the player walks around rather than over
 src/textures/            generateTextures — all ~96 sprites, drawn in code
@@ -155,6 +156,17 @@ lighter than its texture needs a new texture (`sidewalk_slab` exists because
 
 ### Audio
 No audio files. `playSound(type)` builds one-shot oscillators for SFX. Each `play*Theme()` holds a melody array and schedules notes via a recursive `playNote(idx)` with `setTimeout`, pushing nodes onto the module-level `currentMusicNodes`; `stopMusic()` / `fadeOutMusic(duration)` tear that list down. **Scenes must call `stopMusic()` before starting a scene with a different theme**, otherwise themes overlap — this is done inline at transition points, not automatically. The AudioContext is created lazily on first sound, since browsers suspend one created before a user gesture.
+
+**One gain node carries the lot.** `masterGain()` in `audio/context.js` sits between
+every oscillator and the speakers, and `src/ui/audioControls.js` drives it from a
+mute button and a volume slider in `index.html` — outside `#game-container`, like the
+phone controls, so it stays readable however far the frame is scaled down, and
+DOM rather than Phaser, so it is on screen in every scene with no per-scene
+wiring. The setting is kept in `localStorage` (wrapped in try/catch: a private
+window can refuse). Both controls hand focus straight back, and a key pressed
+while they still have it is let through to the game — otherwise SPACE would
+press the button again instead of advancing a line, and the arrow keys would
+move the slider instead of the player.
 
 **A phone makes no sound until it is touched, and the permission lasts only as
 long as the gesture.** `playSound`'s own `resume()` is not enough on its own:

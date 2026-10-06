@@ -1,11 +1,11 @@
-import { audioCtx } from './context.js';
+import { audioCtx, masterGain } from './context.js';
 
 export function playSound(type) {
     if (audioCtx().state === 'suspended') audioCtx().resume();
     const osc = audioCtx().createOscillator();
     const gain = audioCtx().createGain();
     osc.connect(gain);
-    gain.connect(audioCtx().destination);
+    gain.connect(masterGain());
     const now = audioCtx().currentTime;
     
     if (type === 'text') {
@@ -148,7 +148,7 @@ export function playSound(type) {
         filter.frequency.value = 1000;
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         gain.gain.setValueAtTime(0.1, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
         noise.start(now);

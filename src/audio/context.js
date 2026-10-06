@@ -94,3 +94,67 @@ function ping(context) {
         // Older webkit: the resume on its own will have to do.
     }
 }
+
+// --- the volume control --------------------------------------------------------
+// Every sound and every note goes through one gain node on its way out, so the
+// speaker button in the corner can turn the whole game down or off without any
+// scene knowing about it. The setting is remembered between visits.
+
+const SETTINGS_KEY = 'mikeyvy.audio';
+let master = null;
+let volume = 0.7;
+let muted = false;
+
+(() => {
+    try {
+        const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+        if (saved && typeof saved.volume === 'number') volume = Math.min(1, Math.max(0, saved.volume));
+        if (saved && typeof saved.muted === 'boolean') muted = saved.muted;
+    } catch {
+        // A private window, or storage turned off: the defaults will do.
+    }
+})();
+
+function remember() {
+    try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, muted }));
+    } catch {
+        // Nothing to be done; the setting lasts as long as the page does.
+    }
+}
+
+/** The node every sound connects to instead of the speakers. */
+export function masterGain() {
+    const ctx = audioCtx();
+    if (!master) {
+        master = ctx.createGain();
+        master.connect(ctx.destination);
+    }
+    master.gain.value = muted ? 0 : volume;
+    return master;
+}
+
+function apply() {
+    if (master) master.gain.value = muted ? 0 : volume;
+}
+
+export function getVolume() {
+    return volume;
+}
+
+export function setVolume(next) {
+    volume = Math.min(1, Math.max(0, next));
+    if (volume > 0) muted = false;
+    apply();
+    remember();
+}
+
+export function isMuted() {
+    return muted || volume === 0;
+}
+
+export function setMuted(next) {
+    muted = next;
+    apply();
+    remember();
+}

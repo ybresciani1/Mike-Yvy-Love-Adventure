@@ -279,3 +279,52 @@ body.touch-mode .outfit-btn {
     padding: 20px;
     font-size: 28px;
 }
+
+/* --- the sound control ---------------------------------------------------- */
+/* Outside the scaled frame, so it stays the same size on a phone as on a desk. */
+#audio-controls {
+    position: fixed;
+    top: 10px;
+    right: 12px;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border: 2px solid #8b4513;
+    border-radius: 4px;
+    background: rgba(20, 16, 12, 0.82);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#audio-toggle {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1;
+    color: #e1c699;
+    cursor: pointer;
+}
+
+#audio-controls.muted #audio-toggle {
+    opacity: 0.55;
+}
+
+#audio-volume {
+    width: 74px;
+    accent-color: #e1c699;
+    cursor: pointer;
+}
+
+@media (max-width: 560px) {
+    #audio-controls {
+        top: 6px;
+        right: 6px;
+        padding: 3px 6px;
+    }
+
+    #audio-volume {
+        width: 54px;
+    }
+}

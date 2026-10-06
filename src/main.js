@@ -3,6 +3,7 @@ import './styles.css';
 import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 import { SCENES } from './scenes/index.js';
 import { installTouchControls } from './ui/touch.js';
+import { installAudioControls } from './ui/audioControls.js';
 import { installAudioUnlock } from './audio/context.js';
 
 // A phone makes no sound until the player touches the screen, and the permission
@@ -27,6 +28,11 @@ export const game = new Phaser.Game(gameConfig);
 // action button on it. Both feed the game synthetic arrow and SPACE events, so
 // the scenes never learn the difference.
 installTouchControls(game);
+
+// Sound: a mute button and a volume slider in the corner, on screen in every
+// scene. Everything the game plays goes through one gain node, so this turns the
+// whole lot down without any scene knowing about it.
+installAudioControls();
 
 // Developer tools: the chapter-select overlay (press `) and the window.gotoScene
 // console helper. Vite substitutes `false` for import.meta.env.DEV in a

@@ -43,6 +43,13 @@
     <!-- On-screen controls for phones. Hidden until src/ui/touch.js decides the
          game is being played with fingers; they sit outside #game-container so
          they stay thumb-sized while the game itself scales to the screen. -->
+    <!-- Sound: on screen in every scene. Outside #game-container like the phone
+         controls, so it stays readable however far the frame is scaled down. -->
+    <div id="audio-controls">
+        <button id="audio-toggle" type="button" aria-label="Mute or unmute the game">&#128266;</button>
+        <input id="audio-volume" type="range" min="0" max="100" step="5" value="70" aria-label="Volume">
+    </div>
+
     <div id="touch-controls" aria-hidden="true">
         <div id="touch-pad">
             <span class="pad-arrow pad-up" data-dir="up">&#9650;</span>

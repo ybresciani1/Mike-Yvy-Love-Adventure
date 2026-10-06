@@ -1,4 +1,4 @@
-import { audioCtx, onAudioUnlock } from './context.js';
+import { audioCtx, masterGain, onAudioUnlock } from './context.js';
 
 // --- Music Themes ---
 let currentMusicNodes = [];
@@ -80,7 +80,7 @@ export function playAirportTheme() {
         osc.type = 'triangle';
         osc.frequency.value = note.f;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         osc.stop(now + note.d * 0.9);
         gain.gain.setValueAtTime(0.02, now); // Very quiet
@@ -92,7 +92,7 @@ export function playAirportTheme() {
             noise.type = 'sawtooth';
             noise.frequency.value = 50 + Math.random() * 100;
             noise.connect(nGain);
-            nGain.connect(audioCtx().destination);
+            nGain.connect(masterGain());
             nGain.gain.setValueAtTime(0.005, now);
             nGain.gain.linearRampToValueAtTime(0, now + 0.5);
             noise.start(now);
@@ -117,7 +117,7 @@ export function playRomanticTheme() {
         osc.frequency.value = f;
         osc.detune.value = (Math.random() - 0.5) * 10;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(0.03, now + 5);
@@ -150,7 +150,7 @@ export function playBlueTheme() {
         osc.type = 'sine';
         osc.frequency.value = f;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(0.05, now + 2);
@@ -166,7 +166,7 @@ export function playBlueTheme() {
         osc.type = 'triangle'; // Softer, dreamy sound
         osc.frequency.value = note.f;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         osc.stop(now + note.d * 0.95);
         
@@ -200,7 +200,7 @@ export function playConferenceTheme() {
         osc.type = 'square';
         osc.frequency.value = note.f;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         osc.stop(now + note.d * 0.9);
         gain.gain.setValueAtTime(0.05, now);
@@ -228,7 +228,7 @@ export function playDreamworksTheme() {
         osc.type = 'triangle'; 
         osc.frequency.value = note.f;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         osc.stop(now + note.d * 0.95);
         gain.gain.setValueAtTime(0.08, now);
@@ -254,7 +254,7 @@ export function playBattleTheme() {
         osc.type = 'sawtooth'; 
         osc.frequency.value = note.f;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         osc.stop(now + note.d * 0.8);
         gain.gain.setValueAtTime(0.05, now);
@@ -294,7 +294,7 @@ export function playLeFestinTheme() {
         osc.type = 'sine'; 
         osc.frequency.value = note.f;
         osc.connect(gain);
-        gain.connect(audioCtx().destination);
+        gain.connect(masterGain());
         osc.start(now);
         osc.stop(now + note.d * 0.95);
         
@@ -308,7 +308,7 @@ export function playLeFestinTheme() {
             chordOsc.type = 'triangle';
             chordOsc.frequency.value = note.f / 2; 
             chordOsc.connect(chordGain);
-            chordGain.connect(audioCtx().destination);
+            chordGain.connect(masterGain());
             chordOsc.start(now);
             chordOsc.stop(now + 0.3);
             chordGain.gain.setValueAtTime(0.05, now);
